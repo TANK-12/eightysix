@@ -36,7 +36,7 @@ func test_apply_reaches_viewport_and_environment() -> void:
 	tree.root.add_child(cam)
 	Settings.set_value("graphics.preset", "low", false)
 	Graphics.apply()
-	assert_almost_eq(tree.root.scaling_3d_scale, 0.67, 0.001)
+	assert_almost_eq(tree.root.scaling_3d_scale, 0.65, 0.001)
 	assert_false(holder.environment.volumetric_fog_enabled)
 	assert_eq(cam.far, 600.0)
 	Settings.set_value("graphics.preset", "ultra", false)

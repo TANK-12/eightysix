@@ -15,6 +15,7 @@
       "stiffness_n_per_m_per_t": 48000.0,
       "damping_ratio": 0.55,
       "ray_margin_m": 1.2,
+      "load_margin_m": 0.05,
       "crouch_fraction": 0.45,
       "crouch_speed": 3.0,
       "pitch_aim_m": 0.55

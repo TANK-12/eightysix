@@ -188,7 +188,12 @@ static func frame_stats(frames: Array, label: String) -> Dictionary:
 	for f: float in frames:
 		total += f
 	var avg_ms := total / frames.size() * 1000.0
-	var p99: float = sorted[mini(int(ceil(sorted.size() * 0.99)) - 1, sorted.size() - 1)]
+	# 1% low: the average of the slowest 1% of frames (at least one frame).
+	var slow_count := maxi(1, int(sorted.size() * 0.01))
+	var slow_total := 0.0
+	for i in slow_count:
+		slow_total += float(sorted[sorted.size() - 1 - i])
+	var p1_low: float = slow_total / slow_count
 	var worst: float = sorted[sorted.size() - 1]
 	return {
 		"label": label,
@@ -196,7 +201,7 @@ static func frame_stats(frames: Array, label: String) -> Dictionary:
 		"seconds": snappedf(total, 0.01),
 		"avg_fps": snappedf(frames.size() / maxf(total, 0.0001), 0.1),
 		"frame_ms_avg": snappedf(avg_ms, 0.01),
-		"p1_low_fps": snappedf(1.0 / maxf(p99, 0.0001), 0.1),
+		"p1_low_fps": snappedf(1.0 / maxf(p1_low, 0.0001), 0.1),
 		"min_fps": snappedf(1.0 / maxf(worst, 0.0001), 0.1),
 	}
 

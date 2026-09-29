@@ -44,7 +44,7 @@ func test_schemes_swap_the_input_map() -> void:
 	assert_eq(InputMap.action_get_events("leg_lift_fl").size(), 0, "hardcore actions empty in standard")
 	Controls.apply_scheme("hardcore")
 	assert_gt(InputMap.action_get_events("leg_lift_fl").size(), 0)
-	var fire_pad := Controls.bindings("fire_main", "hardcore")["pad"]
+	var fire_pad: Array = Controls.bindings("fire_main", "hardcore")["pad"]
 	assert_eq(fire_pad, ["joy:square"], "shoulders belong to the legs in hardcore")
 	assert_eq(InputMap.action_get_events("move_forward").size(), 0)
 

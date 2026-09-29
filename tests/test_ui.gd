@@ -51,4 +51,4 @@ func test_themes_switch_live() -> void:
 	UiTheme.apply("spearhead_field")
 	assert_ne(UiTheme.color("accent"), a)
 	assert_ne(tree.root.theme, theme_a)
-	assert_true(tree.root.theme.has_stylebox("normal", "MenuButton"))
+	assert_true(tree.root.theme.has_stylebox("normal", "MainMenuButton"))

@@ -185,6 +185,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var tilt := tan(deg_to_rad(aim_pitch_deg)) * span * 0.5
 	_no_spring_s = maxf(_no_spring_s - dt, 0.0)
 
+	var load_margin := float(sus.get("load_margin_m", 0.05))
 	grounded_legs = 0
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
@@ -193,16 +194,23 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		rest += tilt if leg["front"] else -tilt
 		var query := PhysicsRayQueryParameters3D.create(hip_w, hip_w - up * (rest + margin), RAY_MASK, [get_rid()])
 		var hit := space.intersect_ray(query)
+		# The long ray only places the feet; a leg carries load (and counts as grounded) when the
+		# ground is within its rest length plus a few centimetres, or, after a launch, only once
+		# it is actually compressed again. So a mech just off the ground cannot drive or steer.
 		leg["contact"] = not hit.is_empty()
+		leg["loaded"] = false
 		if hit.is_empty():
 			continue
-		grounded_legs += 1
 		var hit_pos: Vector3 = hit["position"]
 		leg["hit"] = hit_pos
+		var compression := rest - hip_w.distance_to(hit_pos)
+		if compression < (0.0 if airborne else -load_margin):
+			continue
+		leg["loaded"] = true
+		grounded_legs += 1
 		normal_sum += hit["normal"]
 		if _no_spring_s > 0.0:
 			continue
-		var compression := rest - hip_w.distance_to(hit_pos)
 		var point_v := v + w.cross(hip_w - com_world)
 		var force := k * compression - c * point_v.dot(up)
 		if force > 0.0:

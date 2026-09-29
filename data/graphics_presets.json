@@ -5,7 +5,7 @@
       "label": "Low",
       "order": 1,
       "target_fps": 60,
-      "resolution_scale": 0.67,
+      "resolution_scale": 0.65,
       "upscaler": "fsr1",
       "msaa": "off",
       "screen_aa": "fxaa",

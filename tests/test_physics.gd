@@ -1,17 +1,10 @@
 extends "res://tests/lib/test_case.gd"
 ## The stand-in on real Jolt physics, headless: it stands, walks, charge-jumps with no air control,
-## lands, and does not fall through the test range's terrain. Time runs 4x to keep this quick.
+## lands, and does not fall through the test range's terrain. tools/run_tests.sh passes
+## --fixed-fps 120, so 120 physics frames are exactly 1 s of game time at the game's own step.
 
 var ground: StaticBody3D
 var mech: RigidBody3D
-
-
-func before_all() -> void:
-	Engine.time_scale = 4.0
-
-
-func after_all() -> void:
-	Engine.time_scale = 1.0
 
 
 func before_each() -> void:
@@ -83,8 +76,11 @@ func test_bench_mode_is_slow() -> void:
 	var start := mech.global_position
 	Input.action_press("move_forward", 1.0)
 	await physics_frames(360)
-	var moved := start.distance_to(mech.global_position)
-	assert_lt(moved, 4.0, "real actuators walk at a crawl")
+	var moved := _flat(mech.global_position - start)
+	var cap := float(mech.get("_bench_speed_cap"))
+	assert_between(cap, 0.3, 2.0, "bench speed cap comes from the actuators")
+	assert_lt(moved, cap * 3.0 + 0.2, "real actuators walk at a crawl")
+	assert_gt(moved, 0.5, "but they do walk")
 
 
 func test_test_range_holds_the_mech_up() -> void:
@@ -106,3 +102,7 @@ func test_test_range_holds_the_mech_up() -> void:
 	tree.root.add_child(ground)
 	tree.root.add_child(mech)
 	Game.level = null
+
+
+func _flat(v: Vector3) -> float:
+	return Vector2(v.x, v.z).length()

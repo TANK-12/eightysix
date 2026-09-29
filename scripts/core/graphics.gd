@@ -185,7 +185,9 @@ func _on_node_added(node: Node) -> void:
 		_apply_new_node.call_deferred(node)
 
 
-func _apply_new_node(node: Node) -> void:
+## Untyped on purpose: a node freed before this deferred call runs arrives as a freed Object,
+## which a typed Node argument rejects before the validity check can run.
+func _apply_new_node(node: Variant) -> void:
 	if not is_instance_valid(node):
 		return
 	if node.is_in_group("world_environment"):

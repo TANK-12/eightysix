@@ -62,7 +62,7 @@ func test_enemies_weapons_and_maps_resolve() -> void:
 
 
 func test_themes_complete_and_fonts_exist() -> void:
-	var colour_keys := Registry.entry("themes", "handler_console")["colors"].keys()
+	var colour_keys: Array = Registry.entry("themes", "handler_console")["colors"].keys()
 	for id in Registry.ids("themes"):
 		var t := Registry.entry("themes", id)
 		for key: String in colour_keys:
@@ -79,7 +79,10 @@ func test_presets_cover_every_preset_setting() -> void:
 		for id in Registry.ids("graphics_presets"):
 			var preset := Registry.entry("graphics_presets", id)
 			assert_has(preset, field, id + " lacks " + field)
-			assert_not_null(Settings.sanitise(key, preset[field]), "%s.%s = %s is not a valid %s" % [id, field, str(preset[field]), key])
+			var clean: Variant = Settings.sanitise(key, preset[field])
+			assert_not_null(clean, "%s.%s = %s is not a valid %s" % [id, field, str(preset[field]), key])
+			# A preset value the settings would snap or clamp can never "match" its own preset.
+			assert_true(Settings._same(clean, preset[field]), "%s.%s = %s snaps to %s" % [id, field, str(preset[field]), str(clean)])
 
 
 func test_rumble_categories_have_sliders() -> void:

@@ -7,4 +7,6 @@ GODOT="${GODOT:-godot}"
 if [ ! -d "$ROOT/.godot/imported" ]; then
 	"$GODOT" --headless --path "$ROOT" --import >/dev/null 2>&1
 fi
-exec "$GODOT" --headless --path "$ROOT" res://tests/runner.tscn -- "$@"
+# --fixed-fps 120: every frame advances exactly one 1/120 s physics tick and headless runs them as
+# fast as the CPU allows, so physics tests step exactly like the game (no time_scale tricks).
+exec "$GODOT" --headless --fixed-fps 120 --path "$ROOT" res://tests/runner.tscn -- "$@"
