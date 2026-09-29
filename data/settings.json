@@ -1,0 +1,238 @@
+{
+  "_about": "Every player setting and where it sits in the menus: sections > pages (sub-menus) > groups > items. Settings (scripts/core/settings.gd) takes defaults from here and saves changes to user://settings.cfg; the settings screen is drawn from this file, so a new setting is one item here plus the code that reads it. Item types: choice (options as [value, label] pairs, or options_from a registry), toggle, slider (min, max, step, format), keybinds (a generated bindings table for a scheme), button (runs an action), info (text only). \"preset_field\" ties a graphics item to graphics_presets.json. \"visible_if\" hides an item or page until a toggle is on. \"generate\": \"audio_buses\" makes one volume slider per bus in sounds.json. Formats: percent, x, deg, m, s, int, float, db.",
+  "sections": [
+    {
+      "id": "graphics",
+      "label": "Graphics",
+      "pages": [
+        {"id": "quality", "label": "Quality", "groups": [
+          {"label": "Preset", "items": [
+            {"key": "graphics.preset", "label": "Quality preset", "type": "choice", "options_from": "graphics_presets", "extra_options": [["custom", "Custom"]], "default": "medium",
+             "help": "Low aims for 60 fps on this laptop, Medium 45, High 30. Ultra is for stronger hardware. Changing any single setting below makes this Custom."}
+          ]},
+          {"label": "Display", "items": [
+            {"key": "graphics.window_mode", "label": "Window", "type": "choice", "options": [["fullscreen", "Fullscreen"], ["borderless", "Borderless window"], ["windowed", "Window"]], "default": "fullscreen", "help": "Fullscreen gives the steadiest frame pacing."},
+            {"key": "graphics.vsync", "label": "Vertical sync", "type": "choice", "options": [["on", "On"], ["adaptive", "Adaptive"], ["mailbox", "Mailbox (low latency)"], ["off", "Off"]], "default": "on", "help": "Off shows the true frame rate but can tear."},
+            {"key": "graphics.fps_cap", "label": "Frame rate cap", "type": "choice", "options": [[0, "No cap"], [30, "30"], [45, "45"], [60, "60"], [90, "90"], [120, "120"], [144, "144"]], "default": 0, "help": "A cap below what the laptop can hold keeps it cooler and smoother."},
+            {"key": "graphics.resolution_scale", "label": "Render resolution", "type": "slider", "min": 0.5, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.8, "preset_field": "resolution_scale", "help": "The 3D scene renders at this share of the screen and is scaled up. Menus and the HUD stay sharp."},
+            {"key": "graphics.upscaler", "label": "Upscaler", "type": "choice", "options": [["bilinear", "Bilinear"], ["fsr1", "AMD FSR 1"], ["fsr2", "AMD FSR 2 (heavier)"]], "default": "fsr1", "preset_field": "upscaler", "help": "How the lower render resolution is scaled to the screen. FSR 2 also smooths edges but costs more."},
+            {"key": "graphics.brightness", "label": "Brightness", "type": "slider", "min": 0.7, "max": 1.3, "step": 0.02, "format": "x", "default": 1.0, "help": "Scene brightness. Menus are not affected."},
+            {"key": "graphics.show_fps", "label": "Frame rate counter", "type": "choice", "options": [["off", "Off"], ["fps", "Frames per second"], ["full", "Frames per second and frame time"]], "default": "off", "help": "F3 toggles it in game."}
+          ]}
+        ]},
+        {"id": "lighting", "label": "Lighting and shadows", "groups": [
+          {"label": "Global illumination", "items": [
+            {"key": "graphics.sdfgi", "label": "Bounced light (SDFGI)", "type": "toggle", "default": false, "preset_field": "sdfgi", "help": "Light bouncing off terrain and walls. Beautiful and expensive."},
+            {"key": "graphics.ssil", "label": "Screen-space bounce light", "type": "toggle", "default": false, "preset_field": "ssil", "help": "Fine local bounce light from what is on screen."}
+          ]},
+          {"label": "Shadows", "items": [
+            {"key": "graphics.shadow_size", "label": "Sun shadow resolution", "type": "choice", "options": [[1024, "1024"], [2048, "2048"], [4096, "4096"], [8192, "8192"]], "default": 2048, "preset_field": "shadow_size", "help": "Sharper sun shadows cost video memory and time."},
+            {"key": "graphics.shadow_filter", "label": "Shadow softness", "type": "choice", "options": [[0, "Hard"], [1, "Soft (very low)"], [2, "Soft (low)"], [3, "Soft (medium)"], [4, "Soft (high)"], [5, "Soft (ultra)"]], "default": 1, "preset_field": "shadow_filter", "help": "Softer shadow edges take more samples."},
+            {"key": "graphics.shadow_distance", "label": "Shadow distance", "type": "slider", "min": 40.0, "max": 320.0, "step": 10.0, "format": "m", "default": 100.0, "preset_field": "shadow_distance", "help": "How far away things still cast sun shadows."}
+          ]},
+          {"label": "Screen space", "items": [
+            {"key": "graphics.ssao", "label": "Ambient occlusion", "type": "toggle", "default": true, "preset_field": "ssao", "help": "Contact shadows in creases and under the mech."},
+            {"key": "graphics.ssr", "label": "Screen-space reflections", "type": "toggle", "default": false, "preset_field": "ssr", "help": "Reflections on water and wet metal from what is on screen."}
+          ]}
+        ]},
+        {"id": "atmosphere", "label": "Atmosphere", "groups": [
+          {"label": "Fog", "items": [
+            {"key": "graphics.volumetric_fog", "label": "Volumetric fog", "type": "toggle", "default": true, "preset_field": "volumetric_fog", "help": "Light shafts and fog that the sun and lamps light up."},
+            {"key": "graphics.fog_volume_size", "label": "Fog detail (width)", "type": "choice", "options": [[48, "48"], [64, "64"], [96, "96"], [128, "128"], [160, "160"]], "default": 64, "preset_field": "fog_volume_size", "help": "Fog grid resolution across the screen."},
+            {"key": "graphics.fog_volume_depth", "label": "Fog detail (depth)", "type": "choice", "options": [[48, "48"], [64, "64"], [96, "96"], [128, "128"]], "default": 64, "preset_field": "fog_volume_depth", "help": "Fog grid slices into the distance."}
+          ]},
+          {"label": "Sky and glow", "items": [
+            {"key": "graphics.clouds", "label": "Clouds", "type": "choice", "options": [["off", "Off"], ["low", "Low"], ["high", "High"]], "default": "low", "preset_field": "clouds", "help": "Volumetric cloud quality (maps from lane B3 on)."},
+            {"key": "graphics.glow", "label": "Glow", "type": "toggle", "default": true, "preset_field": "glow", "help": "Bloom on bright muzzle flashes, lamps and the sun."}
+          ]}
+        ]},
+        {"id": "image", "label": "Image quality", "groups": [
+          {"label": "Anti-aliasing", "items": [
+            {"key": "graphics.msaa", "label": "Multisample AA", "type": "choice", "options": [["off", "Off"], ["2x", "2x"], ["4x", "4x"]], "default": "off", "preset_field": "msaa", "help": "Clean geometry edges. Costly on this GPU."},
+            {"key": "graphics.screen_aa", "label": "Screen AA", "type": "choice", "options": [["off", "Off"], ["fxaa", "FXAA (fast)"], ["taa", "TAA (smooth, can ghost)"]], "default": "fxaa", "preset_field": "screen_aa", "help": "Smooths edges after the frame is drawn."}
+          ]},
+          {"label": "Textures", "items": [
+            {"key": "graphics.anisotropic", "label": "Texture filtering", "type": "choice", "options": [[0, "Off"], [1, "2x"], [2, "4x"], [3, "8x"], [4, "16x"]], "default": 2, "preset_field": "anisotropic", "help": "Keeps ground textures sharp at shallow angles."}
+          ]}
+        ]},
+        {"id": "world", "label": "World detail", "groups": [
+          {"label": "Distance and detail", "items": [
+            {"key": "graphics.draw_distance", "label": "Draw distance", "type": "slider", "min": 300.0, "max": 3000.0, "step": 100.0, "format": "m", "default": 1000.0, "preset_field": "draw_distance", "help": "How far the world is drawn."},
+            {"key": "graphics.lod_bias", "label": "Model detail threshold", "type": "slider", "min": 0.25, "max": 4.0, "step": 0.25, "format": "x", "default": 1.5, "preset_field": "lod_bias", "help": "Lower keeps full-detail models further away."},
+            {"key": "graphics.foliage_density", "label": "Grass and shrub density", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.6, "preset_field": "foliage_density", "help": "Share of scattered grass, shrubs and small rocks drawn."}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "id": "controls",
+      "label": "Controls",
+      "pages": [
+        {"id": "bindings", "label": "Bindings", "groups": [
+          {"label": "Standard layout", "items": [
+            {"key": "controls.bindings_standard", "label": "Bindings", "type": "keybinds", "scheme": "standard", "help": "Pick a slot, then press the new key, mouse button or pad button. Escape cancels, Delete clears the slot."},
+            {"key": "controls.reset_standard", "label": "Reset standard bindings", "type": "button", "action": "reset_bindings:standard", "help": "Puts every standard binding back to its default."}
+          ]}
+        ]},
+        {"id": "sticks", "label": "Sticks and triggers", "groups": [
+          {"label": "Movement stick", "items": [
+            {"key": "controls.move_inner", "label": "Inner dead zone", "type": "slider", "min": 0.0, "max": 0.4, "step": 0.01, "format": "percent", "default": 0.12, "help": "Stick movement inside this is ignored (stops drift)."},
+            {"key": "controls.move_outer", "label": "Outer dead zone", "type": "slider", "min": 0.7, "max": 1.0, "step": 0.01, "format": "percent", "default": 0.95, "help": "Past this the stick counts as fully pushed."},
+            {"key": "controls.move_curve", "label": "Response curve", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 1.5, "help": "1 is linear. Higher gives finer control near the centre, lower gives a quicker start."}
+          ]},
+          {"label": "Aim stick", "items": [
+            {"key": "controls.aim_inner", "label": "Inner dead zone", "type": "slider", "min": 0.0, "max": 0.4, "step": 0.01, "format": "percent", "default": 0.1, "help": "Stick movement inside this is ignored."},
+            {"key": "controls.aim_outer", "label": "Outer dead zone", "type": "slider", "min": 0.7, "max": 1.0, "step": 0.01, "format": "percent", "default": 0.95, "help": "Past this the stick counts as fully pushed."},
+            {"key": "controls.aim_curve", "label": "Response curve", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 2.0, "help": "Higher makes small aim corrections easier."},
+            {"key": "controls.aim_speed", "label": "Turn speed", "type": "slider", "min": 0.3, "max": 2.0, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales how fast the stick turns the chassis."},
+            {"key": "controls.aim_invert_y", "label": "Invert body tilt", "type": "toggle", "default": false, "help": "Push up to tilt the body down."}
+          ]},
+          {"label": "Triggers", "items": [
+            {"key": "controls.trigger_inner", "label": "Trigger dead zone", "type": "slider", "min": 0.0, "max": 0.3, "step": 0.01, "format": "percent", "default": 0.05, "help": "Trigger travel ignored at the top."},
+            {"key": "controls.trigger_outer", "label": "Trigger full at", "type": "slider", "min": 0.7, "max": 1.0, "step": 0.01, "format": "percent", "default": 0.95, "help": "Past this the trigger counts as fully pulled."},
+            {"key": "controls.trigger_curve", "label": "Trigger curve", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 1.0, "help": "Shapes analog brake and throttle feel."},
+            {"key": "controls.fire_threshold", "label": "Fire point", "type": "slider", "min": 0.2, "max": 0.9, "step": 0.05, "format": "percent", "default": 0.5, "help": "How far R2 must be pulled to fire."}
+          ]}
+        ]},
+        {"id": "keyboard_mouse", "label": "Keyboard and mouse", "groups": [
+          {"label": "Mouse", "items": [
+            {"key": "controls.mouse_mode", "label": "Mouse moves", "type": "choice", "options": [["steer", "The chassis (turn and tilt to aim)"], ["camera", "The camera only"]], "default": "steer", "help": "Steer is the usual way to fight: the gun is fixed, so the mouse turns the whole machine."},
+            {"key": "controls.mouse_sensitivity", "label": "Sensitivity", "type": "slider", "min": 0.1, "max": 3.0, "step": 0.05, "format": "x", "default": 1.0, "help": "How far the chassis turns per mouse movement."},
+            {"key": "controls.mouse_invert_y", "label": "Invert vertical", "type": "toggle", "default": false, "help": "Move the mouse up to tilt down."},
+            {"key": "controls.mouse_smoothing", "label": "Smoothing", "type": "slider", "min": 0.0, "max": 0.9, "step": 0.05, "format": "percent", "default": 0.2, "help": "Averages mouse movement over a few frames; the chassis is heavy anyway."}
+          ]},
+          {"label": "Keyboard", "items": [
+            {"key": "controls.key_throttle_ramp", "label": "Throttle ramp", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "s", "default": 0.25, "help": "How long a held movement key takes to reach full throttle, so keys feel less like a switch."},
+            {"key": "controls.sprint_mode", "label": "Run button", "type": "choice", "options": [["toggle", "Toggle"], ["hold", "Hold"]], "default": "toggle", "help": "Toggle: press once to run until you stop."},
+            {"key": "controls.crouch_mode", "label": "Crouch button", "type": "choice", "options": [["toggle", "Toggle"], ["hold", "Hold"]], "default": "toggle", "help": "Jump is always hold-to-charge."}
+          ]}
+        ]},
+        {"id": "rumble", "label": "Rumble", "groups": [
+          {"label": "Rumble", "items": [
+            {"key": "rumble.enabled", "label": "Rumble", "type": "toggle", "default": true, "help": "Controller vibration."},
+            {"key": "rumble.intensity", "label": "Overall strength", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 1.0, "help": "Scales every rumble."},
+            {"key": "rumble.weapons", "label": "Weapons", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 1.0, "help": "Gun fire and reloads."},
+            {"key": "rumble.movement", "label": "Footsteps and movement", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 1.0, "help": "Footfalls, jumps, landings, skids and the wire."},
+            {"key": "rumble.impacts", "label": "Hits and near misses", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 1.0, "help": "Taking hits and shell wakes."},
+            {"key": "rumble.ui", "label": "Menus", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 0.6, "help": "Small ticks when you confirm or go back."},
+            {"key": "rumble.test", "label": "Test rumble", "type": "button", "action": "rumble_test", "help": "Plays the main gun pattern on every connected pad."}
+          ]},
+          {"label": "DualSense extras", "items": [
+            {"key": "rumble.dualsense_note", "label": "Adaptive triggers and speaker", "type": "info", "text": "Lane B4 reports whether Godot can reach these on Linux.", "help": "Research only in this wave."}
+          ]}
+        ]},
+        {"id": "advanced", "label": "Advanced", "groups": [
+          {"label": "Experimental", "items": [
+            {"key": "controls.hardcore_mode", "label": "Hardcore manual walking", "type": "toggle", "default": false, "help": "Steel Battalion meets QWOP: each leg lifts on its own button and the right stick or mouse shifts your weight. Step in rhythm and keep balanced or you tip over. Unlocks its own bindings page."}
+          ]}
+        ]},
+        {"id": "hardcore_bindings", "label": "Hardcore bindings", "visible_if": "controls.hardcore_mode", "groups": [
+          {"label": "Hardcore layout", "items": [
+            {"key": "controls.bindings_hardcore", "label": "Bindings", "type": "keybinds", "scheme": "hardcore", "help": "The manual-walking layout. Clashes are only checked inside this layout."},
+            {"key": "controls.reset_hardcore", "label": "Reset hardcore bindings", "type": "button", "action": "reset_bindings:hardcore", "help": "Puts every hardcore binding back to its default."}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "id": "audio",
+      "label": "Audio",
+      "pages": [
+        {"id": "volume", "label": "Volume", "groups": [
+          {"label": "Mix", "generate": "audio_buses", "items": []}
+        ]},
+        {"id": "output", "label": "Output", "groups": [
+          {"label": "Output", "items": [
+            {"key": "audio.output_device", "label": "Output device", "type": "choice", "options_from": "audio_devices", "default": "Default", "help": "Where the sound goes."},
+            {"key": "audio.speaker_mode", "label": "Listening on", "type": "choice", "options": [["stereo", "Speakers"], ["headphones", "Headphones"], ["tv", "TV"]], "default": "stereo", "help": "Tunes panning and reverb for what you listen on (lane B4)."},
+            {"key": "audio.dynamic_range", "label": "Dynamic range", "type": "choice", "options": [["full", "Full (cinematic)"], ["night", "Night (quieter peaks)"]], "default": "full", "help": "Night squashes gunfire and explosions so you can keep it quiet."},
+            {"key": "audio.mute_unfocused", "label": "Mute when in the background", "type": "toggle", "default": false, "help": "Silence the game when another window has focus."}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "id": "gameplay",
+      "label": "Gameplay",
+      "pages": [
+        {"id": "camera", "label": "Camera", "groups": [
+          {"label": "Views", "items": [
+            {"key": "gameplay.default_view", "label": "Starting view", "type": "choice", "options": [["third", "Third person"], ["cockpit", "Cockpit"]], "default": "third", "help": "Which view a mission starts in."},
+            {"key": "gameplay.fov_third", "label": "Third-person field of view", "type": "slider", "min": 55.0, "max": 100.0, "step": 1.0, "format": "deg", "default": 70.0, "help": "Vertical field of view."},
+            {"key": "gameplay.fov_cockpit", "label": "Cockpit field of view", "type": "slider", "min": 65.0, "max": 110.0, "step": 1.0, "format": "deg", "default": 85.0, "help": "Vertical field of view inside the cockpit."}
+          ]},
+          {"label": "Feel", "items": [
+            {"key": "gameplay.camera_distance", "label": "Camera distance", "type": "slider", "min": 0.7, "max": 1.6, "step": 0.05, "format": "x", "default": 1.0, "help": "How far behind the Juggernaut the camera sits."},
+            {"key": "gameplay.camera_weight", "label": "Camera weight", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.5, "help": "How much the camera lags and settles behind the chassis."},
+            {"key": "gameplay.camera_shake", "label": "Camera shake", "type": "slider", "min": 0.0, "max": 1.5, "step": 0.05, "format": "percent", "default": 1.0, "help": "Shake from footfalls, firing and hits."},
+            {"key": "gameplay.head_bob", "label": "Cockpit head movement", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.6, "help": "How much the pilot's view rocks with each step."}
+          ]}
+        ]},
+        {"id": "hud", "label": "HUD", "groups": [
+          {"label": "HUD", "items": [
+            {"key": "gameplay.hud_scale", "label": "HUD size", "type": "slider", "min": 0.75, "max": 1.5, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales the in-game readouts."},
+            {"key": "gameplay.hud_opacity", "label": "HUD opacity", "type": "slider", "min": 0.3, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.9, "help": "How solid the readouts are."},
+            {"key": "gameplay.crosshair", "label": "Gun reticle", "type": "choice", "options": [["reticle", "Ranging reticle"], ["dot", "Dot"], ["none", "None"]], "default": "reticle", "help": "The mark where the fixed gun points."},
+            {"key": "gameplay.heading_tape", "label": "Heading tape", "type": "toggle", "default": true, "help": "Compass strip at the top of the screen."},
+            {"key": "gameplay.damage_diagram", "label": "Damage diagram", "type": "toggle", "default": true, "help": "Per-part health of your Juggernaut."},
+            {"key": "gameplay.units", "label": "Units", "type": "choice", "options": [["metric", "Metric"], ["imperial", "Imperial"]], "default": "metric", "help": "Speeds and ranges."}
+          ]}
+        ]},
+        {"id": "difficulty", "label": "Difficulty", "groups": [
+          {"label": "Damage", "items": [
+            {"key": "gameplay.enemy_damage", "label": "Damage you take", "type": "slider", "min": 0.25, "max": 2.0, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales Legion weapon damage."},
+            {"key": "gameplay.player_damage", "label": "Damage you deal", "type": "slider", "min": 0.25, "max": 2.0, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales your weapon damage."},
+            {"key": "gameplay.permanent_damage", "label": "Permanent part damage", "type": "toggle", "default": true, "help": "Lost armour and hurt legs stay that way for the whole mission."},
+            {"key": "gameplay.ammo", "label": "Reserve ammunition", "type": "choice", "options": [["limited", "Limited"], ["unlimited", "Unlimited"]], "default": "limited", "help": "Magazines still need reloading either way."}
+          ]}
+        ]},
+        {"id": "physics", "label": "Physics", "groups": [
+          {"label": "Simulation", "items": [
+            {"key": "gameplay.physics_mode", "label": "Physics mode", "type": "choice", "options": [["game", "Game (anime motors)"], ["bench", "Test bench (real actuators)"]], "default": "game", "help": "Game mode uses strong magic motors. Test bench uses real electric actuator limits: slow, power-hungry and hot. Lane B6 builds the full test bench."},
+            {"key": "gameplay.upright_assist", "label": "Balance assist", "type": "toggle", "default": true, "help": "A gentle helper that keeps the chassis level. Off is harder."}
+          ]}
+        ]},
+        {"id": "interface", "label": "Menus and theme", "groups": [
+          {"label": "Look", "items": [
+            {"key": "interface.theme", "label": "Menu theme", "type": "choice", "options_from": "themes", "default": "handler_console", "help": "Switches straight away."},
+            {"key": "interface.button_prompts", "label": "Button prompts", "type": "choice", "options": [["auto", "Match last used"], ["keyboard", "Keyboard and mouse"], ["playstation", "PlayStation"]], "default": "auto", "help": "Which buttons the game shows in hints."},
+            {"key": "interface.menu_sounds", "label": "Menu sounds", "type": "toggle", "default": true, "help": "Clicks and ticks in menus."}
+          ]},
+          {"label": "Learning", "items": [
+            {"key": "gameplay.tutorial", "label": "Tutorial hints", "type": "toggle", "default": false, "help": "A stub for now: off by default until Emerson decides after testing."}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "id": "accessibility",
+      "label": "Accessibility",
+      "pages": [
+        {"id": "display", "label": "Display", "groups": [
+          {"label": "Size and contrast", "items": [
+            {"key": "accessibility.ui_scale", "label": "Menu and text size", "type": "slider", "min": 0.8, "max": 1.5, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales menus and text."},
+            {"key": "accessibility.high_contrast", "label": "High contrast menus", "type": "toggle", "default": false, "help": "Brighter text and solid panels."}
+          ]},
+          {"label": "Colour", "items": [
+            {"key": "accessibility.colour_filter", "label": "Colour filter", "type": "choice", "options": [["none", "None"], ["protanopia", "Protanopia"], ["deuteranopia", "Deuteranopia"], ["tritanopia", "Tritanopia"], ["greyscale", "Greyscale"]], "default": "none", "help": "Shifts colours so red, green and blue cues stay apart."},
+            {"key": "accessibility.colour_filter_strength", "label": "Filter strength", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 1.0, "help": "How strongly the filter applies."}
+          ]}
+        ]},
+        {"id": "motion", "label": "Motion and flashing", "groups": [
+          {"label": "Comfort", "items": [
+            {"key": "accessibility.reduce_motion", "label": "Reduce motion", "type": "toggle", "default": false, "help": "Cuts camera shake and cockpit head movement."},
+            {"key": "accessibility.reduce_flashing", "label": "Reduce flashing", "type": "toggle", "default": false, "help": "Dims muzzle flashes and explosions."}
+          ]}
+        ]},
+        {"id": "subtitles", "label": "Subtitles", "groups": [
+          {"label": "Subtitles", "items": [
+            {"key": "accessibility.subtitles", "label": "Subtitles", "type": "toggle", "default": true, "help": "Radio and voice lines as text."},
+            {"key": "accessibility.subtitle_size", "label": "Subtitle size", "type": "choice", "options": [["small", "Small"], ["medium", "Medium"], ["large", "Large"], ["huge", "Huge"]], "default": "medium", "help": "Text size of subtitles."},
+            {"key": "accessibility.subtitle_background", "label": "Subtitle background", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.6, "help": "Darkness of the box behind subtitles."},
+            {"key": "accessibility.speaker_names", "label": "Speaker names", "type": "toggle", "default": true, "help": "Show who is talking."}
+          ]}
+        ]}
+      ]
+    }
+  ]
+}

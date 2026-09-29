@@ -1,0 +1,15 @@
+{
+  "_about": "Sound registry. \"buses\" is the mixer: AudioMix (scripts/audio/audio_mix.gd) builds these buses at start and each one gets a volume slider under Settings > Audio (the setting key is audio.<bus id>). \"entries\" are sounds, one each (lane B4 fills them): {\"files\": [\"res://assets/audio/...\"], \"bus\": \"weapons\", \"volume_db\": 0, \"pitch_jitter\": 0.05, \"max_distance_m\": 400, \"attenuation\": \"inverse_square\"}. Candidates under review live in assets/audio/review/ with its listening page.",
+  "buses": [
+    {"id": "master", "name": "Master", "label": "Master"},
+    {"id": "music", "name": "Music", "label": "Music", "send": "Master"},
+    {"id": "effects", "name": "Effects", "label": "All effects", "send": "Master"},
+    {"id": "weapons", "name": "Weapons", "label": "Weapons", "send": "Effects"},
+    {"id": "mech", "name": "Mech", "label": "Servos, hydraulics and footsteps", "send": "Effects"},
+    {"id": "impacts", "name": "Impacts", "label": "Impacts and debris", "send": "Effects"},
+    {"id": "ambience", "name": "Ambience", "label": "Wind and ambience", "send": "Effects"},
+    {"id": "voice", "name": "Voice", "label": "Radio and voices", "send": "Master"},
+    {"id": "ui", "name": "UI", "label": "Menus", "send": "Master"}
+  ],
+  "entries": {}
+}

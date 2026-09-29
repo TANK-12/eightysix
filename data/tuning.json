@@ -1,0 +1,84 @@
+{
+  "_about": "Every feel number for game mode, read with Registry.tune(\"path.to.value\", fallback). Test bench mode (lane B6) ignores \"motors\" and uses the actuator \"bench\" figures in parts.json instead. \"standin\" drives lane A1's box walker only; lane A2's gait generator adds its own block. Units are in the key names.",
+  "physics": {
+    "ticks_per_second": 120,
+    "gravity_m_s2": 9.81
+  },
+  "motors": {
+    "_about": "Game-mode magic motors per joint kind: far stronger and faster than any real actuator, for the anime feel.",
+    "hip_yaw": {"torque_nm": 600000.0, "speed_deg_s": 360.0},
+    "hip_pitch": {"torque_nm": 900000.0, "speed_deg_s": 360.0},
+    "knee": {"torque_nm": 1200000.0, "speed_deg_s": 420.0}
+  },
+  "standin": {
+    "suspension": {
+      "stiffness_n_per_m_per_t": 48000.0,
+      "damping_ratio": 0.55,
+      "ray_margin_m": 1.2,
+      "crouch_fraction": 0.45,
+      "crouch_speed": 3.0,
+      "pitch_aim_m": 0.55
+    },
+    "drive": {
+      "walk_m_s": 7.0,
+      "run_m_s": 13.0,
+      "strafe_m_s": 5.0,
+      "reverse_m_s": 5.0,
+      "accel_m_s2": 9.0,
+      "grip_m_s2": 16.0,
+      "brake_m_s2": 20.0
+    },
+    "turn": {
+      "rate_deg_s": 95.0,
+      "run_rate_deg_s": 70.0,
+      "accel_deg_s2": 420.0,
+      "skid_rate_deg_s": 260.0,
+      "skid_accel_deg_s2": 1400.0
+    },
+    "skid": {
+      "grip_factor": 0.3,
+      "min_speed_m_s": 4.0,
+      "recover_s": 0.35
+    },
+    "jump": {
+      "min_hold_s": 0.12,
+      "full_charge_s": 1.1,
+      "min_launch_m_s": 5.0,
+      "max_launch_m_s": 11.5,
+      "forward_carry": 1.0,
+      "hard_landing_m_s": 9.0
+    },
+    "upright": {
+      "stiffness": 6.0,
+      "damping": 2.2
+    }
+  },
+  "jump_bench": {
+    "_about": "Test bench charge jump: launch energy is what the leg actuators can really deliver over their stroke.",
+    "leg_joint_kinds": ["hip_pitch", "knee"],
+    "stroke_use": 0.7
+  },
+  "camera": {
+    "third_person": {
+      "distance_m": 12.0,
+      "height_m": 4.2,
+      "look_height_m": 1.6,
+      "fov_deg": 70.0,
+      "follow_rate": 5.5,
+      "turn_rate": 4.5,
+      "look_ahead_s": 0.25,
+      "collision_margin_m": 0.4,
+      "free_look_deg_s": 140.0
+    },
+    "cockpit": {"fov_deg": 85.0}
+  },
+  "aim": {
+    "mouse_turn_deg_per_px": 0.09,
+    "mouse_pitch_deg_per_px": 0.05,
+    "pitch_min_deg": -8.0,
+    "pitch_max_deg": 18.0
+  },
+  "combat": {
+    "recoil_game_scale": 6.0
+  }
+}

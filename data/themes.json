@@ -1,0 +1,117 @@
+{
+  "_about": "Menu themes, one entry each. UiTheme (scripts/core/ui_theme.gd) builds a Godot Theme from an entry and applies it live, so a new theme is one entry here (plus fonts in assets/fonts if it wants new ones). Colours are hex strings; \"background\" feeds the menu backdrop shader (assets/shaders/menu_backdrop.gdshader).",
+  "entries": {
+    "handler_console": {
+      "label": "Handler console",
+      "order": 1,
+      "description": "The Para-RAID handler's desk: black glass, cold cyan-white text, thin rules and a red-orange warning accent.",
+      "colors": {
+        "bg": "#05080c",
+        "panel": "#0a1118e6",
+        "panel_alt": "#101a24f0",
+        "line": "#2a4252",
+        "line_bright": "#7fd8ff",
+        "text": "#e6f4ff",
+        "text_dim": "#7d95a6",
+        "text_faint": "#4a5d6b",
+        "accent": "#8fe3ff",
+        "accent_soft": "#8fe3ff33",
+        "warn": "#ff6a3d",
+        "good": "#7dffb0",
+        "bad": "#ff4d5e"
+      },
+      "fonts": {
+        "heading": "res://assets/fonts/BarlowCondensed-SemiBold.ttf",
+        "heading_light": "res://assets/fonts/BarlowCondensed-Light.ttf",
+        "button": "res://assets/fonts/BarlowCondensed-Medium.ttf",
+        "body": "res://assets/fonts/Barlow-Regular.ttf",
+        "body_strong": "res://assets/fonts/Barlow-Medium.ttf",
+        "mono": "res://assets/fonts/JetBrainsMono-Regular.ttf"
+      },
+      "sizes": {
+        "body": 22,
+        "small": 18,
+        "button": 28,
+        "menu_button": 40,
+        "heading": 44,
+        "title": 64,
+        "mono": 20
+      },
+      "shape": {
+        "corner_radius": 2,
+        "border": 1,
+        "focus_bar": 4,
+        "padding_x": 18,
+        "padding_y": 8
+      },
+      "background": {
+        "top": "#0b141c",
+        "bottom": "#020406",
+        "grid": "#8fe3ff",
+        "grid_strength": 0.06,
+        "grid_size": 64.0,
+        "sweep": "#8fe3ff",
+        "sweep_strength": 0.07,
+        "sweep_speed": 0.05,
+        "vignette": 0.75,
+        "grain": 0.035
+      }
+    },
+    "spearhead_field": {
+      "label": "Spearhead field kit",
+      "order": 2,
+      "description": "Field-worn and warm: dark olive steel, sand text, amber warnings. Mostly here to prove themes switch live.",
+      "colors": {
+        "bg": "#0c0d09",
+        "panel": "#15170fe6",
+        "panel_alt": "#1c1f14f0",
+        "line": "#4a4d36",
+        "line_bright": "#e8c36a",
+        "text": "#efe9d6",
+        "text_dim": "#a39d86",
+        "text_faint": "#6a6653",
+        "accent": "#e8c36a",
+        "accent_soft": "#e8c36a33",
+        "warn": "#ff7a2f",
+        "good": "#a8e07a",
+        "bad": "#ff5a4a"
+      },
+      "fonts": {
+        "heading": "res://assets/fonts/BarlowCondensed-SemiBold.ttf",
+        "heading_light": "res://assets/fonts/BarlowCondensed-Light.ttf",
+        "button": "res://assets/fonts/BarlowCondensed-Medium.ttf",
+        "body": "res://assets/fonts/Barlow-Regular.ttf",
+        "body_strong": "res://assets/fonts/Barlow-Medium.ttf",
+        "mono": "res://assets/fonts/JetBrainsMono-Regular.ttf"
+      },
+      "sizes": {
+        "body": 22,
+        "small": 18,
+        "button": 28,
+        "menu_button": 40,
+        "heading": 44,
+        "title": 64,
+        "mono": 20
+      },
+      "shape": {
+        "corner_radius": 0,
+        "border": 2,
+        "focus_bar": 6,
+        "padding_x": 18,
+        "padding_y": 8
+      },
+      "background": {
+        "top": "#1a1a10",
+        "bottom": "#050503",
+        "grid": "#e8c36a",
+        "grid_strength": 0.045,
+        "grid_size": 96.0,
+        "sweep": "#e8c36a",
+        "sweep_strength": 0.05,
+        "sweep_speed": 0.035,
+        "vignette": 0.85,
+        "grain": 0.05
+      }
+    }
+  }
+}

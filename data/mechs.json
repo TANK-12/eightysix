@@ -1,0 +1,44 @@
+{
+  "_about": "Mechs, variants and loadouts: one entry each. \"parts\" places parts from parts.json on the chassis (metres in the body frame: +x right, +y up, -z forward). \"legs\" gives each leg its hip mount and the parts and actuators it is built from; leg parts are placed by the leg solver at the rest stance, so the mass sums see where they really hang. A variant is \"inherits\": \"<mech>\" plus only what differs (deep-merged, so a loadout override keeps the other slots). \"status\": \"planned\" entries are waiting on a lane and are skipped by the game and the mass tests. \"controller\" picks the locomotion script.",
+  "entries": {
+    "standin": {
+      "label": "Stand-in walker",
+      "status": "test_only",
+      "controller": "standin",
+      "description": "Lane A1's box walker: same data path as the real Juggernaut (per-part colliders, mass summed from parts, actuators per joint) so the game loop runs end to end before lane B1's export lands.",
+      "parts": [
+        {"part": "standin_chassis", "at": [0.0, 0.0, 0.0]},
+        {"part": "standin_gun_57", "at": [0.0, 0.85, -1.6], "socket": "main_gun"},
+        {"part": "standin_subarm", "at": [-1.45, -0.1, -1.5], "socket": "sub_left"},
+        {"part": "standin_subarm", "at": [1.45, -0.1, -1.5], "socket": "sub_right"}
+      ],
+      "stance": {"height_m": 2.3, "foot_out_m": 1.1, "foot_forward_m": 0.2},
+      "legs": {
+        "fl": {"hip": [-1.2, -0.35, -1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_fl", "standin_hip_pitch_fl", "standin_knee_fl"]},
+        "fr": {"hip": [1.2, -0.35, -1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_fr", "standin_hip_pitch_fr", "standin_knee_fr"]},
+        "rl": {"hip": [-1.2, -0.35, 1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_rl", "standin_hip_pitch_rl", "standin_knee_rl"]},
+        "rr": {"hip": [1.2, -0.35, 1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_rr", "standin_hip_pitch_rr", "standin_knee_rr"]}
+      },
+      "loadout": {"main_gun": "gun_57mm", "sub_left": "wire_anchor", "sub_right": "wire_anchor"},
+      "power": {"bus_voltage_v": 400.0, "battery_kwh": 150.0, "max_discharge_kw": 600.0},
+      "cameras": {"cockpit": [0.0, 0.35, -1.55]}
+    },
+    "juggernaut_m2": {
+      "label": "Juggernaut (Model 2)",
+      "status": "planned",
+      "owner_lane": "B1 (model and game export), A2 (locomotion)",
+      "controller": "juggernaut",
+      "model": "res://assets/models/juggernaut/juggernaut_m2.glb",
+      "description": "The Reginleif-style walker from lane B1's export: parts, colliders, sockets and actuators arrive with it.",
+      "parts": [],
+      "legs": {},
+      "loadout": {"main_gun": "gun_57mm", "sub_left": "wire_anchor", "sub_right": "wire_anchor"}
+    },
+    "juggernaut_m2_blades": {
+      "inherits": "juggernaut_m2",
+      "label": "Juggernaut (Model 2, blades)",
+      "description": "Close-combat variant: high-frequency blades on the sub-arms (lane A5).",
+      "loadout": {"sub_left": "hf_blade", "sub_right": "hf_blade"}
+    }
+  }
+}

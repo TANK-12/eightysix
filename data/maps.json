@@ -1,0 +1,41 @@
+{
+  "_about": "Maps, one entry each. \"scene\" is loaded behind the loading screen; \"status\": \"planned\" entries show in the map list but cannot be started yet. \"spawn\" is the player start in metres (x, y, z) with the heading in degrees. \"tips\" are shown while it loads.",
+  "entries": {
+    "test_range": {
+      "label": "Test range",
+      "order": 90,
+      "scene": "res://scenes/levels/test_range.tscn",
+      "status": "throwaway",
+      "size_m": 320,
+      "description": "Lane A1's throwaway proving ground: rocky noise terrain, loose boulders and a few slabs. Here to prove the loop runs end to end, and to log frame rates per preset.",
+      "spawn": {"position": [0.0, 12.0, 0.0], "heading_deg": 0.0},
+      "tips": [
+        "Hold jump to crouch and charge; the longer the hold, the higher the launch.",
+        "Once you leave the ground you are a ballistic body: aim the jump before you let go.",
+        "Brake while turning hard to break traction and whip the chassis round."
+      ]
+    },
+    "small_map": {
+      "label": "Small map (about 1 km)",
+      "order": 10,
+      "scene": "res://scenes/levels/small_map.tscn",
+      "status": "planned",
+      "owner_lane": "B3",
+      "size_m": 1000,
+      "description": "The hand-made map: rocky ground, ruins, roads and water. Built in lane B3.",
+      "spawn": {"position": [0.0, 10.0, 0.0], "heading_deg": 0.0},
+      "tips": []
+    },
+    "big_map": {
+      "label": "Big map",
+      "order": 20,
+      "scene": "res://scenes/levels/big_map.tscn",
+      "status": "planned",
+      "owner_lane": "B5",
+      "size_m": 4000,
+      "description": "Terrain-tech map with working collision, towns and destruction. Built in lane B5.",
+      "spawn": {"position": [0.0, 10.0, 0.0], "heading_deg": 0.0},
+      "tips": []
+    }
+  }
+}

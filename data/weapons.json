@@ -1,0 +1,118 @@
+{
+  "_about": "Weapons, one entry each, for the player and the Legion. \"mount\": \"fixed_forward\" with \"traverse_deg\": 0 means no independent tracking: the body turns to aim (physics supplement, point 2). \"recoil_impulse_ns\" is the real-world figure; tuning.json combat.recoil_game_scale multiplies it in game mode. \"wake\" on heavy shells is the supersonic overpressure cylinder (supplement, point 4). All figures are lane A1 drafts for A3/A4 to tune.",
+  "entries": {
+    "gun_57mm": {
+      "label": "57 mm smoothbore gun",
+      "kind": "cannon",
+      "slot": "main_gun",
+      "mount": "fixed_forward",
+      "traverse_deg": 0.0,
+      "rest_raise_deg": 12.0,
+      "magazine": 12,
+      "reserve": 60,
+      "reload_s": 4.5,
+      "cycle_s": 0.9,
+      "default_ammo": "apfsds",
+      "ammo": {
+        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180},
+        "heat": {"label": "HEAT", "projectile_kg": 2.7, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5},
+        "he": {"label": "HE", "projectile_kg": 2.7, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0}
+      },
+      "recoil_impulse_ns": 3200.0,
+      "casing": "casing_57mm"
+    },
+    "mg_12_7": {
+      "label": "12.7 mm heavy machine gun",
+      "kind": "machine_gun",
+      "slot": "sub",
+      "mount": "fixed_forward",
+      "traverse_deg": 0.0,
+      "magazine": 200,
+      "reserve": 800,
+      "reload_s": 3.0,
+      "cycle_s": 0.1,
+      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.045, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20}},
+      "default_ammo": "ball",
+      "recoil_impulse_ns": 60.0
+    },
+    "wire_anchor": {
+      "label": "Wire anchor",
+      "kind": "grapple",
+      "slot": "sub",
+      "mount": "fixed_forward",
+      "range_m": 80.0,
+      "anchor_speed_m_s": 120.0,
+      "reel_in_m_s": 8.0,
+      "pay_out_m_s": 12.0,
+      "max_tension_n": 180000.0,
+      "cable_break_n": 260000.0
+    },
+    "hf_blade": {
+      "label": "High-frequency blade",
+      "kind": "blade",
+      "slot": "sub",
+      "mount": "fixed_forward",
+      "length_m": 2.2,
+      "damage": 1600,
+      "swing_s": 0.6
+    },
+    "lowe_120mm": {
+      "label": "Löwe 120 mm gun",
+      "kind": "cannon",
+      "owner": "legion",
+      "mount": "turret",
+      "traverse_deg": 360.0,
+      "magazine": 1,
+      "reserve": 40,
+      "reload_s": 6.0,
+      "cycle_s": 6.0,
+      "default_ammo": "apfsds",
+      "ammo": {"apfsds": {"label": "APFSDS", "projectile_kg": 7.0, "muzzle_m_s": 1650.0, "damage": 4000, "penetration_mm": 550}},
+      "recoil_impulse_ns": 18000.0,
+      "wake": {"radius_m": 3.5, "length_m": 30.0, "impulse_ns": 90000.0, "spin_impulse_nms": 60000.0, "debris_impulse_ns": 4000.0}
+    },
+    "lowe_mg": {
+      "label": "Löwe coaxial machine gun",
+      "kind": "machine_gun",
+      "owner": "legion",
+      "mount": "turret",
+      "traverse_deg": 360.0,
+      "magazine": 250,
+      "reload_s": 4.0,
+      "cycle_s": 0.08,
+      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 18, "penetration_mm": 8}},
+      "default_ammo": "ball"
+    },
+    "grauwolf_blade": {
+      "label": "Grauwolf high-frequency blade",
+      "kind": "blade",
+      "owner": "legion",
+      "length_m": 2.5,
+      "damage": 1400,
+      "swing_s": 0.5
+    },
+    "grauwolf_rockets": {
+      "label": "Grauwolf 76 mm rocket launcher",
+      "kind": "rocket",
+      "owner": "legion",
+      "mount": "fixed_forward",
+      "magazine": 6,
+      "reload_s": 8.0,
+      "cycle_s": 0.3,
+      "ammo": {"heat": {"label": "HEAT rocket", "projectile_kg": 4.0, "muzzle_m_s": 300.0, "damage": 1100, "penetration_mm": 200, "blast_radius_m": 2.0}},
+      "default_ammo": "heat"
+    },
+    "ameise_mg": {
+      "label": "Ameise anti-personnel machine gun",
+      "kind": "machine_gun",
+      "owner": "legion",
+      "mount": "turret",
+      "traverse_deg": 360.0,
+      "magazine": 150,
+      "reload_s": 4.0,
+      "cycle_s": 0.09,
+      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 12, "penetration_mm": 6}},
+      "default_ammo": "ball"
+    }
+  }
+}

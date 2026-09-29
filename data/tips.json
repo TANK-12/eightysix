@@ -1,0 +1,11 @@
+{
+  "_about": "General loading-screen tips (maps.json can add map-specific ones). One entry each; \"order\" is ignored, tips are picked at random.",
+  "entries": {
+    "gun_fixed": {"text": "The 57 mm gun is fixed to the chassis. To aim, turn the whole machine."},
+    "skid_turn": {"text": "Breaking traction is how you turn fast: brake into a hard turn and let the chassis slide round."},
+    "no_air_control": {"text": "In the air you cannot steer. Firing the main gun mid-air pushes you the other way."},
+    "charge_jump": {"text": "Jump is hold-to-charge. A low crouch also shrinks what the enemy can hit."},
+    "settings_deep": {"text": "Dead zones, response curves and rumble strength are all under Settings > Controls."},
+    "presets": {"text": "Graphics presets switch live. Change one setting and the preset becomes Custom."}
+  }
+}

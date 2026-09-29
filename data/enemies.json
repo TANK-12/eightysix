@@ -1,0 +1,55 @@
+{
+  "_about": "Legion types, one entry each (lane A4 builds the AI, lane B2 the models). \"behaviour\" names the AI script in scripts/ai/; \"perception\" drives sight and hearing; \"weak_points\" are named parts in the model export. Figures are lane A1 drafts.",
+  "entries": {
+    "ameise": {
+      "label": "Ameise",
+      "role": "Scout: finds you, keeps its distance and calls the others",
+      "status": "planned",
+      "model": "res://assets/models/legion/ameise.glb",
+      "behaviour": "scout",
+      "mass_kg": 7000.0,
+      "health": 1500,
+      "armour_mm": 8,
+      "speed_m_s": 14.0,
+      "turn_deg_s": 160.0,
+      "weapons": ["ameise_mg"],
+      "weak_points": ["optic_sensor", "leg_joints"],
+      "perception": {"sight_range_m": 450.0, "sight_fov_deg": 200.0, "hearing_range_m": 300.0, "memory_s": 20.0},
+      "retreat_health_fraction": 0.5,
+      "calls_reinforcements": true
+    },
+    "grauwolf": {
+      "label": "Grauwolf",
+      "role": "Pack hunter: flanks and closes in with blades and rockets",
+      "status": "planned",
+      "model": "res://assets/models/legion/grauwolf.glb",
+      "behaviour": "pack_hunter",
+      "mass_kg": 10000.0,
+      "health": 3000,
+      "armour_mm": 15,
+      "speed_m_s": 22.0,
+      "turn_deg_s": 220.0,
+      "pack_size": [3, 5],
+      "weapons": ["grauwolf_blade", "grauwolf_rockets"],
+      "weak_points": ["optic_sensor", "leg_joints", "rocket_pod"],
+      "perception": {"sight_range_m": 350.0, "sight_fov_deg": 160.0, "hearing_range_m": 250.0, "memory_s": 15.0},
+      "retreat_health_fraction": 0.2
+    },
+    "lowe": {
+      "label": "Löwe",
+      "role": "Heavy: the tank fight, a 120 mm gun whose near-misses shove you",
+      "status": "planned",
+      "model": "res://assets/models/legion/lowe.glb",
+      "behaviour": "heavy",
+      "mass_kg": 50000.0,
+      "health": 12000,
+      "armour_mm": 120,
+      "speed_m_s": 12.0,
+      "turn_deg_s": 60.0,
+      "weapons": ["lowe_120mm", "lowe_mg"],
+      "weak_points": ["turret_ring", "rear_deck", "leg_joints", "optic_sensor"],
+      "perception": {"sight_range_m": 900.0, "sight_fov_deg": 120.0, "hearing_range_m": 400.0, "memory_s": 30.0},
+      "retreat_health_fraction": 0.0
+    }
+  }
+}

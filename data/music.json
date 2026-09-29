@@ -1,0 +1,4 @@
+{
+  "_about": "Music registry, one entry per track (lane B4 fills it). Files live outside the game in ~/Music/86/ (personal use only, never shipped or shared), so \"path\" is an absolute path and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"~/Music/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}.",
+  "entries": {}
+}
