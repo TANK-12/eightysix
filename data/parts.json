@@ -42,15 +42,24 @@
         "thermal_mass_j_per_k": 21000.0
       }
     },
-
     "standin_chassis": {
       "kind": "chassis",
       "label": "Stand-in chassis",
       "mass_kg": 5200.0,
       "health": 6000,
       "armour_mm": 20,
-      "collider": {"shape": "box", "size": [2.6, 1.3, 3.6]},
-      "look": {"color": "#5d6670", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          2.6,
+          1.3,
+          3.6
+        ]
+      },
+      "look": {
+        "color": "#5d6670",
+        "mesh": "box"
+      }
     },
     "standin_gun_57": {
       "kind": "weapon",
@@ -58,8 +67,18 @@
       "mass_kg": 900.0,
       "health": 1500,
       "armour_mm": 10,
-      "collider": {"shape": "box", "size": [0.4, 0.4, 3.6]},
-      "look": {"color": "#3b4046", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.4,
+          0.4,
+          3.6
+        ]
+      },
+      "look": {
+        "color": "#3b4046",
+        "mesh": "box"
+      }
     },
     "standin_subarm": {
       "kind": "weapon",
@@ -67,8 +86,18 @@
       "mass_kg": 150.0,
       "health": 500,
       "armour_mm": 6,
-      "collider": {"shape": "box", "size": [0.3, 0.3, 1.2]},
-      "look": {"color": "#454c54", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.3,
+          0.3,
+          1.2
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      }
     },
     "standin_leg_upper": {
       "kind": "leg_upper",
@@ -77,8 +106,18 @@
       "health": 1200,
       "armour_mm": 8,
       "length_m": 1.7,
-      "collider": {"shape": "box", "size": [0.4, 0.4, 1.7]},
-      "look": {"color": "#56606a", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.4,
+          0.4,
+          1.7
+        ]
+      },
+      "look": {
+        "color": "#56606a",
+        "mesh": "box"
+      }
     },
     "standin_leg_lower": {
       "kind": "leg_lower",
@@ -87,8 +126,18 @@
       "health": 1000,
       "armour_mm": 8,
       "length_m": 2.1,
-      "collider": {"shape": "box", "size": [0.32, 0.32, 2.1]},
-      "look": {"color": "#4b545d", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.32,
+          0.32,
+          2.1
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      }
     },
     "standin_foot": {
       "kind": "foot",
@@ -96,21 +145,1759 @@
       "mass_kg": 120.0,
       "health": 600,
       "armour_mm": 6,
-      "collider": {"shape": "box", "size": [0.6, 0.25, 0.8]},
-      "look": {"color": "#2f353b", "mesh": "box"}
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.6,
+          0.25,
+          0.8
+        ]
+      },
+      "look": {
+        "color": "#2f353b",
+        "mesh": "box"
+      }
     },
-
-    "standin_hip_yaw_fl": {"inherits": "act_linear_heavy", "label": "Front-left hip yaw", "leg": "fl", "joint": "hip_yaw", "game_motor": "hip_yaw"},
-    "standin_hip_pitch_fl": {"inherits": "act_linear_heavy", "label": "Front-left hip pitch", "leg": "fl", "joint": "hip_pitch", "game_motor": "hip_pitch"},
-    "standin_knee_fl": {"inherits": "act_linear_heavy_knee", "label": "Front-left knee", "leg": "fl", "joint": "knee", "game_motor": "knee"},
-    "standin_hip_yaw_fr": {"inherits": "act_linear_heavy", "label": "Front-right hip yaw", "leg": "fr", "joint": "hip_yaw", "game_motor": "hip_yaw"},
-    "standin_hip_pitch_fr": {"inherits": "act_linear_heavy", "label": "Front-right hip pitch", "leg": "fr", "joint": "hip_pitch", "game_motor": "hip_pitch"},
-    "standin_knee_fr": {"inherits": "act_linear_heavy_knee", "label": "Front-right knee", "leg": "fr", "joint": "knee", "game_motor": "knee"},
-    "standin_hip_yaw_rl": {"inherits": "act_linear_heavy", "label": "Rear-left hip yaw", "leg": "rl", "joint": "hip_yaw", "game_motor": "hip_yaw"},
-    "standin_hip_pitch_rl": {"inherits": "act_linear_heavy", "label": "Rear-left hip pitch", "leg": "rl", "joint": "hip_pitch", "game_motor": "hip_pitch"},
-    "standin_knee_rl": {"inherits": "act_linear_heavy_knee", "label": "Rear-left knee", "leg": "rl", "joint": "knee", "game_motor": "knee"},
-    "standin_hip_yaw_rr": {"inherits": "act_linear_heavy", "label": "Rear-right hip yaw", "leg": "rr", "joint": "hip_yaw", "game_motor": "hip_yaw"},
-    "standin_hip_pitch_rr": {"inherits": "act_linear_heavy", "label": "Rear-right hip pitch", "leg": "rr", "joint": "hip_pitch", "game_motor": "hip_pitch"},
-    "standin_knee_rr": {"inherits": "act_linear_heavy_knee", "label": "Rear-right knee", "leg": "rr", "joint": "knee", "game_motor": "knee"}
+    "standin_hip_yaw_fl": {
+      "inherits": "act_linear_heavy",
+      "label": "Front-left hip yaw",
+      "leg": "fl",
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw"
+    },
+    "standin_hip_pitch_fl": {
+      "inherits": "act_linear_heavy",
+      "label": "Front-left hip pitch",
+      "leg": "fl",
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch"
+    },
+    "standin_knee_fl": {
+      "inherits": "act_linear_heavy_knee",
+      "label": "Front-left knee",
+      "leg": "fl",
+      "joint": "knee",
+      "game_motor": "knee"
+    },
+    "standin_hip_yaw_fr": {
+      "inherits": "act_linear_heavy",
+      "label": "Front-right hip yaw",
+      "leg": "fr",
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw"
+    },
+    "standin_hip_pitch_fr": {
+      "inherits": "act_linear_heavy",
+      "label": "Front-right hip pitch",
+      "leg": "fr",
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch"
+    },
+    "standin_knee_fr": {
+      "inherits": "act_linear_heavy_knee",
+      "label": "Front-right knee",
+      "leg": "fr",
+      "joint": "knee",
+      "game_motor": "knee"
+    },
+    "standin_hip_yaw_rl": {
+      "inherits": "act_linear_heavy",
+      "label": "Rear-left hip yaw",
+      "leg": "rl",
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw"
+    },
+    "standin_hip_pitch_rl": {
+      "inherits": "act_linear_heavy",
+      "label": "Rear-left hip pitch",
+      "leg": "rl",
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch"
+    },
+    "standin_knee_rl": {
+      "inherits": "act_linear_heavy_knee",
+      "label": "Rear-left knee",
+      "leg": "rl",
+      "joint": "knee",
+      "game_motor": "knee"
+    },
+    "standin_hip_yaw_rr": {
+      "inherits": "act_linear_heavy",
+      "label": "Rear-right hip yaw",
+      "leg": "rr",
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw"
+    },
+    "standin_hip_pitch_rr": {
+      "inherits": "act_linear_heavy",
+      "label": "Rear-right hip pitch",
+      "leg": "rr",
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch"
+    },
+    "standin_knee_rr": {
+      "inherits": "act_linear_heavy_knee",
+      "label": "Rear-right knee",
+      "leg": "rr",
+      "joint": "knee",
+      "game_motor": "knee"
+    },
+    "jg2_thigh_FR": {
+      "kind": "leg_upper",
+      "label": "Juggernaut Model 2 thigh (FR)",
+      "mass_kg": 262.24,
+      "health": 1800,
+      "armour_mm": 12,
+      "length_m": 1.67728,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.268,
+          0.47,
+          1.677
+        ]
+      },
+      "look": {
+        "color": "#5d6670",
+        "mesh": "box"
+      },
+      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+    },
+    "jg2_shin_FR": {
+      "kind": "leg_lower",
+      "label": "Juggernaut Model 2 shin (FR)",
+      "mass_kg": 202.56,
+      "health": 1500,
+      "armour_mm": 10,
+      "length_m": 2.09321,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.199,
+          0.242,
+          2.093
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+    },
+    "jg2_foot_FR": {
+      "kind": "foot",
+      "label": "Juggernaut Model 2 foot (FR)",
+      "mass_kg": 35.9,
+      "health": 900,
+      "armour_mm": 14,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.324,
+          0.46
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+    },
+    "jg2_act_hip_yaw_FR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_yaw actuator (FR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw",
+      "game_motor_figures": {
+        "max_torque_nm": 244367.99015113528,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 24436.799015113527,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 30545.99876889191,
+        "speed_rad_s": 0.15,
+        "power_w": 7049.076638975055,
+        "current_a": 73.42788165599016,
+        "heat_w": 2467.176823641269,
+        "seconds_to_overheat": 486.385891964135,
+        "rated_power_w": 7049.076638975055,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 36423.2,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_hip_pitch_FR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_pitch actuator (FR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch",
+      "game_motor_figures": {
+        "max_torque_nm": 1629119.934340902,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 162911.9934340902,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 203639.99179261274,
+        "speed_rad_s": 0.15,
+        "power_w": 46993.844259833706,
+        "current_a": 489.5192110399344,
+        "heat_w": 16447.845490941796,
+        "seconds_to_overheat": 72.95788379462024,
+        "rated_power_w": 46993.844259833706,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 242821.4,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_knee_FR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 knee actuator (FR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "knee",
+      "game_motor": "knee",
+      "game_motor_figures": {
+        "max_torque_nm": 908659.0117910097,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 90865.90117910097,
+      "bench": {
+        "kind": "linear",
+        "moment_arm_m": 0.11113808182449325,
+        "rated_force_n": 1021993.3132663107,
+        "speed_m_s": 0.025,
+        "power_w": 39307.43512562734,
+        "current_a": 409.45244922528474,
+        "heat_w": 13757.602293969567,
+        "seconds_to_overheat": 87.22450135995003,
+        "rated_power_w": 39307.43512562734,
+        "thermal_mass_j_per_k": 15000.0,
+        "peak_force_n": 1021993.3132663107,
+        "no_load_speed_m_s": 0.025,
+        "lever_arm_m": 0.11113808182449325,
+        "stroke_m": 0.837,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_ankle_FR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 ankle actuator (FR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "ankle",
+      "game_motor": "ankle",
+      "game_motor_figures": {
+        "max_torque_nm": 45432.950589550484,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 4543.295058955048,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 5679.118823693811,
+        "speed_rad_s": 0.15,
+        "power_w": 1310.5658823908793,
+        "current_a": 13.651727941571659,
+        "heat_w": 458.6980588368077,
+        "seconds_to_overheat": 2616.1000180446094,
+        "rated_power_w": 1310.5658823908793,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.523,
+        "peak_force_n": 10852.4,
+        "no_load_speed_m_s": 0.0785,
+        "stroke_m": 0.157,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_thigh_FL": {
+      "kind": "leg_upper",
+      "label": "Juggernaut Model 2 thigh (FL)",
+      "mass_kg": 262.25,
+      "health": 1800,
+      "armour_mm": 12,
+      "length_m": 1.67728,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.268,
+          0.47,
+          1.677
+        ]
+      },
+      "look": {
+        "color": "#5d6670",
+        "mesh": "box"
+      },
+      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+    },
+    "jg2_shin_FL": {
+      "kind": "leg_lower",
+      "label": "Juggernaut Model 2 shin (FL)",
+      "mass_kg": 202.96,
+      "health": 1500,
+      "armour_mm": 10,
+      "length_m": 2.09321,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.198,
+          0.247,
+          2.093
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+    },
+    "jg2_foot_FL": {
+      "kind": "foot",
+      "label": "Juggernaut Model 2 foot (FL)",
+      "mass_kg": 35.91,
+      "health": 900,
+      "armour_mm": 14,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.324,
+          0.46
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+    },
+    "jg2_act_hip_yaw_FL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_yaw actuator (FL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw",
+      "game_motor_figures": {
+        "max_torque_nm": 244367.99015113528,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 24436.799015113527,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 30545.99876889191,
+        "speed_rad_s": 0.15,
+        "power_w": 7049.076638975055,
+        "current_a": 73.42788165599016,
+        "heat_w": 2467.176823641269,
+        "seconds_to_overheat": 486.385891964135,
+        "rated_power_w": 7049.076638975055,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 36423.2,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_hip_pitch_FL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_pitch actuator (FL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch",
+      "game_motor_figures": {
+        "max_torque_nm": 1629119.934340902,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 162911.9934340902,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 203639.99179261274,
+        "speed_rad_s": 0.15,
+        "power_w": 46993.844259833706,
+        "current_a": 489.5192110399344,
+        "heat_w": 16447.845490941796,
+        "seconds_to_overheat": 72.95788379462024,
+        "rated_power_w": 46993.844259833706,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 242821.4,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_knee_FL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 knee actuator (FL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "knee",
+      "game_motor": "knee",
+      "game_motor_figures": {
+        "max_torque_nm": 908659.0117910097,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 90865.90117910097,
+      "bench": {
+        "kind": "linear",
+        "moment_arm_m": 0.11113808182449325,
+        "rated_force_n": 1021993.3132663107,
+        "speed_m_s": 0.025,
+        "power_w": 39307.43512562734,
+        "current_a": 409.45244922528474,
+        "heat_w": 13757.602293969567,
+        "seconds_to_overheat": 87.22450135995003,
+        "rated_power_w": 39307.43512562734,
+        "thermal_mass_j_per_k": 15000.0,
+        "peak_force_n": 1021993.3132663107,
+        "no_load_speed_m_s": 0.025,
+        "lever_arm_m": 0.11113808182449325,
+        "stroke_m": 0.837,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_ankle_FL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 ankle actuator (FL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "ankle",
+      "game_motor": "ankle",
+      "game_motor_figures": {
+        "max_torque_nm": 45432.950589550484,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 4543.295058955048,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 5679.118823693811,
+        "speed_rad_s": 0.15,
+        "power_w": 1310.5658823908793,
+        "current_a": 13.651727941571659,
+        "heat_w": 458.6980588368077,
+        "seconds_to_overheat": 2616.1000180446094,
+        "rated_power_w": 1310.5658823908793,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.523,
+        "peak_force_n": 10852.4,
+        "no_load_speed_m_s": 0.0785,
+        "stroke_m": 0.157,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_thigh_RR": {
+      "kind": "leg_upper",
+      "label": "Juggernaut Model 2 thigh (RR)",
+      "mass_kg": 262.29,
+      "health": 1800,
+      "armour_mm": 12,
+      "length_m": 1.67728,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.268,
+          0.47,
+          1.677
+        ]
+      },
+      "look": {
+        "color": "#5d6670",
+        "mesh": "box"
+      },
+      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+    },
+    "jg2_shin_RR": {
+      "kind": "leg_lower",
+      "label": "Juggernaut Model 2 shin (RR)",
+      "mass_kg": 202.98,
+      "health": 1500,
+      "armour_mm": 10,
+      "length_m": 2.09321,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.197,
+          0.242,
+          2.093
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+    },
+    "jg2_foot_RR": {
+      "kind": "foot",
+      "label": "Juggernaut Model 2 foot (RR)",
+      "mass_kg": 35.91,
+      "health": 900,
+      "armour_mm": 14,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.324,
+          0.46
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+    },
+    "jg2_act_hip_yaw_RR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_yaw actuator (RR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw",
+      "game_motor_figures": {
+        "max_torque_nm": 244367.99015113528,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 24436.799015113527,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 30545.99876889191,
+        "speed_rad_s": 0.15,
+        "power_w": 7049.076638975055,
+        "current_a": 73.42788165599016,
+        "heat_w": 2467.176823641269,
+        "seconds_to_overheat": 486.385891964135,
+        "rated_power_w": 7049.076638975055,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 36423.2,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_hip_pitch_RR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_pitch actuator (RR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch",
+      "game_motor_figures": {
+        "max_torque_nm": 1629119.934340902,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 162911.9934340902,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 203639.99179261274,
+        "speed_rad_s": 0.15,
+        "power_w": 46993.844259833706,
+        "current_a": 489.5192110399344,
+        "heat_w": 16447.845490941796,
+        "seconds_to_overheat": 72.95788379462024,
+        "rated_power_w": 46993.844259833706,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 242821.4,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_knee_RR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 knee actuator (RR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "knee",
+      "game_motor": "knee",
+      "game_motor_figures": {
+        "max_torque_nm": 908659.0117910097,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 90865.90117910097,
+      "bench": {
+        "kind": "linear",
+        "moment_arm_m": 0.11113808182449325,
+        "rated_force_n": 1021993.3132663107,
+        "speed_m_s": 0.025,
+        "power_w": 39307.43512562734,
+        "current_a": 409.45244922528474,
+        "heat_w": 13757.602293969567,
+        "seconds_to_overheat": 87.22450135995003,
+        "rated_power_w": 39307.43512562734,
+        "thermal_mass_j_per_k": 15000.0,
+        "peak_force_n": 1021993.3132663107,
+        "no_load_speed_m_s": 0.025,
+        "lever_arm_m": 0.11113808182449325,
+        "stroke_m": 0.837,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_ankle_RR": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 ankle actuator (RR)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "ankle",
+      "game_motor": "ankle",
+      "game_motor_figures": {
+        "max_torque_nm": 45432.950589550484,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 4543.295058955048,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 5679.118823693811,
+        "speed_rad_s": 0.15,
+        "power_w": 1310.5658823908793,
+        "current_a": 13.651727941571659,
+        "heat_w": 458.6980588368077,
+        "seconds_to_overheat": 2616.1000180446094,
+        "rated_power_w": 1310.5658823908793,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.523,
+        "peak_force_n": 10852.4,
+        "no_load_speed_m_s": 0.0785,
+        "stroke_m": 0.157,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_thigh_RL": {
+      "kind": "leg_upper",
+      "label": "Juggernaut Model 2 thigh (RL)",
+      "mass_kg": 262.19,
+      "health": 1800,
+      "armour_mm": 12,
+      "length_m": 1.67728,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.268,
+          0.47,
+          1.677
+        ]
+      },
+      "look": {
+        "color": "#5d6670",
+        "mesh": "box"
+      },
+      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+    },
+    "jg2_shin_RL": {
+      "kind": "leg_lower",
+      "label": "Juggernaut Model 2 shin (RL)",
+      "mass_kg": 202.55,
+      "health": 1500,
+      "armour_mm": 10,
+      "length_m": 2.09321,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.199,
+          0.247,
+          2.093
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+    },
+    "jg2_foot_RL": {
+      "kind": "foot",
+      "label": "Juggernaut Model 2 foot (RL)",
+      "mass_kg": 35.9,
+      "health": 900,
+      "armour_mm": 14,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.324,
+          0.46
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+    },
+    "jg2_act_hip_yaw_RL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_yaw actuator (RL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_yaw",
+      "game_motor": "hip_yaw",
+      "game_motor_figures": {
+        "max_torque_nm": 244367.99015113528,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 24436.799015113527,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 30545.99876889191,
+        "speed_rad_s": 0.15,
+        "power_w": 7049.076638975055,
+        "current_a": 73.42788165599016,
+        "heat_w": 2467.176823641269,
+        "seconds_to_overheat": 486.385891964135,
+        "rated_power_w": 7049.076638975055,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 36423.2,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_hip_pitch_RL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 hip_pitch actuator (RL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "hip_pitch",
+      "game_motor": "hip_pitch",
+      "game_motor_figures": {
+        "max_torque_nm": 1629119.934340902,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 162911.9934340902,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 203639.99179261274,
+        "speed_rad_s": 0.15,
+        "power_w": 46993.844259833706,
+        "current_a": 489.5192110399344,
+        "heat_w": 16447.845490941796,
+        "seconds_to_overheat": 72.95788379462024,
+        "rated_power_w": 46993.844259833706,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.839,
+        "peak_force_n": 242821.4,
+        "no_load_speed_m_s": 0.1258,
+        "stroke_m": 0.252,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_knee_RL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 knee actuator (RL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "knee",
+      "game_motor": "knee",
+      "game_motor_figures": {
+        "max_torque_nm": 908659.0117910097,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 90865.90117910097,
+      "bench": {
+        "kind": "linear",
+        "moment_arm_m": 0.11113808182449325,
+        "rated_force_n": 1021993.3132663107,
+        "speed_m_s": 0.025,
+        "power_w": 39307.43512562734,
+        "current_a": 409.45244922528474,
+        "heat_w": 13757.602293969567,
+        "seconds_to_overheat": 87.22450135995003,
+        "rated_power_w": 39307.43512562734,
+        "thermal_mass_j_per_k": 15000.0,
+        "peak_force_n": 1021993.3132663107,
+        "no_load_speed_m_s": 0.025,
+        "lever_arm_m": 0.11113808182449325,
+        "stroke_m": 0.837,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_act_ankle_RL": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 ankle actuator (RL)",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "ankle",
+      "game_motor": "ankle",
+      "game_motor_figures": {
+        "max_torque_nm": 45432.950589550484,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 4543.295058955048,
+      "bench": {
+        "kind": "rotary",
+        "rated_torque_nm": 5679.118823693811,
+        "speed_rad_s": 0.15,
+        "power_w": 1310.5658823908793,
+        "current_a": 13.651727941571659,
+        "heat_w": 458.6980588368077,
+        "seconds_to_overheat": 2616.1000180446094,
+        "rated_power_w": 1310.5658823908793,
+        "thermal_mass_j_per_k": 15000.0,
+        "lever_arm_m": 0.523,
+        "peak_force_n": 10852.4,
+        "no_load_speed_m_s": 0.0785,
+        "stroke_m": 0.157,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_ammobox_l": {
+      "kind": "ammo",
+      "label": "Juggernaut Model 2: ammobox.L",
+      "mass_kg": 412.83,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.464,
+          0.448,
+          1.208
+        ]
+      },
+      "look": {
+        "color": "#7a4a2a",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ammobox_r": {
+      "kind": "ammo",
+      "label": "Juggernaut Model 2: ammobox.R",
+      "mass_kg": 412.83,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.464,
+          0.448,
+          1.208
+        ]
+      },
+      "look": {
+        "color": "#7a4a2a",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_barrel": {
+      "kind": "gun_barrel",
+      "label": "Juggernaut Model 2: barrel",
+      "mass_kg": 1928.66,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.584,
+          0.722,
+          5.148
+        ]
+      },
+      "look": {
+        "color": "#3a3f45",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_blade_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: blade.L",
+      "mass_kg": 13.9,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.076,
+          0.4,
+          2.04
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_blade_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: blade.R",
+      "mass_kg": 13.9,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.076,
+          0.4,
+          2.04
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_canopy": {
+      "kind": "cockpit",
+      "label": "Juggernaut Model 2: canopy",
+      "mass_kg": 273.24,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.708,
+          0.826,
+          1.889
+        ]
+      },
+      "look": {
+        "color": "#3b4046",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_coxa_fl": {
+      "kind": "joint",
+      "label": "Juggernaut Model 2: coxa.FL",
+      "mass_kg": 157.7,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.559,
+          0.581,
+          0.387
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_coxa_fr": {
+      "kind": "joint",
+      "label": "Juggernaut Model 2: coxa.FR",
+      "mass_kg": 162.59,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.559,
+          0.581,
+          0.387
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_coxa_rl": {
+      "kind": "joint",
+      "label": "Juggernaut Model 2: coxa.RL",
+      "mass_kg": 162.59,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.559,
+          0.581,
+          0.387
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_coxa_rr": {
+      "kind": "joint",
+      "label": "Juggernaut Model 2: coxa.RR",
+      "mass_kg": 157.7,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.559,
+          0.581,
+          0.387
+        ]
+      },
+      "look": {
+        "color": "#4b545d",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_dart_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: dart.L",
+      "mass_kg": 11.37,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.179,
+          0.235,
+          0.812
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_dart_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: dart.R",
+      "mass_kg": 11.37,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.179,
+          0.235,
+          0.812
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_eye": {
+      "kind": "sensor",
+      "label": "Juggernaut Model 2: eye",
+      "mass_kg": 283.56,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.422,
+          0.783,
+          1.114
+        ]
+      },
+      "look": {
+        "color": "#2f5c6b",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_flank_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: flank.L",
+      "mass_kg": 302.19,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.784,
+          0.792,
+          1.905
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_flank_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: flank.R",
+      "mass_kg": 302.18,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.784,
+          0.792,
+          1.905
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_gunmount": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: gunmount",
+      "mass_kg": 156.67,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.663,
+          0.542,
+          0.873
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_gunram_cyl": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: gunram_cyl",
+      "mass_kg": 13.46,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.157,
+          0.566,
+          0.515
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_gunram_rod": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: gunram_rod",
+      "mass_kg": 3.37,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.088,
+          0.624,
+          0.544
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_gunsaddle": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: gunsaddle",
+      "mass_kg": 19.3,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.631,
+          0.286,
+          0.148
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ladder": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: ladder",
+      "mass_kg": 7.43,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.36,
+          0.6,
+          0.076
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_lamp_l": {
+      "kind": "sensor",
+      "label": "Juggernaut Model 2: lamp.L",
+      "mass_kg": 13.05,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.364,
+          0.393,
+          0.067
+        ]
+      },
+      "look": {
+        "color": "#2f5c6b",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_lamp_r": {
+      "kind": "sensor",
+      "label": "Juggernaut Model 2: lamp.R",
+      "mass_kg": 13.05,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.364,
+          0.393,
+          0.067
+        ]
+      },
+      "look": {
+        "color": "#2f5c6b",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_lowerside_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: lowerside.L",
+      "mass_kg": 5.62,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.066,
+          0.738,
+          0.311
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_lowerside_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: lowerside.R",
+      "mass_kg": 5.62,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.066,
+          0.738,
+          0.311
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_magazine": {
+      "kind": "ammo",
+      "label": "Juggernaut Model 2: magazine",
+      "mass_kg": 1405.98,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.459,
+          1.439,
+          1.652
+        ]
+      },
+      "look": {
+        "color": "#7a4a2a",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_pod_tub": {
+      "kind": "cockpit",
+      "label": "Juggernaut Model 2: pod_tub",
+      "mass_kg": 679.07,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.661,
+          1.405,
+          1.983
+        ]
+      },
+      "look": {
+        "color": "#3b4046",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_podrear": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: podrear",
+      "mass_kg": 56.08,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.724,
+          0.713,
+          0.241
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramcyl_fl": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramcyl.FL",
+      "mass_kg": 17.7,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.627,
+          0.666,
+          0.392
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramcyl_fr": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramcyl.FR",
+      "mass_kg": 17.69,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.627,
+          0.666,
+          0.392
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramcyl_rl": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramcyl.RL",
+      "mass_kg": 17.69,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.627,
+          0.666,
+          0.392
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramcyl_rr": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramcyl.RR",
+      "mass_kg": 17.7,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.627,
+          0.666,
+          0.392
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramrod_fl": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramrod.FL",
+      "mass_kg": 4.19,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.592,
+          0.64,
+          0.332
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramrod_fr": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramrod.FR",
+      "mass_kg": 4.19,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.592,
+          0.64,
+          0.332
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramrod_rl": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramrod.RL",
+      "mass_kg": 4.19,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.592,
+          0.64,
+          0.332
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_ramrod_rr": {
+      "kind": "other",
+      "label": "Juggernaut Model 2: ramrod.RR",
+      "mass_kg": 4.19,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.592,
+          0.64,
+          0.332
+        ]
+      },
+      "look": {
+        "color": "#565f68",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_receiver": {
+      "kind": "gun_mech",
+      "label": "Juggernaut Model 2: receiver",
+      "mass_kg": 2723.53,
+      "health": 1000,
+      "armour_mm": 0,
+      "collider": {
+        "shape": "box",
+        "size": [
+          1.084,
+          1.897,
+          3.464
+        ]
+      },
+      "look": {
+        "color": "#454c54",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_sidepanel_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: sidepanel.L",
+      "mass_kg": 22.47,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.216,
+          0.392,
+          1.24
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_sidepanel_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: sidepanel.R",
+      "mass_kg": 22.47,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.216,
+          0.392,
+          1.24
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_spool_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: spool.L",
+      "mass_kg": 24.32,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.446,
+          0.353,
+          0.384
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_spool_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: spool.R",
+      "mass_kg": 24.32,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.446,
+          0.353,
+          0.384
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_subarm_l": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: subarm.L",
+      "mass_kg": 41.09,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.292,
+          0.814
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_subarm_r": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: subarm.R",
+      "mass_kg": 41.09,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.384,
+          0.292,
+          0.814
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_visor": {
+      "kind": "armour",
+      "label": "Juggernaut Model 2: visor",
+      "mass_kg": 278.75,
+      "health": 1000,
+      "armour_mm": 6,
+      "collider": {
+        "shape": "box",
+        "size": [
+          0.615,
+          0.681,
+          1.295
+        ]
+      },
+      "look": {
+        "color": "#6b7580",
+        "mesh": "box"
+      },
+      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+    },
+    "jg2_act_gun_elevation": {
+      "kind": "actuator",
+      "label": "Juggernaut Model 2 gun_elevation actuator",
+      "mass_kg": 0.0,
+      "health": 500,
+      "armour_mm": 0,
+      "collider": null,
+      "joint": "gun_elevation",
+      "game_motor": "gun_elevation",
+      "game_motor_figures": {
+        "max_torque_nm": 17961.94110130477,
+        "max_speed_rad_s": 6.0
+      },
+      "static_torque_nm": 1796.194110130477,
+      "bench": {
+        "kind": "linear",
+        "moment_arm_m": 0.43631782379912226,
+        "rated_force_n": 5145.887963304453,
+        "speed_m_s": 0.025,
+        "power_w": 197.918767819402,
+        "current_a": 2.0616538314521042,
+        "heat_w": 69.2715687367907,
+        "seconds_to_overheat": 17323.124362313887,
+        "rated_power_w": 197.918767819402,
+        "thermal_mass_j_per_k": 15000.0,
+        "peak_force_n": 5145.887963304453,
+        "no_load_speed_m_s": 0.025,
+        "lever_arm_m": 0.43631782379912226,
+        "stroke_m": 0.24,
+        "efficiency": 0.85
+      },
+      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    }
   }
 }

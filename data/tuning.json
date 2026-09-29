@@ -8,7 +8,9 @@
     "_about": "Game-mode magic motors per joint kind: far stronger and faster than any real actuator, for the anime feel.",
     "hip_yaw": {"torque_nm": 600000.0, "speed_deg_s": 360.0},
     "hip_pitch": {"torque_nm": 900000.0, "speed_deg_s": 360.0},
-    "knee": {"torque_nm": 1200000.0, "speed_deg_s": 420.0}
+    "knee": {"torque_nm": 1200000.0, "speed_deg_s": 420.0},
+    "ankle": {"torque_nm": 300000.0, "speed_deg_s": 420.0},
+    "gun_elevation": {"torque_nm": 50000.0, "speed_deg_s": 90.0}
   },
   "standin": {
     "suspension": {
@@ -52,6 +54,17 @@
     "upright": {
       "stiffness": 6.0,
       "damping": 2.2
+    },
+    "step": {
+      "swing_s": 0.28,
+      "lift_m": 0.55
+    }
+  },
+  "juggernaut": {
+    "_about": "Overrides on top of \"standin\" (scripts/mech/juggernaut_mech.gd deep-merges this over the standin block) for the real Model 2's much bigger legs: refs/anime-motion/ANALYSIS.md measured a 0.5 s step cycle at duty about 0.62 walking (swing_s = 0.5 * (1 - duty)) with the knee lifting well above the hull. Drive speed, run duty, the skid's outward leg brace and the jump's leg-stretch pose are not tuned yet (lane A2 part 2): this pass only fixes the step timing so it does not look like the stand-in's placeholder shuffle.",
+    "step": {
+      "swing_s": 0.19,
+      "lift_m": 0.85
     }
   },
   "jump_bench": {

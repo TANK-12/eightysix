@@ -12,8 +12,6 @@ signal landed(impact_speed: float)
 signal stepped(leg: String)
 
 const RAY_MASK := 1
-const STEP_S := 0.28
-const STEP_LIFT_M := 0.55
 
 var mech_id := ""
 var def: Dictionary = {}
@@ -46,6 +44,8 @@ var _mouse := Vector2.ZERO
 var _brake := 0.0
 var _bench_speed_cap := INF
 var _t: Dictionary = {}
+var _step_s := 0.28
+var _step_lift_m := 0.55
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -55,6 +55,7 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 	mass_info = info
 	actuators = acts
 	_t = Registry.tune("standin", {})
+	_apply_tuning()
 	var height := float(def.get("stance", {}).get("height_m", 2.0))
 	var k := _stiffness()
 	for leg: Dictionary in legs:
@@ -85,6 +86,14 @@ func _ready() -> void:
 		var foot_world := to_global(MechBuilder.rest_foot(def, leg["hip"]))
 		leg["planted"] = foot_world
 		leg["foot"] = foot_world
+
+
+## Reads "step" (swing_s, lift_m) from `_t`; a subclass that swaps `_t` for its own tuning block
+## (a real mech's legs are a different size to the stand-in's) calls this again afterwards.
+func _apply_tuning() -> void:
+	var step: Dictionary = _t.get("step", {})
+	_step_s = float(step.get("swing_s", 0.28))
+	_step_lift_m = float(step.get("lift_m", 0.55))
 
 
 func bench_mode() -> bool:
@@ -337,11 +346,11 @@ func _physics_process(delta: float) -> void:
 			target_world = xf * (hip + Vector3(signf(hip.x) * 0.9, -float(leg["rest_len"]) * 0.95, 0.0))
 		var t := float(leg["step_t"])
 		if t >= 0.0:
-			t += delta / STEP_S
+			t += delta / _step_s
 			leg["step_t"] = t
 			var from: Vector3 = leg["step_from"]
 			var to: Vector3 = leg["step_to"] if not leg["contact"] else target_world
-			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * STEP_LIFT_M
+			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * _step_lift_m
 			leg["foot"] = foot
 			if t >= 1.0:
 				leg["step_t"] = -1.0

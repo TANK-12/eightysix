@@ -7,38 +7,670 @@
       "controller": "standin",
       "description": "Lane A1's box walker: same data path as the real Juggernaut (per-part colliders, mass summed from parts, actuators per joint) so the game loop runs end to end before lane B1's export lands.",
       "parts": [
-        {"part": "standin_chassis", "at": [0.0, 0.0, 0.0]},
-        {"part": "standin_gun_57", "at": [0.0, 0.85, -1.6], "socket": "main_gun"},
-        {"part": "standin_subarm", "at": [-1.45, -0.1, -1.5], "socket": "sub_left"},
-        {"part": "standin_subarm", "at": [1.45, -0.1, -1.5], "socket": "sub_right"}
+        {
+          "part": "standin_chassis",
+          "at": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "part": "standin_gun_57",
+          "at": [
+            0.0,
+            0.85,
+            -1.6
+          ],
+          "socket": "main_gun"
+        },
+        {
+          "part": "standin_subarm",
+          "at": [
+            -1.45,
+            -0.1,
+            -1.5
+          ],
+          "socket": "sub_left"
+        },
+        {
+          "part": "standin_subarm",
+          "at": [
+            1.45,
+            -0.1,
+            -1.5
+          ],
+          "socket": "sub_right"
+        }
       ],
-      "stance": {"height_m": 2.3, "foot_out_m": 1.1, "foot_forward_m": 0.2},
-      "legs": {
-        "fl": {"hip": [-1.2, -0.35, -1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_fl", "standin_hip_pitch_fl", "standin_knee_fl"]},
-        "fr": {"hip": [1.2, -0.35, -1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_fr", "standin_hip_pitch_fr", "standin_knee_fr"]},
-        "rl": {"hip": [-1.2, -0.35, 1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_rl", "standin_hip_pitch_rl", "standin_knee_rl"]},
-        "rr": {"hip": [1.2, -0.35, 1.4], "upper": "standin_leg_upper", "lower": "standin_leg_lower", "foot": "standin_foot", "actuators": ["standin_hip_yaw_rr", "standin_hip_pitch_rr", "standin_knee_rr"]}
+      "stance": {
+        "height_m": 2.3,
+        "foot_out_m": 1.1,
+        "foot_forward_m": 0.2
       },
-      "loadout": {"main_gun": "gun_57mm", "sub_left": "wire_anchor", "sub_right": "wire_anchor"},
-      "power": {"bus_voltage_v": 400.0, "battery_kwh": 150.0, "max_discharge_kw": 600.0},
-      "cameras": {"cockpit": [0.0, 0.35, -1.55]}
+      "legs": {
+        "fl": {
+          "hip": [
+            -1.2,
+            -0.35,
+            -1.4
+          ],
+          "upper": "standin_leg_upper",
+          "lower": "standin_leg_lower",
+          "foot": "standin_foot",
+          "actuators": [
+            "standin_hip_yaw_fl",
+            "standin_hip_pitch_fl",
+            "standin_knee_fl"
+          ]
+        },
+        "fr": {
+          "hip": [
+            1.2,
+            -0.35,
+            -1.4
+          ],
+          "upper": "standin_leg_upper",
+          "lower": "standin_leg_lower",
+          "foot": "standin_foot",
+          "actuators": [
+            "standin_hip_yaw_fr",
+            "standin_hip_pitch_fr",
+            "standin_knee_fr"
+          ]
+        },
+        "rl": {
+          "hip": [
+            -1.2,
+            -0.35,
+            1.4
+          ],
+          "upper": "standin_leg_upper",
+          "lower": "standin_leg_lower",
+          "foot": "standin_foot",
+          "actuators": [
+            "standin_hip_yaw_rl",
+            "standin_hip_pitch_rl",
+            "standin_knee_rl"
+          ]
+        },
+        "rr": {
+          "hip": [
+            1.2,
+            -0.35,
+            1.4
+          ],
+          "upper": "standin_leg_upper",
+          "lower": "standin_leg_lower",
+          "foot": "standin_foot",
+          "actuators": [
+            "standin_hip_yaw_rr",
+            "standin_hip_pitch_rr",
+            "standin_knee_rr"
+          ]
+        }
+      },
+      "loadout": {
+        "main_gun": "gun_57mm",
+        "sub_left": "wire_anchor",
+        "sub_right": "wire_anchor"
+      },
+      "power": {
+        "bus_voltage_v": 400.0,
+        "battery_kwh": 150.0,
+        "max_discharge_kw": 600.0
+      },
+      "cameras": {
+        "cockpit": [
+          0.0,
+          0.35,
+          -1.55
+        ]
+      }
     },
     "juggernaut_m2": {
       "label": "Juggernaut (Model 2)",
-      "status": "planned",
+      "status": "ready",
       "owner_lane": "B1 (model and game export), A2 (locomotion)",
       "controller": "juggernaut",
-      "model": "res://assets/models/juggernaut/juggernaut_mk2.glb", "model_data": "res://assets/models/juggernaut/juggernaut_mk2.json",
+      "model": "res://assets/models/juggernaut/juggernaut_mk2.glb",
+      "model_data": "res://assets/models/juggernaut/juggernaut_mk2.json",
       "description": "The Reginleif-style walker from lane B1's export: parts, colliders, sockets and actuators arrive with it.",
-      "parts": [],
-      "legs": {},
-      "loadout": {"main_gun": "gun_57mm", "sub_left": "wire_anchor", "sub_right": "wire_anchor"}
+      "parts": [
+        {
+          "part": "jg2_ammobox_l",
+          "at": [
+            -0.59636,
+            -0.21274,
+            -0.05203
+          ]
+        },
+        {
+          "part": "jg2_ammobox_r",
+          "at": [
+            0.59636,
+            -0.21274,
+            -0.05203
+          ]
+        },
+        {
+          "part": "jg2_barrel",
+          "at": [
+            0.0,
+            0.98389,
+            -1.52102
+          ]
+        },
+        {
+          "part": "jg2_blade_l",
+          "at": [
+            -0.82739,
+            -0.29571,
+            -2.4566
+          ]
+        },
+        {
+          "part": "jg2_blade_r",
+          "at": [
+            0.82739,
+            -0.29571,
+            -2.4566
+          ]
+        },
+        {
+          "part": "jg2_canopy",
+          "at": [
+            0.0,
+            0.24873,
+            -0.25056
+          ]
+        },
+        {
+          "part": "jg2_coxa_fl",
+          "at": [
+            -0.53914,
+            -0.64916,
+            -0.42309
+          ]
+        },
+        {
+          "part": "jg2_coxa_fr",
+          "at": [
+            0.5427,
+            -0.65579,
+            -0.42376
+          ]
+        },
+        {
+          "part": "jg2_coxa_rl",
+          "at": [
+            -0.5427,
+            -0.65579,
+            0.42376
+          ]
+        },
+        {
+          "part": "jg2_coxa_rr",
+          "at": [
+            0.53914,
+            -0.64915,
+            0.42308
+          ]
+        },
+        {
+          "part": "jg2_dart_l",
+          "at": [
+            -0.39211,
+            -0.10134,
+            -1.27964
+          ]
+        },
+        {
+          "part": "jg2_dart_r",
+          "at": [
+            0.3921,
+            -0.10133,
+            -1.27965
+          ]
+        },
+        {
+          "part": "jg2_eye",
+          "at": [
+            0.00687,
+            -0.42796,
+            -1.65133
+          ]
+        },
+        {
+          "part": "jg2_flank_l",
+          "at": [
+            -0.68337,
+            -0.18167,
+            -0.66346
+          ]
+        },
+        {
+          "part": "jg2_flank_r",
+          "at": [
+            0.68337,
+            -0.18168,
+            -0.66345
+          ]
+        },
+        {
+          "part": "jg2_gunmount",
+          "at": [
+            -0.0,
+            0.45368,
+            1.11508
+          ]
+        },
+        {
+          "part": "jg2_gunram_cyl",
+          "at": [
+            -0.0,
+            -0.20597,
+            0.96881
+          ]
+        },
+        {
+          "part": "jg2_gunram_rod",
+          "at": [
+            -0.0,
+            0.18247,
+            1.2946
+          ]
+        },
+        {
+          "part": "jg2_gunsaddle",
+          "at": [
+            -0.0,
+            0.08188,
+            0.64929
+          ]
+        },
+        {
+          "part": "jg2_ladder",
+          "at": [
+            0.0,
+            0.36376,
+            0.74804
+          ]
+        },
+        {
+          "part": "jg2_lamp_l",
+          "at": [
+            -0.55283,
+            -0.12985,
+            0.59655
+          ]
+        },
+        {
+          "part": "jg2_lamp_r",
+          "at": [
+            0.55283,
+            -0.12985,
+            0.59655
+          ]
+        },
+        {
+          "part": "jg2_lowerside_l",
+          "at": [
+            -0.38395,
+            -0.14696,
+            0.02297
+          ]
+        },
+        {
+          "part": "jg2_lowerside_r",
+          "at": [
+            0.38395,
+            -0.14696,
+            0.02297
+          ]
+        },
+        {
+          "part": "jg2_magazine",
+          "at": [
+            0.0,
+            -0.10966,
+            2.73182
+          ]
+        },
+        {
+          "part": "jg2_pod_tub",
+          "at": [
+            0.00226,
+            -0.10431,
+            -0.19056
+          ]
+        },
+        {
+          "part": "jg2_podrear",
+          "at": [
+            0.0,
+            -0.20528,
+            0.80183
+          ]
+        },
+        {
+          "part": "jg2_ramcyl_fl",
+          "at": [
+            -1.10546,
+            -0.45762,
+            -0.68647
+          ]
+        },
+        {
+          "part": "jg2_ramcyl_fr",
+          "at": [
+            1.10172,
+            -0.45677,
+            -0.69222
+          ]
+        },
+        {
+          "part": "jg2_ramcyl_rl",
+          "at": [
+            -1.10172,
+            -0.45677,
+            0.69222
+          ]
+        },
+        {
+          "part": "jg2_ramcyl_rr",
+          "at": [
+            1.10547,
+            -0.45762,
+            0.68647
+          ]
+        },
+        {
+          "part": "jg2_ramrod_fl",
+          "at": [
+            -1.45541,
+            -0.07205,
+            -0.86156
+          ]
+        },
+        {
+          "part": "jg2_ramrod_fr",
+          "at": [
+            1.45541,
+            -0.07205,
+            -0.86156
+          ]
+        },
+        {
+          "part": "jg2_ramrod_rl",
+          "at": [
+            -1.45541,
+            -0.07205,
+            0.86156
+          ]
+        },
+        {
+          "part": "jg2_ramrod_rr",
+          "at": [
+            1.45541,
+            -0.07205,
+            0.86156
+          ]
+        },
+        {
+          "part": "jg2_receiver",
+          "at": [
+            -0.00407,
+            0.89074,
+            2.0446
+          ]
+        },
+        {
+          "part": "jg2_sidepanel_l",
+          "at": [
+            -0.29213,
+            0.28138,
+            -0.00166
+          ]
+        },
+        {
+          "part": "jg2_sidepanel_r",
+          "at": [
+            0.29213,
+            0.28138,
+            -0.00166
+          ]
+        },
+        {
+          "part": "jg2_spool_l",
+          "at": [
+            -0.58725,
+            -0.34134,
+            -1.09452
+          ]
+        },
+        {
+          "part": "jg2_spool_r",
+          "at": [
+            0.58725,
+            -0.34134,
+            -1.09452
+          ]
+        },
+        {
+          "part": "jg2_subarm_l",
+          "at": [
+            -0.9126,
+            -0.24199,
+            -1.35526
+          ]
+        },
+        {
+          "part": "jg2_subarm_r",
+          "at": [
+            0.9126,
+            -0.24199,
+            -1.35526
+          ]
+        },
+        {
+          "part": "jg2_visor",
+          "at": [
+            -0.0,
+            -0.17222,
+            -1.51484
+          ]
+        }
+      ],
+      "legs": {
+        "fr": {
+          "hip": [
+            0.43781,
+            -0.48233,
+            -0.42668
+          ],
+          "upper": "jg2_thigh_FR",
+          "lower": "jg2_shin_FR",
+          "foot": "jg2_foot_FR",
+          "actuators": [
+            "jg2_act_hip_yaw_FR",
+            "jg2_act_hip_pitch_FR",
+            "jg2_act_knee_FR",
+            "jg2_act_ankle_FR"
+          ]
+        },
+        "fl": {
+          "hip": [
+            -0.43781,
+            -0.48233,
+            -0.42668
+          ],
+          "upper": "jg2_thigh_FL",
+          "lower": "jg2_shin_FL",
+          "foot": "jg2_foot_FL",
+          "actuators": [
+            "jg2_act_hip_yaw_FL",
+            "jg2_act_hip_pitch_FL",
+            "jg2_act_knee_FL",
+            "jg2_act_ankle_FL"
+          ]
+        },
+        "rr": {
+          "hip": [
+            0.43781,
+            -0.48233,
+            0.42668
+          ],
+          "upper": "jg2_thigh_RR",
+          "lower": "jg2_shin_RR",
+          "foot": "jg2_foot_RR",
+          "actuators": [
+            "jg2_act_hip_yaw_RR",
+            "jg2_act_hip_pitch_RR",
+            "jg2_act_knee_RR",
+            "jg2_act_ankle_RR"
+          ]
+        },
+        "rl": {
+          "hip": [
+            -0.43781,
+            -0.48233,
+            0.42668
+          ],
+          "upper": "jg2_thigh_RL",
+          "lower": "jg2_shin_RL",
+          "foot": "jg2_foot_RL",
+          "actuators": [
+            "jg2_act_hip_yaw_RL",
+            "jg2_act_hip_pitch_RL",
+            "jg2_act_knee_RL",
+            "jg2_act_ankle_RL"
+          ]
+        }
+      },
+      "loadout": {
+        "main_gun": "gun_57mm",
+        "sub_left": "wire_anchor",
+        "sub_right": "wire_anchor"
+      },
+      "stance": {
+        "height_m": 1.4099,
+        "foot_out_m": 2.3861,
+        "foot_forward_m": 1.4989
+      },
+      "cameras": {
+        "cockpit": [
+          0.0,
+          0.3339,
+          -0.2226
+        ],
+        "eye": [
+          0.0,
+          -0.1633,
+          -2.1
+        ]
+      },
+      "sockets": {
+        "muzzle": {
+          "bone": "gun_pitch",
+          "at": [
+            0.0,
+            1.0686,
+            -4.6378
+          ]
+        },
+        "subarm_R": {
+          "bone": "subarm.R",
+          "at": [
+            0.3785,
+            -0.1299,
+            -1.7438
+          ]
+        },
+        "subarm_L": {
+          "bone": "subarm.L",
+          "at": [
+            -0.3785,
+            -0.1299,
+            -1.7438
+          ]
+        },
+        "wire_anchor_R": {
+          "bone": "body",
+          "at": [
+            0.9721,
+            -0.371,
+            -1.332
+          ]
+        },
+        "wire_anchor_L": {
+          "bone": "body",
+          "at": [
+            -0.9721,
+            -0.371,
+            -1.332
+          ]
+        },
+        "logo_R": {
+          "bone": "body",
+          "at": [
+            0.3191,
+            0.2597,
+            -0.0
+          ]
+        },
+        "logo_L": {
+          "bone": "body",
+          "at": [
+            -0.3191,
+            0.2597,
+            -0.0
+          ]
+        },
+        "sole_FR": {
+          "bone": "foot.FR",
+          "at": [
+            2.8239,
+            -1.4099,
+            -1.9256
+          ]
+        },
+        "sole_FL": {
+          "bone": "foot.FL",
+          "at": [
+            -2.8239,
+            -1.4099,
+            -1.9256
+          ]
+        },
+        "sole_RR": {
+          "bone": "foot.RR",
+          "at": [
+            2.8239,
+            -1.4099,
+            1.9256
+          ]
+        },
+        "sole_RL": {
+          "bone": "foot.RL",
+          "at": [
+            -2.8239,
+            -1.4099,
+            1.9256
+          ]
+        }
+      },
+      "origin": "model2's 'body' bone (chest height); the coxa/thigh/shin/ram meshes stay fixed to it as ordinary chassis parts, and the gun/subarms are locked (see B1.md locked_bones)",
+      "source": "generated by tools/build_juggernaut_data.py from assets/models/juggernaut/juggernaut_mk2.json (B1 export v3, mk2_m32_left_strut); re-run after every model re-sync"
     },
     "juggernaut_m2_blades": {
       "inherits": "juggernaut_m2",
       "label": "Juggernaut (Model 2, blades)",
       "description": "Close-combat variant: high-frequency blades on the sub-arms (lane A5).",
-      "loadout": {"sub_left": "hf_blade", "sub_right": "hf_blade"}
+      "loadout": {
+        "sub_left": "hf_blade",
+        "sub_right": "hf_blade"
+      }
     }
   }
 }

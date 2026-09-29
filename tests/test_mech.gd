@@ -50,8 +50,8 @@ func test_every_part_has_its_own_collider() -> void:
 
 
 func test_planned_mechs_are_not_built() -> void:
-	assert_false(MechBuilder.can_build("juggernaut_m2"), "waits for B1's export and A2's controller")
 	assert_true(MechBuilder.can_build("standin"))
+	assert_true(MechBuilder.can_build("juggernaut_m2"), "B1's export and A2's controller both landed")
 
 
 func test_leg_ik_keeps_lengths_and_bends_to_pole() -> void:

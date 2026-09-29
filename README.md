@@ -14,16 +14,23 @@ The "Current state" section may be updated in place, but only to keep it true; t
 ## Current state
 (Kept true by each session; the log below has the history.)
 
-- Lane A1 (foundation) **done** 2026-09-30 (part 2). Next: lane A2 (locomotion) on the B1 export.
-- Tests: `tools/run_tests.sh` 55 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) part 1 **in progress**: the real
+  Juggernaut walks on the test range; gait tuning against the anime reference and the fps/10-minute checks
+  are next (part 2).
+- Tests: `tools/run_tests.sh` 60 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
+  `tools/bot_run.sh jg_check` is the new one: the real Juggernaut standing then walking, `images/026-jg_check/`.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
-  High was retuned from measured costs; logs in `logs/fps/`.
-- Juggernaut export v2 synced into `assets/models/juggernaut/` (`tools/sync_models.py`); it loads and its
-  contract test passes. The mech entry stays `planned` until A2 makes it walk.
+  High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
+  mesh in place of the stand-in** (lane A2 part 2).
+- Juggernaut export v3 synced into `assets/models/juggernaut/` (`tools/sync_models.py`); it loads and its
+  contract test passes. `mechs.json` `juggernaut_m2` status is now **ready**: `tools/build_juggernaut_data.py`
+  generated its real parts/legs/stance/actuators from the export, and `scripts/mech/juggernaut_mech.gd` (lane
+  A1's gait/physics, the real skinned mesh on top) builds and walks it. The test range now spawns the real
+  Juggernaut, not the stand-in.
 - Linux export: `export_presets.cfg` and `tools/export.sh` ready; waits on Emerson's yes to the Godot export
   templates. Until then the hub's Play runs `godot --path ~/Games/eightysix`.
 
@@ -86,3 +93,57 @@ v2 glb import clean and its contract test passes; hub 21/21 pytest.
 Reasoned only: controller rumble and pad capture on a real DualSense; window modes on the real desktop; the
 stall cause (the game waits in `drm_syncobj_array_wait_timeout` under FIFO; no GPU hang in the kernel log;
 mailbox made 7 of 7 runs clean, not proof).
+
+### 2026-09-30 · lane A2 · Hina (relay-6-work) · part 1
+What happened: read B1's export v3 (note #404, landed mid-session), built the real Juggernaut into the game
+data and gait, and got it standing and walking on the test range with its own skinned mesh. Full handoff:
+`~/Forge/sessions/juggernaut-alpha/results/A2.md`.
+
+What changed:
+- `tools/build_juggernaut_data.py`: generates `data/parts.json` (72 entries: thigh/shin/foot per leg, the 39
+  other real parts as fixed chassis pieces, 17 actuators) and `data/mechs.json`'s `juggernaut_m2` (parts,
+  legs, stance, cameras, sockets) straight from `assets/models/juggernaut/juggernaut_mk2.json`'s real joints,
+  hulls and masses; re-run it after every `tools/sync_models.py juggernaut`. The RigidBody3D's local origin is
+  the model's "body" bone (chest height), matching the stand-in's convention (hips sit below it).
+- `scripts/mech/juggernaut_mech.gd`: extends `standin_mech.gd` (same springs, drive, turn, skid, charge jump,
+  two-bone leg IK), so the walk uses the stand-in's already-tested physics with the real hip positions, leg
+  lengths, mass and centre of mass instead of placeholders. Only the visual changes: the four legs' real
+  thigh/shin/foot meshes are detached from the glb's skeleton (never re-posed; a `set_bone_global_pose_override`
+  approach was considered and dropped for time) and driven by the same transform the stand-in already computes
+  for its invisible box legs, plus a fixed rest-pose offset. The chassis, gun and sub-arms are locked to the
+  body (no traverse) so they need no extra code, just the auto-generated placeholder box meshes hidden.
+- `scripts/mech/standin_mech.gd`: the leg-step swing time and lift height were hardcoded consts; they now read
+  `tuning.json`'s new `"step"` block (default unchanged) so a subclass can retune them. `data/tuning.json`
+  `"juggernaut"` block overrides `step.swing_s`/`lift_m` from `~/Models/juggernaut/refs/anime-motion/ANALYSIS.md`
+  (0.5 s step cycle, duty about 0.62 walking, knee lifting well above the hull); drive speed, run duty, the
+  skid's outward brace and the jump's leg-stretch pose are not tuned yet (part 2). Also added `"ankle"` and
+  `"gun_elevation"` to `tuning.json`'s shared `"motors"` block (real actuators reference these by joint kind,
+  same as the stand-in's).
+- `data/parts.json` actuator entries carry B1's real `static_torque_nm`, `game_motor_figures` (the real max
+  torque/speed, for lane B6) and `bench` figures; a linear-equivalent view (`peak_force_n`, `no_load_speed_m_s`,
+  `stroke_m`, `lever_arm_m`) is added for the existing charge-jump maths, which only knows linear rams --
+  **reasoned, not measured**, for the rotary hip/ankle joints; lane B6 replaces it with real rotary bench
+  physics. Actuator `mass_kg` is 0 (their real mass is already the coxa/thigh/shin/ram_cyl/ram_rod hull parts;
+  counting it again would double the total).
+- `scripts/world/test_range.gd`: `MECH_ID` is now `juggernaut_m2`, not `standin`.
+- `tests/test_juggernaut.gd` (new): the export status flips to `ready`; mass matches the export's
+  `total_mass_kg` exactly (12,254.5 kg, no part dropped or doubled); the real meshes replace the hidden boxes;
+  it stands at 4/4 legs, walks forward without falling or tipping over, and a planted, non-stepping foot does
+  not slip. `tests/test_mech.gd`'s `test_planned_mechs_are_not_built` flips to expect `juggernaut_m2` buildable.
+
+Verified: `tools/run_tests.sh` 60 passed, 0 failed (2026-09-30); the mass check in
+`tools/build_juggernaut_data.py`'s own output matches the export's `total_mass_kg` to the kg;
+`tools/bot_run.sh jg_check` (`images/026-jg_check/`, 0 errors): the real Juggernaut stands on 4/4 legs then
+walks at 23 km/h with its legs visibly moving (not frozen at the bind pose); black and pyright clean on
+`tools/build_juggernaut_data.py`.
+
+Only reasoned (not measured or tuned): the rest stance comes straight from the export's own bind pose, which
+is quite crouched (hip only about 0.93 m off the ground) and the screenshot shows the legs a little more
+splayed than the anime reference's tighter stance -- ANALYSIS.md's run duty, low wide-splay body, skid brace
+and jump leg-stretch pose are not built yet; fps has not been re-measured with the real mesh (498k/130k
+triangles, much heavier than the stand-in's boxes); the sole sockets, gun/subarm sockets and cockpit camera
+sit in the glb's bind pose and are not read by any code yet; the 10-minute no-fall bot soak from
+`results/A1.md` "For lane A2" is not run (only a short walk, `tests/test_juggernaut.gd` and `jg_check`).
+Leg collision boxes are sized from each part's hull bounding box in its own segment frame, shrunk 30% for the
+diagonal-in-box effect -- a reasoned approximation, not the split convex hulls B1 exported. All lane A2 part 2
+work.

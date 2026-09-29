@@ -7,7 +7,7 @@ extends Node3D
 const SIZE_M := 320
 const SEED := 8606
 const ROCKS := 46
-const MECH_ID := "standin"
+const MECH_ID := "juggernaut_m2"
 const HUD_SCRIPT := preload("res://scripts/ui/test_hud.gd")
 const TERRAIN_SHADER := preload("res://assets/shaders/terrain.gdshader")
 

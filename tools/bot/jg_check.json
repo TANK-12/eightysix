@@ -1,0 +1,12 @@
+{
+  "name": "jg_check",
+  "_about": "Lane A2 part 1: the real Juggernaut standing then walking on the test range. tools/bot_run.sh jg_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.5, "shot": "juggernaut-settled"},
+    {"at": 3.6, "press": "move_forward", "strength": 1.0, "for": 3.0},
+    {"at": 6.5, "shot": "juggernaut-walking"},
+    {"at": 7.0, "quit": true}
+  ]
+}
