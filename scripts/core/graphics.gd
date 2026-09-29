@@ -206,7 +206,7 @@ func _make_overlays() -> void:
 	_filter_layer.layer = 120
 	add_child(_filter_layer)
 	_filter_rect = ColorRect.new()
-	_filter_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_filter_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_filter_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mat := ShaderMaterial.new()
 	mat.shader = load(COLOUR_FILTER_SHADER)
@@ -219,6 +219,7 @@ func _make_overlays() -> void:
 	_fps_label = Label.new()
 	_fps_label.theme_type_variation = "MonoLabel"
 	_fps_label.position = Vector2(16, 12)
+	UiTheme.adopt(_fps_label)
 	_fps_layer.add_child(_fps_label)
 
 

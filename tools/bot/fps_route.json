@@ -1,0 +1,55 @@
+{
+ "name": "fps_route",
+ "map": "test_range",
+ "_about": "A fixed 20 s drive over the test range for frame-rate logging: walk, run, turn both ways, past the rocks and slabs. The clock starts when the level is up. tools/fps_log.sh runs it once per preset.",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 2.0,
+   "press": "move_forward",
+   "for": 23.0
+  },
+  {
+   "at": 3.0,
+   "measure": 20.0,
+   "label": "route"
+  },
+  {
+   "at": 5.0,
+   "press": "sprint",
+   "for": 6.0
+  },
+  {
+   "at": 7.0,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 4.0
+  },
+  {
+   "at": 12.0,
+   "shot": "route-mid"
+  },
+  {
+   "at": 14.0,
+   "press": "turn_left",
+   "strength": 0.6,
+   "for": 5.0
+  },
+  {
+   "at": 20.0,
+   "sample": "route-end"
+  },
+  {
+   "at": 22.0,
+   "shot": "route-end"
+  },
+  {
+   "at": 23.5,
+   "quit": true
+  }
+ ]
+}

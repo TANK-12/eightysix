@@ -51,7 +51,7 @@ func _build() -> void:
 	add_child(_backdrop)
 
 	var frame := Control.new()
-	frame.set_anchors_preset(PRESET_FULL_RECT)
+	frame.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	frame.mouse_filter = MOUSE_FILTER_IGNORE
 	frame.draw.connect(_draw_frame.bind(frame))
 	add_child(frame)
@@ -143,6 +143,8 @@ func _build() -> void:
 	_status.offset_top = -80
 	_status.offset_right = -80
 	_status.offset_bottom = -44
+	_status.grow_horizontal = GROW_DIRECTION_BEGIN
+	_status.clip_text = true
 	add_child(_status)
 
 	var link := Label.new()
@@ -187,7 +189,8 @@ func _refresh_status() -> void:
 	var preset := Settings.label_for("graphics.preset", Settings.get_value("graphics.preset"))
 	var parts := PackedStringArray(["Graphics: " + preset])
 	parts.append(("Controller: " + pad) if pad != "" else "No controller connected")
-	parts.append("Godot " + Engine.get_version_info()["string"])
+	var v := Engine.get_version_info()
+	parts.append("Godot %d.%d.%d" % [v["major"], v["minor"], v["patch"]])
 	_status.text = "   ·   ".join(parts)
 	var on_pad := Controls.last_device == "pad"
 	_prompt.text = ("Cross  choose   ·   Circle  back" if on_pad else "Enter  choose   ·   Esc  back")

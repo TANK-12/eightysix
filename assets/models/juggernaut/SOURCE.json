@@ -1,0 +1,15 @@
+{
+  "name": "juggernaut",
+  "source": "/home/ejb/Models/juggernaut/model2/export/game",
+  "synced": "2026-09-30T06:17:42",
+  "files": {
+    "juggernaut_mk2.glb": {
+      "bytes": 15784240,
+      "sha256": "e79d57ffdcf92e071c10c662bc4d041a3edd62d5630ab3c1cc05fa89bd7a4a61"
+    },
+    "juggernaut_mk2.json": {
+      "bytes": 195949,
+      "sha256": "ed8b219fa5df2b8239aeae0ea2612cd0105869cb671abddbaa9ef8f42c8f5ecd"
+    }
+  }
+}

@@ -1,0 +1,293 @@
+{
+ "name": "smoke",
+ "_about": "Menu, map select, every settings page, the loading screen, then the test range: settle, walk, charge jump, run and skid, pause. tools/bot_run.sh smoke",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 1.5,
+   "shot": "main-menu"
+  },
+  {
+   "at": 2.0,
+   "call": "open_maps"
+  },
+  {
+   "at": 2.6,
+   "shot": "map-select"
+  },
+  {
+   "at": 2.8,
+   "call": "open_maps"
+  },
+  {
+   "at": 3.0,
+   "goto": "settings:graphics/quality"
+  },
+  {
+   "at": 3.45,
+   "shot": "settings-graphics-quality"
+  },
+  {
+   "at": 3.6,
+   "goto": "settings:graphics/lighting"
+  },
+  {
+   "at": 4.05,
+   "shot": "settings-graphics-lighting"
+  },
+  {
+   "at": 4.2,
+   "goto": "settings:graphics/atmosphere"
+  },
+  {
+   "at": 4.65,
+   "shot": "settings-graphics-atmosphere"
+  },
+  {
+   "at": 4.8,
+   "goto": "settings:graphics/image"
+  },
+  {
+   "at": 5.25,
+   "shot": "settings-graphics-image"
+  },
+  {
+   "at": 5.4,
+   "goto": "settings:graphics/world"
+  },
+  {
+   "at": 5.85,
+   "shot": "settings-graphics-world"
+  },
+  {
+   "at": 6.0,
+   "goto": "settings:controls/bindings"
+  },
+  {
+   "at": 6.45,
+   "shot": "settings-controls-bindings"
+  },
+  {
+   "at": 6.6,
+   "goto": "settings:controls/sticks"
+  },
+  {
+   "at": 7.05,
+   "shot": "settings-controls-sticks"
+  },
+  {
+   "at": 7.2,
+   "goto": "settings:controls/keyboard_mouse"
+  },
+  {
+   "at": 7.65,
+   "shot": "settings-controls-keyboard-mouse"
+  },
+  {
+   "at": 7.8,
+   "goto": "settings:controls/rumble"
+  },
+  {
+   "at": 8.25,
+   "shot": "settings-controls-rumble"
+  },
+  {
+   "at": 8.4,
+   "goto": "settings:controls/advanced"
+  },
+  {
+   "at": 8.85,
+   "shot": "settings-controls-advanced"
+  },
+  {
+   "at": 9.0,
+   "goto": "settings:audio/volume"
+  },
+  {
+   "at": 9.45,
+   "shot": "settings-audio-volume"
+  },
+  {
+   "at": 9.6,
+   "goto": "settings:audio/output"
+  },
+  {
+   "at": 10.05,
+   "shot": "settings-audio-output"
+  },
+  {
+   "at": 10.2,
+   "goto": "settings:gameplay/camera"
+  },
+  {
+   "at": 10.65,
+   "shot": "settings-gameplay-camera"
+  },
+  {
+   "at": 10.8,
+   "goto": "settings:gameplay/hud"
+  },
+  {
+   "at": 11.25,
+   "shot": "settings-gameplay-hud"
+  },
+  {
+   "at": 11.4,
+   "goto": "settings:gameplay/difficulty"
+  },
+  {
+   "at": 11.85,
+   "shot": "settings-gameplay-difficulty"
+  },
+  {
+   "at": 12.0,
+   "goto": "settings:gameplay/physics"
+  },
+  {
+   "at": 12.45,
+   "shot": "settings-gameplay-physics"
+  },
+  {
+   "at": 12.6,
+   "goto": "settings:gameplay/interface"
+  },
+  {
+   "at": 13.05,
+   "shot": "settings-gameplay-interface"
+  },
+  {
+   "at": 13.2,
+   "goto": "settings:accessibility/display"
+  },
+  {
+   "at": 13.65,
+   "shot": "settings-accessibility-display"
+  },
+  {
+   "at": 13.8,
+   "goto": "settings:accessibility/motion"
+  },
+  {
+   "at": 14.25,
+   "shot": "settings-accessibility-motion"
+  },
+  {
+   "at": 14.4,
+   "goto": "settings:accessibility/subtitles"
+  },
+  {
+   "at": 14.85,
+   "shot": "settings-accessibility-subtitles"
+  },
+  {
+   "at": 15.2,
+   "goto": "menu"
+  },
+  {
+   "at": 16.2,
+   "goto": "map:test_range"
+  },
+  {
+   "at": 16.5,
+   "shot": "loading"
+  },
+  {
+   "at": 16.55,
+   "wait": "level"
+  },
+  {
+   "at": 19.1,
+   "shot": "range-settled"
+  },
+  {
+   "at": 19.1,
+   "sample": "settled"
+  },
+  {
+   "at": 19.6,
+   "press": "move_forward",
+   "for": 4.0
+  },
+  {
+   "at": 21.6,
+   "shot": "range-walking"
+  },
+  {
+   "at": 23.1,
+   "sample": "walking"
+  },
+  {
+   "at": 24.6,
+   "press": "jump",
+   "for": 1.2
+  },
+  {
+   "at": 25.5,
+   "shot": "jump-charging"
+  },
+  {
+   "at": 25.5,
+   "sample": "charging"
+  },
+  {
+   "at": 26.05,
+   "shot": "jump-airborne"
+  },
+  {
+   "at": 26.05,
+   "sample": "airborne"
+  },
+  {
+   "at": 28.6,
+   "sample": "after-landing"
+  },
+  {
+   "at": 29.1,
+   "press": "move_forward",
+   "for": 6.0
+  },
+  {
+   "at": 29.1,
+   "press": "sprint",
+   "for": 6.0
+  },
+  {
+   "at": 30.8,
+   "sample": "running"
+  },
+  {
+   "at": 31.0,
+   "press": "brake",
+   "for": 1.2
+  },
+  {
+   "at": 31.0,
+   "press": "turn_right",
+   "for": 1.2
+  },
+  {
+   "at": 31.35,
+   "shot": "skid"
+  },
+  {
+   "at": 31.35,
+   "sample": "skid"
+  },
+  {
+   "at": 35.6,
+   "goto": "pause"
+  },
+  {
+   "at": 36.2,
+   "shot": "pause"
+  },
+  {
+   "at": 36.6,
+   "quit": true
+  }
+ ]
+}

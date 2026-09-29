@@ -8,6 +8,8 @@ extends Node
 ##   --size=1920x1080                   window size (optional, default 1920x1080)
 ## tools/bot_run.sh and tools/fps_log.sh wrap this.
 
+const LEVEL_TIMEOUT_S := 90
+
 var active := false
 var script_path := ""
 var out_dir := ""
@@ -21,6 +23,14 @@ var _next := 0
 var _holds: Dictionary = {}
 var _measure: Dictionary = {}
 var _errors: PackedStringArray = []
+var _waiting_level := false
+var _waited_s := 0.0
+# Main-thread timing for the current frame (microseconds): physics ticks run first, then process,
+# then the frame is drawn. These bracket the work and leave out the wait for the swapchain.
+var _physics_start_us := -1
+var _process_start_us := -1
+var _frame_physics_us := 0
+var _heartbeat_s := 0.0
 
 
 func _init() -> void:
@@ -69,6 +79,10 @@ func _ready() -> void:
 	DisplayServer.window_set_size(window_size)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	Engine.max_fps = 0
+	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
+	get_tree().physics_frame.connect(_on_physics_frame)
+	get_tree().process_frame.connect(_on_process_frame)
+	RenderingServer.frame_pre_draw.connect(_on_frame_pre_draw)
 	report["resolution"] = [window_size.x, window_size.y]
 	var start_map := str(script.get("map", ""))
 	if start_map != "":
@@ -92,8 +106,24 @@ func _on_level_ready(_level: Node) -> void:
 	_clock = 0.0
 
 
+func _on_waited_level(_level: Node) -> void:
+	_waiting_level = false
+
+
 func _process(delta: float) -> void:
-	if not active or _clock < 0.0:
+	if not active:
+		return
+	_heartbeat_s -= delta
+	if _heartbeat_s <= 0.0:
+		_heartbeat_s = 1.0
+		_write_heartbeat()
+	if _clock < 0.0:
+		return
+	if _waiting_level:
+		_waited_s += delta
+		if _waited_s > LEVEL_TIMEOUT_S:
+			_waiting_level = false
+			_fail("the level did not load within %d s" % LEVEL_TIMEOUT_S)
 		return
 	_clock += delta
 	if not _measure.is_empty():
@@ -107,6 +137,8 @@ func _process(delta: float) -> void:
 	while _next < steps.size() and _clock >= float(steps[_next].get("at", 0.0)):
 		_run_step(steps[_next])
 		_next += 1
+		if _waiting_level:
+			break
 
 
 func _run_step(step: Dictionary) -> void:
@@ -119,7 +151,7 @@ func _run_step(step: Dictionary) -> void:
 	elif step.has("shot"):
 		_shot(str(step["shot"]))
 	elif step.has("measure"):
-		_measure = {"label": str(step.get("label", "fps")), "until": _clock + float(step["measure"]), "frames": []}
+		_measure = {"label": str(step.get("label", "fps")), "until": _clock + float(step["measure"]), "frames": [], "gpu": [], "cpu": []}
 	elif step.has("sample"):
 		_sample(str(step["sample"]))
 	elif step.has("setting"):
@@ -132,6 +164,12 @@ func _run_step(step: Dictionary) -> void:
 			scene.callv(str(step["call"]), step.get("args", []))
 		else:
 			_errors.append("no method %s on the current scene" % step["call"])
+	elif step.has("wait"):
+		# {"wait": "level"}: the clock stops until the map being loaded is up (at once if it already is).
+		if str(step["wait"]) == "level" and (Game.level == null or not is_instance_valid(Game.level)):
+			_waiting_level = true
+			_waited_s = 0.0
+			Game.level_ready.connect(_on_waited_level, CONNECT_ONE_SHOT)
 	elif step.has("quit"):
 		_finish()
 
@@ -174,11 +212,76 @@ func _sample(label: String) -> void:
 
 func _finish_measure() -> void:
 	var frames: Array = _measure["frames"]
-	(report["measures"] as Array).append(frame_stats(frames, str(_measure["label"])))
+	var stats := frame_stats(frames, str(_measure["label"]))
+	stats.merge(uncapped_estimate(_measure["gpu"], _measure["cpu"]))
+	var refresh := DisplayServer.screen_get_refresh_rate()
+	stats["vsync"] = DisplayServer.window_get_vsync_mode() != DisplayServer.VSYNC_DISABLED
+	stats["refresh_hz"] = snappedf(refresh, 0.1)
+	stats["paced_share"] = paced_share(frames, refresh) if stats["vsync"] else 0.0
+	(report["measures"] as Array).append(stats)
 	_measure = {}
 
 
-## Average fps, the 1% low (fps at the 99th-percentile frame time) and the worst frame.
+## What the frame rate would be with nothing holding frames back (vsync, a compositor): each frame
+## takes as long as the slower of its GPU work and its main-thread work. gpu_ms and cpu_ms are
+## per-frame milliseconds from the same frames. An estimate, reported beside the measured fps.
+static func uncapped_estimate(gpu_ms: Array, cpu_ms: Array) -> Dictionary:
+	var n := mini(gpu_ms.size(), cpu_ms.size())
+	if n == 0:
+		return {}
+	var gpu := 0.0
+	var cpu := 0.0
+	var bound: Array = []
+	for i in n:
+		gpu += float(gpu_ms[i])
+		cpu += float(cpu_ms[i])
+		bound.append(maxf(float(gpu_ms[i]), float(cpu_ms[i])) / 1000.0)
+	var est := frame_stats(bound, "estimate")
+	return {
+		"gpu_ms_avg": snappedf(gpu / n, 0.01),
+		"cpu_ms_avg": snappedf(cpu / n, 0.01),
+		"bound_by": "gpu" if gpu >= cpu else "cpu",
+		"est_uncapped_fps": est["avg_fps"],
+		"est_uncapped_p1_low_fps": est["p1_low_fps"],
+	}
+
+
+## The share of frames that took one refresh interval (within 0.5 ms): near 1 means vsync set the
+## pace and the measured fps is a ceiling, near 0 means frames were not held back.
+static func paced_share(frames: Array, refresh_hz: float) -> float:
+	if frames.is_empty() or refresh_hz <= 0.0:
+		return 0.0
+	var interval := 1.0 / refresh_hz
+	var paced := 0
+	for f: float in frames:
+		if absf(f - interval) <= 0.0005:
+			paced += 1
+	return snappedf(float(paced) / frames.size(), 0.01)
+
+
+func _on_physics_frame() -> void:
+	if _physics_start_us < 0:
+		_physics_start_us = Time.get_ticks_usec()
+
+
+func _on_process_frame() -> void:
+	var now := Time.get_ticks_usec()
+	_frame_physics_us = now - _physics_start_us if _physics_start_us >= 0 else 0
+	_physics_start_us = -1
+	_process_start_us = now
+
+
+func _on_frame_pre_draw() -> void:
+	if _measure.is_empty() or _process_start_us < 0:
+		return
+	var main_us := _frame_physics_us + (Time.get_ticks_usec() - _process_start_us)
+	var rid := get_viewport().get_viewport_rid()
+	var render_cpu := RenderingServer.viewport_get_measured_render_time_cpu(rid) + RenderingServer.get_frame_setup_time_cpu()
+	(_measure["cpu"] as Array).append(main_us / 1000.0 + render_cpu)
+	(_measure["gpu"] as Array).append(RenderingServer.viewport_get_measured_render_time_gpu(rid))
+
+
+## Average fps, the 1% low (fps over the slowest 1% of frames) and the worst frame.
 static func frame_stats(frames: Array, label: String) -> Dictionary:
 	if frames.is_empty():
 		return {"label": label, "frames": 0}
@@ -204,6 +307,18 @@ static func frame_stats(frames: Array, label: String) -> Dictionary:
 		"p1_low_fps": snappedf(1.0 / maxf(p1_low, 0.0001), 0.1),
 		"min_fps": snappedf(1.0 / maxf(worst, 0.0001), 0.1),
 	}
+
+
+## tools/bot_run.sh watches this file: when it stops changing, the game has stalled.
+func _write_heartbeat() -> void:
+	var f := FileAccess.open(out_dir.path_join("heartbeat.json"), FileAccess.WRITE)
+	if f == null:
+		return
+	var beat := {"clock": snappedf(_clock, 0.01), "next_step": _next, "steps": steps.size()}
+	beat["frames_drawn"] = Engine.get_frames_drawn()
+	beat["waiting_level"] = _waiting_level
+	f.store_string(JSON.stringify(beat))
+	f.close()
 
 
 func _fail(message: String) -> void:

@@ -6,10 +6,11 @@ extends Control
 
 signal closed
 
-const LABEL_W := 380
-const CONTROL_W := 460
+const LABEL_W := 330
+const CONTROL_W := 400
 const VALUE_W := 150
-const SLOT_W := 210
+const KEY_SLOT_W := 170
+const PAD_SLOT_W := 240
 const CAPTURE_TIMEOUT_S := 8.0
 
 var _section_id := ""
@@ -31,7 +32,7 @@ var _capture_left := 0.0
 
 
 func _ready() -> void:
-	set_anchors_preset(PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build_frame()
 	Settings.changed.connect(_on_setting_changed)
@@ -53,6 +54,7 @@ func show_page(section_id: String, page_id: String) -> void:
 	_rebuild_tabs()
 	_rebuild_pages()
 	_rebuild_content()
+	_show_first_help()
 	_focus_first_row.call_deferred()
 
 
@@ -67,14 +69,14 @@ func close() -> void:
 
 func _build_frame() -> void:
 	var shade := ColorRect.new()
-	shade.set_anchors_preset(PRESET_FULL_RECT)
+	shade.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	shade.color = Color(UiTheme.color("bg"), 0.94)
 	add_child(shade)
 	add_child(UiTheme.make_backdrop())
 	(get_child(1) as ColorRect).modulate = Color(1, 1, 1, 0.55)
 
 	var margin := MarginContainer.new()
-	margin.set_anchors_preset(PRESET_FULL_RECT)
+	margin.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	for side: String in ["left", "right"]:
 		margin.add_theme_constant_override("margin_" + side, 80)
 	margin.add_theme_constant_override("margin_top", 48)
@@ -112,7 +114,7 @@ func _build_frame() -> void:
 	column.add_child(body)
 
 	_pages = VBoxContainer.new()
-	_pages.custom_minimum_size.x = 300
+	_pages.custom_minimum_size.x = 260
 	_pages.add_theme_constant_override("separation", 4)
 	body.add_child(_pages)
 
@@ -131,7 +133,7 @@ func _build_frame() -> void:
 
 	var help := PanelContainer.new()
 	help.theme_type_variation = "HelpPanel"
-	help.custom_minimum_size.x = 440
+	help.custom_minimum_size.x = 400
 	body.add_child(help)
 	var help_box := VBoxContainer.new()
 	help_box.add_theme_constant_override("separation", 12)
@@ -166,6 +168,7 @@ func _build_frame() -> void:
 
 func _rebuild_tabs() -> void:
 	for child in _tabs.get_children():
+		child.get_parent().remove_child(child)
 		child.queue_free()
 	var group := ButtonGroup.new()
 	for section: Dictionary in Settings.sections():
@@ -183,6 +186,7 @@ func _rebuild_tabs() -> void:
 
 func _rebuild_pages() -> void:
 	for child in _pages.get_children():
+		child.get_parent().remove_child(child)
 		child.queue_free()
 	var group := ButtonGroup.new()
 	for page: Dictionary in _visible_pages(_section(_section_id)):
@@ -200,6 +204,7 @@ func _rebuild_pages() -> void:
 
 func _rebuild_content() -> void:
 	for child in _content.get_children():
+		child.get_parent().remove_child(child)
 		child.queue_free()
 	_rows.clear()
 	var page := _page(_section_id, _page_id)
@@ -238,8 +243,11 @@ func _add_row(it: Dictionary) -> void:
 	row.add_child(line)
 	var name := _label(line, "", str(it.get("label", key)))
 	name.custom_minimum_size.x = LABEL_W
+	name.clip_text = true
+	name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	name.size_flags_vertical = SIZE_SHRINK_CENTER
 	var control := _make_control(it)
+	control.set_meta("setting_key", key)
 	control.custom_minimum_size.x = CONTROL_W
 	control.size_flags_vertical = SIZE_SHRINK_CENTER
 	line.add_child(control)
@@ -303,7 +311,6 @@ func _refresh_row(key: String) -> void:
 	match str(it.get("type", "")):
 		"toggle":
 			(control as CheckButton).set_pressed_no_signal(bool(value))
-			(control as CheckButton).text = "On" if bool(value) else "Off"
 		"slider":
 			(control as HSlider).set_value_no_signal(float(value))
 		"choice":
@@ -311,6 +318,8 @@ func _refresh_row(key: String) -> void:
 	var value_label: Label = r["value"]
 	if value != null and str(it.get("type", "")) == "slider":
 		value_label.text = Settings.label_for(key, value)
+	elif value != null and str(it.get("type", "")) == "toggle":
+		value_label.text = "On" if bool(value) else "Off"
 	else:
 		value_label.text = ""
 	if value != null and not Settings.is_default(key):
@@ -390,7 +399,7 @@ func _add_keybinds(scheme: String) -> void:
 	var titles := ["Action", "Key or mouse", "Alternate", "Controller"]
 	for i in titles.size():
 		var l := _label(head, "FaintLabel", titles[i])
-		l.custom_minimum_size.x = LABEL_W if i == 0 else SLOT_W
+		l.custom_minimum_size.x = [LABEL_W, KEY_SLOT_W, KEY_SLOT_W, PAD_SLOT_W][i]
 	var last_group := ""
 	for action in Controls.actions_for_scheme(scheme):
 		var info := Controls.action_info(action)
@@ -417,7 +426,8 @@ func _add_keybinds(scheme: String) -> void:
 			var binding := str(list[index]) if index < list.size() else ""
 			var btn := Button.new()
 			btn.theme_type_variation = "SlotButton"
-			btn.custom_minimum_size.x = SLOT_W
+			btn.custom_minimum_size.x = PAD_SLOT_W if slot == "pad" else KEY_SLOT_W
+			btn.set_meta("binding", [action, scheme, binding])
 			btn.text = Controls.binding_label(binding)
 			btn.clip_text = true
 			btn.pressed.connect(_start_capture.bind(action, scheme, slot, index))
@@ -432,6 +442,24 @@ func _on_slot_focus(row: PanelContainer, action: String, scheme: String, binding
 	row.theme_type_variation = "RowPanelFocus" if has_focus else "RowPanel"
 	if not has_focus:
 		return
+	_show_binding_help(action, scheme, binding)
+
+
+## The help panel describes the control that gets focus first, straight away: focus arrives a
+## frame later (deferred), or never while the window is in the background.
+func _show_first_help() -> void:
+	var target := _first_target()
+	if target == null:
+		return
+	if target.has_meta("setting_key"):
+		_focused_key = str(target.get_meta("setting_key"))
+		_show_help(_focused_key)
+	elif target.has_meta("binding"):
+		var b: Array = target.get_meta("binding")
+		_show_binding_help(str(b[0]), str(b[1]), str(b[2]))
+
+
+func _show_binding_help(action: String, scheme: String, binding: String) -> void:
 	_focused_key = ""
 	var info := Controls.action_info(action)
 	_help_title.text = str(info.get("label", action))
@@ -446,14 +474,14 @@ func _start_capture(action: String, scheme: String, slot: String, index: int) ->
 	_capture_info = {"action": action, "scheme": scheme, "slot": slot, "index": index}
 	_capture_left = CAPTURE_TIMEOUT_S
 	_capture = Control.new()
-	_capture.set_anchors_preset(PRESET_FULL_RECT)
+	_capture.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	add_child(_capture)
 	var shade := ColorRect.new()
-	shade.set_anchors_preset(PRESET_FULL_RECT)
+	shade.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	shade.color = Color(0, 0, 0, 0.6)
 	_capture.add_child(shade)
 	var center := CenterContainer.new()
-	center.set_anchors_preset(PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	_capture.add_child(center)
 	var card := PanelContainer.new()
 	card.theme_type_variation = "CardPanel"
@@ -573,11 +601,17 @@ func _on_theme_changed() -> void:
 
 
 func _focus_first_row() -> void:
+	var target := _first_target()
+	if target != null:
+		target.grab_focus()
+
+
+func _first_target() -> Control:
 	for child in _content.get_children():
 		var target := _first_focusable(child)
 		if target != null:
-			target.grab_focus()
-			return
+			return target
+	return null
 
 
 func _first_focusable(node: Node) -> Control:

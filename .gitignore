@@ -3,3 +3,9 @@ build/
 logs/
 images/
 *.tmp
+# synced model binaries: tools/sync_models.py recreates them; SOURCE.json stays tracked
+assets/models/**/*.glb
+# textures Godot extracts from those glb files on import
+assets/models/**/*.png
+assets/models/**/*.jpg
+__pycache__/

@@ -14,6 +14,8 @@ const BACKDROP_SHADER := "res://assets/shaders/menu_backdrop.gdshader"
 
 var current_id := ""
 var data: Dictionary = {}
+const ADOPTED_GROUP := "ui_theme_roots"
+
 var theme: Theme
 var _fonts: Dictionary = {}
 
@@ -38,7 +40,16 @@ func apply(id: String) -> void:
 		data = _high_contrast(data)
 	theme = _build()
 	get_tree().root.theme = theme
+	for node in get_tree().get_nodes_in_group(ADOPTED_GROUP):
+		(node as Control).theme = theme
 	theme_changed.emit()
+
+
+## Controls under a CanvasLayer do not inherit the window's theme in Godot 4, so each layer's root
+## control adopts it here and follows theme switches from then on.
+func adopt(control: Control) -> void:
+	control.theme = theme
+	control.add_to_group(ADOPTED_GROUP)
 
 
 func color(name: String) -> Color:
@@ -72,7 +83,7 @@ func spaced_font(role: String, spacing: int) -> FontVariation:
 ## The animated menu backdrop (grid, contour lines, a slow sweep) coloured by the theme.
 func make_backdrop() -> ColorRect:
 	var rect := ColorRect.new()
-	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mat := ShaderMaterial.new()
 	mat.shader = load(BACKDROP_SHADER)

@@ -28,7 +28,7 @@
       "status": "planned",
       "owner_lane": "B1 (model and game export), A2 (locomotion)",
       "controller": "juggernaut",
-      "model": "res://assets/models/juggernaut/juggernaut_m2.glb",
+      "model": "res://assets/models/juggernaut/juggernaut_mk2.glb", "model_data": "res://assets/models/juggernaut/juggernaut_mk2.json",
       "description": "The Reginleif-style walker from lane B1's export: parts, colliders, sockets and actuators arrive with it.",
       "parts": [],
       "legs": {},
