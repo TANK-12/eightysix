@@ -1,7 +1,8 @@
 extends "res://tests/lib/test_case.gd"
-## Lane A3's wire anchor and ledge climb on the real Juggernaut: the dart finds a grapple surface
-## (physics layer 7) in its upward fan, bites, and reeling in pulls 12 t towards it; paying out and
-## letting go work; a ledge in the legs' reach is found and hauled up. --fixed-fps 120.
+## Lane A3's wire anchor and ledge climb on the real Juggernaut: the dart goes where you look
+## (lane A3 part 4) and bites only a grapple surface (physics layer 7); reeling in pulls the 5.4 t
+## mech towards it no faster than the winch's power allows; paying out lowers a hanging mech; letting
+## go works; a ledge in the legs' reach is found and hauled up. --fixed-fps 120.
 
 var ground: StaticBody3D
 var mech: RigidBody3D
@@ -40,42 +41,73 @@ func after_each() -> void:
 	Settings.reset_all_quietly()
 
 
-func test_finds_a_high_surface_and_misses_a_plain_wall() -> void:
+## Look at `p`: the look pitch from the anchor sockets to it (the heading stays straight ahead).
+func _aim_at(p: Vector3) -> void:
+	var from: Vector3 = combat.anchor.aim_ray()[0]
+	var d := p - from
+	mech.set("look_pitch_deg", rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length())))
+
+
+func test_aims_where_you_look_and_bites_only_grapple_surfaces() -> void:
 	await physics_frames(240)
 	_block(Vector3(0, 12, -30), Vector3(20, 4, 4), 1)
-	await physics_frames(2)
-	assert_true(combat.anchor.find_target().is_empty(), "layer 1 only: not a grapple surface")
-	_block(Vector3(0, 14, -40), Vector3(20, 4, 4), 1 | 64)
-	await physics_frames(2)
-	var t := combat.anchor.find_target()
-	assert_false(t.is_empty(), "the grapple slab up and ahead is found")
-	if not t.is_empty():
-		assert_gt((t["point"] as Vector3).y, 8.0, "found by pitching the fan up")
-	# Grapple-able ground rising ahead is hit first at pitch 0; the slab above still wins.
+	_block(Vector3(0, 24, -40), Vector3(20, 4, 4), 1 | 64)
 	_block(Vector3(0, 0.5, -20), Vector3(20, 3, 4), 1 | 64)
 	await physics_frames(2)
+	_aim_at(Vector3(0, 12, -28))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 12, -28))
+	assert_eq(str(combat.anchor.preview()["state"]), "surface", "a plain wall (layer 1 only) cannot be bitten")
+	assert_true(combat.anchor.find_target().is_empty())
+	_aim_at(Vector3(0, 22, -38))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 22, -38))
+	var t := combat.anchor.find_target()
+	assert_false(t.is_empty(), "the grapple slab up high is where you look")
+	if not t.is_empty():
+		assert_gt((t["point"] as Vector3).y, 20.0, "and it bites up there")
+	_aim_at(Vector3(0, 1.5, -18))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 1.5, -18))
 	t = combat.anchor.find_target()
-	assert_gt((t["point"] as Vector3).y, 8.0, "a surface above beats the ground ahead")
+	assert_false(t.is_empty(), "looking low at the grapple-able rise")
+	if not t.is_empty():
+		assert_lt((t["point"] as Vector3).y, 3.0, "bites the rise, not the slab above: the crosshair decides")
+	var up: Vector3 = combat.anchor._arm_limit(Vector3.UP, Basis.IDENTITY)
+	assert_almost_eq(rad_to_deg(up.angle_to(Vector3.UP)), 10.0, 0.5, "straight up is pulled back to the arms' 80 deg")
 
 
-func test_reel_in_lifts_the_mech_towards_the_anchor() -> void:
+func test_reel_in_lifts_the_mech_no_faster_than_the_winch_power() -> void:
 	await physics_frames(240)
-	_block(Vector3(0, 22, -25), Vector3(20, 3, 4), 1 | 64)
+	# A roof ahead and above: a steep pull lifts (at a shallow angle the winch only drags the mech
+	# along the ground, since the cable's vertical share is below its 53 kN weight).
+	_block(Vector3(0, 22, -9), Vector3(20, 3, 8), 1 | 64)
 	await physics_frames(2)
+	_aim_at(Vector3(0, 20.4, -8))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 20.4, -8))
 	var start := mech.global_position
 	assert_true(combat.anchor.fire(), "a dart left")
 	await physics_frames(60)
 	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "bit the slab")
 	var len0 := combat.anchor.rope_len
-	combat.anchor.reel = -1
 	var peak := start.y
-	for i in 360:
-		await physics_frames(1)
+	var work := 0.0
+	var loaded_s := 0.0
+	for i in 480:
 		combat.anchor.reel = -1
+		var before := combat.anchor.rope_len
+		var pull := combat.anchor.tension
+		await physics_frames(1)
+		if pull > 30000.0:
+			work += (before - combat.anchor.rope_len) * pull
+			loaded_s += 1.0 / 120.0
 		peak = maxf(peak, mech.global_position.y)
-	assert_lt(combat.anchor.rope_len, len0 - 10.0, "reeled in")
+	assert_lt(combat.anchor.rope_len, len0 - 6.0, "reeled in (%.1f m)" % (len0 - combat.anchor.rope_len))
+	assert_gt(loaded_s, 1.0, "under load for a while (%.1f s)" % loaded_s)
+	assert_lt(work / maxf(loaded_s, 0.01), 120000.0 * 1.02, "under load the winch works at its 120 kW at most (%.0f kW)" % (work / maxf(loaded_s, 0.01) / 1000.0))
 	assert_gt(peak - start.y, 3.0, "hauled up off the ground (%.1f m)" % (peak - start.y))
-	assert_lt(mech.global_position.z, start.z - 5.0, "and towards the anchor")
+	assert_lt(mech.global_position.z, start.z - 3.0, "and towards the anchor")
 	combat.anchor.fire()
 	assert_eq(combat.anchor.state, WireAnchor.State.IDLE, "fire again lets go")
 
@@ -84,14 +116,50 @@ func test_pay_out_and_slack_do_not_pull() -> void:
 	await physics_frames(240)
 	_block(Vector3(0, 16, -25), Vector3(20, 3, 4), 1 | 64)
 	await physics_frames(2)
+	_aim_at(Vector3(0, 14.6, -24))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 14.6, -24))
 	combat.anchor.fire()
 	await physics_frames(60)
+	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "bit the slab")
 	var len0 := combat.anchor.rope_len
 	for i in 60:
 		combat.anchor.reel = 1
 		await physics_frames(1)
 	assert_gt(combat.anchor.rope_len, len0 + 5.5, "paid out (12 m/s for 0.5 s)")
 	assert_almost_eq(combat.anchor.tension, 0.0, 0.01, "a slack cable does nothing")
+
+
+func test_pay_out_while_hanging_lowers_the_mech() -> void:
+	await physics_frames(240)
+	_block(Vector3(0, 40, -8), Vector3(20, 3, 20), 1 | 64)
+	await physics_frames(2)
+	_aim_at(Vector3(0, 38.4, -8))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 38.4, -8))
+	assert_true(combat.anchor.fire(), "a dart left for the roof")
+	await physics_frames(60)
+	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "bit the roof")
+	for i in 1200:
+		combat.anchor.reel = -1
+		await physics_frames(1)
+		if mech.global_position.y > 16.0:
+			break
+	combat.anchor.reel = 0
+	await physics_frames(240)
+	assert_eq(int(mech.get("grounded_legs")), 0, "hanging clear of the ground (y %.1f)" % mech.global_position.y)
+	var y0 := mech.global_position.y
+	var len0 := combat.anchor.rope_len
+	for i in 120:
+		combat.anchor.reel = 1
+		await physics_frames(1)
+	combat.anchor.reel = 0
+	await physics_frames(240)
+	var paid := combat.anchor.rope_len - len0
+	var dropped := y0 - mech.global_position.y
+	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "a controlled lower does not snap the wire")
+	assert_between(paid, 3.0, 5.0, "lowered at about 4 m/s under load (%.1f m in 1 s)" % paid)
+	assert_almost_eq(dropped, paid, 1.0, "abseiled down by about what was paid out (%.1f m for %.1f m)" % [dropped, paid])
 
 
 func test_climbs_a_ledge_in_reach() -> void:
@@ -124,21 +192,24 @@ class FakeLevel:
 	var grapple_points: Array[Vector3] = []
 
 
-func test_aim_assist_uses_the_levels_grapple_points() -> void:
+func test_aim_assist_nudges_toward_a_marked_point_near_the_aim() -> void:
 	await physics_frames(240)
-	# A pole off to the side, its tip marked as a grapple point: the upward fan straight ahead misses it.
-	var tip := Vector3(-14, 18, -30)
+	# A pole a little off the aim line, its tip marked as a grapple point.
+	var tip := Vector3(-3, 18, -30)
 	_block(Vector3(tip.x, 9, tip.z), Vector3(1.5, 18, 1.5), 1 | 64)
 	await physics_frames(2)
+	_aim_at(Vector3(0, 18, -30))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 18, -30))
 	var level := FakeLevel.new()
 	tree.root.add_child(level)
 	var before: Node = Game.level
 	Game.level = level
-	assert_true(combat.anchor.find_target().is_empty() or (combat.anchor.find_target()["point"] as Vector3).y < 8.0, "no marked point: nothing high")
+	assert_true(combat.anchor.find_target().is_empty(), "aimed past the pole, nothing marked: no bite")
 	level.grapple_points.append(tip)
 	var t := combat.anchor.find_target()
 	Game.level = before
 	level.free()
-	assert_false(t.is_empty(), "the marked point is found")
+	assert_false(t.is_empty(), "the marked point 6 deg off the aim is found")
 	if not t.is_empty():
 		assert_lt((t["point"] as Vector3).distance_to(tip), 1.6, "at the pole's tip")

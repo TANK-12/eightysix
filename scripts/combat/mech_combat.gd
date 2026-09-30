@@ -6,9 +6,11 @@ extends Node3D
 ## scorch marks, a limping leg, sparks and gouges under the feet in the skid.
 ##
 ## The gun is fixed to the chassis (physics supplement, point 2): a round leaves the muzzle socket
-## along the body's heading (plus the parked raise, when that option is on). Recoil is a real impulse
-## on the rigid body at the muzzle, scaled for game mode; in the air it is scaled much harder, so a
-## shot mid-jump is the recoil dodge (supplement, point 3): it bends or reverses the arc.
+## along the body's heading (plus the parked raise, when that option is on). Recoil is the real
+## impulse (projectile plus propellant gas, Ballistics.recoil_impulse), unscaled, applied along the
+## bore line: about 1 m/s on the 5.4 t Juggernaut. On the ground the feet's grip takes most of it and
+## the body rocks back; in a slide or in the air the whole of it goes into motion, so a shot mid-jump
+## or mid-slide is the recoil dodge (supplement, point 3). Each round fired leaves the mech lighter.
 
 signal fired(weapon: String, ammo: String)
 signal reloaded(weapon: String)
@@ -224,14 +226,12 @@ func fire_main() -> bool:
 	if hitboxes != null:
 		skip.append(hitboxes.get_rid())
 	last_shot = Projectile.spawn(world, muzzle, dir * float(ammo.get("muzzle_m_s", 1000.0)) + mech.linear_velocity, ammo, mech, scale, skip)
-	var airborne := bool(mech.get("airborne"))
-	var j := float(gun.def.get("recoil_impulse_ns", 0.0))
-	j *= float(_c.get("recoil_air_scale", 24.0)) if airborne else float(_c.get("recoil_game_scale", 6.0))
-	if mech.call("bench_mode"):
-		j = float(gun.def.get("recoil_impulse_ns", 0.0))
-	last_recoil = -dir * j
-	var arm := (muzzle - mech.global_position) * float(_c.get("recoil_point_share", 0.35))
-	mech.apply_impulse(last_recoil, arm)
+	last_recoil = -dir * Ballistics.recoil_impulse(gun.def, ammo)
+	# Along the bore line (any point on it gives the same torque about the centre of mass): the bore
+	# sits about a metre above the centre of mass, so the body rocks back on its rear legs.
+	mech.apply_impulse(last_recoil, muzzle - mech.global_position)
+	if not gun.unlimited:
+		mech.mass = maxf(mech.mass - float(gun.def.get("round_kg", 0.0)), 1.0)
 	_kick = 1.0
 	CombatFx.muzzle(world, muzzle, dir)
 	var eject := xf * _eject_local()
@@ -260,7 +260,7 @@ func take_hit(info: Dictionary) -> Dictionary:
 	var r := damage.hit(key, dmg, float(info.get("penetration_mm", 0.0)))
 	if not bool(info.get("splash", false)):
 		var dir: Vector3 = info.get("dir", Vector3.ZERO)
-		var push := dir * float(info.get("projectile_kg", 1.0)) * float(info.get("speed", 0.0)) * float(_c.get("impact_push_scale", 4.0))
+		var push := dir * float(info.get("projectile_kg", 1.0)) * float(info.get("speed", 0.0)) * float(_c.get("impact_push_scale", 1.0))
 		mech.apply_impulse(push, point - mech.global_position)
 		var normal: Vector3 = info.get("normal", Vector3.UP)
 		var mark := CombatFx.decal(mech, point, normal, 0.9 if bool(r["penetrated"]) else 0.55)

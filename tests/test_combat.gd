@@ -155,17 +155,21 @@ func test_fired_round_flies_and_hits_a_target() -> void:
 	assert_false(combat.fire_main(), "the breech is still cycling")
 
 
-func test_recoil_pushes_back_and_far_harder_in_the_air() -> void:
+func test_recoil_is_the_real_impulse_and_all_of_it_moves_the_body_in_the_air() -> void:
+	# Lane A3 part 4 (Emerson: real physics only): projectile 1.2 kg x 1550 m/s plus propellant gas
+	# 1.6 kg x 1.5 x 1550 m/s = 5,580 N s, no game scale, no muzzle brake.
 	_ground()
 	var combat := _mech(Vector3(0, 3, 0))
 	await physics_frames(360)
 	var back := mech.global_transform.basis.z
 	var v0 := mech.linear_velocity.dot(back)
+	var m0 := mech.mass
 	combat.fire_main()
+	assert_almost_eq(combat.last_recoil.length(), 5580.0, 1.0, "projectile + gas momentum")
+	assert_almost_eq(m0 - mech.mass, 10.75, 0.01, "the round fired leaves the mech lighter")
 	await physics_frames(1)
 	var ground_kick := mech.linear_velocity.dot(back) - v0
-	var ground_j := combat.last_recoil.length()
-	assert_gt(ground_kick, 0.5, "the shot shoves the body back")
+	assert_gt(ground_kick, 0.0, "the shot shoves the body back on the ground")
 	mech.free()
 	ground.free()
 	combat = _mech(Vector3(0, 40, 0))
@@ -173,12 +177,15 @@ func test_recoil_pushes_back_and_far_harder_in_the_air() -> void:
 	assert_true(bool(mech.get("airborne")), "falling with nothing under it")
 	back = mech.global_transform.basis.z
 	v0 = mech.linear_velocity.dot(back)
+	var mass := mech.mass
+	var pitch0 := mech.angular_velocity.dot(mech.global_transform.basis.x)
 	combat.fire_main()
 	await physics_frames(1)
 	var air_kick := mech.linear_velocity.dot(back) - v0
-	assert_almost_eq(combat.last_recoil.length(), ground_j * 4.0, 1.0, "air recoil is air_scale/game_scale times the ground's")
-	assert_gt(air_kick, 5.0, "a shot mid-jump throws 12 t back 5+ m/s: the recoil dodge")
-	assert_gt(air_kick, ground_kick * 2.5)
+	assert_almost_eq(air_kick, 5580.0 / mass, 0.05, "in the air the speed change is impulse / mass (%.2f m/s)" % air_kick)
+	assert_gt(air_kick, ground_kick, "the feet's grip takes some of it on the ground")
+	var pitch := mech.angular_velocity.dot(mech.global_transform.basis.x) - pitch0
+	assert_gt(pitch, 0.0, "the bore line sits above the centre of mass: the nose kicks up")
 
 
 func test_combat_hud_follows_the_mech() -> void:
@@ -224,6 +231,8 @@ func test_a_round_knocks_a_loose_steel_plate_away() -> void:
 	var start := plate.global_position
 	combat.fire_main()
 	await physics_frames(12)
-	assert_gt(plate.angular_velocity.length(), 5.0, "the hit sets it spinning (%.1f rad/s)" % plate.angular_velocity.length())
+	# Lane A3 part 4: the push is the dart's own momentum, 1.2 kg x ~1550 m/s = 1,860 N s, about
+	# 4.6 m/s on a 400 kg plate (the old x4 game scale is gone).
+	assert_gt(plate.angular_velocity.length(), 1.5, "the hit sets it spinning (%.1f rad/s)" % plate.angular_velocity.length())
 	await physics_frames(108)
-	assert_gt(plate.global_position.distance_to(start), 5.0, "and throws it back (%.1f m)" % plate.global_position.distance_to(start))
+	assert_gt(plate.global_position.distance_to(start), 2.5, "and throws it back (%.1f m)" % plate.global_position.distance_to(start))

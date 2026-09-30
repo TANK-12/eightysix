@@ -480,6 +480,38 @@
             -0.17222,
             -1.51484
           ]
+        },
+        {
+          "part": "jg2_int_cockpit_fitout",
+          "at": [
+            0.00226,
+            -0.10431,
+            -0.19056
+          ]
+        },
+        {
+          "part": "jg2_int_power_pack",
+          "at": [
+            0.00226,
+            -0.10431,
+            -0.19056
+          ]
+        },
+        {
+          "part": "jg2_int_pilot",
+          "at": [
+            0.00226,
+            -0.10431,
+            -0.19056
+          ]
+        },
+        {
+          "part": "jg2_int_wiring_hydraulics",
+          "at": [
+            -3e-05,
+            0.1092,
+            0.27056
+          ]
         }
       ],
       "legs": {
@@ -552,6 +584,11 @@
             "jg2_act_hip_pitch_FR",
             "jg2_act_knee_FR",
             "jg2_act_ankle_FR"
+          ],
+          "swing_parts": [
+            "jg2_coxa_fr",
+            "jg2_ramcyl_fr",
+            "jg2_ramrod_fr"
           ]
         },
         "fl": {
@@ -623,6 +660,11 @@
             "jg2_act_hip_pitch_FL",
             "jg2_act_knee_FL",
             "jg2_act_ankle_FL"
+          ],
+          "swing_parts": [
+            "jg2_coxa_fl",
+            "jg2_ramcyl_fl",
+            "jg2_ramrod_fl"
           ]
         },
         "rr": {
@@ -694,6 +736,11 @@
             "jg2_act_hip_pitch_RR",
             "jg2_act_knee_RR",
             "jg2_act_ankle_RR"
+          ],
+          "swing_parts": [
+            "jg2_coxa_rr",
+            "jg2_ramcyl_rr",
+            "jg2_ramrod_rr"
           ]
         },
         "rl": {
@@ -765,6 +812,11 @@
             "jg2_act_hip_pitch_RL",
             "jg2_act_knee_RL",
             "jg2_act_ankle_RL"
+          ],
+          "swing_parts": [
+            "jg2_coxa_rl",
+            "jg2_ramcyl_rl",
+            "jg2_ramrod_rl"
           ]
         }
       },
@@ -886,7 +938,8 @@
         0.0,
         1.40989,
         0.0
-      ]
+      ],
+      "mass_source": "/home/ejb/Models/juggernaut/model2/realistic_mass/realistic_mass.json (mk2_m37_shin_tube.blend via measure_blend.py; reasoned estimates, not sourced): 5423 kg combat loaded"
     },
     "juggernaut_m2_blades": {
       "inherits": "juggernaut_m2",

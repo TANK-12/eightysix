@@ -37,10 +37,21 @@ func after_each() -> void:
 func test_builds_with_the_real_mass() -> void:
 	var def := Registry.entry("mechs", "juggernaut_m2")
 	assert_eq(str(def.get("status", "")), "ready")
-	var model: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/models/juggernaut/juggernaut_mk2.json"))
-	assert_true(model is Dictionary, "the synced export json parses")
-	assert_almost_eq(mech.mass, float((model as Dictionary)["total_mass_kg"]), 1.0, "matches B1's export total exactly (every real part's mass_kg, none dropped or doubled)")
-	assert_between(mech.mass, 11000.0, 13000.0, "about the Juggernaut's 12.2 t placeholder mass")
+	# Lane A3 part 4: the realistic masses (B1's realistic_mass.json via tools/build_juggernaut_data.py),
+	# 5,423 kg combat loaded, not the export's hull x density 12.2 t.
+	var total := 0.0
+	for pid: String in Registry.ids("parts", true):
+		if pid.begins_with("jg2_"):
+			var p: Dictionary = Registry.entry("parts", pid)
+			total += float(p.get("mass_kg", 0.0))
+			if str(p.get("kind", "")) != "actuator" and float(p.get("mass_kg", 0.0)) > 0.0:
+				assert_almost_eq(float(p["mass_kg"]), float(p.get("empty_kg", -1.0)) + float(p.get("load_kg", 0.0)), 0.02, "%s: mass is empty + load from the table" % pid)
+	assert_almost_eq(mech.mass, total, 1.0, "every part's mass counted once")
+	assert_almost_eq(mech.mass, 5423.3, 1.0, "the mass table's combat-loaded figure")
+	# realistic_mass.json's loaded centre of mass [0, 1.457, 0.239] (glTF, ground origin) minus
+	# model_origin [0, 1.40989, 0]; legs sit at the IK rest pose here, so within 10 cm.
+	assert_almost_eq(mech.center_of_mass.y, 0.047, 0.1, "centre of mass height matches the table")
+	assert_almost_eq(mech.center_of_mass.z, 0.239, 0.1, "centre of mass fore-aft matches the table")
 	assert_almost_eq(mech.center_of_mass.x, 0.0, 0.05, "left-right symmetric")
 
 
@@ -482,28 +493,25 @@ func test_charge_jump_while_running() -> void:
 	assert_gt(fastest, v_release + 2.5, "the game jump leaps forward along the run (%.1f m/s after vs %.1f at release)" % [fastest, v_release])
 
 
-## Game-feel arc for the game-mode jump: it comes down quicker than it went up
-## (tuning.juggernaut.jump.fall_gravity_scale); still no air control.
-func test_game_jump_falls_faster_than_it_rises() -> void:
+## Lane A3 part 4 (Emerson: real physics only in the air): the old heavier-fall game arc
+## (jump.fall_gravity_scale 1.5) is gone. In flight the only vertical force is gravity plus a little
+## air drag, so the vertical speed falls at 9.81 m/s^2 (drag at these speeds is under 0.3 m/s^2).
+func test_jump_arc_is_gravity_only() -> void:
 	await physics_frames(360)
 	Input.action_press("jump", 1.0)
 	await physics_frames(132)
 	Input.action_release("jump")
-	var up_frames := 0
-	var down_frames := 0
-	var left := false
-	for i in 720:
+	var samples: Array = []
+	for i in 360:
 		await tree.physics_frame
-		if bool(mech.get("airborne")):
-			left = true
-			if mech.linear_velocity.y > 0.0 and down_frames == 0:
-				up_frames += 1
-			else:
-				down_frames += 1
-		elif left:
+		if bool(mech.get("airborne")) and mech.global_position.y > 3.0:
+			samples.append(mech.linear_velocity.y)
+		elif samples.size() > 40:
 			break
-	assert_true(left, "left the ground")
-	assert_lt(float(down_frames), 0.88 * up_frames, "comes down quicker than it went up (%d vs %d frames)" % [down_frames, up_frames])
+	assert_gt(samples.size(), 40, "a third of a second or more of clear flight")
+	var mid := samples.size() / 2
+	var acc := (float(samples[mid + 20]) - float(samples[mid - 20])) / (40.0 / 120.0)
+	assert_almost_eq(acc, -9.81, 0.4, "vertical acceleration is gravity (%.2f m/s^2)" % acc)
 
 
 func _default_stance() -> void:

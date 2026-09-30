@@ -28,6 +28,9 @@ var charge_s := 0.0
 var crouch := 0.0
 var running := false
 var aim_pitch_deg := 0.0
+## Where the pilot looks up or down (world pitch, degrees): the camera and the wire anchors follow it;
+## the body tilts after it only as far as its legs allow (aim.pitch_min/max_deg, gameplay.aim_tilt).
+var look_pitch_deg := 0.0
 var ground_normal := Vector3.UP
 var last_launch_speed := 0.0
 ## Scales the drive's top speeds (walk, run, reverse, strafe); MechCombat lowers it for a hurt leg.
@@ -59,6 +62,19 @@ var _lift := 0.0
 var _spread := 1.0
 var _stride_half := 0.45  # how far ahead of its rest spot a foot lands, and behind it steps again
 var _swing_now := 0.28  # this tick's swing time: _step_s, shortened when the stride is maxed out
+
+enum Swing { IDLE, SWEEP, TUCK, RETURN, UNTUCK }
+## Leg-swing turning in the air (see _air_legs): the legs' swing away from their stance (x = yaw
+## about the body's up, y = pitch about its side axis, radians), its rate, how far they are tucked in
+## (0 outstretched, 1 tucked), the cycle's phase and sweep direction, the legs' moments of inertia
+## about the body axes (outstretched and tucked), and the angular momentum they carry (world frame).
+var air_swing := Vector2.ZERO
+var air_tuck := 0.0
+var air_phase := Swing.IDLE
+var leg_momentum := Vector3.ZERO
+var leg_inertia := {"yaw": Vector2.ZERO, "pitch": Vector2.ZERO}
+var _swing_w := Vector2.ZERO
+var _swing_dir := Vector2.ZERO
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -103,6 +119,52 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 		_bench_speed_cap = minf(_bench_speed_cap, JumpCharge.bench_speed_cap(a.get("bench", {}), reach))
 	_read_stance()
 	_apply_stance()
+	_measure_leg_inertia()
+	# No made-up damping: Godot's default 0.1/s linear and angular damping is replaced by real air
+	# drag (_air_drag) and, in flight, no spin damping at all (angular momentum is conserved).
+	linear_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+	linear_damp = 0.0
+	angular_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+
+
+## The legs' moment of inertia about the body's up (yaw) and side (pitch) axes through the centre of
+## mass when they swing together about their hips, outstretched and tucked. Each leg is a rod from its
+## hip pivot to its sole (mass = thigh + shin + foot parts), its centre halfway; a rod swinging about
+## its end at pivot h (from the centre of mass) with half-length vector r carries
+## m * ((h + r) . r + |r|^2 / 3) per rad/s about an axis (components square to the axis only).
+## Tucked, the feet draw in to air.tuck_scale of their reach. Reasoned from the parts' masses.
+func _measure_leg_inertia() -> void:
+	var a: Dictionary = _t.get("air", {})
+	var tuck := float(a.get("tuck_scale", 0.55))
+	var yaw := Vector2.ZERO
+	var pitch := Vector2.ZERO
+	for leg: Dictionary in legs:
+		var m := _leg_mass(leg)
+		var pivot: Vector3 = leg["pivot"]
+		var h := pivot - center_of_mass
+		var r := ((leg["sole_stance"] as Vector3) - pivot) * 0.5
+		yaw += Vector2(_rod_inertia(m, h, r, Vector3.UP), _rod_inertia(m, h, r * tuck, Vector3.UP))
+		pitch += Vector2(_rod_inertia(m, h, r, Vector3.RIGHT), _rod_inertia(m, h, r * tuck, Vector3.RIGHT))
+	leg_inertia = {"yaw": yaw, "pitch": pitch}
+
+
+## Thigh, shin and foot, plus the parts that swing with the leg about the hip: the coxa (the hip's
+## yaw link) and the knee ram (mechs.json legs.<leg>.swing_parts).
+func _leg_mass(leg: Dictionary) -> float:
+	var leg_def: Dictionary = def.get("legs", {}).get(leg["name"], {})
+	var m := 0.0
+	for seg: String in ["upper", "lower", "foot"]:
+		if leg_def.has(seg):
+			m += float(Registry.entry("parts", str(leg_def[seg])).get("mass_kg", 0.0))
+	for pid: Variant in leg_def.get("swing_parts", []):
+		m += float(Registry.entry("parts", str(pid)).get("mass_kg", 0.0))
+	return m
+
+
+static func _rod_inertia(m: float, h: Vector3, r: Vector3, axis: Vector3) -> float:
+	var hp := h - axis * h.dot(axis)
+	var rp := r - axis * r.dot(axis)
+	return m * ((hp + rp).dot(rp) + rp.length_squared() / 3.0)
 
 
 ## The stance controls; the stand-in keeps the modelled pose (juggernaut_mech.gd reads Settings).
@@ -367,13 +429,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_since_ground += dt
 		if grounded_legs == 0:
 			airborne = true
-		# Game-feel arc (game mode only, tuning jump.fall_gravity_scale): heavier on the way down.
-		var fall_scale := float(_t.get("jump", {}).get("fall_gravity_scale", 1.0))
-		if airborne and v.y < 0.0 and fall_scale > 1.0 and not bench_mode():
-			state.apply_central_force(state.total_gravity * (fall_scale - 1.0) * mass)
 		_fall_speed = v.dot(Vector3.UP)
 		if airborne and air_control_on():
-			_air_control(state, v, w, dt)
+			_air_legs(state, dt)
 		else:
 			_aim_yaw = _yaw_of(xf.basis)
 		skidding = false
@@ -397,6 +455,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var recover := clampf((_stuck_s - delay) / float(rc.get("ramp_s", 2.0)), 0.0, 1.0)
 			_steady(state, w, recover)
 			_unstick(state, xf.basis, recover)
+	if not airborne:
+		_settle_legs(state, dt)
+	_air_drag(state, v)
 	_keel(state, w)
 	_pitch_aim(dt)
 
@@ -405,17 +466,24 @@ func air_control_on() -> bool:
 	return not bench_mode() and not hauling and Settings.get_b("gameplay.air_control")
 
 
-## Game-mode air control (Emerson, 2026-09-30: "movement in mid-air", aim with the mouse in the air
-## too; Settings > Gameplay "Air control", off = the supplement's pure ballistic jump). An attitude
-## controller swings the chassis to the aim yaw (mouse / right stick, faster than on the ground) and
-## the aim pitch, so the fixed gun can be pointed and fired in flight (the recoil dodge included).
-## The move stick adds a push along the chassis' heading and side, up to tuning air.max_m_s along
-## that direction; momentum already past that is kept, never braked.
-func _air_control(state: PhysicsDirectBodyState3D, v: Vector3, w: Vector3, dt: float) -> void:
+## Leg-swing turning in the air (lane A3 part 4, Emerson 2026-09-30: air movement "only based on
+## the movement of legs or whatever in real life would give the movement; small is fine; some
+## mechanic of direction change; no teleportation"). Nothing outside pushes or turns the body in
+## flight; the pilot has the legs. Swinging the outstretched legs one way turns the body the other way
+## (the legs take angular momentum, the body gives it up), and bringing them back tucked turns it back
+## by less, because tucked legs have a smaller moment of inertia; so each sweep-tuck-return-untuck
+## cycle leaves the body turned a little, the way a cat or an astronaut turns. Yaw is the hips'
+## side-to-side swing, pitch the fore-aft swing, towards the aim (mouse / right stick) and the aim
+## pitch. The reaction is an internal torque impulse equal and opposite to the change in the legs'
+## angular momentum, so body + legs keep the angular momentum they left the ground with. The swing is
+## limited by air.swing_max_deg and by the hip motors' rate and acceleration (air.swing_deg_s,
+## air.swing_accel_deg_s2; 4 legs x ~1,000 kg m^2 at 1,200 deg/s^2 is about 20 kN m a hip, inside the
+## hip_yaw actuator's rated 30 kN m).
+func _air_legs(state: PhysicsDirectBodyState3D, dt: float) -> void:
 	var a: Dictionary = _t.get("air", {})
 	var basis := state.transform.basis.orthonormalized()
 	var aim_cfg: Dictionary = Registry.tune("aim", {})
-	_aim_yaw -= deg_to_rad(float(a.get("turn_rate_deg_s", 150.0))) * _aim.x * dt
+	_aim_yaw -= deg_to_rad(float(_t.get("turn", {}).get("rate_deg_s", 90.0))) * _aim.x * dt
 	_aim_yaw -= deg_to_rad(float(aim_cfg.get("mouse_turn_deg_per_px", 0.09))) * _mouse.x
 	var yaw := _yaw_of(basis)
 	var lead := deg_to_rad(float(a.get("yaw_lead_deg", 90.0)))
@@ -423,37 +491,107 @@ func _air_control(state: PhysicsDirectBodyState3D, v: Vector3, w: Vector3, dt: f
 	if absf(diff) > lead:
 		_aim_yaw = yaw + clampf(diff, -lead, lead)
 	var want := Basis(Vector3.UP, _aim_yaw) * Basis(Vector3.RIGHT, deg_to_rad(aim_pitch_deg))
-	var err := (want * basis.inverse()).get_rotation_quaternion()
-	var angle := err.get_angle()
+	var err_q := (basis.inverse() * want).get_rotation_quaternion()
+	var angle := err_q.get_angle()
 	if angle > PI:
 		angle -= TAU
-	var axis := err.get_axis() if absf(angle) > 0.0001 else Vector3.ZERO
-	var acc := axis * angle * float(a.get("attitude_stiffness", 40.0)) - w * float(a.get("attitude_damping", 10.0))
-	acc = acc.limit_length(deg_to_rad(float(a.get("max_ang_accel_deg_s2", 900.0))))
-	var local := basis.inverse() * acc
-	state.apply_torque(basis * (local * inertia))
-	var fwd := Vector3(-basis.z.x, 0.0, -basis.z.z).normalized()
-	var right := Vector3(basis.x.x, 0.0, basis.x.z).normalized()
-	var dir := (fwd * _move.y + right * _move.x).limit_length(1.0)
-	if dir.length() < 0.05:
-		return
-	var along := Vector3(v.x, 0.0, v.z).dot(dir.normalized())
-	if along < float(a.get("max_m_s", 14.0)):
-		state.apply_central_force(dir * float(a.get("accel_m_s2", 6.0)) * mass)
+	var err_axis := err_q.get_axis() if absf(angle) > 0.0001 else Vector3.ZERO
+	var err := err_axis * angle  # body frame: y = yaw still to go, x = pitch still to go
+	var e2 := Vector2(err.y, err.x)
+	_step_air_swing(e2, a, dt)
+	var tuck := air_tuck
+	var i_yaw: Vector2 = leg_inertia["yaw"]
+	var i_pitch: Vector2 = leg_inertia["pitch"]
+	var local := Vector3(lerpf(i_pitch.x, i_pitch.y, tuck) * _swing_w.y, lerpf(i_yaw.x, i_yaw.y, tuck) * _swing_w.x, 0.0)
+	var now := basis * local
+	state.apply_torque_impulse(-(now - leg_momentum))
+	leg_momentum = now
+
+
+## One tick of the sweep-tuck-return-untuck cycle. e2 is the turn still wanted (x yaw, y pitch, body
+## frame, radians); the legs sweep the opposite way, outstretched, across their whole range (from
+## -swing_max to +swing_max along the sweep), then tuck and come back tucked to the far side for the
+## next sweep (or to the middle when the turn is done).
+func _step_air_swing(e2: Vector2, a: Dictionary, dt: float) -> void:
+	var limit := deg_to_rad(float(a.get("swing_max_deg", 35.0)))
+	var rate := deg_to_rad(float(a.get("swing_deg_s", 170.0)))
+	var accel := deg_to_rad(float(a.get("swing_accel_deg_s2", 1500.0)))
+	var dead := deg_to_rad(float(a.get("deadband_deg", 2.0)))
+	var tuck_rate := 1.0 / maxf(float(a.get("tuck_s", 0.12)), 0.01)
+	var wants := e2.length() > dead
+	var goal := air_swing  # where the legs are heading this tick (staying put unless a phase moves them)
+	match air_phase:
+		Swing.IDLE:
+			if wants:
+				_swing_dir = -e2.normalized()
+				air_phase = Swing.SWEEP
+		Swing.SWEEP:
+			goal = _swing_dir * limit if e2.dot(-_swing_dir) > dead else air_swing
+			if _legs_reach(goal, accel):
+				air_phase = Swing.TUCK
+		Swing.TUCK:
+			air_tuck = move_toward(air_tuck, 1.0, tuck_rate * dt)
+			if air_tuck >= 1.0:
+				air_phase = Swing.RETURN
+				if wants:
+					_swing_dir = -e2.normalized()
+		Swing.RETURN:
+			goal = -_swing_dir * limit if wants else Vector2.ZERO
+			if _legs_reach(goal, accel):
+				air_phase = Swing.UNTUCK
+		Swing.UNTUCK:
+			air_tuck = move_toward(air_tuck, 0.0, tuck_rate * dt)
+			if air_tuck <= 0.0:
+				air_phase = Swing.SWEEP if wants and air_swing != Vector2.ZERO else Swing.IDLE
+	var to_goal := goal - air_swing
+	var stop := _swing_w.length_squared() / (2.0 * accel)
+	var target_w := to_goal.normalized() * rate if to_goal.length() > stop + 0.005 else Vector2.ZERO
+	_swing_w = _swing_w.move_toward(target_w, accel * dt)
+	air_swing += _swing_w * dt
+
+
+## True once the legs have come to rest at `goal`.
+func _legs_reach(goal: Vector2, accel: float) -> bool:
+	return air_swing.distance_to(goal) < 0.03 and _swing_w.length() < accel * 0.02
+
+
+## Back on the ground (or with leg swing off) the legs return to their stance; whatever angular
+## momentum they still carry goes back into the body through the hips, so none is made or lost.
+func _settle_legs(state: PhysicsDirectBodyState3D, dt: float) -> void:
+	if leg_momentum != Vector3.ZERO:
+		state.apply_torque_impulse(leg_momentum)
+		leg_momentum = Vector3.ZERO
+	_swing_w = Vector2.ZERO
+	air_swing = air_swing.move_toward(Vector2.ZERO, 3.0 * dt)
+	air_tuck = move_toward(air_tuck, 0.0, 6.0 * dt)
+	if air_swing == Vector2.ZERO and air_tuck == 0.0:
+		air_phase = Swing.IDLE
+
+
+## Air drag, F = 1/2 rho Cd A v^2 against the motion (physics.air_density, the mech's
+## physics.drag_cd_area_m2): about 2 kN at 20 m/s, 0.35 m/s^2 on 5.4 t. Replaces Godot's blanket
+## 0.1/s damping, which was six times that at 20 m/s.
+func _air_drag(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
+	var p: Dictionary = Registry.tune("physics", {})
+	var cda := float(p.get("drag_cd_area_m2", 7.0))
+	var f := 0.5 * float(p.get("air_density", 1.2)) * cda * v.length_squared()
+	if f > 0.0:
+		state.apply_central_force(-v.normalized() * f)
 
 
 ## Game mode only (Emerson, 2026-09-30: normal play must not tip the spider over, and there are no
 ## fall or flail animations yet). Past upright.keep_deg of lean from the ground under it (world up
-## in the air), a righting torque grows with the lean, capped, and the tilting spin is damped, so
-## bumps, hard turns and landings settle back instead of rolling it. Weaker in the air
-## (keep_air_factor). Off with Balance assist off, and in bench mode, which stays raw physics.
+## with under two legs down), a righting torque grows with the lean, capped, and the tilting spin is
+## damped, so bumps, hard turns and landings settle back instead of rolling it. Weaker with under two
+## legs loaded (keep_air_factor); none at all in flight (lane A3 part 4: no torque from nowhere). Off with Balance assist off, and in bench mode, which stays raw physics.
 func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	var u: Dictionary = _t.get("upright", {})
 	var keep := deg_to_rad(float(u.get("keep_deg", 0.0)))
 	if keep <= 0.0 or bench_mode() or not Settings.get_b("gameplay.upright_assist"):
 		return
-	if airborne and air_control_on():
-		return  # _air_control holds the attitude in the air
+	if airborne and not hauling:
+		return  # no torque from nowhere in flight: only the legs' swing (_air_legs) turns the body
+	# (A ledge haul counts as airborne but the legs grip the ledge, so their righting stays.)
 	var up := state.transform.basis.y
 	var target := ground_normal if grounded_legs >= 2 else Vector3.UP
 	# At a run the chassis is held much closer to the ground's slope (upright.keep_run_deg): with the
@@ -599,17 +737,23 @@ func _unstick(state: PhysicsDirectBodyState3D, basis: Basis, recover: float) -> 
 	state.apply_central_force(dir * accel * mass)
 
 
-## Body tilt to aim up and down (mouse or right stick). Emerson, 2026-09-30: nothing follows the
-## mouse up and down, the chassis and gun are fixed; so this is an option (gameplay.aim_tilt, off by
-## default), and with it off the body eases back level.
+## Looking and aiming up and down (mouse or right stick). The look pitch goes from aim.look_min_deg
+## to look_max_deg (the camera and the wire anchors follow it; lane A3 part 4, so the anchor can aim
+## high); the body tilts after it on its legs, within aim.pitch_min/max_deg, when gameplay.aim_tilt is
+## on, and eases back level when it is off.
 func _pitch_aim(dt: float) -> void:
+	var a: Dictionary = Registry.tune("aim", {})
+	look_pitch_deg += _aim.y * float(a.get("look_rate_deg_s", 60.0)) * dt - _mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
+	look_pitch_deg = clampf(look_pitch_deg, float(a.get("look_min_deg", -25.0)), float(a.get("look_max_deg", 75.0)))
 	if not Settings.get_b("gameplay.aim_tilt"):
 		aim_pitch_deg = move_toward(aim_pitch_deg, 0.0, 40.0 * dt)
 		return
-	var a: Dictionary = Registry.tune("aim", {})
-	var rate := 40.0
-	aim_pitch_deg += _aim.y * rate * dt - _mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
-	aim_pitch_deg = clampf(aim_pitch_deg, float(a.get("pitch_min_deg", -8.0)), float(a.get("pitch_max_deg", 18.0)))
+	aim_pitch_deg = clampf(look_pitch_deg, float(a.get("pitch_min_deg", -8.0)), float(a.get("pitch_max_deg", 18.0)))
+
+
+## The look direction in the world: the body's heading, pitched by look_pitch_deg.
+func look_direction() -> Vector3:
+	return (Basis(Vector3.UP, _yaw_of(global_transform.basis)) * Basis(Vector3.RIGHT, deg_to_rad(look_pitch_deg)) * Vector3.FORWARD).normalized()
 
 
 func _on_landed(impact: float) -> void:
@@ -657,8 +801,8 @@ func _physics_process(delta: float) -> void:
 			target_world = leg["hit"]
 		else:
 			# Nothing under the foot: the leg hangs in its rest pose (fronts forward, rears back,
-			# not tucked in: ANALYSIS.md's airborne legs).
-			target_world = xf * (leg["sole_stance"] as Vector3)
+			# not tucked in: ANALYSIS.md's airborne legs), swung and tucked by _air_legs.
+			target_world = xf * _air_foot(leg)
 		var t := float(leg["step_t"])
 		if t >= 0.0:
 			t += delta / _swing_now
@@ -681,7 +825,7 @@ func _physics_process(delta: float) -> void:
 				# Eased in the body's frame, so the feet travel with the mech: eased in world space
 				# they were left behind at speed and a running jump dragged the legs straight.
 				var local := xf.affine_inverse() * (leg["planted"] as Vector3)
-				leg["planted"] = xf * local.lerp(xf.affine_inverse() * target_world, minf(delta * 8.0, 1.0))
+				leg["planted"] = xf * local.lerp(xf.affine_inverse() * target_world, minf(delta * 20.0, 1.0))
 				leg["planted_normal"] = target_normal
 				leg["needs_seat"] = true
 			elif (gap.length() > maxf(0.9, 2.0 * _stride_half) or absf(gap.dot(xf.basis.y)) > reseat or seat) and (not _partner_stepping(str(leg["name"])) or gap.length() > 1.4 * maxf(0.9, 2.0 * _stride_half)):
@@ -718,6 +862,14 @@ func _physics_process(delta: float) -> void:
 			hb.transform = foot_xf
 
 
+## Where a hanging foot is in the body frame: its stance spot swung about the leg's hip pivot by the
+## air swing (yaw about the body's up, pitch about its side axis) and drawn in by the tuck.
+func _air_foot(leg: Dictionary) -> Vector3:
+	var pivot: Vector3 = leg["pivot"]
+	var reach := ((leg["sole_stance"] as Vector3) - pivot) * lerpf(1.0, float(_t.get("air", {}).get("tuck_scale", 0.55)), air_tuck)
+	return pivot + Basis(Vector3.UP, air_swing.x) * (Basis(Vector3.RIGHT, air_swing.y) * reach)
+
+
 ## The foot's up direction in the body frame: square to the ground it is planted on (the sole
 ## socket's normal is the model's up at rest), level while it swings or hangs, tilted at most
 ## feet.max_tilt_deg, and eased in so a foot settles onto a slope instead of snapping to it.
@@ -728,7 +880,9 @@ func _foot_up(leg: Dictionary, xf: Transform3D, planted: bool, max_tilt: float, 
 		var angle := want.angle_to(Vector3.UP)
 		if angle > max_tilt:
 			want = Vector3.UP.slerp(want, max_tilt / angle)
-	var up := (leg["foot_up"] as Vector3).slerp(want, minf(delta * 12.0, 1.0)).normalized()
+	var had: Vector3 = leg["foot_up"]
+	# Nearly parallel vectors make slerp's float32 axis miss unit length (engine error), so snap.
+	var up := want if had.angle_to(want) < 0.002 else had.slerp(want, minf(delta * 12.0, 1.0)).normalized()
 	leg["foot_up"] = up
 	return up
 

@@ -29,3 +29,17 @@ static func drop_at(distance_m: float, speed: float, gravity: float, drag: float
 	var span := -pos.z + prev.z
 	var f := (distance_m + prev.z) / span if span > 0.0 else 1.0
 	return -lerpf(prev.y, pos.y, f)
+
+
+## The recoil impulse of one shot, N s: the projectile's momentum plus the propellant gas's (the gas
+## leaves at about gas_speed_factor x the muzzle speed; 1.5 is the usual figure for high-velocity
+## guns). A muzzle brake would turn part of the gas momentum forward; the 57 mm has none. Weapons
+## whose ammo gives no propellant_kg fall back to the weapon's fixed recoil_impulse_ns.
+static func recoil_impulse(gun_def: Dictionary, ammo: Dictionary) -> float:
+	if not ammo.has("propellant_kg"):
+		return float(gun_def.get("recoil_impulse_ns", 0.0))
+	var v := float(ammo.get("muzzle_m_s", 0.0))
+	var gas := float(ammo["propellant_kg"]) * v * float(gun_def.get("gas_speed_factor", 1.5))
+	if bool(gun_def.get("muzzle_brake", false)):
+		gas *= 1.0 - float(gun_def.get("brake_efficiency", 0.35)) * 2.0
+	return float(ammo.get("projectile_kg", 0.0)) * v + gas

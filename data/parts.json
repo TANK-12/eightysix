@@ -245,7 +245,7 @@
     "jg2_thigh_FR": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (FR)",
-      "mass_kg": 249.31,
+      "mass_kg": 73.1,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
@@ -262,12 +262,15 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 73.1,
+      "load_kg": 0.0,
+      "mass_note": "6 mm 7075 shell + 60% spar/ribs + 25 kg knee bearing"
     },
     "jg2_shin_FR": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (FR)",
-      "mass_kg": 193.09,
+      "mass_kg": 43.1,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
@@ -284,12 +287,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 43.1,
+      "load_kg": 0.0,
+      "mass_note": "5 mm 7075 tube + 50% ribs + ankle fitting"
     },
     "jg2_foot_FR": {
       "kind": "foot",
       "label": "Juggernaut Model 2 foot (FR)",
-      "mass_kg": 39.28,
+      "mass_kg": 35.7,
       "health": 900,
       "armour_mm": 14,
       "collider": {
@@ -305,7 +311,10 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox",
+      "empty_kg": 35.7,
+      "load_kg": 0.0,
+      "mass_note": "steel sole with rubber pad, 40% solid"
     },
     "jg2_act_hip_yaw_FR": {
       "kind": "actuator",
@@ -439,7 +448,7 @@
     "jg2_thigh_FL": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (FL)",
-      "mass_kg": 249.3,
+      "mass_kg": 73.1,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
@@ -456,12 +465,15 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 73.1,
+      "load_kg": 0.0,
+      "mass_note": "6 mm 7075 shell + 60% spar/ribs + 25 kg knee bearing"
     },
     "jg2_shin_FL": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (FL)",
-      "mass_kg": 193.16,
+      "mass_kg": 43.1,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
@@ -478,12 +490,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 43.1,
+      "load_kg": 0.0,
+      "mass_note": "5 mm 7075 tube + 50% ribs + ankle fitting"
     },
     "jg2_foot_FL": {
       "kind": "foot",
       "label": "Juggernaut Model 2 foot (FL)",
-      "mass_kg": 39.29,
+      "mass_kg": 35.7,
       "health": 900,
       "armour_mm": 14,
       "collider": {
@@ -499,7 +514,10 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox",
+      "empty_kg": 35.7,
+      "load_kg": 0.0,
+      "mass_note": "steel sole with rubber pad, 40% solid"
     },
     "jg2_act_hip_yaw_FL": {
       "kind": "actuator",
@@ -633,7 +651,7 @@
     "jg2_thigh_RR": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (RR)",
-      "mass_kg": 249.36,
+      "mass_kg": 73.1,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
@@ -650,12 +668,15 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 73.1,
+      "load_kg": 0.0,
+      "mass_note": "6 mm 7075 shell + 60% spar/ribs + 25 kg knee bearing"
     },
     "jg2_shin_RR": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (RR)",
-      "mass_kg": 193.18,
+      "mass_kg": 43.1,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
@@ -672,12 +693,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 43.1,
+      "load_kg": 0.0,
+      "mass_note": "5 mm 7075 tube + 50% ribs + ankle fitting"
     },
     "jg2_foot_RR": {
       "kind": "foot",
       "label": "Juggernaut Model 2 foot (RR)",
-      "mass_kg": 39.28,
+      "mass_kg": 35.7,
       "health": 900,
       "armour_mm": 14,
       "collider": {
@@ -693,7 +717,10 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox",
+      "empty_kg": 35.7,
+      "load_kg": 0.0,
+      "mass_note": "steel sole with rubber pad, 40% solid"
     },
     "jg2_act_hip_yaw_RR": {
       "kind": "actuator",
@@ -827,7 +854,7 @@
     "jg2_thigh_RL": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (RL)",
-      "mass_kg": 249.27,
+      "mass_kg": 73.1,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
@@ -844,12 +871,15 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 73.1,
+      "load_kg": 0.0,
+      "mass_note": "6 mm 7075 shell + 60% spar/ribs + 25 kg knee bearing"
     },
     "jg2_shin_RL": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (RL)",
-      "mass_kg": 193.08,
+      "mass_kg": 43.1,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
@@ -866,12 +896,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
+      "empty_kg": 43.1,
+      "load_kg": 0.0,
+      "mass_note": "5 mm 7075 tube + 50% ribs + ankle fitting"
     },
     "jg2_foot_RL": {
       "kind": "foot",
       "label": "Juggernaut Model 2 foot (RL)",
-      "mass_kg": 39.28,
+      "mass_kg": 35.7,
       "health": 900,
       "armour_mm": 14,
       "collider": {
@@ -887,7 +920,10 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox",
+      "empty_kg": 35.7,
+      "load_kg": 0.0,
+      "mass_note": "steel sole with rubber pad, 40% solid"
     },
     "jg2_act_hip_yaw_RL": {
       "kind": "actuator",
@@ -1021,7 +1057,7 @@
     "jg2_ammobox_l": {
       "kind": "ammo",
       "label": "Juggernaut Model 2: ammobox.L",
-      "mass_kg": 412.83,
+      "mass_kg": 190.6,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1037,12 +1073,15 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 46.6,
+      "load_kg": 144.0,
+      "mass_note": "aluminium box + feed; holds 24 rounds x 6 kg"
     },
     "jg2_ammobox_r": {
       "kind": "ammo",
       "label": "Juggernaut Model 2: ammobox.R",
-      "mass_kg": 412.83,
+      "mass_kg": 190.6,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1058,12 +1097,15 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 46.6,
+      "load_kg": 144.0,
+      "mass_note": "aluminium box + feed; holds 24 rounds x 6 kg"
     },
     "jg2_barrel": {
       "kind": "gun_barrel",
       "label": "Juggernaut Model 2: barrel",
-      "mass_kg": 1928.66,
+      "mass_kg": 468.8,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1079,12 +1121,15 @@
         "color": "#3a3f45",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 468.8,
+      "load_kg": 0.0,
+      "mass_note": "57 mm steel tube 5.0 m, OD 160 to 95 mm, + 30 kg muzzle brake + aluminium shroud"
     },
     "jg2_blade_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: blade.L",
-      "mass_kg": 13.9,
+      "mass_kg": 62.1,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1100,12 +1145,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 62.1,
+      "load_kg": 0.0,
+      "mass_note": "steel blade 2.0 m x 0.3 m x 10 mm avg + mount"
     },
     "jg2_blade_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: blade.R",
-      "mass_kg": 13.9,
+      "mass_kg": 62.1,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1121,12 +1169,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 62.1,
+      "load_kg": 0.0,
+      "mass_note": "steel blade 2.0 m x 0.3 m x 10 mm avg + mount"
     },
     "jg2_canopy": {
       "kind": "cockpit",
       "label": "Juggernaut Model 2: canopy",
-      "mass_kg": 273.24,
+      "mass_kg": 151.3,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1142,12 +1193,15 @@
         "color": "#3b4046",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 151.3,
+      "load_kg": 0.0,
+      "mass_note": "8 mm aluminium hatch + hinge frame"
     },
     "jg2_coxa_fl": {
       "kind": "joint",
       "label": "Juggernaut Model 2: coxa.FL",
-      "mass_kg": 157.7,
+      "mass_kg": 70.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1163,12 +1217,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 70.0,
+      "load_kg": 0.0,
+      "mass_note": "hip slew drive + gearmotor"
     },
     "jg2_coxa_fr": {
       "kind": "joint",
       "label": "Juggernaut Model 2: coxa.FR",
-      "mass_kg": 162.59,
+      "mass_kg": 70.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1184,12 +1241,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 70.0,
+      "load_kg": 0.0,
+      "mass_note": "hip slew drive + gearmotor"
     },
     "jg2_coxa_rl": {
       "kind": "joint",
       "label": "Juggernaut Model 2: coxa.RL",
-      "mass_kg": 162.59,
+      "mass_kg": 70.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1205,12 +1265,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 70.0,
+      "load_kg": 0.0,
+      "mass_note": "hip slew drive + gearmotor"
     },
     "jg2_coxa_rr": {
       "kind": "joint",
       "label": "Juggernaut Model 2: coxa.RR",
-      "mass_kg": 157.7,
+      "mass_kg": 70.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1226,12 +1289,15 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 70.0,
+      "load_kg": 0.0,
+      "mass_note": "hip slew drive + gearmotor"
     },
     "jg2_dart_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: dart.L",
-      "mass_kg": 11.37,
+      "mass_kg": 18.3,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1247,12 +1313,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 18.3,
+      "load_kg": 0.0,
+      "mass_note": "wire-anchor head, 20% of modelled volume steel"
     },
     "jg2_dart_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: dart.R",
-      "mass_kg": 11.37,
+      "mass_kg": 18.3,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1268,12 +1337,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 18.3,
+      "load_kg": 0.0,
+      "mass_note": "wire-anchor head, 20% of modelled volume steel"
     },
     "jg2_eye": {
       "kind": "sensor",
       "label": "Juggernaut Model 2: eye",
-      "mass_kg": 283.56,
+      "mass_kg": 97.9,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1289,12 +1361,15 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 97.9,
+      "load_kg": 0.0,
+      "mass_note": "4 mm aluminium sensor head + 60 kg optics and electronics"
     },
     "jg2_flank_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: flank.L",
-      "mass_kg": 296.64,
+      "mass_kg": 69.8,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1310,12 +1385,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 69.8,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate + brackets"
     },
     "jg2_flank_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: flank.R",
-      "mass_kg": 296.68,
+      "mass_kg": 69.9,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1331,12 +1409,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 69.9,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate + brackets"
     },
     "jg2_gunmount": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: gunmount",
-      "mass_kg": 156.67,
+      "mass_kg": 152.4,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1352,12 +1433,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 152.4,
+      "load_kg": 0.0,
+      "mass_note": "steel trunnion mount"
     },
     "jg2_gunram_cyl": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: gunram_cyl",
-      "mass_kg": 13.46,
+      "mass_kg": 21.1,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1373,12 +1457,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 21.1,
+      "load_kg": 0.0,
+      "mass_note": "elevation ram"
     },
     "jg2_gunram_rod": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: gunram_rod",
-      "mass_kg": 3.37,
+      "mass_kg": 18.8,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1394,12 +1481,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 18.8,
+      "load_kg": 0.0,
+      "mass_note": "elevation ram rod"
     },
     "jg2_gunsaddle": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: gunsaddle",
-      "mass_kg": 19.3,
+      "mass_kg": 54.4,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1415,12 +1505,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 54.4,
+      "load_kg": 0.0,
+      "mass_note": "steel cradle"
     },
     "jg2_ladder": {
       "kind": "armour",
       "label": "Juggernaut Model 2: ladder",
-      "mass_kg": 7.43,
+      "mass_kg": 5.8,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1436,12 +1529,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 5.8,
+      "load_kg": 0.0,
+      "mass_note": "aluminium rungs"
     },
     "jg2_lamp_l": {
       "kind": "sensor",
       "label": "Juggernaut Model 2: lamp.L",
-      "mass_kg": 13.05,
+      "mass_kg": 8.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1457,12 +1553,15 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 8.2,
+      "load_kg": 0.0,
+      "mass_note": "3 mm aluminium housing + light unit"
     },
     "jg2_lamp_r": {
       "kind": "sensor",
       "label": "Juggernaut Model 2: lamp.R",
-      "mass_kg": 13.05,
+      "mass_kg": 8.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1478,12 +1577,15 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 8.2,
+      "load_kg": 0.0,
+      "mass_note": "3 mm aluminium housing + light unit"
     },
     "jg2_lowerside_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: lowerside.L",
-      "mass_kg": 5.62,
+      "mass_kg": 2.2,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1499,12 +1601,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 2.2,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate"
     },
     "jg2_lowerside_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: lowerside.R",
-      "mass_kg": 5.62,
+      "mass_kg": 2.2,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1520,12 +1625,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 2.2,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate"
     },
     "jg2_magazine": {
       "kind": "ammo",
       "label": "Juggernaut Model 2: magazine",
-      "mass_kg": 1405.98,
+      "mass_kg": 574.6,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1541,12 +1649,15 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 88.6,
+      "load_kg": 486.0,
+      "mass_note": "aluminium box + feed; holds 81 rounds x 6 kg"
     },
     "jg2_pod_tub": {
       "kind": "cockpit",
       "label": "Juggernaut Model 2: pod_tub",
-      "mass_kg": 679.07,
+      "mass_kg": 295.7,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1562,12 +1673,15 @@
         "color": "#3b4046",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 295.7,
+      "load_kg": 0.0,
+      "mass_note": "8 mm aluminium skin (the anime's 'aluminium coffin') + 80% frame and bulkheads"
     },
     "jg2_podrear": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: podrear",
-      "mass_kg": 56.08,
+      "mass_kg": 14.3,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1583,12 +1697,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 14.3,
+      "load_kg": 0.0,
+      "mass_note": "5 mm aluminium cover"
     },
     "jg2_ramcyl_fl": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramcyl.FL",
-      "mass_kg": 17.7,
+      "mass_kg": 30.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1604,12 +1721,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 30.2,
+      "load_kg": 0.0,
+      "mass_note": "6 mm steel ram cylinder + end fittings"
     },
     "jg2_ramcyl_fr": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramcyl.FR",
-      "mass_kg": 17.69,
+      "mass_kg": 30.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1625,12 +1745,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 30.2,
+      "load_kg": 0.0,
+      "mass_note": "6 mm steel ram cylinder + end fittings"
     },
     "jg2_ramcyl_rl": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramcyl.RL",
-      "mass_kg": 17.69,
+      "mass_kg": 30.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1646,12 +1769,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 30.2,
+      "load_kg": 0.0,
+      "mass_note": "6 mm steel ram cylinder + end fittings"
     },
     "jg2_ramcyl_rr": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramcyl.RR",
-      "mass_kg": 17.7,
+      "mass_kg": 30.2,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1667,12 +1793,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 30.2,
+      "load_kg": 0.0,
+      "mass_note": "6 mm steel ram cylinder + end fittings"
     },
     "jg2_ramrod_fl": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramrod.FL",
-      "mass_kg": 4.19,
+      "mass_kg": 13.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1688,12 +1817,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 13.0,
+      "load_kg": 0.0,
+      "mass_note": "hollow steel rod"
     },
     "jg2_ramrod_fr": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramrod.FR",
-      "mass_kg": 4.19,
+      "mass_kg": 13.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1709,12 +1841,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 13.0,
+      "load_kg": 0.0,
+      "mass_note": "hollow steel rod"
     },
     "jg2_ramrod_rl": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramrod.RL",
-      "mass_kg": 4.19,
+      "mass_kg": 13.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1730,12 +1865,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 13.0,
+      "load_kg": 0.0,
+      "mass_note": "hollow steel rod"
     },
     "jg2_ramrod_rr": {
       "kind": "other",
       "label": "Juggernaut Model 2: ramrod.RR",
-      "mass_kg": 4.19,
+      "mass_kg": 13.0,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1751,12 +1889,15 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 13.0,
+      "load_kg": 0.0,
+      "mass_note": "hollow steel rod"
     },
     "jg2_receiver": {
       "kind": "gun_mech",
       "label": "Juggernaut Model 2: receiver",
-      "mass_kg": 2721.72,
+      "mass_kg": 673.5,
       "health": 1000,
       "armour_mm": 0,
       "collider": {
@@ -1772,12 +1913,15 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 673.5,
+      "load_kg": 0.0,
+      "mass_note": "breech + recoil system 350 kg, autoloader 120 kg, 4 mm aluminium housing"
     },
     "jg2_sidepanel_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: sidepanel.L",
-      "mass_kg": 22.47,
+      "mass_kg": 17.1,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1793,12 +1937,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 17.1,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate"
     },
     "jg2_sidepanel_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: sidepanel.R",
-      "mass_kg": 22.47,
+      "mass_kg": 17.1,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1814,12 +1961,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 17.1,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate"
     },
     "jg2_spool_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: spool.L",
-      "mass_kg": 24.32,
+      "mass_kg": 80.0,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1835,12 +1985,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 80.0,
+      "load_kg": 0.0,
+      "mass_note": "winch: 50 m of 16 mm steel wire (~50 kg) + drum and motor"
     },
     "jg2_spool_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: spool.R",
-      "mass_kg": 24.32,
+      "mass_kg": 80.0,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1856,12 +2009,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 80.0,
+      "load_kg": 0.0,
+      "mass_note": "winch: 50 m of 16 mm steel wire (~50 kg) + drum and motor"
     },
     "jg2_subarm_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: subarm.L",
-      "mass_kg": 41.09,
+      "mass_kg": 56.0,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1877,12 +2033,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 56.0,
+      "load_kg": 0.0,
+      "mass_note": "grapple arm, 25% aluminium + actuator"
     },
     "jg2_subarm_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: subarm.R",
-      "mass_kg": 41.09,
+      "mass_kg": 56.0,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1898,12 +2057,15 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 56.0,
+      "load_kg": 0.0,
+      "mass_note": "grapple arm, 25% aluminium + actuator"
     },
     "jg2_visor": {
       "kind": "armour",
       "label": "Juggernaut Model 2: visor",
-      "mass_kg": 278.75,
+      "mass_kg": 77.1,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -1919,7 +2081,10 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
+      "empty_kg": 77.1,
+      "load_kg": 0.0,
+      "mass_note": "10 mm aluminium add-on plate"
     },
     "jg2_act_gun_elevation": {
       "kind": "actuator",
@@ -1953,6 +2118,54 @@
         "efficiency": 0.85
       },
       "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+    },
+    "jg2_int_cockpit_fitout": {
+      "kind": "internals",
+      "label": "Juggernaut Model 2: cockpit fitout",
+      "mass_kg": 120.0,
+      "empty_kg": 120.0,
+      "load_kg": 0.0,
+      "mass_note": "seat, controls, screens, life support (inside pod_tub, no mesh)",
+      "health": 600,
+      "armour_mm": 0,
+      "collider": null,
+      "source": "realistic_mass.json: no mesh, a point mass"
+    },
+    "jg2_int_power_pack": {
+      "kind": "internals",
+      "label": "Juggernaut Model 2: power pack",
+      "mass_kg": 350.0,
+      "empty_kg": 350.0,
+      "load_kg": 0.0,
+      "mass_note": "batteries / power unit and drive electronics (assumed, inside pod_tub)",
+      "health": 600,
+      "armour_mm": 0,
+      "collider": null,
+      "source": "realistic_mass.json: no mesh, a point mass"
+    },
+    "jg2_int_pilot": {
+      "kind": "internals",
+      "label": "Juggernaut Model 2: pilot",
+      "mass_kg": 60.0,
+      "empty_kg": 0.0,
+      "load_kg": 60.0,
+      "mass_note": "teen pilot, payload",
+      "health": 600,
+      "armour_mm": 0,
+      "collider": null,
+      "source": "realistic_mass.json: no mesh, a point mass"
+    },
+    "jg2_int_wiring_hydraulics": {
+      "kind": "internals",
+      "label": "Juggernaut Model 2: wiring hydraulics",
+      "mass_kg": 218.5,
+      "empty_kg": 218.5,
+      "load_kg": 0.0,
+      "mass_note": "cables, lines, fasteners: 5% of the rest",
+      "health": 600,
+      "armour_mm": 0,
+      "collider": null,
+      "source": "realistic_mass.json: no mesh, a point mass"
     }
   }
 }

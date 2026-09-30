@@ -1,5 +1,5 @@
 {
-  "_about": "Weapons, one entry each, for the player and the Legion. \"mount\": \"fixed_forward\" with \"traverse_deg\": 0 means no independent tracking: the body turns to aim (physics supplement, point 2). \"recoil_impulse_ns\" is the real-world figure; tuning.json combat.recoil_game_scale multiplies it in game mode. \"wake\" on heavy shells is the supersonic overpressure cylinder (supplement, point 4). All figures are lane A1 drafts for A3/A4 to tune.",
+  "_about": "Weapons, one entry each, for the player and the Legion. \"mount\": \"fixed_forward\" with \"traverse_deg\": 0 means no independent tracking: the body turns to aim (physics supplement, point 2). \"recoil_impulse_ns\" is the fallback figure; when the ammo gives \"propellant_kg\" the recoil is worked out per shot as projectile momentum plus propellant gas momentum (gas at \"gas_speed_factor\" x muzzle speed, the usual 1.5 for high-velocity guns), with no game-mode scale (lane A3 part 4, Emerson: real physics only). \"muzzle_brake\": false on the 57 mm (a brake would take off about a third). \"round_kg\" is one complete round; each shot takes it off the mech's mass. \"wake\" on heavy shells is the supersonic overpressure cylinder (supplement, point 4). All figures are lane A1 drafts for A3/A4 to tune.",
   "entries": {
     "gun_57mm": {
       "label": "57 mm smoothbore gun",
@@ -14,11 +14,15 @@
       "cycle_s": 0.9,
       "default_ammo": "apfsds",
       "ammo": {
-        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02},
-        "heat": {"label": "HEAT", "projectile_kg": 2.7, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08},
-        "he": {"label": "HE", "projectile_kg": 2.7, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "drag_per_s": 0.1}
+        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "propellant_kg": 1.6, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02},
+        "heat": {"label": "HEAT", "projectile_kg": 2.7, "propellant_kg": 1.2, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08},
+        "he": {"label": "HE", "projectile_kg": 2.7, "propellant_kg": 1.1, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "drag_per_s": 0.1}
       },
-      "recoil_impulse_ns": 3200.0,
+      "recoil_impulse_ns": 5600.0,
+      "gas_speed_factor": 1.5,
+      "muzzle_brake": false,
+      "round_kg": 10.75,
+      "round_kg_note": "the mass table's 774 kg ammo load over 72 rounds (12 + 60)",
       "casing": "casing_57mm"
     },
     "mg_12_7": {
@@ -44,8 +48,11 @@
       "anchor_speed_m_s": 120.0,
       "reel_in_m_s": 8.0,
       "pay_out_m_s": 12.0,
-      "max_tension_n": 180000.0,
-      "cable_break_n": 260000.0
+      "lower_m_s": 4.0,
+      "max_tension_n": 120000.0,
+      "winch_power_w": 120000.0,
+      "cable_break_n": 170000.0,
+      "cable": "16 mm steel wire rope (breaks at about 170 kN); max_tension_n is the winch's stall pull; winch_power_w caps the reel-in speed under load (lane A3 part 4, no game scale)"
     },
     "hf_blade": {
       "label": "High-frequency blade",

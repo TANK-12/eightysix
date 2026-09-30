@@ -1,7 +1,7 @@
 {
   "_about": "Where each model's game export lives. tools/sync_models.py copies every file in a source folder into assets/models/<name>/ (changed files only, never deletes) and writes SOURCE.json there. A new model is one entry here.",
   "entries": {
-    "juggernaut": {"source": "~/Models/juggernaut/model2/export/game", "lane": "B1", "note": "Juggernaut Model 2: glb (skeleton, sockets, 7 clips) plus the parts/joints/sockets/actuators json"},
+    "juggernaut": {"source": "~/Models/juggernaut/model2/export/game", "lane": "B1", "note": "Juggernaut Model 2: glb (skeleton, sockets, 7 clips) plus the parts/joints/sockets/actuators json", "mass_table": "~/Models/juggernaut/model2/realistic_mass/realistic_mass.json"},
     "legion": {"source": "~/Models/legion/export/game", "lane": "B2", "note": "Ameise, Grauwolf, Loewe game exports (not exported yet)"}
   }
 }

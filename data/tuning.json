@@ -1,8 +1,11 @@
 {
   "_about": "Every feel number for game mode, read with Registry.tune(\"path.to.value\", fallback). Test bench mode (lane B6) ignores \"motors\" and uses the actuator \"bench\" figures in parts.json instead. \"standin\" drives lane A1's box walker only; lane A2's gait generator adds its own block. Units are in the key names.",
   "physics": {
+    "_about": "air_density kg/m3 and drag_cd_area_m2 (drag coefficient x frontal area, a 3 x 2.4 m box-ish body with legs ~ 7 m2) give the mechs' quadratic air drag (lane A3 part 4), replacing Godot's default 0.1/s damping.",
     "ticks_per_second": 120,
-    "gravity_m_s2": 9.81
+    "gravity_m_s2": 9.81,
+    "air_density": 1.2,
+    "drag_cd_area_m2": 7.0
   },
   "motors": {
     "_about": "Game-mode magic motors per joint kind: far stronger and faster than any real actuator, for the anime feel.",
@@ -14,14 +17,14 @@
   },
   "standin": {
     "air": {
-      "_about": "Lane A3, Emerson 2026-09-30: movement and aiming in mid-air (game mode, Settings > Gameplay 'Air control'). Attitude controller to the aim yaw/pitch (rad/s2 per rad, damping per rad/s, capped), stick push along heading up to max_m_s.",
-      "accel_m_s2": 6.0,
-      "max_m_s": 14.0,
-      "turn_rate_deg_s": 150.0,
-      "yaw_lead_deg": 90.0,
-      "attitude_stiffness": 40.0,
-      "attitude_damping": 10.0,
-      "max_ang_accel_deg_s2": 900.0
+      "_about": "Lane A3 part 4 (Emerson 2026-09-30: air movement from real physics only). Leg-swing turning (standin_mech.gd _air_legs): the legs sweep outstretched up to swing_max_deg at swing_deg_s (accel swing_accel_deg_s2), tuck in to tuck_scale of their reach over tuck_s, return tucked, untuck; the body turns the other way by conservation of angular momentum. Legs keep their angular momentum and hand it back on landing. deadband_deg: aim error ignored. yaw_lead_deg: how far the aim may lead the body.",
+      "swing_max_deg": 35.0,
+      "swing_deg_s": 170.0,
+      "swing_accel_deg_s2": 1500.0,
+      "tuck_scale": 0.55,
+      "tuck_s": 0.12,
+      "deadband_deg": 2.0,
+      "yaw_lead_deg": 90.0
     },
     "feet": {
       "_about": "Lane A2 part 4: a planted foot tilts to lie flat on the ground under its sole, at most max_tilt_deg; a planted foot more than reseat_m above or below where the ground now is under its sole takes a step to re-seat (as after a landing).",
@@ -119,11 +122,10 @@
       "brace_out_m": 0.6
     },
     "jump": {
-      "_about": "Lane A2 part 5, Emerson: the game-mode jump should be way better and more game-like (bench mode stays the physics test). Higher launch, a forward leap along the stick scaled by charge, a heavier fall than rise, and a short grace time after leaving the ground so a jump released mid-stride still fires.",
+      "_about": "Lane A2 part 5, Emerson: the game-mode jump should be way better and more game-like (bench mode stays the physics test). Higher launch, a forward leap along the stick scaled by charge (the heavier fall went in lane A3 part 4: gravity only in flight), and a short grace time after leaving the ground so a jump released mid-stride still fires.",
       "min_launch_m_s": 6.0,
       "max_launch_m_s": 13.0,
       "leap_m_s": 7.0,
-      "fall_gravity_scale": 1.5,
       "coyote_s": 0.2
     },
     "upright": {
@@ -159,16 +161,18 @@
     "cockpit": {"fov_deg": 85.0}
   },
   "aim": {
+    "_about": "look_* is where the pilot looks (camera and wire anchors, lane A3 part 4); pitch_* is how far the body tilts after it on its legs.",
+    "look_min_deg": -25.0,
+    "look_max_deg": 75.0,
+    "look_rate_deg_s": 60.0,
     "mouse_turn_deg_per_px": 0.09,
     "mouse_pitch_deg_per_px": 0.05,
     "pitch_min_deg": -8.0,
     "pitch_max_deg": 18.0
   },
   "combat": {
-    "recoil_game_scale": 6.0,
-    "recoil_air_scale": 24.0,
-    "recoil_point_share": 0.35,
-    "impact_push_scale": 4.0,
+    "_about": "Lane A3 part 4 (Emerson: real physics only): the recoil game/air scales (x6, x24) and the recoil_point_share are gone; recoil is Ballistics.recoil_impulse along the bore line. impact_push_scale is 1: a hit pushes with the projectile's own momentum.",
+    "impact_push_scale": 1.0,
     "gun_kick_m": 0.35,
     "gun_kick_return_s": 0.3,
     "projectile_life_s": 4.0,
@@ -184,16 +188,14 @@
     "legs_lost_to_destroy": 2
   },
   "grapple": {
-    "launch_pitch_min_deg": 0.0,
-    "launch_pitch_max_deg": 55.0,
-    "pitch_step_deg": 5.0,
-    "min_rise_m": 6.0,
-    "assist_cone_deg": 35.0,
+    "_about": "Lane A3 part 4: the dart goes where you aim (crosshair), inside the sub-arms' reach (arm_pitch_min/max_deg, arm_yaw_deg either side); assist_cone_deg is the small nudge toward a marked grapple point near the aim. Cable: a one-sided spring (stiffness per tonne of mech, damping ratio), no game scale; the winch and cable limits are on weapons.json wire_anchor. The pull acts at the real socket.",
+    "arm_pitch_min_deg": -15.0,
+    "arm_pitch_max_deg": 80.0,
+    "arm_yaw_deg": 30.0,
+    "assist_cone_deg": 8.0,
     "stiffness_n_per_m_per_t": 60000.0,
     "damping_ratio": 0.4,
     "min_len_m": 3.0,
-    "torque_share": 0.25,
-    "tension_game_scale": 2.5,
     "snap_after_s": 0.15
   },
   "climb": {

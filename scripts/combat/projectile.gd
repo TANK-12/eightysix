@@ -30,7 +30,7 @@ static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionar
 	p.exclude = skip
 	var c: Dictionary = Registry.tune("combat", {})
 	p.life_s = float(c.get("projectile_life_s", 4.0))
-	p.push_scale = float(c.get("impact_push_scale", 4.0))
+	p.push_scale = float(c.get("impact_push_scale", 1.0))
 	p.gravity = Registry.tune_f("physics.gravity_m_s2", 9.81)
 	p.name = "Round"
 	world.add_child(p)

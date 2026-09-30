@@ -89,8 +89,12 @@ func _process(delta: float) -> void:
 	var height := float(cfg.get("height_m", 4.0))
 	# Aiming up or down tilts the whole chassis (gameplay.aim_tilt), so the camera drops behind and
 	# looks up the same line (aim_follow of the aim pitch), keeping the reticle near the middle.
+	# Lane A3 part 4: the camera follows the look pitch (up to 75 deg, for aiming the wire anchor),
+	# which the body tilt follows only as far as the legs allow.
 	var aim_p := 0.0
-	if "aim_pitch_deg" in target:
+	if "look_pitch_deg" in target:
+		aim_p = deg_to_rad(float(target.get("look_pitch_deg"))) * float(cfg.get("aim_follow", 0.8))
+	elif "aim_pitch_deg" in target:
 		aim_p = deg_to_rad(float(target.get("aim_pitch_deg"))) * float(cfg.get("aim_follow", 0.8))
 	var offset := Basis(Vector3.UP, yaw) * (Basis(Vector3.RIGHT, -_orbit.y + aim_p) * Vector3(0.0, height, dist))
 	var velocity: Vector3 = target.get("linear_velocity") if "linear_velocity" in target else Vector3.ZERO

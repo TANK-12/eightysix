@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 	_target_s -= delta
 	if _target_s <= 0.0 and combat.anchor != null:
 		_target_s = TARGET_EVERY_S
-		_target = combat.anchor.find_target() if combat.anchor.state == WireAnchor.State.IDLE else {}
+		_target = combat.anchor.preview() if combat.anchor.state == WireAnchor.State.IDLE else {}
 	queue_redraw()
 
 
@@ -166,22 +166,41 @@ func _draw_damage() -> void:
 		draw_string(UiTheme.font("mono"), rect.position + Vector2(14.0, rect.size.y - 12.0), "leg damaged: limping", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UiTheme.color("warn"))
 
 
+## Attached: cable length and tension against the wire's breaking strength (warn colour near it),
+## and a bracket on the anchor. Idle: where a shot would go, a bracket on a grapple surface it would
+## bite, a cross on something it cannot bite, a dim ring where it gives up out of range.
 func _draw_anchor(cam: Camera3D) -> void:
 	var a := combat.anchor
 	var accent := UiTheme.color("accent")
+	var mono := UiTheme.font("mono")
 	if a.state == WireAnchor.State.ATTACHED:
-		var cap := float(a.def.get("max_tension_n", 180000.0)) * a.game_scale()
+		var cap := float(a.def.get("cable_break_n", 170000.0))
 		var f := clampf(a.tension / maxf(cap, 1.0), 0.0, 1.0)
 		var bar := Rect2(size.x * 0.5 - 120.0, size.y - 60.0, 240.0, 6.0)
 		draw_rect(bar, UiTheme.color("accent_soft"))
 		draw_rect(Rect2(bar.position, Vector2(bar.size.x * f, bar.size.y)), accent.lerp(UiTheme.color("warn"), f))
-		draw_string(UiTheme.font("mono"), bar.position + Vector2(0.0, -8.0), "cable %.0f m  %d kN" % [a.rope_len, roundi(a.tension / 1000.0)], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, accent)
+		var slack := " slack" if a.tension <= 0.0 else ""
+		draw_string(mono, bar.position + Vector2(0.0, -8.0), "cable %.0f m  %d / %d kN%s" % [a.rope_len, roundi(a.tension / 1000.0), roundi(cap / 1000.0), slack], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, accent)
 		if not cam.is_position_behind(a.anchor_point):
 			_bracket(cam.unproject_position(a.anchor_point), 14.0, UiTheme.color("warn"))
-	elif not _target.is_empty():
-		var point: Vector3 = _target["point"]
-		if not cam.is_position_behind(point):
-			_bracket(cam.unproject_position(point), 18.0, accent)
+		return
+	if _target.is_empty():
+		return
+	var point: Vector3 = _target["point"]
+	if cam.is_position_behind(point):
+		return
+	var p := cam.unproject_position(point)
+	match str(_target["state"]):
+		"ok":
+			_bracket(p, 18.0, accent)
+		"surface":
+			var bad := UiTheme.color("bad")
+			draw_line(p + Vector2(-8, -8), p + Vector2(8, 8), bad, 2.0, true)
+			draw_line(p + Vector2(-8, 8), p + Vector2(8, -8), bad, 2.0, true)
+		_:
+			draw_arc(p, 10.0, 0.0, TAU, 20, UiTheme.color("accent_soft"), 1.5, true)
+	if bool(_target.get("clamped", false)):
+		draw_string(mono, p + Vector2(22.0, 5.0), "arm limit", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, UiTheme.color("warn"))
 
 
 func _bracket(p: Vector2, r: float, col: Color) -> void:
