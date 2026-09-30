@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 145 passed, 0 failed (2026-10-01, after A3 part 5). After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 148 passed, 0 failed (2026-10-01, after photo mode). After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -34,7 +34,9 @@ The "Current state" section may be updated in place, but only to keep it true; t
   directional slide (Settings > Gameplay > Physics > Movement: slide friction, slide turn rate). The belly clears
   flat ground at a gallop and in a crouch. `tools/bot_run.sh score_move` measures all of it on Ashen valley and
   writes `logs/score_move.json` for `tools/scoreboard.py`. Sub-arm 12.7 mm guns on right mouse / R1 (A3 part 5):
-  both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`.
+  both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`. **Photo mode** (P, or pause >
+  Photo mode): time freezes, HUD hides, orbit camera, F12 saves to `~/Pictures/Eighty Six/`
+  (`tools/bot_run.sh photo_check`; results/A4.md).
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
@@ -343,3 +345,8 @@ its reach; 60 N s recoil a round, belts' 140 kg on the sub-arms (mech 5,563.7 kg
 sprint/turn/charge/jump run 6-8% -> 0.23% (stride gather follows stride length, targets inside reach and clear
 of the hip, overreaching feet step at once, lifted feet travel with the body). Winch drum ramps while hanging.
 145 passed, 0 failed; `images/148-sub_check`, `images/151-score_move` (build 007).
+
+### 2026-10-01 · track A · Tetsu (ejb-d4) · photo / inspect mode (first A4 piece)
+Commit `fffa417`. `scripts/camera/photo_mode.gd`, `Game.open_photo()/close_photo()`, the Photo mode key (P) and
+pause-menu button, bot `goto photo/game`. 148 passed, 0 failed; `images/155-photo_check`. Hangar and menu showcase
+still to do (A4).
