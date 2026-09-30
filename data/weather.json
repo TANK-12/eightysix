@@ -1,6 +1,74 @@
 {
-  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds.",
+  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd).",
   "entries": {
+    "golden_afternoon": {
+      "label": "Golden afternoon",
+      "order": 0,
+      "sun_elevation_deg": 16.0,
+      "sun_azimuth_deg": 295.0,
+      "sun_energy": 2.4,
+      "sun_colour": [
+        1.0,
+        0.84,
+        0.66
+      ],
+      "sky_top": [
+        0.09,
+        0.2,
+        0.46
+      ],
+      "sky_horizon": [
+        0.62,
+        0.6,
+        0.56
+      ],
+      "ground_colour": [
+        0.18,
+        0.15,
+        0.12
+      ],
+      "cloud_coverage": 0.34,
+      "cloud_lit": [
+        1.0,
+        0.9,
+        0.78
+      ],
+      "cloud_shade": [
+        0.36,
+        0.37,
+        0.44
+      ],
+      "fog_colour": [
+        0.62,
+        0.58,
+        0.52
+      ],
+      "fog_density": 0.0004,
+      "volumetric_density": 0.0022,
+      "ambient_energy": 0.6,
+      "exposure": 1.0,
+      "white": 1.2,
+      "sun_scatter": 0.35,
+      "height_fog_top_m": 12.0,
+      "height_fog_density": 0.012,
+      "fog_sky_affect": 0.2,
+      "volumetric_anisotropy": 0.65,
+      "grade": {
+        "contrast": 1.08,
+        "saturation": 0.95,
+        "shadow_shift": [
+          -0.012,
+          0.002,
+          0.028
+        ],
+        "highlight_shift": [
+          0.018,
+          0.008,
+          -0.012
+        ],
+        "strength": 1.0
+      }
+    },
     "overcast_morning": {
       "label": "Overcast morning",
       "order": 1,
@@ -46,7 +114,23 @@
       "fog_density": 0.00045,
       "volumetric_density": 0.0035,
       "ambient_energy": 0.85,
-      "exposure": 1.0
+      "exposure": 1.0,
+      "grade": {
+        "contrast": 1.06,
+        "saturation": 0.9,
+        "shadow_shift": [
+          -0.008,
+          0.004,
+          0.02
+        ],
+        "highlight_shift": [
+          0.012,
+          0.006,
+          -0.01
+        ]
+      },
+      "height_fog_top_m": 14.0,
+      "height_fog_density": 0.01
     },
     "clear_noon": {
       "label": "Clear noon",
@@ -93,7 +177,21 @@
       "fog_density": 0.00025,
       "volumetric_density": 0.0015,
       "ambient_energy": 0.9,
-      "exposure": 0.95
+      "exposure": 0.95,
+      "grade": {
+        "contrast": 1.05,
+        "saturation": 0.95,
+        "shadow_shift": [
+          -0.006,
+          0.0,
+          0.02
+        ],
+        "highlight_shift": [
+          0.015,
+          0.008,
+          -0.012
+        ]
+      }
     },
     "dusk_haze": {
       "label": "Dusk haze",
@@ -140,7 +238,24 @@
       "fog_density": 0.0007,
       "volumetric_density": 0.005,
       "ambient_energy": 0.7,
-      "exposure": 1.1
+      "exposure": 1.1,
+      "grade": {
+        "contrast": 1.1,
+        "saturation": 0.95,
+        "shadow_shift": [
+          -0.01,
+          -0.004,
+          0.035
+        ],
+        "highlight_shift": [
+          0.035,
+          0.01,
+          -0.03
+        ]
+      },
+      "sun_scatter": 0.45,
+      "height_fog_top_m": 10.0,
+      "height_fog_density": 0.015
     },
     "storm_grey": {
       "label": "Storm grey",
@@ -187,7 +302,21 @@
       "fog_density": 0.0012,
       "volumetric_density": 0.007,
       "ambient_energy": 1.0,
-      "exposure": 1.15
+      "exposure": 1.15,
+      "grade": {
+        "contrast": 1.1,
+        "saturation": 0.75,
+        "shadow_shift": [
+          -0.006,
+          0.004,
+          0.015
+        ],
+        "highlight_shift": [
+          0.0,
+          0.004,
+          0.01
+        ]
+      }
     }
   }
 }

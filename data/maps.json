@@ -25,7 +25,7 @@
       "seed": 8686,
       "description": "A hand-made valley on the edge of the Legion zone: a ruined town on a plateau, a river running south into a lake, roads, a broken bridge, a crater field from old shelling and rock outcrops to climb. Built in lane B3 from the asset kit (data/kit.json).",
       "spawn": {"position": [-250.0, 0.0, 330.0], "heading_deg": 28.0},
-      "weather": "overcast_morning",
+      "weather": "golden_afternoon",
       "water_level_m": 0.0,
       "terrain": {"base_m": 9.0, "hills_m": 13.0, "ridges_m": 7.0, "rough_m": 0.45, "rim_m": 58.0, "rim_width_m": 90.0, "floor_m": 1.6},
       "river": {"points": [[160, -540], [172, -380], [232, -250], [214, -80], [176, 60], [214, 180], [262, 252]], "width_m": 18.0, "bank_m": 18.0, "depth_m": 2.6},

@@ -1,0 +1,77 @@
+{
+ "name": "b4_look_quick",
+ "map": "small_map",
+ "_about": "Lane B4: a quick look check: the Juggernaut from behind and after a turn, three viewpoints, one frame measure. tools/bot_run.sh b4_look_quick --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "press": "move_forward",
+   "strength": 0.5,
+   "for": 2.0
+  },
+  {
+   "at": 7.5,
+   "shot": "mech-behind"
+  },
+  {
+   "at": 8.0,
+   "press": "turn_right",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 11.0,
+   "shot": "mech-turned"
+  },
+  {
+   "at": 11.2,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 12.4,
+   "shot": "view-start"
+  },
+  {
+   "at": 12.6,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 13.8,
+   "shot": "view-town"
+  },
+  {
+   "at": 14.0,
+   "call": "look_from",
+   "args": [
+    "mast"
+   ]
+  },
+  {
+   "at": 15.2,
+   "shot": "view-mast"
+  },
+  {
+   "at": 15.4,
+   "call": "follow_mech"
+  },
+  {
+   "at": 16.0,
+   "measure": 4.0,
+   "label": "mech-view"
+  },
+  {
+   "at": 20.5,
+   "quit": true
+  }
+ ]
+}

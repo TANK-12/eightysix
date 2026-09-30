@@ -75,6 +75,8 @@ func _read_stance() -> void:
 func _on_setting_changed(key: String, _value: Variant) -> void:
 	if key == "mech.shine":
 		_apply_shine()
+	elif key == "mech.finish":
+		_apply_finish()
 	elif key.begins_with("mech."):
 		_read_stance()
 		_apply_stance()
@@ -97,6 +99,18 @@ func _wire_shine(skin: Node) -> void:
 				copies[mat] = dup
 				_shine_mats.append({"mat": dup, "metallic": mat.metallic, "specular": mat.metallic_specular})
 			mi.set_surface_override_material(i, copies[mat])
+	_apply_finish()
+
+
+## Paint and wear from data/finishes.json (lane B4) on the same copies; shine then scales it.
+func _apply_finish() -> void:
+	var mats: Array = []
+	for m: Dictionary in _shine_mats:
+		mats.append(m["mat"])
+	var base := Finish.apply_to(mats, Settings.get_s("mech.finish"))
+	for m: Dictionary in _shine_mats:
+		if base.has(m["mat"]):
+			m["metallic"] = base[m["mat"]]
 	_apply_shine()
 
 

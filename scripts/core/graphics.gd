@@ -10,6 +10,12 @@ extends Node
 signal applied
 
 const COLOUR_FILTER_SHADER := "res://assets/shaders/colour_filter.gdshader"
+const SSAO_QUALITY := {
+	"very_low": {"quality": RenderingServer.ENV_SSAO_QUALITY_VERY_LOW, "half": true},
+	"low": {"quality": RenderingServer.ENV_SSAO_QUALITY_LOW, "half": true},
+	"medium": {"quality": RenderingServer.ENV_SSAO_QUALITY_MEDIUM, "half": true},
+	"high": {"quality": RenderingServer.ENV_SSAO_QUALITY_HIGH, "half": false},
+}
 const FILTER_MODES := {"none": 0, "protanopia": 1, "deuteranopia": 2, "tritanopia": 3, "greyscale": 4}
 
 var _copying_preset := false
@@ -94,6 +100,9 @@ func apply() -> void:
 			root.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
 		_:
 			root.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	# Godot's fsr_sharpness runs backwards: 0 is the sharpest, 2 the softest. FSR 1's default
+	# sharpening was the grain over the whole image at 80 % scale (lane B4, images/118).
+	root.fsr_sharpness = lerpf(2.0, 0.0, Settings.get_f("graphics.sharpening"))
 	match Settings.get_s("graphics.msaa"):
 		"2x":
 			root.msaa_3d = Viewport.MSAA_2X
@@ -112,6 +121,8 @@ func apply() -> void:
 	var filter := int(Settings.get_f("graphics.shadow_filter")) as RenderingServer.ShadowQuality
 	RenderingServer.directional_soft_shadow_filter_set_quality(filter)
 	RenderingServer.positional_soft_shadow_filter_set_quality(filter)
+	var ssao: Dictionary = SSAO_QUALITY.get(Settings.get_s("graphics.ssao_quality"), SSAO_QUALITY["low"])
+	RenderingServer.environment_set_ssao_quality(ssao["quality"], ssao["half"], 0.5, 2, 50.0, 300.0)
 	RenderingServer.environment_set_volumetric_fog_volume_size(
 		int(Settings.get_f("graphics.fog_volume_size")), int(Settings.get_f("graphics.fog_volume_depth"))
 	)

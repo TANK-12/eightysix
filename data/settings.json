@@ -16,6 +16,7 @@
             {"key": "graphics.fps_cap", "label": "Frame rate cap", "type": "choice", "options": [[0, "No cap"], [30, "30"], [45, "45"], [60, "60"], [90, "90"], [120, "120"], [144, "144"]], "default": 0, "help": "A cap below what the laptop can hold keeps it cooler and smoother."},
             {"key": "graphics.resolution_scale", "label": "Render resolution", "type": "slider", "min": 0.5, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.8, "preset_field": "resolution_scale", "help": "The 3D scene renders at this share of the screen and is scaled up. Menus and the HUD stay sharp."},
             {"key": "graphics.upscaler", "label": "Upscaler", "type": "choice", "options": [["bilinear", "Bilinear"], ["fsr1", "AMD FSR 1"], ["fsr2", "AMD FSR 2 (heavier)"]], "default": "fsr1", "preset_field": "upscaler", "help": "How the lower render resolution is scaled to the screen. FSR 2 also smooths edges but costs more."},
+            {"key": "graphics.sharpening", "label": "Sharpening", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.0, "preset_field": "sharpening", "help": "Extra crispness from the FSR 1 upscaler. High values make ground and foliage look grainy; 0% keeps the upscale smooth."},
             {"key": "graphics.brightness", "label": "Brightness", "type": "slider", "min": 0.7, "max": 1.3, "step": 0.02, "format": "x", "default": 1.0, "help": "Scene brightness. Menus are not affected."},
             {"key": "graphics.show_fps", "label": "Frame rate counter", "type": "choice", "options": [["off", "Off"], ["fps", "Frames per second"], ["full", "Frames per second and frame time"]], "default": "off", "help": "F3 toggles it in game."}
           ]}
@@ -32,6 +33,7 @@
           ]},
           {"label": "Screen space", "items": [
             {"key": "graphics.ssao", "label": "Ambient occlusion", "type": "toggle", "default": true, "preset_field": "ssao", "help": "Contact shadows in creases and under the mech."},
+            {"key": "graphics.ssao_quality", "label": "Ambient occlusion quality", "type": "choice", "options": [["very_low", "Very low"], ["low", "Low"], ["medium", "Medium"], ["high", "High"]], "default": "low", "preset_field": "ssao_quality", "help": "Finer, steadier contact shadows cost more. Very low is about half the cost of Medium."},
             {"key": "graphics.ssr", "label": "Screen-space reflections", "type": "toggle", "default": false, "preset_field": "ssr", "help": "Reflections on water and wet metal from what is on screen."}
           ]}
         ]},
@@ -202,7 +204,8 @@
             {"key": "mech.leg_length", "label": "Leg length", "type": "slider", "min": 0.9, "max": 1.4, "step": 0.05, "format": "x", "default": 1.1, "help": "Stretches the thighs and shins (look, reach and hitboxes together). 1 is the modelled length."}
           ]},
           {"label": "Look", "items": [
-            {"key": "mech.shine", "label": "Metal shine", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.4, "help": "How mirror-like the metal is. 100% is the finish the model was exported with."}
+            {"key": "mech.finish", "label": "Mech finish", "type": "choice", "options_from": "finishes", "default": "undertaker_field", "help": "Paint and wear on your Juggernaut: field worn, fresh from the hangar, or the bare model export."},
+            {"key": "mech.shine", "label": "Metal shine", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 1.0, "help": "How mirror-like the metal is. 100% is the chosen finish as painted."}
           ]}
         ]},
         {"id": "interface", "label": "Menus and theme", "groups": [

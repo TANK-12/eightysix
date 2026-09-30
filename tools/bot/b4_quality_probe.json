@@ -1,0 +1,154 @@
+{
+ "name": "b4_quality_probe",
+ "map": "small_map",
+ "_about": "Lane B4: FSR 1 sharpening levels and SSAO quality levels from the same third-person view, a shot and a 3 s frame measure each. tools/bot_run.sh b4_quality_probe --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "press": "move_forward",
+   "strength": 0.5,
+   "for": 2.0
+  },
+  {
+   "at": 8.0,
+   "setting": "graphics.sharpening",
+   "value": 0.0
+  },
+  {
+   "at": 10.0,
+   "shot": "q-fsr-sharp0"
+  },
+  {
+   "at": 10.2,
+   "measure": 3.0,
+   "label": "fsr-sharp0"
+  },
+  {
+   "at": 13.4,
+   "setting": "graphics.sharpening",
+   "value": 0.0
+  },
+  {
+   "at": 13.5,
+   "setting": "graphics.sharpening",
+   "value": 0.5
+  },
+  {
+   "at": 15.5,
+   "shot": "q-fsr-sharp50"
+  },
+  {
+   "at": 15.7,
+   "measure": 3.0,
+   "label": "fsr-sharp50"
+  },
+  {
+   "at": 18.9,
+   "setting": "graphics.sharpening",
+   "value": 0.0
+  },
+  {
+   "at": 19.0,
+   "setting": "graphics.upscaler",
+   "value": "bilinear"
+  },
+  {
+   "at": 21.0,
+   "shot": "q-bilinear"
+  },
+  {
+   "at": 21.2,
+   "measure": 3.0,
+   "label": "bilinear"
+  },
+  {
+   "at": 24.4,
+   "setting": "graphics.upscaler",
+   "value": "fsr1"
+  },
+  {
+   "at": 24.5,
+   "setting": "graphics.ssao_quality",
+   "value": "very_low"
+  },
+  {
+   "at": 26.5,
+   "shot": "q-ssao-vlow"
+  },
+  {
+   "at": 26.7,
+   "measure": 3.0,
+   "label": "ssao-vlow"
+  },
+  {
+   "at": 29.9,
+   "setting": "graphics.ssao_quality",
+   "value": "low"
+  },
+  {
+   "at": 30.0,
+   "setting": "graphics.ssao_quality",
+   "value": "low"
+  },
+  {
+   "at": 32.0,
+   "shot": "q-ssao-low"
+  },
+  {
+   "at": 32.2,
+   "measure": 3.0,
+   "label": "ssao-low"
+  },
+  {
+   "at": 35.4,
+   "setting": "graphics.ssao_quality",
+   "value": "low"
+  },
+  {
+   "at": 35.5,
+   "setting": "graphics.ssao_quality",
+   "value": "medium"
+  },
+  {
+   "at": 37.5,
+   "shot": "q-ssao-med"
+  },
+  {
+   "at": 37.7,
+   "measure": 3.0,
+   "label": "ssao-med"
+  },
+  {
+   "at": 40.9,
+   "setting": "graphics.ssao_quality",
+   "value": "low"
+  },
+  {
+   "at": 41.0,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 43.0,
+   "shot": "q-ssao-off"
+  },
+  {
+   "at": 43.2,
+   "measure": 3.0,
+   "label": "ssao-off"
+  },
+  {
+   "at": 46.4,
+   "setting": "graphics.ssao",
+   "value": true
+  },
+  {
+   "at": 47.0,
+   "quit": true
+  }
+ ]
+}

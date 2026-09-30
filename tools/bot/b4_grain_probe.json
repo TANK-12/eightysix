@@ -1,0 +1,144 @@
+{
+ "name": "b4_grain_probe",
+ "map": "small_map",
+ "_about": "Lane B4: same third-person view, one image setting changed at a time, a shot and a 3 s frame measure each, to find where the grain comes from. tools/bot_run.sh b4_grain_probe --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "press": "move_forward",
+   "strength": 0.5,
+   "for": 2.0
+  },
+  {
+   "at": 10.0,
+   "shot": "grain-base"
+  },
+  {
+   "at": 10.2,
+   "measure": 3.0,
+   "label": "base"
+  },
+  {
+   "at": 13.5,
+   "setting": "graphics.upscaler",
+   "value": "bilinear"
+  },
+  {
+   "at": 15.5,
+   "shot": "grain-bilinear"
+  },
+  {
+   "at": 15.7,
+   "measure": 3.0,
+   "label": "bilinear"
+  },
+  {
+   "at": 18.9,
+   "setting": "graphics.upscaler",
+   "value": "fsr1"
+  },
+  {
+   "at": 19.0,
+   "setting": "graphics.resolution_scale",
+   "value": 1.0
+  },
+  {
+   "at": 21.0,
+   "shot": "grain-res100"
+  },
+  {
+   "at": 21.2,
+   "measure": 3.0,
+   "label": "res100"
+  },
+  {
+   "at": 24.4,
+   "setting": "graphics.resolution_scale",
+   "value": 0.8
+  },
+  {
+   "at": 24.5,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 26.5,
+   "shot": "grain-ssao-off"
+  },
+  {
+   "at": 26.7,
+   "measure": 3.0,
+   "label": "ssao-off"
+  },
+  {
+   "at": 29.9,
+   "setting": "graphics.ssao",
+   "value": true
+  },
+  {
+   "at": 30.0,
+   "setting": "graphics.volumetric_fog",
+   "value": false
+  },
+  {
+   "at": 32.0,
+   "shot": "grain-volfog-off"
+  },
+  {
+   "at": 32.2,
+   "measure": 3.0,
+   "label": "volfog-off"
+  },
+  {
+   "at": 35.4,
+   "setting": "graphics.volumetric_fog",
+   "value": true
+  },
+  {
+   "at": 35.5,
+   "setting": "graphics.screen_aa",
+   "value": "taa"
+  },
+  {
+   "at": 37.5,
+   "shot": "grain-taa"
+  },
+  {
+   "at": 37.7,
+   "measure": 3.0,
+   "label": "taa"
+  },
+  {
+   "at": 40.9,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 41.0,
+   "setting": "graphics.screen_aa",
+   "value": "off"
+  },
+  {
+   "at": 43.0,
+   "shot": "grain-aa-off"
+  },
+  {
+   "at": 43.2,
+   "measure": 3.0,
+   "label": "aa-off"
+  },
+  {
+   "at": 46.4,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 47.0,
+   "quit": true
+  }
+ ]
+}

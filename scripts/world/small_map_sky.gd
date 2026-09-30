@@ -86,6 +86,17 @@ func apply(id: String) -> void:
 	env.volumetric_fog_albedo = _c(w, "fog_colour").lightened(0.2)
 	env.ambient_light_energy = float(w.get("ambient_energy", 0.85))
 	env.tonemap_exposure = float(w.get("exposure", 1.0))
+	env.tonemap_white = float(w.get("white", 1.0))
+	# lane B4: sun-lit haze toward the sun, fog that pools in the valley floor, and a film grade
+	env.fog_sun_scatter = float(w.get("sun_scatter", 0.0))
+	env.fog_height = float(w.get("height_fog_top_m", 0.0))
+	env.fog_height_density = float(w.get("height_fog_density", 0.0))
+	env.fog_sky_affect = float(w.get("fog_sky_affect", 0.35))
+	env.volumetric_fog_anisotropy = float(w.get("volumetric_anisotropy", 0.45))
+	var grade: Dictionary = w.get("grade", {})
+	env.adjustment_contrast = float(grade.get("contrast", 1.0))
+	env.adjustment_saturation = float(grade.get("saturation", 1.0))
+	env.adjustment_color_correction = FilmGrade.lut(grade) if grade.has("shadow_shift") or grade.has("highlight_shift") else null
 
 
 func _apply_clouds() -> void:

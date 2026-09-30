@@ -1,0 +1,102 @@
+{
+  "_about": "Paint and wear finishes for the Juggernaut (lane B4), one entry each; Settings > Gameplay > Mech finish picks one (mech.finish). Each entry maps a material name from the game export (JG2_paint, JG2_metal, JG2_frame, JG2_steel) to: albedo (linear 0-1 colour the export's white is tinted to), metallic, roughness (both multiply the export's metal-plate texture), and grime (0 clean to 1 filthy: a mottled dirt layer projected three ways in the part's own space, so it moves with the part). Materials an entry does not name keep the export's look. \"factory\" is the export untouched. Metal shine (mech.shine) then scales metallic on top.",
+  "entries": {
+    "undertaker_field": {
+      "label": "Undertaker, field worn",
+      "order": 1,
+      "materials": {
+        "JG2_paint": {
+          "albedo": [
+            0.74,
+            0.72,
+            0.66
+          ],
+          "metallic": 0.0,
+          "roughness": 0.64,
+          "grime": 0.55
+        },
+        "JG2_metal": {
+          "albedo": [
+            0.55,
+            0.54,
+            0.52
+          ],
+          "metallic": 0.55,
+          "roughness": 0.55,
+          "grime": 0.45
+        },
+        "JG2_frame": {
+          "albedo": [
+            0.28,
+            0.28,
+            0.27
+          ],
+          "metallic": 0.35,
+          "roughness": 0.62,
+          "grime": 0.5
+        },
+        "JG2_steel": {
+          "albedo": [
+            0.6,
+            0.6,
+            0.6
+          ],
+          "metallic": 0.8,
+          "roughness": 0.42,
+          "grime": 0.3
+        }
+      }
+    },
+    "fresh_paint": {
+      "label": "Fresh from the hangar",
+      "order": 2,
+      "materials": {
+        "JG2_paint": {
+          "albedo": [
+            0.7,
+            0.69,
+            0.64
+          ],
+          "metallic": 0.0,
+          "roughness": 0.5,
+          "grime": 0.1
+        },
+        "JG2_metal": {
+          "albedo": [
+            0.55,
+            0.55,
+            0.53
+          ],
+          "metallic": 0.6,
+          "roughness": 0.45,
+          "grime": 0.05
+        },
+        "JG2_frame": {
+          "albedo": [
+            0.32,
+            0.32,
+            0.31
+          ],
+          "metallic": 0.4,
+          "roughness": 0.55,
+          "grime": 0.1
+        },
+        "JG2_steel": {
+          "albedo": [
+            0.6,
+            0.6,
+            0.6
+          ],
+          "metallic": 0.85,
+          "roughness": 0.35,
+          "grime": 0.05
+        }
+      }
+    },
+    "factory": {
+      "label": "Model export (no paint)",
+      "order": 3,
+      "materials": {}
+    }
+  }
+}
