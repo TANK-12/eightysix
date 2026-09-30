@@ -112,6 +112,26 @@ func test_collider_matches_drawn_ground() -> void:
 	body.free()
 
 
+func test_grapple_points_have_a_surface_to_hold() -> void:
+	var level: Node3D = (load("res://scenes/levels/small_map.tscn") as PackedScene).instantiate()
+	tree.root.add_child(level)
+	await physics_frames(2)
+	var space := level.get_world_3d().direct_space_state
+	var missing: Array = []
+	for p: Vector3 in level.get("grapple_points"):
+		var found := false
+		for dir: Vector3 in [Vector3.DOWN, Vector3.LEFT, Vector3.RIGHT, Vector3.FORWARD, Vector3.BACK]:
+			var q := PhysicsRayQueryParameters3D.create(p - dir * 2.0, p + dir * 2.5, Kit.LAYER_GRAPPLE)
+			if not space.intersect_ray(q).is_empty():
+				found = true
+				break
+		if not found:
+			missing.append(p)
+	assert_eq(missing, [], "every grapple point is within 2.5 m of a grapple surface")
+	level.free()
+	Game.level = null
+
+
 func test_level_loads_and_the_mech_stands() -> void:
 	var level: Node3D = (load("res://scenes/levels/small_map.tscn") as PackedScene).instantiate()
 	tree.root.add_child(level)

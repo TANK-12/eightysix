@@ -52,12 +52,12 @@ func _init(parent: Node, weather: String) -> void:
 	world_env.add_to_group("world_environment")
 	parent.add_child(world_env)
 	sun.light_angular_distance = 0.6
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.shadow_blur = 1.2
 	sun.add_to_group("sun")
 	parent.add_child(sun)
 	apply(weather)
 	_apply_clouds()
+	_apply_splits()
 	Settings.changed.connect(_on_setting)
 
 
@@ -92,9 +92,18 @@ func _apply_clouds() -> void:
 	sky_mat.set_shader_parameter("quality", int(CLOUD_QUALITY.get(Settings.get_s("graphics.clouds"), 1)))
 
 
+## Two shadow cascades are plenty up to 100 m and measured about 7 ms cheaper on the Iris Xe (Medium);
+## longer shadow distances (High, Ultra) keep four.
+func _apply_splits() -> void:
+	var short := Settings.get_f("graphics.shadow_distance") <= 100.0
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS if short else DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+
+
 func _on_setting(key: String, _value: Variant) -> void:
 	if key == "graphics.clouds":
 		_apply_clouds()
+	elif key == "graphics.shadow_distance":
+		_apply_splits()
 
 
 func disconnect_settings() -> void:

@@ -7,8 +7,8 @@ extends RefCounted
 ## what to paint: r road, g shore and mud, b scorch, a town rubble.
 
 const CHUNK_M := 64
-const FAR_STEP := 4
-const NEAR_RANGE_M := 240.0
+## Ground detail rings: [grid step (m), drawn out to (m)]; the last ring has no end.
+const LODS := [[1, 120.0], [2, 320.0], [4, 0.0]]
 const ROAD_SHOULDER_M := 8.0
 
 var size_m := 1024
@@ -155,7 +155,7 @@ func _flats(flats: Array, s: PackedByteArray) -> void:
 					continue
 				var i := zi * n + xi
 				var fine := grid[i] - _ring(xi, zi)
-				grid[i] = lerpf(grid[i], target + fine * 0.35, w)
+				grid[i] = lerpf(grid[i], target + fine * 0.6, w)
 				s[i * 4 + 3] = maxi(s[i * 4 + 3], int(w * w * 255.0))
 
 

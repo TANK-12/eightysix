@@ -114,6 +114,7 @@ func _chunk(holder: Node3D, terrain: SmallMapTerrain, rng: RandomNumberGenerator
 		mm.set_instance_transform(i, xfs[i])
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
+	mmi.set_meta("kind", "shrubs" if kind == "shrub" else kind)
 	mmi.visibility_range_end = reach
 	mmi.visibility_range_end_margin = reach * 0.2
 	mmi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF

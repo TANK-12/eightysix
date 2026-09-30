@@ -32,7 +32,7 @@
     },
     "shrub": {
       "label": "Shrub", "kind": "plant", "builder": "shrub", "material": "foliage",
-      "size_m": [0.8, 2.4], "blobs": [5, 9], "collision": "none", "order": 20
+      "size_m": [0.8, 2.4], "blobs": [4, 6], "collision": "none", "order": 20
     },
     "grass": {
       "label": "Grass clump", "kind": "plant", "builder": "grass", "material": "grass",

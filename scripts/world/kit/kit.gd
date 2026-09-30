@@ -323,7 +323,7 @@ static func _wall(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> vo
 				continue
 			var ph := rh * keep
 			parts.piece(mat, Transform3D(Basis(), Vector3(cx, r * rh + ph * 0.5, 0.0)), Vector3(cw * 0.995, ph, t))
-	parts.anchors.append(Vector3(0.0, h, 0.0))
+	parts.anchor_on_pieces(Vector3(0.0, h, 0.0), w)
 
 
 ## 1 for a whole piece, 0 for a missing one, in between for a broken-off top. v is the piece's
@@ -404,7 +404,7 @@ static func _building(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -
 				parts.piece("concrete", Transform3D(Basis(), Vector3(px, f * fh - slab * 0.5, pz)), Vector3((sx - t * 2.0) / tx, slab, (sz - t * 2.0) / tz))
 	for cx in [-1, 1]:
 		for cz in [-1, 1]:
-			parts.anchors.append(Vector3(cx * sx * 0.5, total_h * 0.8, cz * sz * 0.5))
+			parts.anchor_on_pieces(Vector3(cx * sx * 0.5, total_h, cz * sz * 0.5), 4.0)
 
 
 ## A road bridge along +X from 0 to length_m: deck spans on pillars, parapets, broken spans left
@@ -548,6 +548,22 @@ class Parts:
 		shape.size = size
 		shapes.append([shape, xf])
 		pieces.append({"xf": xf, "size": size, "material": mat})
+
+	## An anchor on top of the highest surviving piece within `radius` (horizontally) of `near`,
+	## at that piece's centre, so damage never leaves an anchor hanging in the air.
+	func anchor_on_pieces(near: Vector3, radius: float) -> void:
+		var best := Vector3.ZERO
+		var best_top := -INF
+		for p: Dictionary in pieces:
+			var xf: Transform3D = p["xf"]
+			if Vector2(xf.origin.x - near.x, xf.origin.z - near.z).length() > radius:
+				continue
+			var top := xf.origin.y + (p["size"] as Vector3).y * 0.5
+			if top > best_top:
+				best_top = top
+				best = Vector3(xf.origin.x, top, xf.origin.z)
+		if best_top > -INF:
+			anchors.append(best)
 
 	## A drawn box (flat-shaded, 24 vertices), no collider.
 	func box(mat: String, xf: Transform3D, size: Vector3) -> void:

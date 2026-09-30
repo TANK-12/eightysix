@@ -94,6 +94,42 @@ func look_from(viewpoint: String) -> void:
 	view_camera.current = true
 
 
+## Measuring aid for frame-rate work (bot scripts call it): switch one part of the map on or off.
+## Parts: ground_plain, mist, water, grass, shrubs, pebbles, solids, terrain_shadows, shrub_shadows, splits2.
+func probe(part: String, on: bool) -> void:
+	match part:
+		"ground_plain":
+			if not has_meta("ground_mat"):
+				set_meta("ground_mat", (get_node("Ground").get_child(0) as GeometryInstance3D).material_override)
+			var plain := StandardMaterial3D.new()
+			plain.albedo_color = Color(0.4, 0.37, 0.3)
+			for n in get_node("Ground").get_children():
+				(n as GeometryInstance3D).material_override = get_meta("ground_mat") if on else plain
+		"mist":
+			for n in get_children():
+				if n is FogVolume:
+					n.visible = on
+		"water":
+			get_node("Water").visible = on
+		"terrain_shadows":
+			for n in get_node("Ground").get_children():
+				(n as GeometryInstance3D).cast_shadow = (
+					GeometryInstance3D.SHADOW_CASTING_SETTING_ON if on else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				)
+		"splits2":
+			sky.sun.directional_shadow_mode = (
+				DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS if on else DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+			)
+		_:
+			for n in get_node("Scatter").get_children():
+				if n.get_meta("kind", "") == part or (part == "solids" and n is StaticBody3D):
+					n.visible = on
+				elif part == "shrub_shadows" and n.get_meta("kind", "") == "shrub":
+					(n as GeometryInstance3D).cast_shadow = (
+						GeometryInstance3D.SHADOW_CASTING_SETTING_ON if on else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+					)
+
+
 func follow_mech() -> void:
 	camera.current = true
 
@@ -126,19 +162,19 @@ func _build_ground() -> void:
 	var c := SmallMapTerrain.CHUNK_M
 	for cz in chunks:
 		for cx in chunks:
-			var near := MeshInstance3D.new()
-			near.mesh = terrain.chunk_mesh(cx * c, cz * c, 1)
-			near.material_override = mat
-			near.visibility_range_end = SmallMapTerrain.NEAR_RANGE_M
-			near.visibility_range_end_margin = 16.0
-			holder.add_child(near)
-			var far := MeshInstance3D.new()
-			far.mesh = terrain.chunk_mesh(cx * c, cz * c, SmallMapTerrain.FAR_STEP)
-			far.material_override = mat
-			far.visibility_range_begin = SmallMapTerrain.NEAR_RANGE_M
-			far.visibility_range_begin_margin = 16.0
-			far.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-			holder.add_child(far)
+			var begin := 0.0
+			for lod: Array in SmallMapTerrain.LODS:
+				# neighbouring rings overlap by 8 m: the skirts move a coarse chunk's box centre down a
+				# little, and without the overlap a chunk could fall between two rings (a hole to the water)
+				var mi := MeshInstance3D.new()
+				mi.mesh = terrain.chunk_mesh(cx * c, cz * c, int(lod[0]))
+				mi.material_override = mat
+				mi.visibility_range_begin = maxf(begin - 8.0, 0.0) if begin > 0.0 else 0.0
+				mi.visibility_range_end = float(lod[1]) + 8.0 if float(lod[1]) > 0.0 else 0.0
+				if begin > 0.0:
+					mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if int(lod[0]) > 2 else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+				holder.add_child(mi)
+				begin = float(lod[1])
 	var body := StaticBody3D.new()
 	body.name = "GroundBody"
 	body.collision_layer = Kit.LAYER_WORLD | Kit.LAYER_GRAPPLE

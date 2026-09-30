@@ -1,0 +1,249 @@
+{
+ "name": "small_map_probe",
+ "map": "small_map",
+ "_about": "Lane B3: each map part switched off (splits2: on) for 3 s right after a 3 s baseline, so heat drift cancels. tools/bot_run.sh small_map_probe --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "measure": 3.0,
+   "label": "base-mist"
+  },
+  {
+   "at": 6.2,
+   "call": "probe",
+   "args": [
+    "mist",
+    false
+   ]
+  },
+  {
+   "at": 6.6,
+   "measure": 3.0,
+   "label": "off-mist"
+  },
+  {
+   "at": 9.8,
+   "call": "probe",
+   "args": [
+    "mist",
+    true
+   ]
+  },
+  {
+   "at": 10.2,
+   "measure": 3.0,
+   "label": "base-water"
+  },
+  {
+   "at": 13.399999999999999,
+   "call": "probe",
+   "args": [
+    "water",
+    false
+   ]
+  },
+  {
+   "at": 13.799999999999999,
+   "measure": 3.0,
+   "label": "off-water"
+  },
+  {
+   "at": 17.0,
+   "call": "probe",
+   "args": [
+    "water",
+    true
+   ]
+  },
+  {
+   "at": 17.4,
+   "measure": 3.0,
+   "label": "base-grass"
+  },
+  {
+   "at": 20.599999999999998,
+   "call": "probe",
+   "args": [
+    "grass",
+    false
+   ]
+  },
+  {
+   "at": 21.0,
+   "measure": 3.0,
+   "label": "off-grass"
+  },
+  {
+   "at": 24.2,
+   "call": "probe",
+   "args": [
+    "grass",
+    true
+   ]
+  },
+  {
+   "at": 24.599999999999998,
+   "measure": 3.0,
+   "label": "base-shrubs"
+  },
+  {
+   "at": 27.799999999999997,
+   "call": "probe",
+   "args": [
+    "shrubs",
+    false
+   ]
+  },
+  {
+   "at": 28.2,
+   "measure": 3.0,
+   "label": "off-shrubs"
+  },
+  {
+   "at": 31.4,
+   "call": "probe",
+   "args": [
+    "shrubs",
+    true
+   ]
+  },
+  {
+   "at": 31.799999999999997,
+   "measure": 3.0,
+   "label": "base-pebbles"
+  },
+  {
+   "at": 35.0,
+   "call": "probe",
+   "args": [
+    "pebbles",
+    false
+   ]
+  },
+  {
+   "at": 35.4,
+   "measure": 3.0,
+   "label": "off-pebbles"
+  },
+  {
+   "at": 38.599999999999994,
+   "call": "probe",
+   "args": [
+    "pebbles",
+    true
+   ]
+  },
+  {
+   "at": 39.0,
+   "measure": 3.0,
+   "label": "base-solids"
+  },
+  {
+   "at": 42.2,
+   "call": "probe",
+   "args": [
+    "solids",
+    false
+   ]
+  },
+  {
+   "at": 42.6,
+   "measure": 3.0,
+   "label": "off-solids"
+  },
+  {
+   "at": 45.8,
+   "call": "probe",
+   "args": [
+    "solids",
+    true
+   ]
+  },
+  {
+   "at": 46.2,
+   "measure": 3.0,
+   "label": "base-terrain_shadows"
+  },
+  {
+   "at": 49.400000000000006,
+   "call": "probe",
+   "args": [
+    "terrain_shadows",
+    false
+   ]
+  },
+  {
+   "at": 49.800000000000004,
+   "measure": 3.0,
+   "label": "off-terrain_shadows"
+  },
+  {
+   "at": 53.0,
+   "call": "probe",
+   "args": [
+    "terrain_shadows",
+    true
+   ]
+  },
+  {
+   "at": 53.400000000000006,
+   "measure": 3.0,
+   "label": "base-shrub_shadows"
+  },
+  {
+   "at": 56.60000000000001,
+   "call": "probe",
+   "args": [
+    "shrub_shadows",
+    false
+   ]
+  },
+  {
+   "at": 57.00000000000001,
+   "measure": 3.0,
+   "label": "off-shrub_shadows"
+  },
+  {
+   "at": 60.2,
+   "call": "probe",
+   "args": [
+    "shrub_shadows",
+    true
+   ]
+  },
+  {
+   "at": 60.60000000000001,
+   "measure": 3.0,
+   "label": "base-splits2"
+  },
+  {
+   "at": 63.80000000000001,
+   "call": "probe",
+   "args": [
+    "splits2",
+    true
+   ]
+  },
+  {
+   "at": 64.2,
+   "measure": 3.0,
+   "label": "on-splits2"
+  },
+  {
+   "at": 67.4,
+   "call": "probe",
+   "args": [
+    "splits2",
+    false
+   ]
+  },
+  {
+   "at": 67.80000000000001,
+   "quit": true
+  }
+ ]
+}

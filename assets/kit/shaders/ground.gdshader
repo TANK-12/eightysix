@@ -50,7 +50,8 @@ void fragment() {
 	float rough = 0.95;
 
 	// town rubble ground: concrete broken up by the dirt
-	float town = s.a * smoothstep(0.25, 0.6, m3 + s.a * 0.4);
+	// patches of broken paving in the dirt, not one pale square
+	float town = s.a * smoothstep(0.5, 0.78, m3 * 0.65 + m2 * 0.55) * 0.85;
 	if (town > 0.01) {
 		vec2 tuv = wp.xz * town_scale;
 		col = mix(col, texture(town_col, tuv).rgb * 0.85, town);

@@ -303,3 +303,13 @@ start view: Low 75, Medium 36, High 23 (targets 60/45/30: Medium and High not me
 Chase camera keeps 6 m off the hull and tightens at speed; shake on fire, hits and skids. Skid dust was drawing black
 balls at the feet: now one-shot puffs. Mech meshes on render layer 20 so ground gouges skip them. New bot checks
 `skid_check` and `field_check` (on B3's Ashen valley). 116/116 tests.
+
+### 2026-09-30 · lane B3 · Chihiro (ejb-73) · part 2: holes, anchors, town look
+Three overlapping ground detail rings (1 m to 120 m, 2 m to 320 m, 4 m beyond); a first try left whole chunks
+undrawn at the hand-over (water showing through, floating shrubs), fixed by an 8 m overlap. Grapple anchors on
+ruins and walls now sit on the highest surviving block (a new test found 30 hanging in the air). Town ground in
+patches, four close viewpoints, two shadow cascades up to 100 m, lighter shrubs, `level.probe()` for fps work.
+
+Verified: B3's 14 tests pass; full run 119 passed, 2 failed, both in other lanes' uncommitted work in progress
+(test_combat plate, test_juggernaut sprint legs), not touched by B3. Shots `images/115-small_map_check`.
+Frame rate: Medium read 31-45 fps between identical runs on this laptop, so reaching 45 is not verified.

@@ -80,34 +80,78 @@
   },
   {
    "at": 14.0,
+   "call": "look_from",
+   "args": [
+    "ruins"
+   ]
+  },
+  {
+   "at": 15.2,
+   "shot": "view-ruins"
+  },
+  {
+   "at": 16.0,
+   "call": "look_from",
+   "args": [
+    "bridge"
+   ]
+  },
+  {
+   "at": 17.2,
+   "shot": "view-bridge"
+  },
+  {
+   "at": 18.0,
+   "call": "look_from",
+   "args": [
+    "outcrop"
+   ]
+  },
+  {
+   "at": 19.2,
+   "shot": "view-outcrop"
+  },
+  {
+   "at": 20.0,
+   "call": "look_from",
+   "args": [
+    "mast"
+   ]
+  },
+  {
+   "at": 21.2,
+   "shot": "view-mast"
+  },
+  {
+   "at": 22.0,
    "call": "follow_mech",
    "args": []
   },
   {
-   "at": 16.0,
+   "at": 24.0,
    "shot": "mech-start"
   },
   {
-   "at": 16.5,
+   "at": 24.5,
    "press": "move_forward",
    "strength": 1.0,
    "for": 8.0
   },
   {
-   "at": 20.0,
+   "at": 28.0,
    "sample": "walking"
   },
   {
-   "at": 23.0,
+   "at": 31.0,
    "shot": "mech-walked"
   },
   {
-   "at": 24.0,
+   "at": 32.0,
    "measure": 8.0,
    "label": "standing-view"
   },
   {
-   "at": 33.0,
+   "at": 41.0,
    "quit": true
   }
  ]

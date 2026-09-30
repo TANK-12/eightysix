@@ -97,7 +97,11 @@
         "river": {"eye": [120, 22, -40], "look": [215, 2, -90]},
         "lake": {"eye": [120, 28, 170], "look": [290, 0, 310]},
         "craters": {"eye": [-260, 30, 330], "look": [-140, 4, 170]},
-        "overview": {"eye": [-420, 170, 420], "look": [30, 0, -60]}
+        "overview": {"eye": [-420, 170, 420], "look": [30, 0, -60]},
+        "ruins": {"eye": [-8, 5, -70], "look": [0, 6, -160]},
+        "bridge": {"eye": [196, 9, -128], "look": [216, 3, -88]},
+        "outcrop": {"eye": [-150, 6, 372], "look": [-182, 8, 404]},
+        "mast": {"eye": [30, 4, -30], "look": [66, 16, -62]}
       },
       "tips": [
         "The town sits on the plateau north of the start: follow the road.",
