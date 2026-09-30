@@ -51,9 +51,9 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `tools/audio/review_page.py --serve` (http://127.0.0.1:8687/), then `tools/audio/promote.py`. Mix check:
   `tools/bot_run.sh b4_sound_check` then `tools/audio/sound_check.py` (records the game's own sound). Scoreboard:
   `tools/scoreboard.py`. Detail: `~/Forge/sessions/juggernaut-alpha/results/B4.md`.
-- Frame rates on **Ashen valley** (lane B4, 1920x1080, off screen, no Blender, no other Godot): Low 86 / 75, Medium
-  52 / 49, High 30 / 29 fps (start viewpoint standing / walking), before High dropped SSAO; the town street 49 fps
-  on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
+- Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
+  85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
+  (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
