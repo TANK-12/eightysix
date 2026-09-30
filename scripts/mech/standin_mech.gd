@@ -30,6 +30,8 @@ var running := false
 var aim_pitch_deg := 0.0
 var ground_normal := Vector3.UP
 var last_launch_speed := 0.0
+## Scales the drive's top speeds (walk, run, reverse, strafe); MechCombat lowers it for a hurt leg.
+var speed_scale := 1.0
 
 var _aim_yaw := 0.0
 var _crouch_toggled := false
@@ -405,6 +407,9 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	var top := float(d.get("run_m_s", 12.0)) if running else float(d.get("walk_m_s", 7.0))
 	var back := float(d.get("reverse_m_s", 5.0))
 	var side := float(d.get("strafe_m_s", 5.0))
+	top *= speed_scale
+	back *= speed_scale
+	side *= speed_scale
 	if bench_mode():
 		top = minf(top, _bench_speed_cap)
 		back = minf(back, _bench_speed_cap)

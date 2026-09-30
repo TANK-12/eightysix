@@ -23,6 +23,8 @@ func _ready() -> void:
 	_build_terrain()
 	_build_rocks()
 	_build_slabs()
+	_build_targets()
+	_build_gantry()
 	_spawn_mech()
 	camera = Camera3D.new()
 	camera.set_script(load("res://scripts/camera/chase_camera.gd"))
@@ -179,6 +181,69 @@ func _build_slabs() -> void:
 		var cs := CollisionShape3D.new()
 		var shape := BoxShape3D.new()
 		shape.size = size
+		cs.shape = shape
+		body.add_child(cs)
+		add_child(body)
+
+
+## Lane A3's firing line: loose steel plates 70-145 m downrange of the spawn; a round's momentum
+## knocks them flat.
+func _build_targets() -> void:
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = Color(0.72, 0.2, 0.12)
+	steel.metallic = 0.6
+	steel.roughness = 0.45
+	var plates := [Vector2(-10.0, -70.0), Vector2(6.0, -90.0), Vector2(-4.0, -110.0), Vector2(16.0, -130.0), Vector2(-18.0, -145.0)]
+	for i in plates.size():
+		var at: Vector2 = plates[i]
+		var body := RigidBody3D.new()
+		body.name = "Target%d" % i
+		body.mass = 400.0
+		body.collision_layer = 1
+		body.collision_mask = 1 | 16
+		var size := Vector3(2.4, 3.0, 0.2)
+		body.position = Vector3(at.x, ground_height(at.x, at.y) + size.y * 0.5 + 0.2, at.y)
+		var mi := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = size
+		mi.mesh = box
+		mi.material_override = steel
+		body.add_child(mi)
+		var cs := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = size
+		cs.shape = shape
+		body.add_child(cs)
+		add_child(body)
+
+
+## Lane A3's wire-anchor gantry ahead of the spawn: two pillars and a beam 20 m up. Only the beam
+## is a grapple surface (layer 64), so the anchor's upward fan skips the pillars and bites the beam.
+func _build_gantry() -> void:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.3, 0.31, 0.3)
+	mat.metallic = 0.7
+	mat.roughness = 0.5
+	var z := -38.0
+	var base := ground_height(0.0, z)
+	var parts := [
+		[Vector3(-9.0, base + 10.0, z), Vector3(1.6, 22.0, 1.6), 1],
+		[Vector3(9.0, base + 10.0, z), Vector3(1.6, 22.0, 1.6), 1],
+		[Vector3(0.0, base + 20.0, z), Vector3(20.0, 1.6, 2.0), 1 | 64],
+	]
+	for part: Array in parts:
+		var body := StaticBody3D.new()
+		body.collision_layer = int(part[2])
+		body.position = part[0]
+		var mi := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = part[1]
+		mi.mesh = box
+		mi.material_override = mat
+		body.add_child(mi)
+		var cs := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = part[1]
 		cs.shape = shape
 		body.add_child(cs)
 		add_child(body)

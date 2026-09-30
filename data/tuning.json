@@ -145,6 +145,46 @@
     "pitch_max_deg": 18.0
   },
   "combat": {
-    "recoil_game_scale": 6.0
+    "recoil_game_scale": 6.0,
+    "recoil_air_scale": 24.0,
+    "recoil_point_share": 0.35,
+    "impact_push_scale": 4.0,
+    "gun_kick_m": 0.35,
+    "gun_kick_return_s": 0.3,
+    "projectile_life_s": 4.0,
+    "tracer_len_m": 9.0,
+    "gouge_every_s": 0.12
+  },
+  "damage": {
+    "ricochet_fraction": 0.15,
+    "repair_delay_s": 8.0,
+    "repair_per_s": 0.05,
+    "limp_sag_share": 0.35,
+    "limp_speed_min": 0.45,
+    "legs_lost_to_destroy": 2
+  },
+  "grapple": {
+    "launch_pitch_min_deg": 0.0,
+    "launch_pitch_max_deg": 55.0,
+    "pitch_step_deg": 5.0,
+    "min_rise_m": 6.0,
+    "stiffness_n_per_m_per_t": 60000.0,
+    "damping_ratio": 0.4,
+    "min_len_m": 3.0,
+    "torque_share": 0.25,
+    "tension_game_scale": 2.5,
+    "snap_after_s": 0.15
+  },
+  "climb": {
+    "probe_height_m": 0.6,
+    "probe_m": 4.5,
+    "top_depth_m": 1.2,
+    "min_ledge_m": 0.9,
+    "max_ledge_m": 4.2,
+    "climb_m_s": 3.0,
+    "push_m_s": 3.0,
+    "accel_m_s2": 16.0,
+    "foot_clear_m": 0.25,
+    "max_s": 4.0
   }
 }

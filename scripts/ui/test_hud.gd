@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Test HUD for lane A1's range: a gun reticle where the fixed gun points, a heading tape, and a
-## readout of speed, legs on the ground, jump charge, skid and physics mode. Lane A3 builds the real
-## HUD (ammo, damage diagram); this one is here so a run can be read from a screenshot.
+## readout of speed, legs on the ground, jump charge, skid and physics mode, with lane A3's
+## CombatHud (ammo, range marks, damage diagram, wire anchor) drawn over it.
 
 var mech: Node3D
 var _root: Control
@@ -9,10 +9,12 @@ var _readout: Label
 var _flags: Label
 var _charge: ProgressBar
 var _draw: Control
+var _combat: CombatHud
 
 
 func watch(node: Node3D) -> void:
 	mech = node
+	_combat.watch(node)
 
 
 func _ready() -> void:
@@ -27,6 +29,8 @@ func _ready() -> void:
 	_draw.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_draw.draw.connect(_on_draw)
 	_root.add_child(_draw)
+	_combat = CombatHud.new()
+	_root.add_child(_combat)
 
 	var panel := PanelContainer.new()
 	panel.theme_type_variation = "HelpPanel"

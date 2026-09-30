@@ -1,0 +1,30 @@
+{
+  "name": "combat_check",
+  "_about": "Lane A3: the combat HUD (ammo pips, range marks, damage diagram, grapple bracket), firing at the steel plates, a reload, the wire anchor biting the gantry beam and reeling in, and the recoil dodge (a shot at the top of a charged jump). tools/bot_run.sh combat_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.5, "shot": "hud-at-rest"},
+    {"at": 3.6, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 3.68, "shot": "muzzle-flash"},
+    {"at": 3.9, "shot": "round-in-flight"},
+    {"at": 4.6, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 5.6, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 6.4, "shot": "plates-hit"},
+    {"at": 6.5, "press": "reload", "strength": 1.0, "for": 0.1},
+    {"at": 7.5, "shot": "reloading"},
+    {"at": 12.0, "press": "move_forward", "strength": 1.0, "for": 2.0},
+    {"at": 14.2, "press": "grapple_fire", "strength": 1.0, "for": 0.1},
+    {"at": 14.8, "shot": "anchor-bit"},
+    {"at": 14.9, "press": "grapple_reel_in", "strength": 1.0, "for": 3.0},
+    {"at": 16.5, "shot": "reeling-in"},
+    {"at": 18.0, "shot": "swung-up"},
+    {"at": 18.1, "press": "grapple_fire", "strength": 1.0, "for": 0.1},
+    {"at": 20.5, "press": "jump", "strength": 1.0, "for": 1.2},
+    {"at": 22.0, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 22.1, "shot": "recoil-dodge"},
+    {"at": 22.4, "sample": "after-dodge"},
+    {"at": 25.0, "shot": "landed"},
+    {"at": 25.5, "quit": true}
+  ]
+}

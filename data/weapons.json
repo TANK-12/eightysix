@@ -14,9 +14,9 @@
       "cycle_s": 0.9,
       "default_ammo": "apfsds",
       "ammo": {
-        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180},
-        "heat": {"label": "HEAT", "projectile_kg": 2.7, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5},
-        "he": {"label": "HE", "projectile_kg": 2.7, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0}
+        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02},
+        "heat": {"label": "HEAT", "projectile_kg": 2.7, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08},
+        "he": {"label": "HE", "projectile_kg": 2.7, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "drag_per_s": 0.1}
       },
       "recoil_impulse_ns": 3200.0,
       "casing": "casing_57mm"

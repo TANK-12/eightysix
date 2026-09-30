@@ -10,6 +10,9 @@ extends RefCounted
 ## "model_data" export json (B1's parts[].hulls, one or more convex pieces per part, model space)
 ## and moved into the body frame by the mech's "model_origin". "size" stays the box used for
 ## inertia, the placeholder mesh, and the fallback when the export is not synced.
+##
+## Every collider and leg hitbox carries a "damage_key" meta (DamageModel's key for the part it
+## belongs to), and every mech gets a MechCombat child named "Combat" (gun, damage, wire anchors).
 
 const LAYER_WORLD := 1
 const LAYER_MECH := 2
@@ -164,6 +167,7 @@ static func build(mech_id: String) -> RigidBody3D:
 			cs.position = at
 			cs.name = "Collider_" + label + ("" if i == 0 else "_%d" % (i + 1))
 			cs.set_meta("part_id", part_id)
+			cs.set_meta("damage_key", label)
 			body.add_child(cs)
 		body.add_child(_make_mesh(part, Transform3D(Basis.IDENTITY, at), "Mesh_" + label))
 
@@ -193,6 +197,7 @@ static func build(mech_id: String) -> RigidBody3D:
 				cs.shape = shapes[i]
 				cs.name = "Hitbox_%s_%s" % [leg_name, seg] + ("" if i == 0 else "_%d" % (i + 1))
 				cs.set_meta("part_id", part_id)
+				cs.set_meta("damage_key", DamageModel.leg_key(leg_name, seg))
 				hitboxes.add_child(cs)
 				boxes.append(cs)
 			leg[seg + "_mesh"] = mesh
@@ -207,6 +212,9 @@ static func build(mech_id: String) -> RigidBody3D:
 	body.inertia = info["inertia"]
 	body.set_meta("mech_id", mech_id)
 	body.call("setup", mech_id, def, legs, info, actuators_of(def))
+	var combat := MechCombat.new()
+	combat.name = "Combat"
+	body.add_child(combat)
 	return body
 
 
