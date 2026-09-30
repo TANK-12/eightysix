@@ -59,6 +59,8 @@ common/max_physics_steps_per_frame=8
 
 [rendering]
 
+textures/vram_compression/import_etc2_astc=true
+
 renderer/rendering_method="forward_plus"
 environment/defaults/default_clear_color=Color(0.0196, 0.0314, 0.0471, 1)
 anti_aliasing/quality/use_debanding=true

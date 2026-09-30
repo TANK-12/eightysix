@@ -1,0 +1,29 @@
+{
+  "_about": "Export targets for tools/builds.py (and tools/export.sh, which calls it). One entry per platform: the preset name in export_presets.cfg, the file Godot writes into build/<platform>/, and the template files it needs in ~/.local/share/godot/export_templates/<godot version>/. 'local' is the platform tools/play.sh runs on this machine. A change under a 'watch_ignore' folder or to a 'watch_ignore_files' file never needs a rebuild (none of them go into the export).",
+  "local": "linux",
+  "platforms": {
+    "linux": {
+      "label": "Linux (x86_64)",
+      "preset": "Linux",
+      "file": "eightysix.x86_64",
+      "templates": ["linux_release.x86_64"],
+      "how_to_run": "Unzip, then double-click eightysix.x86_64 (or run ./eightysix.x86_64). Keep eightysix.pck beside it."
+    },
+    "windows": {
+      "label": "Windows (x86_64)",
+      "preset": "Windows",
+      "file": "eightysix.exe",
+      "templates": ["windows_release_x86_64.exe"],
+      "how_to_run": "Unzip, then run eightysix.exe. Keep eightysix.pck beside it. The game is not signed, so Windows SmartScreen may warn: More info, then Run anyway."
+    },
+    "macos": {
+      "label": "macOS (Intel and Apple Silicon)",
+      "preset": "macOS",
+      "file": "eightysix.zip",
+      "templates": ["macos.zip"],
+      "how_to_run": "Unzip and move Eighty Six.app to Applications. The game is not notarised by Apple, so the first time: right-click the app, Open, then Open again (or System Settings, Privacy & Security, Open Anyway)."
+    }
+  },
+  "watch_ignore": [".godot", ".git", "build", "images", "logs", "tests", "tools", "assets/audio/review"],
+  "watch_ignore_files": ["*.md", "*.tmp", ".gitignore"]
+}
