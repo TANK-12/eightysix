@@ -190,6 +190,11 @@ func _goto(where: String) -> void:
 		Game.goto_main_menu()
 	elif where == "pause":
 		Game.open_pause()
+	elif where == "photo":
+		Game.open_photo()
+	elif where == "game":
+		Game.close_photo()
+		Game.close_pause()
 	elif where.begins_with("map:"):
 		Game.start_map(where.substr(4))
 	elif where.begins_with("settings:"):

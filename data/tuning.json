@@ -233,5 +233,17 @@
     "accel_m_s2": 16.0,
     "foot_clear_m": 0.25,
     "max_s": 4.0
+  },
+  "photo": {
+    "_about": "Photo / inspect mode (scripts/camera/photo_mode.gd): the orbit camera's limits and speeds.",
+    "start_distance_m": 14.0,
+    "min_distance_m": 5.0,
+    "max_distance_m": 40.0,
+    "min_pitch_deg": -80.0,
+    "max_pitch_deg": 30.0,
+    "focus_height_m": 1.0,
+    "max_pan_m": 25.0,
+    "pan_m_s": 8.0,
+    "stick_orbit_deg_s": 90.0
   }
 }

@@ -1,0 +1,22 @@
+{
+  "name": "photo_check",
+  "_about": "Photo / inspect mode on Ashen valley: open it mid-gallop (time freezes, HUD hidden), orbit with the right stick, zoom in with the fire trigger, back to the game. tools/bot_run.sh photo_check",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 2.5, "press": "move_forward", "strength": 1.0, "for": 3.0},
+    {"at": 2.5, "press": "sprint", "strength": 1.0, "for": 3.0},
+    {"at": 5.0, "goto": "photo"},
+    {"at": 5.3, "shot": "photo-open"},
+    {"at": 5.4, "press": "turn_left", "strength": 1.0, "for": 1.5},
+    {"at": 7.0, "shot": "photo-orbit"},
+    {"at": 7.1, "press": "fire_main", "strength": 1.0, "for": 1.2},
+    {"at": 7.1, "press": "aim_down", "strength": 1.0, "for": 0.4},
+    {"at": 8.5, "shot": "photo-close-up"},
+    {"at": 8.6, "goto": "game"},
+    {"at": 9.5, "shot": "back-in-game"},
+    {"at": 9.6, "quit": true}
+  ]
+}

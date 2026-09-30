@@ -122,6 +122,8 @@
       "all": {"keys": ["key:F3"], "pad": []}},
     "screenshot": {"label": "Screenshot", "group": "System", "context": ["global"],
       "all": {"keys": ["key:F12"], "pad": []}},
+    "photo_mode": {"label": "Photo mode", "group": "System", "context": ["field"],
+      "all": {"keys": ["key:P"], "pad": []}},
 
     "ui_tab_prev": {"label": "Previous tab", "group": "Menus", "context": ["ui"],
       "all": {"keys": ["key:Q"], "pad": ["joy:l1"]}},

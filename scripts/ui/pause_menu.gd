@@ -45,6 +45,7 @@ func _ready() -> void:
 	_buttons.add_theme_constant_override("separation", 2)
 	box.add_child(_buttons)
 	_add("Resume", Game.close_pause)
+	_add("Photo mode", Game.open_photo)
 	_add("Settings", _open_settings)
 	_add("Restart map", Game.restart_map)
 	_add("Main menu", Game.goto_main_menu)

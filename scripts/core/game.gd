@@ -12,6 +12,7 @@ var pending_map := ""
 var current_map := ""
 var level: Node = null
 var _pause_menu: Node = null
+var _photo: PhotoMode
 
 
 func _ready() -> void:
@@ -86,15 +87,45 @@ func close_pause() -> void:
 		level.call("capture_mouse")
 
 
+## Photo / inspect mode (scripts/camera/photo_mode.gd): time frozen, free camera round the player's mech.
+func is_photo() -> bool:
+	return _photo != null and is_instance_valid(_photo)
+
+
+func open_photo() -> void:
+	if level == null or is_photo() or not ("mech" in level) or level.get("mech") == null:
+		return
+	if is_paused():
+		_pause_menu.queue_free()
+		_pause_menu = null
+	_photo = PhotoMode.new()
+	get_tree().current_scene.add_child(_photo)
+	get_tree().paused = true
+	_photo.open(level.get("mech") as Node3D)
+
+
+func close_photo() -> void:
+	if is_photo():
+		_photo.close()
+	_photo = null
+	get_tree().paused = false
+	if level != null and level.has_method("capture_mouse"):
+		level.call("capture_mouse")
+
+
 func _leave_level() -> void:
 	get_tree().paused = false
 	_pause_menu = null
+	_photo = null
 	level = null
 	Rumble.stop_all()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if level != null and not is_paused() and event.is_action_pressed("pause"):
+	if level != null and not is_paused() and not is_photo() and event.is_action_pressed("pause"):
 		get_viewport().set_input_as_handled()
 		open_pause()
+	elif level != null and not is_paused() and not is_photo() and event.is_action_pressed("photo_mode"):
+		get_viewport().set_input_as_handled()
+		open_photo()
