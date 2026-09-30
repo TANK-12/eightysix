@@ -20,6 +20,7 @@ func _ready() -> void:
 	top_level = true
 	current = true
 	view = Settings.get_s("gameplay.default_view")
+	Settings.changed.connect(_on_setting_changed)
 	_noise.frequency = 1.7
 
 
@@ -35,6 +36,12 @@ func follow(node: Node3D) -> void:
 	if combat != null:
 		combat.connect("fired", func(_w: String, _a: String) -> void: add_shake(0.45))
 		combat.connect("hit_taken", func(_k: String, dealt: float, _i: Dictionary) -> void: add_shake(clampf(dealt / 900.0, 0.15, 0.8)))
+
+
+## Changing "Starting view" mid-game switches to it now (and bot scripts can pick the view).
+func _on_setting_changed(key: String, value: Variant) -> void:
+	if key == "gameplay.default_view":
+		view = str(value)
 
 
 func add_shake(amount: float) -> void:

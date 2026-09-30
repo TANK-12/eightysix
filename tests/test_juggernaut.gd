@@ -586,3 +586,75 @@ func _assert_rams_on(when: String) -> void:
 		assert_lt(gap, 0.01, "%s stays on its mount %s (%.3f m)" % [label, when, gap])
 		assert_lt(off, 1.0, "%s aims at its partner %s (%.2f deg)" % [label, when, off])
 		assert_between(stretch, 0.6, 1.6, "%s ram length sane %s (x%.2f)" % [label, when, stretch])
+
+
+## Emerson, 2026-09-30: "shift running is still broken: its legs start breaking and it hits the
+## ground"; "sometimes the legs detach or fold in on themselves ... the front legs may fold under the
+## body ... and in a jump the legs will be bent". Sprint straight, sprint through a hard turn, jump
+## at a run and land, checking every frame: no leg pulled straight past its reach (the ankle target
+## out of reach), no knee bent the wrong way (folded under), every joint together, 2+ legs down on
+## flat ground while running, and the chassis level.
+func test_sprint_turn_and_jump_keep_the_legs_whole() -> void:
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	await physics_frames(240)
+	var rest_bend := {}
+	for leg: Dictionary in mech.get("legs"):
+		rest_bend[leg["name"]] = _bend_dir(leg)
+	Input.action_press("move_forward", 1.0)
+	Input.action_press("sprint", 1.0)
+	var frames := 0
+	var stretched := 0
+	var stretched_straight := 0
+	var folded := 0
+	var worst_pitch := 0.0
+	var min_grounded := 4
+	var top := 0.0
+	var fold_note := ""
+	for i in 1200:
+		if i == 600:
+			Input.action_press("turn_right", 1.0)
+		if i == 780:
+			Input.action_release("turn_right")
+			Input.action_press("jump", 1.0)
+		if i == 900:
+			Input.action_release("jump")
+		await physics_frames(1)
+		if i < 240:
+			continue  # getting up to speed
+		frames += 1
+		for leg: Dictionary in mech.get("legs"):
+			var reach := float(leg["upper_len"]) + float(leg["lower_len"])
+			var ankle: Vector3 = mech.to_local(leg["foot"]) + (leg["end_offset"] as Vector3)
+			if (leg["pivot"] as Vector3).distance_to(ankle) > reach * 0.995:
+				stretched += 1
+				if i < 600:
+					stretched_straight += 1
+			if _bend_dir(leg).dot(rest_bend[leg["name"]]) < 0.0:
+				folded += 1
+				fold_note = "%s at frame %d" % [leg["name"], i]
+		if i % 40 == 0:
+			_assert_joints_together("sprint frame %d" % i)
+		if i < 600:
+			var f := -mech.global_transform.basis.z
+			worst_pitch = maxf(worst_pitch, absf(rad_to_deg(asin(clampf(f.y, -1.0, 1.0)))))
+			min_grounded = mini(min_grounded, int(mech.get("grounded_legs")))
+		top = maxf(top, Vector2(mech.linear_velocity.x, mech.linear_velocity.z).length())
+	Input.action_release("sprint")
+	assert_gt(top, 11.0, "reached a sprint (%.1f m/s)" % top)
+	assert_eq(stretched_straight, 0, "no leg pulled straight in a straight sprint")
+	# Known and not yet fixed (results/A3.md): a rear leg still straightens briefly in a sprinting
+	# turn and on landing, about 4% of leg-frames; this keeps it from getting worse.
+	assert_lt(float(stretched) / (frames * 4), 0.05, "legs pulled straight in %d of %d leg-frames overall" % [stretched, frames * 4])
+	assert_eq(folded, 0, "no knee folds the wrong way (%s)" % fold_note)
+	assert_lt(worst_pitch, 10.0, "chassis level on flat ground at a sprint (worst %.1f°)" % worst_pitch)
+	assert_gt(min_grounded, 1, "at least 2 legs down while sprinting")
+
+
+## Which way a leg's knee bends: the knee's offset from the pivot-ankle line, in the body frame.
+func _bend_dir(leg: Dictionary) -> Vector3:
+	var pivot: Vector3 = leg["pivot"]
+	var ankle: Vector3 = leg.get("ankle_local", pivot)
+	var knee: Vector3 = leg.get("knee_local", pivot)
+	var line := (ankle - pivot).normalized()
+	var off := (knee - pivot) - line * (knee - pivot).dot(line)
+	return off.normalized()

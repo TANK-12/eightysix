@@ -117,3 +117,28 @@ func test_no_climb_on_a_walkable_slope_or_a_wall_too_tall() -> void:
 	_block(Vector3(0, 4, -6.5), Vector3(20, 8, 6), 1)
 	await physics_frames(2)
 	assert_true(combat.climb.find_ledge().is_empty(), "8 m wall is out of reach")
+
+
+class FakeLevel:
+	extends Node
+	var grapple_points: Array[Vector3] = []
+
+
+func test_aim_assist_uses_the_levels_grapple_points() -> void:
+	await physics_frames(240)
+	# A pole off to the side, its tip marked as a grapple point: the upward fan straight ahead misses it.
+	var tip := Vector3(-14, 18, -30)
+	_block(Vector3(tip.x, 9, tip.z), Vector3(1.5, 18, 1.5), 1 | 64)
+	await physics_frames(2)
+	var level := FakeLevel.new()
+	tree.root.add_child(level)
+	var before: Node = Game.level
+	Game.level = level
+	assert_true(combat.anchor.find_target().is_empty() or (combat.anchor.find_target()["point"] as Vector3).y < 8.0, "no marked point: nothing high")
+	level.grapple_points.append(tip)
+	var t := combat.anchor.find_target()
+	Game.level = before
+	level.free()
+	assert_false(t.is_empty(), "the marked point is found")
+	if not t.is_empty():
+		assert_lt((t["point"] as Vector3).distance_to(tip), 1.6, "at the pole's tip")

@@ -26,6 +26,11 @@
     "feet": {
       "_about": "Lane A2 part 4: a planted foot tilts to lie flat on the ground under its sole, at most max_tilt_deg; a planted foot more than reseat_m above or below where the ground now is under its sole takes a step to re-seat (as after a landing).",
       "max_tilt_deg": 25.0,
+      "stride_half_min_m": 0.45,
+      "stride_half_max_m": 1.1,
+      "gather_rear_m": 0.8,
+      "gather_front_m": 0.2,
+      "swing_min_s": 0.14,
       "reseat_m": 0.3
     },
     "suspension": {
@@ -126,7 +131,9 @@
       "keep_deg": 12.0,
       "keep_stiffness": 20.0,
       "keep_damping": 4.0,
-      "keep_air_factor": 0.35
+      "keep_air_factor": 0.35,
+      "keep_run_deg": 3.0,
+      "run_damping_boost": 2.0
     }
   },
   "jump_bench": {
@@ -181,6 +188,7 @@
     "launch_pitch_max_deg": 55.0,
     "pitch_step_deg": 5.0,
     "min_rise_m": 6.0,
+    "assist_cone_deg": 35.0,
     "stiffness_n_per_m_per_t": 60000.0,
     "damping_ratio": 0.4,
     "min_len_m": 3.0,

@@ -57,6 +57,8 @@ var _leg_scale := 1.0
 var _since_ground := 0.0
 var _lift := 0.0
 var _spread := 1.0
+var _stride_half := 0.45  # how far ahead of its rest spot a foot lands, and behind it steps again
+var _swing_now := 0.28  # this tick's swing time: _step_s, shortened when the stride is maxed out
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -294,13 +296,34 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var run_drop := float(rs.get("drop_m", 0.0)) * _run_stance
 	var run_tilt := tan(deg_to_rad(float(rs.get("pitch_deg", 0.0)))) * span * 0.5 * _run_stance
 
+	# Stride grows with speed (Emerson 2026-09-30: at a sprint the legs trailed metres behind, went
+	# straight and the body sagged). A foot lands _stride_half ahead of its rest spot and steps again
+	# once as far behind, so it spends a whole swing of the other pair planted; past the legs' reach
+	# (feet.stride_half_max_m) the cadence quickens instead.
+	var fdef: Dictionary = _t.get("feet", {})
+	var planar := v - up * v.dot(up)
+	var speed := planar.length()
+	var cap := float(fdef.get("stride_half_max_m", 1.3))
+	var half_min := float(fdef.get("stride_half_min_m", 0.45))
+	_stride_half = clampf(speed * _step_s * 0.5, half_min, cap)
+	_swing_now = _step_s
+	if speed * _step_s > 2.0 * _stride_half:
+		_swing_now = maxf(2.0 * _stride_half / speed, float(fdef.get("swing_min_s", 0.14)))
+	var lead := planar.normalized() * _stride_half if speed > 0.3 else Vector3.ZERO
+	# The rear legs splay back and the fronts forward, so at speed each stride is gathered in under
+	# the body, as in the anime run: rears land further forward (feet.gather_rear_m), fronts a little
+	# further back (feet.gather_front_m). A rear foot trailing behind its rest spot runs out of reach
+	# much sooner than a front one, hence the bigger share.
+	var run_dir := planar.normalized() * _run_fraction(state) if speed > 0.3 else Vector3.ZERO
+	var gather_rear := run_dir * float(fdef.get("gather_rear_m", 0.0))
+	var gather_front := -run_dir * float(fdef.get("gather_front_m", 0.0))
 	var load_margin := float(sus.get("load_margin_m", 0.05))
 	grounded_legs = 0
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
 		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
 		var cast_w := xf * (leg["spring_at"] as Vector3) + out_w
-		_cast_sole(leg, space, xf, out_w, margin)
+		_cast_sole(leg, space, xf, out_w + lead + (gather_front if leg["front"] else gather_rear), margin)
 		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45))) - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
@@ -433,6 +456,12 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 		return  # _air_control holds the attitude in the air
 	var up := state.transform.basis.y
 	var target := ground_normal if grounded_legs >= 2 else Vector3.UP
+	# At a run the chassis is held much closer to the ground's slope (upright.keep_run_deg): with the
+	# walking dead zone it pitched freely over every crest at 13 m/s and dived nose-first (Emerson,
+	# 2026-09-30: "shift running breaks the legs and it hits the ground").
+	var fast := _run_fraction(state)
+	if grounded_legs >= 2:
+		keep = lerpf(keep, deg_to_rad(float(u.get("keep_run_deg", keep))), fast)
 	var lean := up.angle_to(target)
 	if lean <= keep:
 		return
@@ -442,7 +471,8 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	var factor := 1.0 if grounded_legs >= 2 else float(u.get("keep_air_factor", 0.35))
 	var push := float(u.get("keep_stiffness", 20.0)) * minf((lean - keep) / keep, 3.0)
 	var spin := w - up * w.dot(up)
-	var accel := (axis.normalized() * push - spin * float(u.get("keep_damping", 4.0))) * factor
+	var damping := float(u.get("keep_damping", 4.0)) * (1.0 + fast * float(u.get("run_damping_boost", 0.0)))
+	var accel := (axis.normalized() * push - spin * damping) * factor
 	state.apply_torque(accel * inertia.x)
 
 
@@ -521,12 +551,22 @@ func _turn(state: PhysicsDirectBodyState3D, basis: Basis, w: Vector3, dt: float)
 ## World up, not `ground_normal`: with under 2 legs grounded, `ground_normal` can come from a single
 ## leg pressed against a tilted rock or a wall, which would read as "already upright" relative to
 ## itself and right the mech toward the wrong orientation.
+## 0 at a walk, 1 at full run speed (for the tuning that firms up at speed).
+func _run_fraction(state: PhysicsDirectBodyState3D) -> float:
+	var d: Dictionary = _t.get("drive", {})
+	var walk := float(d.get("walk_m_s", 7.0))
+	var run := float(d.get("run_m_s", 12.0))
+	var v := state.linear_velocity
+	return clampf((Vector3(v.x, 0.0, v.z).length() - walk) / maxf(run - walk, 0.1), 0.0, 1.0)
+
+
 func _steady(state: PhysicsDirectBodyState3D, w: Vector3, recover: float) -> void:
 	if not Settings.get_b("gameplay.upright_assist"):
 		return
 	var u: Dictionary = _t.get("upright", {})
 	var tilt_w := w - ground_normal * w.dot(ground_normal)
-	var torque := -tilt_w * float(u.get("damping", 2.0))
+	var boost := 1.0 + _run_fraction(state) * float(u.get("run_damping_boost", 0.0)) if not bench_mode() else 1.0
+	var torque := -tilt_w * float(u.get("damping", 2.0)) * boost
 	if recover > 0.0:
 		var up := state.transform.basis.y
 		torque += up.cross(Vector3.UP) * float(u.get("stiffness", 6.0)) * recover
@@ -621,7 +661,7 @@ func _physics_process(delta: float) -> void:
 			target_world = xf * (leg["sole_stance"] as Vector3)
 		var t := float(leg["step_t"])
 		if t >= 0.0:
-			t += delta / _step_s
+			t += delta / _swing_now
 			leg["step_t"] = t
 			var from: Vector3 = leg["step_from"]
 			var to: Vector3 = leg["step_to"] if not on_ground else target_world
@@ -638,16 +678,20 @@ func _physics_process(delta: float) -> void:
 			var gap: Vector3 = target_world - (leg["planted"] as Vector3)
 			var seat := bool(leg["needs_seat"]) and gap.length() > 0.05
 			if not on_ground or airborne:
-				leg["planted"] = leg["planted"].lerp(target_world, minf(delta * 8.0, 1.0))
+				# Eased in the body's frame, so the feet travel with the mech: eased in world space
+				# they were left behind at speed and a running jump dragged the legs straight.
+				var local := xf.affine_inverse() * (leg["planted"] as Vector3)
+				leg["planted"] = xf * local.lerp(xf.affine_inverse() * target_world, minf(delta * 8.0, 1.0))
 				leg["planted_normal"] = target_normal
 				leg["needs_seat"] = true
-			elif (gap.length() > 0.9 or absf(gap.dot(xf.basis.y)) > reseat or seat) and not _partner_stepping(str(leg["name"])):
+			elif (gap.length() > maxf(0.9, 2.0 * _stride_half) or absf(gap.dot(xf.basis.y)) > reseat or seat) and (not _partner_stepping(str(leg["name"])) or gap.length() > 1.4 * maxf(0.9, 2.0 * _stride_half)):
 				# Step when the foot has drifted too far from where it should stand, is left
 				# hovering above (or sunk into) the ground, or has just come down from the air (a
 				# landing, or the drop at spawn) and is not yet where its sole belongs. A short
-				# re-seat step lifts the foot less than a full stride.
+				# re-seat step lifts the foot less than a full stride. A foot badly overdue (1.4x the
+				# stride behind) goes even out of turn rather than be dragged until the leg is straight.
 				leg["step_from"] = leg["planted"]
-				leg["step_to"] = target_world + linear_velocity * 0.15
+				leg["step_to"] = target_world
 				leg["step_t"] = 0.0
 				leg["step_lift"] = _step_lift_m * clampf(gap.length() / 0.9, 0.3, 1.0)
 				leg["needs_seat"] = false
@@ -658,6 +702,8 @@ func _physics_process(delta: float) -> void:
 		var planted := float(leg["step_t"]) < 0.0 and on_ground
 		var tilt := Basis(Quaternion(Vector3.UP, _foot_up(leg, xf, planted, max_tilt, delta)))
 		var pose := MechBuilder.pose_segments(leg, to_local(leg["foot"]) + tilt * (leg["end_offset"] as Vector3), tilt, _leg_scale)
+		leg["knee_local"] = pose["knee"]
+		leg["ankle_local"] = pose["end"]
 		var upper_xf: Transform3D = pose["upper"]
 		var lower_xf: Transform3D = pose["lower"]
 		var foot_xf: Transform3D = pose["foot"]

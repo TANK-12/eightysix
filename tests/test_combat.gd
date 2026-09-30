@@ -197,3 +197,33 @@ func test_combat_hud_follows_the_mech() -> void:
 	hud.queue_redraw()
 	await physics_frames(2)
 	assert_lt(combat.limp_factor(), 1.0, "the diagram's limp line has something to show")
+
+
+func test_a_round_knocks_a_loose_steel_plate_away() -> void:
+	_ground()
+	var combat := _mech(Vector3(0, 3, 0))
+	await physics_frames(240)
+	var plate := RigidBody3D.new()
+	plate.mass = 400.0
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(2.4, 4.5, 0.25)  # the range's plates: tall enough for a level shot (muzzle 2.9 m up)
+	cs.shape = box
+	plate.add_child(cs)
+	tree.root.add_child(plate)
+	extras.append(plate)
+	var muzzle := mech.global_transform * combat.muzzle_local()
+	# 30 m out, standing on the ground: the gun line (the chassis rests a degree or two nose-up)
+	# crosses it about 3.8 m up, inside the 4.5 m plate.
+	var at := muzzle + combat.gun_direction() * 30.0
+	assert_between(at.y, 0.5, 4.3, "the gun line crosses the plate")
+	plate.global_position = Vector3(at.x, 2.25, at.z)
+	plate.look_at(Vector3(muzzle.x, 2.25, muzzle.z))
+	await physics_frames(60)
+	assert_gt(plate.global_transform.basis.y.dot(Vector3.UP), 0.95, "standing before the shot")
+	var start := plate.global_position
+	combat.fire_main()
+	await physics_frames(12)
+	assert_gt(plate.angular_velocity.length(), 5.0, "the hit sets it spinning (%.1f rad/s)" % plate.angular_velocity.length())
+	await physics_frames(108)
+	assert_gt(plate.global_position.distance_to(start), 5.0, "and throws it back (%.1f m)" % plate.global_position.distance_to(start))

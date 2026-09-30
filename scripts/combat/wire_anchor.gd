@@ -82,7 +82,9 @@ func range_m() -> float:
 
 ## The grapple surface the fan of launch pitches finds: {"point", "normal", "socket"} or {}. The
 ## first hit at least min_rise_m above the socket wins (something to swing from); ground ahead is
-## only the fallback when nothing higher is in range.
+## only the fallback when nothing higher is in range. Before falling back, the level's marked
+## grapple points (a level's `grapple_points`, lane B3) within assist_cone_deg of the heading and in
+## clear sight are tried, nearest the gun line first: aim assist for the anchor.
 func find_target() -> Dictionary:
 	if mech == null or not mech.is_inside_tree():
 		return {}
@@ -108,7 +110,32 @@ func find_target() -> Dictionary:
 			if fallback.is_empty():
 				fallback = found
 		pitch += step
-	return fallback
+	var assisted := _assist_target(from, fwd, rise, space)
+	return assisted if not assisted.is_empty() else fallback
+
+
+func _assist_target(from: Vector3, fwd: Vector3, rise: float, space: PhysicsDirectSpaceState3D) -> Dictionary:
+	var level := Game.level
+	if level == null or not is_instance_valid(level) or not ("grapple_points" in level):
+		return {}
+	var cone := deg_to_rad(float(_g.get("assist_cone_deg", 35.0)))
+	var flat_fwd := Vector3(fwd.x, 0.0, fwd.z).normalized()
+	var best := {}
+	var best_angle := INF
+	for p: Vector3 in level.get("grapple_points"):
+		var to := p - from
+		if to.length() > range_m() or p.y < from.y + rise:
+			continue
+		var angle := flat_fwd.angle_to(Vector3(to.x, 0.0, to.z).normalized())
+		if angle > cone or angle >= best_angle:
+			continue
+		var q := PhysicsRayQueryParameters3D.create(from, p + to.normalized() * 0.5, SURFACE_MASK, [mech.get_rid()])
+		var hit := space.intersect_ray(q)
+		if hit.is_empty() or (hit["position"] as Vector3).distance_to(p) > 1.5:
+			continue  # something else is in the way
+		best_angle = angle
+		best = {"point": hit["position"], "normal": hit["normal"], "socket": _socket_towards(hit["position"])}
+	return best
 
 
 func _mid_socket() -> Vector3:

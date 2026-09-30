@@ -1,0 +1,143 @@
+{
+ "name": "sprint_check",
+ "_about": "Emerson 2026-09-30: holding shift to run, the legs start breaking and the body hits the ground. 11 s of sprint on the range, a shot and telemetry every second. tools/bot_run.sh sprint_check Then a running jump (hold 1 s) mid-sprint.",
+ "map": "test_range",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 3.0,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 11.0
+  },
+  {
+   "at": 3.0,
+   "press": "sprint",
+   "strength": 1.0,
+   "for": 11.0
+  },
+  {
+   "at": 4.0,
+   "shot": "sprint-01s"
+  },
+  {
+   "at": 4.01,
+   "sample": "sprint-01"
+  },
+  {
+   "at": 5.0,
+   "shot": "sprint-02s"
+  },
+  {
+   "at": 5.01,
+   "sample": "sprint-02"
+  },
+  {
+   "at": 6.0,
+   "shot": "sprint-03s"
+  },
+  {
+   "at": 6.01,
+   "sample": "sprint-03"
+  },
+  {
+   "at": 7.0,
+   "shot": "sprint-04s"
+  },
+  {
+   "at": 7.01,
+   "sample": "sprint-04"
+  },
+  {
+   "at": 8.0,
+   "shot": "sprint-05s"
+  },
+  {
+   "at": 8.01,
+   "sample": "sprint-05"
+  },
+  {
+   "at": 9.0,
+   "shot": "sprint-06s"
+  },
+  {
+   "at": 9.01,
+   "sample": "sprint-06"
+  },
+  {
+   "at": 10.0,
+   "shot": "sprint-07s"
+  },
+  {
+   "at": 10.01,
+   "sample": "sprint-07"
+  },
+  {
+   "at": 10.2,
+   "press": "jump",
+   "strength": 1.0,
+   "for": 1.0
+  },
+  {
+   "at": 11.0,
+   "shot": "sprint-08s"
+  },
+  {
+   "at": 11.01,
+   "sample": "sprint-08"
+  },
+  {
+   "at": 11.35,
+   "shot": "run-jump-launch"
+  },
+  {
+   "at": 11.7,
+   "shot": "run-jump-air"
+  },
+  {
+   "at": 12.0,
+   "shot": "sprint-09s"
+  },
+  {
+   "at": 12.01,
+   "sample": "sprint-09"
+  },
+  {
+   "at": 12.3,
+   "shot": "run-jump-land"
+  },
+  {
+   "at": 13.0,
+   "shot": "sprint-10s"
+  },
+  {
+   "at": 13.01,
+   "sample": "sprint-10"
+  },
+  {
+   "at": 14.0,
+   "shot": "sprint-11s"
+  },
+  {
+   "at": 14.01,
+   "sample": "sprint-11"
+  },
+  {
+   "at": 14.5,
+   "quit": true
+  }
+ ]
+}

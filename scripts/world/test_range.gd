@@ -201,7 +201,7 @@ func _build_targets() -> void:
 		body.mass = 400.0
 		body.collision_layer = 1
 		body.collision_mask = 1 | 16
-		var size := Vector3(2.4, 3.0, 0.2)
+		var size := Vector3(2.4, 4.5, 0.25)  # taller than the muzzle (2.9 m) so a level shot hits
 		body.position = Vector3(at.x, ground_height(at.x, at.y) + size.y * 0.5 + 0.2, at.y)
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
