@@ -330,6 +330,7 @@ def apply_mass_table(new_parts, chassis_placements) -> str:
             and "empty_kg" not in part
         ):
             raise SystemExit(f"part {pid} is missing from the mass table {path}")
+    _add_belt_loads(new_parts)
     pod = placed["jg2_pod_tub"]
     for pid, row, kg in loose:
         new_parts[pid] = {
@@ -349,6 +350,24 @@ def apply_mass_table(new_parts, chassis_placements) -> str:
             at = _placed_com(new_parts, chassis_placements)
         chassis_placements.append({"part": pid, "at": [round(v, 5) for v in at]})
     return f"{path} ({table.get('source', '')}): {table['combat_loaded_kg']} kg combat loaded"
+
+
+def _add_belt_loads(new_parts):
+    """The sub-arm machine guns' belts (mechs.json juggernaut_m2 loadout "sub_guns", weapons.json:
+    (magazine + reserve) x round_kg) are load mass, half on each sub-arm part (lane A3 part 5).
+    """
+    mechs = json.loads(MECHS_JSON.read_text())
+    gun_id = mechs["entries"]["juggernaut_m2"].get("loadout", {}).get("sub_guns")
+    if not gun_id:
+        return
+    weapons = json.loads((ROOT / "data" / "weapons.json").read_text())["entries"]
+    gun = weapons[gun_id]
+    belts = (gun["magazine"] + gun["reserve"]) * gun["round_kg"]
+    for pid in ("jg2_subarm_l", "jg2_subarm_r"):
+        part = new_parts[pid]
+        part["load_kg"] = round(part["load_kg"] + belts / 2.0, 2)
+        part["mass_kg"] = round(part["empty_kg"] + part["load_kg"], 2)
+        part["mass_note"] += f"; plus half the {gun_id} belts ({belts / 2.0:.1f} kg)"
 
 
 def _placed_com(new_parts, chassis_placements):

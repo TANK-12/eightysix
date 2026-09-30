@@ -47,7 +47,9 @@ func test_builds_with_the_real_mass() -> void:
 			if str(p.get("kind", "")) != "actuator" and float(p.get("mass_kg", 0.0)) > 0.0:
 				assert_almost_eq(float(p["mass_kg"]), float(p.get("empty_kg", -1.0)) + float(p.get("load_kg", 0.0)), 0.02, "%s: mass is empty + load from the table" % pid)
 	assert_almost_eq(mech.mass, total, 1.0, "every part's mass counted once")
-	assert_almost_eq(mech.mass, 5423.3, 1.0, "the mass table's combat-loaded figure")
+	# The table's combat-loaded 5,423.3 kg plus the sub-arm guns' belts (lane A3 part 5):
+	# (400 + 800 rounds) x 0.117 kg = 140.4 kg.
+	assert_almost_eq(mech.mass, 5423.3 + 140.4, 1.0, "the mass table's combat-loaded figure plus the MG belts")
 	# realistic_mass.json's loaded centre of mass [0, 1.457, 0.239] (glTF, ground origin) minus
 	# model_origin [0, 1.40989, 0]; legs sit at the IK rest pose here, so within 10 cm.
 	assert_almost_eq(mech.center_of_mass.y, 0.047, 0.1, "centre of mass height matches the table")

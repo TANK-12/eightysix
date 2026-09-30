@@ -188,6 +188,43 @@ func test_recoil_is_the_real_impulse_and_all_of_it_moves_the_body_in_the_air() -
 	assert_gt(pitch, 0.0, "the bore line sits above the centre of mass: the nose kicks up")
 
 
+func test_sub_arm_guns_fire_in_turn_with_real_recoil() -> void:
+	# Lane A3 part 5 (Emerson: "add the sub guns"): the pair of 12.7 mm guns on the sub-arms.
+	var combat := _mech(Vector3(0, 40, 0))
+	await physics_frames(30)
+	assert_not_null(combat.sub_guns, "the Juggernaut carries the sub-arm guns")
+	var belt0 := combat.sub_guns.magazine
+	var m0 := mech.mass
+	var sides: Array = []
+	for i in 120:
+		var before := combat.sub_shots
+		var side := int(combat.get("_sub_side"))
+		combat.fire_sub()
+		if combat.sub_shots > before:
+			sides.append(side)
+		await physics_frames(1)
+	assert_gt(combat.sub_shots, 12, "about 16 rounds a second from the pair (%d in 1 s)" % combat.sub_shots)
+	assert_eq(belt0 - combat.sub_guns.magazine, combat.sub_shots, "every round fired came off the belts")
+	assert_eq(sides.slice(0, 4), [0, 1, 0, 1], "the arms fire in turn")
+	assert_almost_eq(combat.last_sub_recoil.length(), 0.045 * 890.0 + 0.015 * 1.5 * 890.0, 0.1, "60 N s: projectile + gas momentum")
+	assert_almost_eq(m0 - mech.mass, combat.sub_shots * 0.117, 0.01, "each round's 117 g leaves the mech")
+
+
+func test_sub_arms_swing_to_the_crosshair_not_the_body() -> void:
+	_ground()
+	var combat := _mech(Vector3(0, 3, 0))
+	await physics_frames(240)
+	var body_fwd := -mech.global_transform.basis.z
+	mech.set("look_pitch_deg", 30.0)
+	await physics_frames(120)
+	var dir := combat.sub_direction(0)
+	var pitch := rad_to_deg(asin(clampf(dir.y, -1.0, 1.0)))
+	assert_almost_eq(pitch, 30.0, 3.0, "the left arm points up the look line (%.1f deg)" % pitch)
+	var body_pitch := rad_to_deg(asin(clampf((-mech.global_transform.basis.z).y, -1.0, 1.0)))
+	assert_lt(body_pitch, 20.0, "while the body tilts only as far as its legs allow (%.1f deg)" % body_pitch)
+	assert_gt(dir.angle_to(body_fwd), deg_to_rad(10.0), "the arms, not the body, did the aiming")
+
+
 func test_combat_hud_follows_the_mech() -> void:
 	var combat := _mech(Vector3(0, 3, 0))
 	var hud := CombatHud.new()

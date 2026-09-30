@@ -26,18 +26,23 @@
       "casing": "casing_57mm"
     },
     "mg_12_7": {
-      "label": "12.7 mm heavy machine gun",
+      "label": "12.7 mm heavy machine guns (a pair, one per sub-arm)",
       "kind": "machine_gun",
       "slot": "sub",
-      "mount": "fixed_forward",
+      "mount": "sub_arm",
       "traverse_deg": 0.0,
-      "magazine": 200,
+      "_about": "Lane A3 part 5: both sub-arms fire in turn (cycle_s between rounds of the pair: ~8 rounds/s a gun); magazine is the two 200-round belts together, reserve the spare belts. Each arm aims at the crosshair within the sub-arms' reach (tuning grapple.arm_*) at combat.sub_arm_slew_deg_s. Recoil from projectile + gas; round_kg is a complete 12.7 x 99 round, and the belts' mass rides on the sub-arm parts (tools/build_juggernaut_data.py).",
+      "magazine": 400,
       "reserve": 800,
       "reload_s": 3.0,
-      "cycle_s": 0.1,
-      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.045, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20}},
+      "cycle_s": 0.06,
+      "ammo": {
+        "ball": {"label": "Ball", "projectile_kg": 0.045, "propellant_kg": 0.015, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20, "drag_per_s": 0.15, "tracer_len_m": 4.0, "tracer_w_m": 0.035}
+      },
       "default_ammo": "ball",
-      "recoil_impulse_ns": 60.0
+      "recoil_impulse_ns": 60.0,
+      "gas_speed_factor": 1.5,
+      "round_kg": 0.117
     },
     "wire_anchor": {
       "label": "Wire anchor",
@@ -49,6 +54,7 @@
       "reel_in_m_s": 8.0,
       "pay_out_m_s": 12.0,
       "lower_m_s": 4.0,
+      "winch_accel_m_s2": 3.0,
       "max_tension_n": 120000.0,
       "winch_power_w": 120000.0,
       "cable_break_n": 170000.0,

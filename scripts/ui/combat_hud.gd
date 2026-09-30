@@ -52,6 +52,8 @@ func _draw() -> void:
 	var cam := get_viewport().get_camera_3d()
 	if combat.gun != null:
 		_draw_ammo()
+	if combat.sub_guns != null:
+		_draw_sub_ammo()
 		if cam != null:
 			_draw_range_marks(cam)
 	_draw_damage()
@@ -97,6 +99,27 @@ func _draw_ammo() -> void:
 	if g.reloading():
 		draw_rect(Rect2(bar.position, Vector2(bar.size.x * g.reload_fraction(), bar.size.y)), UiTheme.color("warn"))
 		draw_string(font, Vector2(x, bar.position.y - 6.0), "reloading", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, UiTheme.color("warn"))
+
+
+## The sub-arm guns (lane A3 part 5): rounds left in the two belts, spare rounds, a belt bar and
+## the reload, in a slim panel above the main gun's.
+func _draw_sub_ammo() -> void:
+	var g := combat.sub_guns
+	var font := UiTheme.font("mono")
+	var rect := Rect2(size.x - 360.0, size.y - 170.0 - 54.0, 320.0, 44.0)
+	_panel(rect)
+	var x := rect.position.x + 18.0
+	var y := rect.position.y + 20.0
+	var low := g.magazine < g.magazine_size / 8
+	var reserve := "inf" if g.unlimited else str(g.reserve)
+	draw_string(font, Vector2(x, y), "12.7 mm  %d / %s" % [g.magazine, reserve], HORIZONTAL_ALIGNMENT_LEFT, -1, 15, UiTheme.color("warn") if low else UiTheme.color("text"))
+	var bar := Rect2(x, y + 10.0, rect.size.x - 36.0, 5.0)
+	draw_rect(bar, UiTheme.color("accent_soft"))
+	if g.reloading():
+		draw_rect(Rect2(bar.position, Vector2(bar.size.x * g.reload_fraction(), bar.size.y)), UiTheme.color("warn"))
+		draw_string(font, Vector2(rect.end.x - 18.0 - 90.0, y), "reloading", HORIZONTAL_ALIGNMENT_RIGHT, 90, 13, UiTheme.color("warn"))
+	else:
+		draw_rect(Rect2(bar.position, Vector2(bar.size.x * g.magazine / maxf(g.magazine_size, 1), bar.size.y)), UiTheme.color("accent"))
 
 
 ## Where the loaded round falls below the bore line at each range mark, marked on the screen under

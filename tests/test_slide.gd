@@ -131,6 +131,6 @@ func test_light_squeeze_is_a_light_slide_and_slow_is_a_brake() -> void:
 	assert_lt(v, 4.0, "slow (%.1f m/s)" % v)
 	Input.action_release("move_forward")
 	Input.action_press("brake", 1.0)
-	await physics_frames(40)
+	await physics_frames(60)
 	assert_almost_eq(float(mech.get("slide_amount")), 0.0, 0.001, "below slide speed the trigger brakes")
-	assert_lt(_planar().length(), 0.5, "and stops it within a third of a second")
+	assert_lt(_planar().length(), 0.3, "and stops it within half a second")

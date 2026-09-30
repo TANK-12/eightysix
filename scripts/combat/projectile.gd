@@ -35,15 +35,15 @@ static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionar
 	p.name = "Round"
 	world.add_child(p)
 	p.global_position = from
-	p._build_tracer(float(c.get("tracer_len_m", 9.0)))
+	p._build_tracer(float(round_def.get("tracer_len_m", c.get("tracer_len_m", 9.0))), float(round_def.get("tracer_w_m", 0.07)))
 	p._face()
 	return p
 
 
-func _build_tracer(length: float) -> void:
+func _build_tracer(length: float, width: float = 0.07) -> void:
 	_tracer = MeshInstance3D.new()
 	var box := BoxMesh.new()
-	box.size = Vector3(0.07, 0.07, length)
+	box.size = Vector3(width, width, length)
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.albedo_color = Color(1.0, 0.62, 0.3)

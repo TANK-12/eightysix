@@ -73,7 +73,7 @@ func test_aims_where_you_look_and_bites_only_grapple_surfaces() -> void:
 	assert_false(t.is_empty(), "looking low at the grapple-able rise")
 	if not t.is_empty():
 		assert_lt((t["point"] as Vector3).y, 3.0, "bites the rise, not the slab above: the crosshair decides")
-	var up: Vector3 = combat.anchor._arm_limit(Vector3.UP, Basis.IDENTITY)
+	var up: Vector3 = combat.anchor.arm_limit(Vector3.UP, Basis.IDENTITY)
 	assert_almost_eq(rad_to_deg(up.angle_to(Vector3.UP)), 10.0, 0.5, "straight up is pulled back to the arms' 80 deg")
 
 
@@ -150,15 +150,16 @@ func test_pay_out_while_hanging_lowers_the_mech() -> void:
 	assert_eq(int(mech.get("grounded_legs")), 0, "hanging clear of the ground (y %.1f)" % mech.global_position.y)
 	var y0 := mech.global_position.y
 	var len0 := combat.anchor.rope_len
-	for i in 120:
+	for i in 180:
 		combat.anchor.reel = 1
 		await physics_frames(1)
 	combat.anchor.reel = 0
-	await physics_frames(240)
+	await physics_frames(300)
 	var paid := combat.anchor.rope_len - len0
 	var dropped := y0 - mech.global_position.y
 	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "a controlled lower does not snap the wire")
-	assert_between(paid, 3.0, 5.0, "lowered at about 4 m/s under load (%.1f m in 1 s)" % paid)
+	# 1.5 s held: the drum ramps up at 3 m/s^2 to 4 m/s, then brakes at 3 m/s^2 after letting go: ~6 m.
+	assert_between(paid, 5.0, 7.0, "lowered at up to 4 m/s under load, ramped (%.1f m)" % paid)
 	assert_almost_eq(dropped, paid, 1.0, "abseiled down by about what was paid out (%.1f m for %.1f m)" % [dropped, paid])
 
 

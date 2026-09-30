@@ -2017,7 +2017,7 @@
     "jg2_subarm_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: subarm.L",
-      "mass_kg": 56.0,
+      "mass_kg": 126.2,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -2035,13 +2035,13 @@
       },
       "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
       "empty_kg": 56.0,
-      "load_kg": 0.0,
-      "mass_note": "grapple arm, 25% aluminium + actuator"
+      "load_kg": 70.2,
+      "mass_note": "grapple arm, 25% aluminium + actuator; plus half the mg_12_7 belts (70.2 kg)"
     },
     "jg2_subarm_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: subarm.R",
-      "mass_kg": 56.0,
+      "mass_kg": 126.2,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -2059,8 +2059,8 @@
       },
       "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
       "empty_kg": 56.0,
-      "load_kg": 0.0,
-      "mass_note": "grapple arm, 25% aluminium + actuator"
+      "load_kg": 70.2,
+      "mass_note": "grapple arm, 25% aluminium + actuator; plus half the mg_12_7 belts (70.2 kg)"
     },
     "jg2_visor": {
       "kind": "armour",

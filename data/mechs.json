@@ -509,8 +509,8 @@
           "part": "jg2_int_wiring_hydraulics",
           "at": [
             -3e-05,
-            0.1092,
-            0.27056
+            0.09879,
+            0.22238
           ]
         }
       ],
@@ -823,7 +823,8 @@
       "loadout": {
         "main_gun": "gun_57mm",
         "sub_left": "wire_anchor",
-        "sub_right": "wire_anchor"
+        "sub_right": "wire_anchor",
+        "sub_guns": "mg_12_7"
       },
       "stance": {
         "height_m": 1.4099,

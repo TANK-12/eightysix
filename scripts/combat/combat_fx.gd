@@ -187,12 +187,13 @@ static func flash_light(parent: Node, pos: Vector3, color: Color, energy: float,
 
 
 ## The 57 mm's muzzle blast: a flash cone, a light, a smoke ring and a dust kick.
-static func muzzle(parent: Node, pos: Vector3, dir: Vector3) -> void:
+## `size` scales the flash (1 for the 57 mm, about 0.35 for a 12.7 mm).
+static func muzzle(parent: Node, pos: Vector3, dir: Vector3, size: float = 1.0) -> void:
 	var flash := MeshInstance3D.new()
 	var cone := CylinderMesh.new()
 	cone.top_radius = 0.0
-	cone.bottom_radius = 0.55
-	cone.height = 2.6
+	cone.bottom_radius = 0.55 * size
+	cone.height = 2.6 * size
 	cone.radial_segments = 10
 	cone.rings = 1
 	var mat := StandardMaterial3D.new()
@@ -203,14 +204,16 @@ static func muzzle(parent: Node, pos: Vector3, dir: Vector3) -> void:
 	cone.material = mat
 	flash.mesh = cone
 	parent.add_child(flash)
-	flash.global_position = pos + dir * 1.2
+	flash.global_position = pos + dir * 1.2 * size
 	_orient_up(flash, dir)
 	if flash.is_inside_tree():
 		var tw := flash.create_tween()
 		tw.tween_property(flash, "scale", Vector3(1.6, 0.4, 1.6), 0.07)
 		tw.tween_callback(flash.queue_free)
-	flash_light(parent, pos + dir * 0.8, Color(1.0, 0.72, 0.4), 9.0, 14.0, 0.12)
-	sparks(parent, pos + dir * 0.5, dir, 18, 26.0, 18.0)
+	flash_light(parent, pos + dir * 0.8, Color(1.0, 0.72, 0.4), 9.0 * size, 14.0 * size, 0.12)
+	sparks(parent, pos + dir * 0.5, dir, maxi(int(18 * size), 3), 26.0, 18.0)
+	if size < 0.5:
+		return  # a machine gun's flash: no smoke rings at 16 rounds a second
 	var puff := smoke(parent, pos + dir * 1.0, dir, 14, 1.4, Color(0.72, 0.7, 0.66, 0.55), 1.6, 9.0)
 	puff.spread = 70.0
 	for side: float in [-1.0, 1.0]:

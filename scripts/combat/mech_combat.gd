@@ -20,6 +20,10 @@ signal destroyed
 
 var mech: RigidBody3D
 var gun: WeaponState
+## The sub-arm machine guns (loadout "sub_guns", lane A3 part 5): one ammo state for the pair.
+var sub_guns: WeaponState
+var sub_shots := 0
+var last_sub_recoil := Vector3.ZERO
 var damage: DamageModel
 var anchor: WireAnchor
 var climb: MechClimb
@@ -37,6 +41,8 @@ var _kick := 0.0
 var _skid_sparks: Dictionary = {}  # leg name -> CPUParticles3D
 var _skid_live_s: Dictionary = {}  # leg name -> seconds its skid particles stay alive after stopping
 var _gouge_s := 0.0
+var _sub_side := 0  # which arm fires next: 0 left, 1 right
+var _sub_dir: Array[Vector3] = [Vector3.FORWARD, Vector3.FORWARD]  # each arm's aim, body frame
 
 
 func _ready() -> void:
@@ -48,6 +54,9 @@ func _ready() -> void:
 	var main_id := str(loadout.get("main_gun", ""))
 	if Registry.has_entry("weapons", main_id):
 		gun = WeaponState.new(main_id, Registry.entry("weapons", main_id), Settings.get_s("gameplay.ammo") == "unlimited")
+	var sub_id := str(loadout.get("sub_guns", ""))
+	if Registry.has_entry("weapons", sub_id):
+		sub_guns = WeaponState.new(sub_id, Registry.entry("weapons", sub_id), Settings.get_s("gameplay.ammo") == "unlimited")
 	damage = DamageModel.new(def, Registry.tune("damage", {}))
 	damage.part_lost.connect(_on_part_lost)
 	damage.part_restored.connect(_on_part_restored)
@@ -183,6 +192,12 @@ func _physics_process(delta: float) -> void:
 		reloaded.emit(gun.id)
 		if mech.get("is_player"):
 			Rumble.play("reload_done")
+	if sub_guns != null:
+		if sub_guns.tick(delta):
+			reloaded.emit(sub_guns.id)
+		_slew_sub_arms(delta)
+		if mech.get("is_player") and not Game.is_paused() and Controls.trigger("fire_sub") > 0.5:
+			fire_sub()
 	if mech.get("is_player") and not Game.is_paused() and gun != null:
 		if Controls.trigger("fire_main") > 0.5:
 			fire_main()
@@ -241,6 +256,66 @@ func fire_main() -> bool:
 	fired.emit(gun.id, str(ammo.get("id", "")))
 	if mech.get("is_player"):
 		Rumble.play("fire_main")
+	return true
+
+
+# --- sub-arm machine guns -------------------------------------------------------------------------
+
+
+## Where each sub-arm gun's muzzle is: the sub-arm socket plus the barrel ahead of it.
+func sub_muzzle_local(side: int) -> Vector3:
+	var fallback := Vector3(-0.4 if side == 0 else 0.4, -0.1, -1.7)
+	return _socket("subarm_L" if side == 0 else "subarm_R", fallback) + Vector3(0.0, 0.0, -float(_c.get("sub_barrel_m", 0.6)))
+
+
+## Each arm turns toward the crosshair (the wire anchor's aim point) inside the sub-arms' reach, no
+## faster than combat.sub_arm_slew_deg_s: the arms aim, so the body doesn't have to.
+func _slew_sub_arms(delta: float) -> void:
+	var xf := mech.global_transform
+	var step := deg_to_rad(float(_c.get("sub_arm_slew_deg_s", 120.0))) * delta
+	for side in 2:
+		var from := xf * sub_muzzle_local(side)
+		var want := -xf.basis.z
+		if anchor != null:
+			want = anchor.arm_limit((anchor.aim_point(from, float(sub_guns.def.get("range_m", 1500.0))) - from).normalized(), xf.basis)
+		var local := (xf.basis.inverse() * want).normalized()
+		var have := _sub_dir[side]
+		var angle := have.angle_to(local)
+		_sub_dir[side] = local if angle <= step else have.slerp(local, step / angle).normalized()
+
+
+## The world direction sub-arm `side` points now.
+func sub_direction(side: int) -> Vector3:
+	return (mech.global_transform.basis * _sub_dir[side]).normalized()
+
+
+## One round from the next arm in turn. Recoil at its muzzle is the real projectile + gas impulse
+## (0.045 kg + 0.015 kg of propellant at 890 m/s: 60 N s); the round's mass leaves the mech.
+func fire_sub() -> bool:
+	if sub_guns == null or damage.is_destroyed:
+		return false
+	var ammo := sub_guns.fire()
+	if ammo.is_empty():
+		return false
+	var side := _sub_side
+	_sub_side = 1 - _sub_side
+	var muzzle := mech.global_transform * sub_muzzle_local(side)
+	var dir := sub_direction(side)
+	var skip: Array[RID] = [mech.get_rid()]
+	var hitboxes := mech.get_node_or_null("LegHitboxes") as CollisionObject3D
+	if hitboxes != null:
+		skip.append(hitboxes.get_rid())
+	var scale := Settings.get_f("gameplay.player_damage") if mech.get("is_player") else 1.0
+	Projectile.spawn(mech.get_parent(), muzzle, dir * float(ammo.get("muzzle_m_s", 890.0)) + mech.linear_velocity, ammo, mech, scale, skip)
+	last_sub_recoil = -dir * Ballistics.recoil_impulse(sub_guns.def, ammo)
+	mech.apply_impulse(last_sub_recoil, muzzle - mech.global_position)
+	if not sub_guns.unlimited:
+		mech.mass = maxf(mech.mass - float(sub_guns.def.get("round_kg", 0.0)), 1.0)
+	CombatFx.muzzle(mech.get_parent(), muzzle, dir, 0.35)
+	sub_shots += 1
+	fired.emit(sub_guns.id, str(ammo.get("id", "")))
+	if mech.get("is_player"):
+		Rumble.play("fire_sub")
 	return true
 
 

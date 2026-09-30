@@ -29,6 +29,7 @@ var rope_len := 0.0
 var tension := 0.0
 var reel := 0  # -1 reel in, +1 pay out (a caller's choice: tests and AI)
 var _over_s := 0.0
+var _rope_speed := 0.0  # the drum's cable speed, m/s: + paying out, - reeling in
 var _input_reel := 0  # the player's reel buttons, which win while held
 var _g: Dictionary = {}
 var _dart_pos := Vector3.ZERO
@@ -106,26 +107,30 @@ func preview() -> Dictionary:
 	var xf := mech.global_transform
 	var space := mech.get_world_3d().direct_space_state
 	var from := xf * _mid_socket()
-	var ray := aim_ray()
-	var o: Vector3 = ray[0]
-	var d: Vector3 = (ray[1] as Vector3).normalized()
-	# The crosshair's point: the first thing the aim ray meets (anything solid), or far along it.
-	var reach := range_m() + o.distance_to(from)
-	var q := PhysicsRayQueryParameters3D.create(o, o + d * reach, 1 | SURFACE_MASK, [mech.get_rid()])
-	var hit := space.intersect_ray(q)
-	var aim_point: Vector3 = hit["position"] if not hit.is_empty() else o + d * reach
-	aim_point = _assist(from, aim_point, space)
-	var want := (aim_point - from).normalized()
-	var dir := _arm_limit(want, xf.basis)
+	var aim := _assist(from, aim_point(from, range_m()), space)
+	var want := (aim - from).normalized()
+	var dir := arm_limit(want, xf.basis)
 	var clamped := dir.angle_to(want) > 0.01
-	q = PhysicsRayQueryParameters3D.create(from, from + dir * range_m(), 1 | SURFACE_MASK, [mech.get_rid()])
-	hit = space.intersect_ray(q)
+	var q := PhysicsRayQueryParameters3D.create(from, from + dir * range_m(), 1 | SURFACE_MASK, [mech.get_rid()])
+	var hit := space.intersect_ray(q)
 	if hit.is_empty():
 		return {"state": "range", "point": from + dir * range_m(), "socket": _socket_towards(from + dir * range_m()), "clamped": clamped}
 	var p: Vector3 = hit["position"]
 	var body := hit["collider"] as CollisionObject3D
 	var ok := body != null and (body.collision_layer & SURFACE_MASK) != 0
 	return {"state": "ok" if ok else "surface", "point": p, "normal": hit["normal"], "socket": _socket_towards(p), "clamped": clamped}
+
+
+## The crosshair's point: the first solid thing the aim ray meets within `reach` of `from` (plus the
+## camera's distance), or that far along the ray. The sub-arm guns aim at it too.
+func aim_point(from: Vector3, reach: float) -> Vector3:
+	var ray := aim_ray()
+	var o: Vector3 = ray[0]
+	var d: Vector3 = (ray[1] as Vector3).normalized()
+	var far := reach + o.distance_to(from)
+	var q := PhysicsRayQueryParameters3D.create(o, o + d * far, 1 | 2 | SURFACE_MASK, [mech.get_rid()])
+	var hit := mech.get_world_3d().direct_space_state.intersect_ray(q)
+	return hit["position"] if not hit.is_empty() else o + d * far
 
 
 ## The grapple surface a shot would bite now ({"point", "normal", "socket"}), or {}.
@@ -136,7 +141,7 @@ func find_target() -> Dictionary:
 
 ## The sub-arms elevate from grapple.arm_pitch_min_deg to arm_pitch_max_deg and swing
 ## arm_yaw_deg either side of the heading; a direction past that is pulled back inside.
-func _arm_limit(dir: Vector3, basis: Basis) -> Vector3:
+func arm_limit(dir: Vector3, basis: Basis) -> Vector3:
 	var local := basis.inverse() * dir
 	var yaw := atan2(-local.x, -local.z)
 	var pitch := asin(clampf(local.y, -1.0, 1.0))
@@ -211,6 +216,7 @@ func release() -> void:
 		return
 	state = State.IDLE
 	tension = 0.0
+	_rope_speed = 0.0
 	reel = 0
 	_input_reel = 0
 	_over_s = 0.0
@@ -265,16 +271,26 @@ func _pull(delta: float) -> void:
 	# The winch stalls at max tension instead of reeling on (it cannot out-pull its own motor), and
 	# under load it reels no faster than its power allows: 120 kW lifts the 5.4 t mech at about 2 m/s.
 	var cap := float(def.get("max_tension_n", 120000.0))
+	var want_speed := 0.0  # cable speed the winch is asked for: + pays out, - reels in
 	if r < 0 and tension < cap * 0.98:
-		var speed := minf(float(def.get("reel_in_m_s", 8.0)), float(def.get("winch_power_w", 120000.0)) / maxf(tension, 1.0))
-		rope_len = maxf(rope_len - speed * delta, float(_g.get("min_len_m", 3.0)))
+		want_speed = -minf(float(def.get("reel_in_m_s", 8.0)), float(def.get("winch_power_w", 120000.0)) / maxf(tension, 1.0))
 	elif r > 0:
 		# Free-spooling while the mech hangs on the cable would drop it and the catch would snap the
 		# wire (3 m of fall is ~380 kN on this cable), so off the ground the winch lowers at lower_m_s,
 		# a controlled abseil; on its feet the mech's weight is not on the cable and it free-spools.
-		var hanging := int(mech.get("grounded_legs")) == 0
-		var out := float(def.get("lower_m_s", 4.0)) if hanging else float(def.get("pay_out_m_s", 12.0))
-		rope_len = minf(rope_len + out * delta, range_m())
+		var off_ground := int(mech.get("grounded_legs")) == 0
+		want_speed = float(def.get("lower_m_s", 4.0)) if off_ground else float(def.get("pay_out_m_s", 12.0))
+	# The drum speeds up and brakes at winch_accel_m_s2: stopping a 4 m/s abseil dead would jerk the
+	# 5.6 t mech to a stop on the cable (~235 kN, past its 170 kN), a ramped stop takes ~70 kN.
+	# Reeling in under load already follows the power limit, so only the ramp from rest applies there;
+	# on its feet (the cable carries no weight) the drum starts and stops at once.
+	var hanging := int(mech.get("grounded_legs")) == 0
+	var ramp := float(def.get("winch_accel_m_s2", 3.0)) * delta if hanging else INF
+	if want_speed < 0.0 and _rope_speed <= 0.0:
+		_rope_speed = maxf(_rope_speed - ramp, want_speed) if _rope_speed > want_speed else want_speed
+	else:
+		_rope_speed = move_toward(_rope_speed, want_speed, ramp)
+	rope_len = clampf(rope_len + _rope_speed * delta, float(_g.get("min_len_m", 3.0)), range_m())
 	var stretch := dist - rope_len
 	if stretch <= 0.0 or dist < 0.01:
 		tension = 0.0
