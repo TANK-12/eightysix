@@ -17,6 +17,7 @@ var preset := ""
 var window_size := Vector2i(1920, 1080)
 var steps: Array = []
 var report: Dictionary = {}
+var _meter: MoveMeter
 
 var _clock := -1.0
 var _next := 0
@@ -170,6 +171,16 @@ func _run_step(step: Dictionary) -> void:
 			_waiting_level = true
 			_waited_s = 0.0
 			Game.level_ready.connect(_on_waited_level, CONNECT_ONE_SHOT)
+	elif step.has("meter"):
+		# {"meter": "start"}: lane A3's MoveMeter rides the player mech; its numbers go in the report
+		# and in logs/score_move.json at quit (tools/scoreboard.py reads that file).
+		var mech := get_tree().get_first_node_in_group("player_mech") as RigidBody3D
+		if mech == null:
+			_errors.append("no player mech to meter")
+		else:
+			_meter = MoveMeter.new()
+			mech.add_child(_meter)
+			_meter.watch(mech)
 	elif step.has("quit"):
 		_finish()
 
@@ -334,6 +345,12 @@ func _finish() -> void:
 	report["finished"] = Time.get_datetime_string_from_system()
 	report["render_scale"] = get_tree().root.scaling_3d_scale
 	report["preset_used"] = Settings.get_s("graphics.preset")
+	if _meter != null and is_instance_valid(_meter):
+		report["move"] = _meter.results()
+		var m := FileAccess.open("res://logs/score_move.json", FileAccess.WRITE)
+		if m != null:
+			m.store_string(JSON.stringify(report["move"], "  "))
+			m.close()
 	var f := FileAccess.open(out_dir.path_join("report.json"), FileAccess.WRITE)
 	if f != null:
 		f.store_string(JSON.stringify(report, "  "))

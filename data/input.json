@@ -36,7 +36,7 @@
       "standard": {"keys": [], "pad": ["joy:right_y+"]}},
     "sprint": {"label": "Run", "group": "Movement", "context": ["field"],
       "standard": {"keys": ["key:Shift"], "pad": ["joy:l3"]}},
-    "brake": {"label": "Brake / break traction (skid)", "group": "Movement", "context": ["field"], "analog": true,
+    "brake": {"label": "Slide / brake when slow", "group": "Movement", "context": ["field"], "analog": true,
       "standard": {"keys": ["key:Ctrl"], "pad": ["joy:l2"]}},
     "jump": {"label": "Jump (hold to charge)", "group": "Movement", "context": ["field"],
       "standard": {"keys": ["key:Space"], "pad": ["joy:cross"]},

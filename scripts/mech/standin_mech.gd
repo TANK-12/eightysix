@@ -23,6 +23,9 @@ var is_player := true
 var grounded_legs := 0
 var airborne := false
 var skidding := false
+## How far the feet's grip is broken into a slide, 0 (full grip) to 1 (skating on kinetic friction):
+## the slide trigger's depth at speed (lane A3 part 4, see _update_slide).
+var slide_amount := 0.0
 var charging := false
 var charge_s := 0.0
 var crouch := 0.0
@@ -41,7 +44,6 @@ var hauling := false
 var _aim_yaw := 0.0
 var _crouch_toggled := false
 var _no_spring_s := 0.0
-var _skid_hold := 0.0
 var _air_s := 0.0
 var _fall_speed := 0.0
 var _jump_was_held := false
@@ -380,13 +382,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var gather_rear := run_dir * float(fdef.get("gather_rear_m", 0.0))
 	var gather_front := -run_dir * float(fdef.get("gather_front_m", 0.0))
 	var load_margin := float(sus.get("load_margin_m", 0.05))
+	# Crouching compresses the legs, but never so far that the belly meets the ground (lane A3 part 4:
+	# the full crouch and the jump charge sat the pod on the dirt, the springs unloaded and it slid on
+	# its belly; Emerson's "scraping the bottom"). suspension.max_drop_m caps crouch + run drop.
+	var crouch_drop := crouch * float(sus.get("crouch_fraction", 0.45)) * float(legs[0]["rest_len"]) if legs.size() > 0 else 0.0
+	crouch_drop = clampf(crouch_drop, 0.0, maxf(float(sus.get("max_drop_m", INF)) - run_drop, 0.0))
 	grounded_legs = 0
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
 		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
 		var cast_w := xf * (leg["spring_at"] as Vector3) + out_w
 		_cast_sole(leg, space, xf, out_w + lead + (gather_front if leg["front"] else gather_rear), margin)
-		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45))) - run_drop
+		var rest := float(leg["rest_len"]) - crouch_drop - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
 		var hit := space.intersect_ray(query)
@@ -421,6 +428,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		airborne = false
 		_air_s = 0.0
 		_stuck_s = 0.0
+		_update_slide(v, dt)
 		_drive(state, v)
 		_turn(state, xf.basis, w, dt)
 		_steady(state, w, 0.0)
@@ -435,6 +443,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		else:
 			_aim_yaw = _yaw_of(xf.basis)
 		skidding = false
+		slide_amount = 0.0
 		# Fewer than 2 legs grounded normally means "mid-jump, no assist" by design (a bad landing
 		# angle should punish you). But a real jump keeps moving; a mech that has stayed almost still
 		# without regaining ground for a while is not falling, it is tipped over or wedged on terrain
@@ -614,6 +623,33 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	state.apply_torque(accel * inertia.x)
 
 
+## The slide (lane A3 part 4, Emerson: "a slide button that is somehow directional... the momentum
+## fights it a bit"; "L2 depth sets how much grip breaks"). Above skid.min_speed_m_s the slide trigger
+## (Ctrl / L2, analog) breaks the feet's grip by its depth: a light squeeze drifts, a full pull skates
+## on kinetic friction. Below that speed the same trigger is the brake. Let go and the legs catch the
+## body over skid.recover_s.
+func _update_slide(v: Vector3, dt: float) -> void:
+	var sk: Dictionary = _t.get("skid", {})
+	var speed := Vector3(v.x, 0.0, v.z).length()
+	var want := 0.0
+	if _brake > 0.05 and speed > 1.0 and (slide_amount > 0.0 or speed > float(sk.get("min_speed_m_s", 4.0))):
+		want = _brake
+	var rate := 8.0 if want > slide_amount else 1.0 / maxf(float(sk.get("recover_s", 0.35)), 0.01)
+	slide_amount = move_toward(slide_amount, want, rate * dt)
+	var was := skidding
+	skidding = slide_amount > 0.3
+	if is_player and skidding != was:
+		if skidding:
+			Rumble.play("skid")
+		else:
+			Rumble.stop("skid")
+
+
+## The legs' drive: toward the stick's speed, limited by the feet's grip and by the drive's peak power
+## (drive.peak_power_w: speeding up at v takes F v; 600 kW gives 0-50 km/h in about 1.3 s on 5.4 t).
+## Sliding, it blends (by the trigger's depth) into kinetic friction (Settings "Slide friction",
+## mu x g) whose direction the stick's sideways part tilts: the path bends toward the stick at the
+## cost of drag, so momentum fights it; with no sideways stick it just drags the slide down.
 func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	var d: Dictionary = _t.get("drive", {})
 	var n := ground_normal
@@ -631,17 +667,43 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 		side = minf(side, _bench_speed_cap)
 	var target := fwd * (_move.y * (top if _move.y >= 0.0 else back)) + right * (_move.x * side)
 	var planar := v - n * v.dot(n)
+	var speed := planar.length()
 	var dv := target - planar
 	var limit := float(d.get("accel_m_s2", 9.0))
-	if _brake > 0.05:
+	var power := float(d.get("peak_power_w", 0.0))
+	var gaining := planar.dot(dv)
+	if power > 0.0 and gaining > 0.0 and speed > 0.5:
+		limit = minf(limit, power / (mass * speed))
+	var grip := float(d.get("grip_m_s2", 16.0)) * grounded_legs / maxf(legs.size(), 1)
+	if slide_amount <= 0.0 and _brake > 0.05:
 		dv = -planar
 		limit = float(d.get("brake_m_s2", 20.0)) * _brake
-	var sk: Dictionary = _t.get("skid", {})
-	var grip := float(d.get("grip_m_s2", 16.0)) * grounded_legs / maxf(legs.size(), 1)
-	if skidding:
-		grip *= float(sk.get("grip_factor", 0.3))
 	var acc := (dv * 6.0).limit_length(minf(limit, grip))
+	if slide_amount > 0.0 and speed > 0.1:
+		# Skating feet: the ground force is kinetic friction, mu x g, always there. The legs can only
+		# tilt it: the stick's sideways part (against the path) bends the path that way, at the
+		# cost of drag; straight ahead or none, it is all drag.
+		var skate := slide_friction() * 9.81 * grounded_legs / maxf(legs.size(), 1)
+		var v_dir := planar / speed
+		var push := fwd * _move.y + right * _move.x
+		var lat := push - v_dir * push.dot(v_dir)
+		var u := (-v_dir + lat * float(_t.get("skid", {}).get("bend", 1.2))).normalized()
+		acc = acc.lerp(u * minf(skate, speed * 6.0), slide_amount)
 	state.apply_central_force(acc * mass)
+
+
+## The feet's mean horizontal reach from the centre of mass (the lever the slide's friction spins on).
+func _feet_reach() -> float:
+	var r := 0.0
+	for leg: Dictionary in legs:
+		var d := (leg["sole_stance"] as Vector3) - center_of_mass
+		r += Vector2(d.x, d.z).length()
+	return r / maxf(legs.size(), 1)
+
+
+## Kinetic friction of the feet skating on the ground (mu; Settings > Gameplay > Movement).
+func slide_friction() -> float:
+	return Settings.get_f("gameplay.slide_friction") if is_player else float(_t.get("skid", {}).get("friction", 0.4))
 
 
 func _turn(state: PhysicsDirectBodyState3D, basis: Basis, w: Vector3, dt: float) -> void:
@@ -649,31 +711,26 @@ func _turn(state: PhysicsDirectBodyState3D, basis: Basis, w: Vector3, dt: float)
 	var aim_cfg: Variant = Registry.tune("aim", {})
 	var turn_input := _aim.x
 	var yaw := _yaw_of(basis)
-	_aim_yaw -= deg_to_rad(float(tt.get("rate_deg_s", 90.0))) * turn_input * dt
+	var rate := float(tt.get("run_rate_deg_s", 70.0)) if running else float(tt.get("rate_deg_s", 95.0))
+	var stick_rate := float(tt.get("rate_deg_s", 90.0))
+	var accel := float(tt.get("accel_deg_s2", 420.0))
+	# Sliding, the body turns only as the pilot asks (right stick / mouse), up to the slide turn rate
+	# at a full slide: pure sideways drift with no turn input, a fast pivot at full deflection.
+	if slide_amount > 0.0:
+		var slide_rate := Settings.get_f("gameplay.slide_turn_deg_s") if is_player else float(tt.get("skid_rate_deg_s", 200.0))
+		rate = lerpf(rate, slide_rate, slide_amount)
+		stick_rate = lerpf(stick_rate, slide_rate, slide_amount)
+		# The spin comes from the skating feet's friction: at most mu m g r about the centre of mass
+		# (r = the feet's mean reach), about 220 deg/s^2 at mu 0.4 on the Juggernaut.
+		var spin := rad_to_deg(slide_friction() * 9.81 * _feet_reach() * mass / maxf(inertia.y, 1.0))
+		accel = lerpf(accel, spin, slide_amount)
+	_aim_yaw -= deg_to_rad(stick_rate) * turn_input * dt
 	_aim_yaw -= deg_to_rad(float((aim_cfg as Dictionary).get("mouse_turn_deg_per_px", 0.09))) * _mouse.x
 	var diff := wrapf(_aim_yaw - yaw, -PI, PI)
 	var lead := deg_to_rad(75.0)
 	if absf(diff) > lead:
 		_aim_yaw = yaw + clampf(diff, -lead, lead)
 		diff = clampf(diff, -lead, lead)
-	var sk: Dictionary = _t.get("skid", {})
-	var speed := state.linear_velocity.length()
-	var hard_turn := absf(turn_input) > 0.5 or absf(diff) > deg_to_rad(25.0)
-	if _brake > 0.5 and hard_turn and speed > float(sk.get("min_speed_m_s", 4.0)):
-		if not skidding and is_player:
-			Rumble.play("skid")
-		skidding = true
-		_skid_hold = float(sk.get("recover_s", 0.35))
-	elif skidding:
-		_skid_hold -= dt
-		if _skid_hold <= 0.0 or speed < 1.0:
-			skidding = false
-			Rumble.stop("skid")
-	var rate := float(tt.get("run_rate_deg_s", 70.0)) if running else float(tt.get("rate_deg_s", 95.0))
-	var accel := float(tt.get("accel_deg_s2", 420.0))
-	if skidding:
-		rate = float(tt.get("skid_rate_deg_s", 260.0))
-		accel = float(tt.get("skid_accel_deg_s2", 1400.0))
 	var n := ground_normal
 	var want := clampf(diff * 6.0, -deg_to_rad(rate), deg_to_rad(rate))
 	var have := w.dot(n)
@@ -919,6 +976,7 @@ func telemetry() -> Dictionary:
 		"feet_on_ground": soles,
 		"airborne": airborne,
 		"skidding": skidding,
+		"slide": snappedf(slide_amount, 0.01),
 		"charging": charging,
 		"crouch": snappedf(crouch, 0.01),
 		"hip_clearance_m": snappedf(clearance / maxf(n, 1), 0.01),

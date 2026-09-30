@@ -193,8 +193,12 @@
             {"key": "gameplay.physics_mode", "label": "Physics mode", "type": "choice", "options": [["game", "Game (anime motors)"], ["bench", "Test bench (real actuators)"]], "default": "game", "help": "Game mode uses strong magic motors. Test bench uses real electric actuator limits: slow, power-hungry and hot. Lane B6 builds the full test bench."},
             {"key": "gameplay.upright_assist", "label": "Balance assist", "type": "toggle", "default": true, "help": "A gentle helper that keeps the chassis level. Off is harder."},
             {"key": "gameplay.aim_tilt", "label": "Body tilts to aim", "type": "toggle", "default": true, "help": "Up and down on the mouse or right stick leans the whole chassis on its legs (and pitches it in the air) to aim the fixed gun. Off keeps everything level."},
-            {"key": "gameplay.air_control", "label": "Air control", "type": "toggle", "default": true, "help": "In the air the move stick pushes the mech and the mouse or right stick swings the chassis to aim. Off makes every jump a pure ballistic arc."},
+            {"key": "gameplay.air_control", "label": "Leg-swing turning in the air", "type": "toggle", "default": true, "help": "In the air the legs swing and tuck to turn the body toward your aim, the way a cat turns as it falls: real physics, so it is slow (4 to 6 degrees a second). Nothing pushes you in flight: steer with the main gun's recoil and the wire anchor. Off keeps the legs still."},
             {"key": "gameplay.gun_idle_raise", "label": "Gun rests raised when parked", "type": "toggle", "default": false, "help": "The main gun lifts while standing still and levels when moving. Off keeps it fixed to the body."}
+          ]},
+          {"label": "Movement", "items": [
+            {"key": "gameplay.slide_friction", "label": "Slide friction", "type": "slider", "min": 0.15, "max": 0.8, "step": 0.05, "format": "float", "default": 0.4, "help": "How hard the feet grip while sliding (steel on dirt is about 0.4). Lower slides longer and turns the path less; higher bites harder and stops sooner."},
+            {"key": "gameplay.slide_turn_deg_s", "label": "Slide turn rate", "type": "slider", "min": 60.0, "max": 360.0, "step": 10.0, "format": "deg", "default": 200.0, "help": "How fast the body can spin round in a full slide, at full turn input. Less input turns less: none at all is a pure sideways drift."}
           ]}
         ]},
         {"id": "mech", "label": "Juggernaut", "groups": [

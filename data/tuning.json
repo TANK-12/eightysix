@@ -58,11 +58,12 @@
       "rate_deg_s": 95.0,
       "run_rate_deg_s": 70.0,
       "accel_deg_s2": 420.0,
-      "skid_rate_deg_s": 260.0,
-      "skid_accel_deg_s2": 1400.0
+      "skid_rate_deg_s": 200.0
     },
     "skid": {
-      "grip_factor": 0.3,
+      "_about": "The slide (lane A3 part 4): above min_speed_m_s the slide trigger breaks grip by its depth; friction is the feet's kinetic friction for non-player mechs (the player's is Settings > Slide friction); grip returns over recover_s after letting go.",
+      "friction": 0.4,
+      "bend": 1.2,
       "min_speed_m_s": 4.0,
       "recover_s": 0.35,
       "brace_out_m": 0.0
@@ -113,13 +114,31 @@
       "transition_deg_s": 70.0
     },
     "run_stance": {
+      "_about": "Lane A3 part 4: drop 0.28 m and -6 deg together lowered the front 0.46 m, exactly the belly's clearance, so the pod dragged at every gallop (Emerson's 'scraping'). Now 0.12 m and -2.5 deg: still low and level, 0.25 m left under the front.",
       "splay_m": 0.7,
-      "drop_m": 0.28,
-      "pitch_deg": -6.0,
+      "drop_m": 0.12,
+      "pitch_deg": -2.5,
       "transition_s": 0.4
     },
     "skid": {
       "brace_out_m": 0.6
+    },
+    "suspension": {
+      "_about": "Lane A3 part 4: the belly sits 0.46 m above flat ground at rest (measured on the chassis colliders); crouch + run-stance drop together stop at max_drop_m so 0.15 m stays under it.",
+      "max_drop_m": 0.31
+    },
+    "feet": {
+      "_about": "Lane A3 part 4, the 70 km/h gallop: with the run splay a front foot reaches only ~0.8 m ahead of its rest spot but ~3.7 m behind it (rears the mirror), so at speed each stride is centred in the leg's real range (rears gathered 1.5 m forward, fronts 1.2 m back) and may reach 1.7 m either side of that, leaving ~0.3 m for a step that waits on its partner: at 19.5 m/s the swing is 0.174 s.",
+      "gather_rear_m": 1.5,
+      "gather_front_m": 1.2,
+      "stride_half_max_m": 1.7
+    },
+    "drive": {
+      "_about": "Lane A3 part 4 (Emerson: 'I don't like how slow it is'): gallop ~70 km/h (run_m_s 19.5), walk 9 m/s; acceleration up to accel_m_s2 but never more than the legs' peak drive power (peak_power_w 600 kW, a power pack a 350 kg battery can feed in bursts), so 0-50 km/h takes about 1.3 s.",
+      "walk_m_s": 9.0,
+      "run_m_s": 19.5,
+      "accel_m_s2": 12.0,
+      "peak_power_w": 600000.0
     },
     "jump": {
       "_about": "Lane A2 part 5, Emerson: the game-mode jump should be way better and more game-like (bench mode stays the physics test). Higher launch, a forward leap along the stick scaled by charge (the heavier fall went in lane A3 part 4: gravity only in flight), and a short grace time after leaving the ground so a jump released mid-stride still fires.",
