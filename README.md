@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 148 passed, 0 failed (2026-10-01, after photo mode). After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 148 passed, 0 failed (2026-10-01, after lane B4's sound). `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -37,6 +37,23 @@ The "Current state" section may be updated in place, but only to keep it true; t
   both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`. **Photo mode** (P, or pause >
   Photo mode): time freezes, HUD hides, orbit camera, F12 saves to `~/Pictures/Eighty Six/`
   (`tools/bot_run.sh photo_check`; results/A4.md).
+- **Look and sound (lane B4 part 1, 2026-10-01).** The grain was FSR 1's sharpening (Settings > Graphics >
+  Sharpening, 0 % by default). SSAO is off on Medium and High (7-10 ms, no visible difference on these maps). Ashen
+  valley opens on the "golden afternoon" weather with valley height fog and a film grade (`weather.json` "grade",
+  `scripts/world/film_grade.gd`). The Juggernaut wears worn paint (`data/finishes.json`, Settings > Gameplay >
+  Mech finish). Shrubs are leaf clusters on stems, the rim has peaks, spurs and road passes, far hills stand
+  beyond the edge (`scripts/world/backdrop.gd`), the town has 21 ruins along its street with rubble where walls
+  fell. **Sound:** `Sfx` autoload (`scripts/audio/sfx.gd`) plays `data/sounds.json` entries in 3D, gunfire and
+  far impacts arrive at the speed of sound, sounds behind hills and walls are muffled, fast guns share a few
+  voices; every mech gets `MechSounds` (footsteps by surface, landing, servos, skid, winch, gun, casing) from its
+  existing signals; the reverb follows the zone you are in (town vs valley). The 24 sounds are synthesized from
+  recipes (`tools/audio/recipes.json`, `tools/audio/synth.py`) and levelled by real loudness. Review page:
+  `tools/audio/review_page.py --serve` (http://127.0.0.1:8687/), then `tools/audio/promote.py`. Mix check:
+  `tools/bot_run.sh b4_sound_check` then `tools/audio/sound_check.py` (records the game's own sound). Scoreboard:
+  `tools/scoreboard.py`. Detail: `~/Forge/sessions/juggernaut-alpha/results/B4.md`.
+- Frame rates on **Ashen valley** (lane B4, 1920x1080, off screen, no Blender, no other Godot): Low 86 / 75, Medium
+  52 / 49, High 30 / 29 fps (start viewpoint standing / walking), before High dropped SSAO; the town street 49 fps
+  on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
@@ -350,3 +367,13 @@ of the hip, overreaching feet step at once, lifted feet travel with the body). W
 Commit `fffa417`. `scripts/camera/photo_mode.gd`, `Game.open_photo()/close_photo()`, the Photo mode key (P) and
 pause-menu button, bot `goto photo/game`. 148 passed, 0 failed; `images/155-photo_check`. Hangar and menu showcase
 still to do (A4).
+
+### 2026-10-01 · lane B4 · Tetsu (ejb-f5) · part 1: look pass, then sound
+Grain found and removed (FSR 1 sharpening; measured 26 -> 12 fine-detail noise), SSAO off on Medium/High, golden
+light with height fog and a film grade, worn-paint finishes, leaf-cluster shrubs, a rim of mountains with road
+passes and far hills, 9 more ruins with rubble, grime on brick. Medium at the start view 37 -> 50 fps. Sound: a
+synthesized library, `Sfx` and `MechSounds`, speed-of-sound delay, occlusion, voice caps, listener-zone reverb, a
+review page and an in-game mix check (PASS: a 57 mm shot 23 dB over the median). Mistakes found by checks and fixed:
+a reverb echo from circular FFT filtering, Area3D reverb sends that cut every sound 6-14 dB, all sounds equally loud
+from peak normalising. Not done: music (see results/B4.md), Legion sounds hooked to A4's enemies, rumble by feel.
+
