@@ -1,0 +1,193 @@
+{
+  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds.",
+  "entries": {
+    "overcast_morning": {
+      "label": "Overcast morning",
+      "order": 1,
+      "sun_elevation_deg": 24.0,
+      "sun_azimuth_deg": 118.0,
+      "sun_energy": 1.35,
+      "sun_colour": [
+        1.0,
+        0.9,
+        0.78
+      ],
+      "sky_top": [
+        0.25,
+        0.34,
+        0.46
+      ],
+      "sky_horizon": [
+        0.66,
+        0.66,
+        0.64
+      ],
+      "ground_colour": [
+        0.2,
+        0.19,
+        0.17
+      ],
+      "cloud_coverage": 0.58,
+      "cloud_lit": [
+        1.0,
+        0.95,
+        0.88
+      ],
+      "cloud_shade": [
+        0.42,
+        0.45,
+        0.5
+      ],
+      "fog_colour": [
+        0.6,
+        0.63,
+        0.66
+      ],
+      "fog_density": 0.00045,
+      "volumetric_density": 0.0035,
+      "ambient_energy": 0.85,
+      "exposure": 1.0
+    },
+    "clear_noon": {
+      "label": "Clear noon",
+      "order": 2,
+      "sun_elevation_deg": 58.0,
+      "sun_azimuth_deg": 165.0,
+      "sun_energy": 1.7,
+      "sun_colour": [
+        1.0,
+        0.97,
+        0.92
+      ],
+      "sky_top": [
+        0.16,
+        0.32,
+        0.58
+      ],
+      "sky_horizon": [
+        0.62,
+        0.7,
+        0.78
+      ],
+      "ground_colour": [
+        0.22,
+        0.2,
+        0.17
+      ],
+      "cloud_coverage": 0.3,
+      "cloud_lit": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "cloud_shade": [
+        0.55,
+        0.6,
+        0.68
+      ],
+      "fog_colour": [
+        0.66,
+        0.72,
+        0.8
+      ],
+      "fog_density": 0.00025,
+      "volumetric_density": 0.0015,
+      "ambient_energy": 0.9,
+      "exposure": 0.95
+    },
+    "dusk_haze": {
+      "label": "Dusk haze",
+      "order": 3,
+      "sun_elevation_deg": 7.0,
+      "sun_azimuth_deg": 262.0,
+      "sun_energy": 1.5,
+      "sun_colour": [
+        1.0,
+        0.62,
+        0.36
+      ],
+      "sky_top": [
+        0.15,
+        0.19,
+        0.3
+      ],
+      "sky_horizon": [
+        0.86,
+        0.56,
+        0.38
+      ],
+      "ground_colour": [
+        0.14,
+        0.11,
+        0.1
+      ],
+      "cloud_coverage": 0.45,
+      "cloud_lit": [
+        1.0,
+        0.66,
+        0.44
+      ],
+      "cloud_shade": [
+        0.3,
+        0.26,
+        0.32
+      ],
+      "fog_colour": [
+        0.62,
+        0.48,
+        0.4
+      ],
+      "fog_density": 0.0007,
+      "volumetric_density": 0.005,
+      "ambient_energy": 0.7,
+      "exposure": 1.1
+    },
+    "storm_grey": {
+      "label": "Storm grey",
+      "order": 4,
+      "sun_elevation_deg": 34.0,
+      "sun_azimuth_deg": 200.0,
+      "sun_energy": 0.6,
+      "sun_colour": [
+        0.86,
+        0.9,
+        0.96
+      ],
+      "sky_top": [
+        0.3,
+        0.33,
+        0.36
+      ],
+      "sky_horizon": [
+        0.5,
+        0.52,
+        0.54
+      ],
+      "ground_colour": [
+        0.16,
+        0.16,
+        0.16
+      ],
+      "cloud_coverage": 0.9,
+      "cloud_lit": [
+        0.7,
+        0.72,
+        0.75
+      ],
+      "cloud_shade": [
+        0.28,
+        0.3,
+        0.33
+      ],
+      "fog_colour": [
+        0.46,
+        0.48,
+        0.5
+      ],
+      "fog_density": 0.0012,
+      "volumetric_density": 0.007,
+      "ambient_energy": 1.0,
+      "exposure": 1.15
+    }
+  }
+}

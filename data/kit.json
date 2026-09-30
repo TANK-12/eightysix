@@ -1,0 +1,118 @@
+{
+  "_about": "The asset kit (lane B3): pieces used on every map. One entry per piece; the builder named in \"builder\" (scripts/world/kit/kit.gd) makes its mesh, collision and anchors from the numbers here, so a new rock, wall or ruin is one entry. \"collision\": convex (hull of the mesh), boxes (one box per break piece), none. \"climb\": the legs can grip it. \"grapple\": wire anchors hold on it (physics layer 7, grapple_surface). \"break\": built from separate pieces that Kit.break_apart() turns into loose debris (for lane B5). Materials are in the \"materials\" block; their texture sets are CC0 from ambientCG (see assets/SOURCES.md).",
+  "materials": {
+    "rock": {"textures": "rock", "triplanar": true, "scale_m": 3.2, "tint": [0.86, 0.84, 0.8], "roughness": 0.92},
+    "rock_dark": {"textures": "rock", "triplanar": true, "scale_m": 4.0, "tint": [0.62, 0.6, 0.57], "roughness": 0.95},
+    "concrete": {"textures": "concrete", "triplanar": true, "scale_m": 2.6, "tint": [0.92, 0.9, 0.86], "roughness": 0.9},
+    "brick": {"textures": "brick_ruin", "triplanar": true, "scale_m": 2.2, "tint": [0.95, 0.92, 0.9], "roughness": 0.9},
+    "brass": {"albedo": [0.78, 0.6, 0.3], "metallic": 1.0, "roughness": 0.32},
+    "brass_spent": {"albedo": [0.55, 0.42, 0.24], "metallic": 1.0, "roughness": 0.55},
+    "shell_steel": {"albedo": [0.2, 0.21, 0.19], "metallic": 0.7, "roughness": 0.45},
+    "copper_band": {"albedo": [0.72, 0.4, 0.26], "metallic": 1.0, "roughness": 0.35},
+    "steel_rust": {"albedo": [0.3, 0.2, 0.15], "metallic": 0.55, "roughness": 0.78},
+    "steel_paint": {"albedo": [0.36, 0.38, 0.35], "metallic": 0.4, "roughness": 0.6},
+    "foliage": {"shader": "foliage", "colour_a": [0.2, 0.26, 0.12], "colour_b": [0.34, 0.36, 0.18]},
+    "grass": {"shader": "grass", "colour_a": [0.16, 0.2, 0.09], "colour_b": [0.52, 0.5, 0.28]}
+  },
+  "entries": {
+    "boulder": {
+      "label": "Boulder", "kind": "rock", "builder": "rock", "material": "rock",
+      "size_m": [0.8, 4.2], "squash": [0.5, 0.85], "detail": 2, "roughness": 0.34,
+      "collision": "convex", "climb": false, "grapple": true, "order": 10
+    },
+    "outcrop": {
+      "label": "Rock outcrop", "kind": "rock", "builder": "rock", "material": "rock_dark",
+      "size_m": [9.0, 22.0], "squash": [0.55, 0.9], "detail": 3, "roughness": 0.42, "sink": 0.28,
+      "collision": "convex", "climb": true, "grapple": true, "anchors": "top", "order": 11
+    },
+    "pebbles": {
+      "label": "Loose stones", "kind": "rock", "builder": "rock", "material": "rock",
+      "size_m": [0.25, 0.7], "squash": [0.45, 0.7], "detail": 1, "roughness": 0.3,
+      "collision": "none", "climb": false, "grapple": false, "order": 12
+    },
+    "shrub": {
+      "label": "Shrub", "kind": "plant", "builder": "shrub", "material": "foliage",
+      "size_m": [0.8, 2.4], "blobs": [5, 9], "collision": "none", "order": 20
+    },
+    "grass": {
+      "label": "Grass clump", "kind": "plant", "builder": "grass", "material": "grass",
+      "size_m": [0.35, 0.8], "blades": 12, "collision": "none", "order": 21
+    },
+    "round_57mm": {
+      "label": "57 mm round", "kind": "ammo", "builder": "lathe", "segments": 18,
+      "profile": [
+        {"material": "brass", "points": [[0.0, 0.0], [0.046, 0.0], [0.046, 0.012], [0.04, 0.014], [0.04, 0.02], [0.0435, 0.024], [0.042, 0.36], [0.032, 0.392], [0.03, 0.44], [0.0, 0.44]]},
+        {"material": "copper_band", "points": [[0.0, 0.44], [0.0295, 0.44], [0.0295, 0.458], [0.0, 0.458]]},
+        {"material": "shell_steel", "points": [[0.0, 0.458], [0.0285, 0.458], [0.0285, 0.55], [0.024, 0.61], [0.012, 0.65], [0.003, 0.664], [0.0, 0.664]]}
+      ],
+      "mass_kg": 6.6, "collision": "convex", "order": 30,
+      "note": "57 mm fixed round, about 66 cm long: rimmed brass case, copper driving band, steel shot. Real-world sizes after the 57x438 mm SR family."
+    },
+    "casing_57mm": {
+      "label": "57 mm spent case", "kind": "ammo", "builder": "lathe", "segments": 16, "open_top": true,
+      "profile": [
+        {"material": "brass_spent", "points": [[0.0, 0.0], [0.046, 0.0], [0.046, 0.012], [0.04, 0.014], [0.04, 0.02], [0.0435, 0.024], [0.042, 0.36], [0.032, 0.392], [0.03, 0.44]]}
+      ],
+      "mass_kg": 2.1, "collision": "convex", "order": 31
+    },
+    "wall_4m": {
+      "label": "Wall, 4 m", "kind": "wall", "builder": "wall", "material": "brick",
+      "width_m": 4.0, "height_m": 3.2, "thickness_m": 0.4, "damage": 0.0,
+      "collision": "boxes", "climb": true, "grapple": true, "break": true, "order": 40
+    },
+    "wall_window_4m": {
+      "label": "Wall with window, 4 m", "inherits": "wall_4m", "window": [1.2, 1.0, 1.4, 1.2], "order": 41
+    },
+    "wall_broken_4m": {
+      "label": "Broken wall, 4 m", "inherits": "wall_4m", "damage": 0.65, "order": 42
+    },
+    "wall_concrete_6m": {
+      "label": "Concrete wall, 6 m", "inherits": "wall_4m", "material": "concrete",
+      "width_m": 6.0, "height_m": 2.6, "thickness_m": 0.35, "order": 43
+    },
+    "ruin_house": {
+      "label": "Ruined house", "kind": "building", "builder": "building", "material": "brick",
+      "footprint_m": [8.0, 8.0], "floors": 1, "floor_height_m": 3.2, "thickness_m": 0.4, "damage": 0.4,
+      "windows": true, "door": true, "collision": "boxes", "climb": true, "grapple": true, "break": true, "order": 50
+    },
+    "ruin_house_two": {
+      "label": "Ruined two-storey house", "inherits": "ruin_house", "footprint_m": [10.0, 8.0], "floors": 2, "order": 51
+    },
+    "ruin_block": {
+      "label": "Ruined apartment block", "inherits": "ruin_house", "material": "concrete",
+      "footprint_m": [16.0, 12.0], "floors": 3, "floor_height_m": 3.0, "thickness_m": 0.35, "order": 52
+    },
+    "ruin_tower": {
+      "label": "Ruined bell tower", "inherits": "ruin_house", "footprint_m": [6.0, 6.0], "floors": 6,
+      "floor_height_m": 3.0, "thickness_m": 0.6, "damage": 0.25, "order": 53
+    },
+    "bridge": {
+      "label": "Road bridge", "kind": "bridge", "builder": "bridge", "material": "concrete",
+      "width_m": 10.0, "deck_m": 0.8, "span_m": 7.0, "parapet_m": 0.9, "pillar_m": 1.4,
+      "collision": "boxes", "climb": true, "grapple": true, "break": true, "order": 60
+    },
+    "mast": {
+      "label": "Radio mast", "kind": "structure", "builder": "mast", "material": "steel_rust",
+      "height_m": 30.0, "base_m": 4.0, "top_m": 0.9, "leg_m": 0.22, "brace_every_m": 3.0,
+      "collision": "convex", "climb": true, "grapple": true, "anchors": "top", "order": 61
+    },
+    "tank_trap": {
+      "label": "Tank trap", "kind": "debris", "builder": "hedgehog", "material": "steel_rust",
+      "size_m": 2.0, "beam_m": 0.2, "collision": "boxes", "climb": false, "grapple": true, "order": 70
+    },
+    "debris_chunk": {
+      "label": "Concrete chunk", "kind": "debris", "builder": "rock", "material": "concrete",
+      "size_m": [0.5, 1.6], "squash": [0.3, 0.6], "detail": 1, "roughness": 0.18,
+      "collision": "convex", "climb": false, "grapple": false, "order": 71
+    },
+    "rubble_pile": {
+      "label": "Rubble pile", "kind": "debris", "builder": "rubble", "material": "concrete",
+      "size_m": [3.0, 6.0], "chunks": 7, "collision": "convex", "climb": true, "grapple": false, "order": 72
+    },
+    "crater": {
+      "label": "Shell crater", "kind": "terrain", "builder": "crater",
+      "radius_m": [3.0, 9.0], "depth_ratio": 0.32, "rim_ratio": 0.12, "scorch": 0.8, "order": 80,
+      "note": "A crater is cut into the map's height grid (SmallMapTerrain), with scorch in the ground colour."
+    }
+  }
+}

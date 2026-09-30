@@ -16,15 +16,94 @@
       ]
     },
     "small_map": {
-      "label": "Small map (about 1 km)",
+      "label": "Ashen valley (small map, about 1 km)",
       "order": 10,
       "scene": "res://scenes/levels/small_map.tscn",
-      "status": "planned",
+      "status": "ready",
       "owner_lane": "B3",
-      "size_m": 1000,
-      "description": "The hand-made map: rocky ground, ruins, roads and water. Built in lane B3.",
-      "spawn": {"position": [0.0, 10.0, 0.0], "heading_deg": 0.0},
-      "tips": []
+      "size_m": 1024,
+      "seed": 8686,
+      "description": "A hand-made valley on the edge of the Legion zone: a ruined town on a plateau, a river running south into a lake, roads, a broken bridge, a crater field from old shelling and rock outcrops to climb. Built in lane B3 from the asset kit (data/kit.json).",
+      "spawn": {"position": [-250.0, 0.0, 330.0], "heading_deg": 28.0},
+      "weather": "overcast_morning",
+      "water_level_m": 0.0,
+      "terrain": {"base_m": 9.0, "hills_m": 13.0, "ridges_m": 7.0, "rough_m": 0.45, "rim_m": 58.0, "rim_width_m": 90.0, "floor_m": 1.6},
+      "river": {"points": [[160, -540], [172, -380], [232, -250], [214, -80], [176, 60], [214, 180], [262, 252]], "width_m": 18.0, "bank_m": 18.0, "depth_m": 2.6},
+      "lake": {"center": [290, 310], "radius_m": 118.0, "shore_m": 36.0, "depth_m": 6.0},
+      "roads": [
+        {"id": "north_road", "width_m": 9.0, "points": [[-470, 470], [-330, 385], [-250, 330], [-172, 222], [-92, 92], [-30, -40], [0, -150], [-40, -300], [-92, -470], [-100, -540]]},
+        {"id": "east_road", "width_m": 8.0, "points": [[0, -150], [90, -132], [172, -96], [258, -80], [372, -120], [470, -168], [540, -190]]},
+        {"id": "lake_road", "width_m": 7.0, "points": [[-92, 92], [18, 160], [108, 214], [178, 236]]}
+      ],
+      "flats": [
+        {"id": "town", "center": [10, -170], "size_m": [240, 200], "blend_m": 40.0}
+      ],
+      "craters": [
+        [-210, 250, 7.0], [-180, 205, 4.0], [-150, 260, 8.5], [-128, 180, 5.0], [-205, 150, 6.0], [-95, 215, 3.5],
+        [-160, 120, 7.5], [-60, 150, 4.5], [-118, 60, 6.5], [-40, 40, 3.2], [-230, 90, 5.5], [-75, 280, 6.0],
+        [-8, 70, 4.0], [60, -40, 5.0], [-60, -40, 3.0], [110, 60, 8.0]
+      ],
+      "bridges": [
+        {"kit": "bridge", "from": [168, -99], "to": [262, -79], "broken_spans": [6], "fallen": true}
+      ],
+      "buildings": [
+        {"kit": "ruin_block", "at": [-38, -122], "rot": 0, "damage": 0.5, "seed": 1},
+        {"kit": "ruin_house", "at": [-34, -186], "rot": 90, "damage": 0.3, "seed": 2},
+        {"kit": "ruin_house", "at": [-44, -228], "rot": 0, "damage": 0.75, "seed": 3},
+        {"kit": "ruin_block", "at": [38, -202], "rot": 0, "damage": 0.4, "seed": 4},
+        {"kit": "ruin_house_two", "at": [40, -106], "rot": 180, "damage": 0.6, "seed": 5},
+        {"kit": "ruin_house", "at": [72, -176], "rot": 90, "damage": 0.2, "seed": 6},
+        {"kit": "ruin_tower", "at": [8, -252], "rot": 0, "damage": 0.25, "seed": 7},
+        {"kit": "ruin_house", "at": [-78, -152], "rot": 0, "damage": 0.85, "seed": 8},
+        {"kit": "ruin_block", "at": [84, -232], "rot": 90, "damage": 0.65, "seed": 9},
+        {"kit": "ruin_house_two", "at": [-72, -96], "rot": 270, "damage": 0.45, "seed": 10},
+        {"kit": "ruin_house", "at": [-60, -262], "rot": 180, "damage": 0.55, "seed": 11},
+        {"kit": "ruin_house_two", "at": [58, -262], "rot": 0, "damage": 0.7, "seed": 12}
+      ],
+      "structures": [
+        {"kit": "mast", "at": [66, -62], "rot": 20},
+        {"kit": "wall_concrete_6m", "at": [-22, -62], "rot": 8},
+        {"kit": "wall_concrete_6m", "at": [-16, -58], "rot": 8, "damage": 0.5},
+        {"kit": "wall_broken_4m", "at": [26, -72], "rot": -12},
+        {"kit": "wall_window_4m", "at": [-96, -200], "rot": 90},
+        {"kit": "wall_broken_4m", "at": [-96, -205], "rot": 90},
+        {"kit": "rubble_pile", "at": [-20, -210], "rot": 0},
+        {"kit": "rubble_pile", "at": [20, -128], "rot": 40},
+        {"kit": "rubble_pile", "at": [-58, -150], "rot": 10},
+        {"kit": "rubble_pile", "at": [52, -234], "rot": 70}
+      ],
+      "tank_trap_lines": [
+        {"from": [-215, 40], "to": [-120, 12], "count": 11},
+        {"from": [-40, -20], "to": [30, -30], "count": 7}
+      ],
+      "outcrops": [
+        [-362, -182, 20.0], [-328, -236, 14.0], [-404, -118, 12.0], [-300, 38, 16.0], [-424, 150, 21.0],
+        [80, -402, 15.0], [-152, -382, 12.0], [382, 392, 16.0], [404, 214, 12.0], [392, -24, 14.0], [-182, 404, 10.0],
+        [-262, -330, 13.0], [330, -330, 17.0]
+      ],
+      "scatter": {"boulders": 240, "debris": 90, "pebbles_per_chunk": 10, "shrubs_per_chunk": 70, "grass_per_chunk": 1400},
+      "mist": [
+        {"at": [214, -200], "size_m": [70, 10, 260]},
+        {"at": [200, 60], "size_m": [70, 10, 220]},
+        {"at": [290, 310], "size_m": [260, 12, 260]}
+      ],
+      "grapple_points": [
+        {"at": [-182, 404], "kind": "rock", "note": "outcrop next to the start, to learn the wire on"},
+        {"at": [66, -62], "kind": "mast", "height_m": 30.0}
+      ],
+      "viewpoints": {
+        "start": {"eye": [-262, 7, 350], "look": [-200, 6, 250]},
+        "town": {"eye": [-120, 34, -20], "look": [0, 8, -170]},
+        "river": {"eye": [120, 22, -40], "look": [215, 2, -90]},
+        "lake": {"eye": [120, 28, 170], "look": [290, 0, 310]},
+        "craters": {"eye": [-260, 30, 330], "look": [-140, 4, 170]},
+        "overview": {"eye": [-420, 170, 420], "look": [30, 0, -60]}
+      },
+      "tips": [
+        "The town sits on the plateau north of the start: follow the road.",
+        "Rock outcrops, ruined walls, the bridge and the radio mast all take a wire anchor.",
+        "The east bridge is broken in the middle: jump it, or wade the river below."
+      ]
     },
     "big_map": {
       "label": "Big map",

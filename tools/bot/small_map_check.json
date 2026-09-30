@@ -1,0 +1,114 @@
+{
+ "name": "small_map_check",
+ "map": "small_map",
+ "_about": "Lane B3: the small map from each maps.json viewpoint, then the Juggernaut at the start walking toward the town, with a frame-time measure. tools/bot_run.sh small_map_check",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "overview"
+   ]
+  },
+  {
+   "at": 3.2,
+   "shot": "view-overview"
+  },
+  {
+   "at": 4.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 5.2,
+   "shot": "view-start"
+  },
+  {
+   "at": 6.0,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 7.2,
+   "shot": "view-town"
+  },
+  {
+   "at": 8.0,
+   "call": "look_from",
+   "args": [
+    "river"
+   ]
+  },
+  {
+   "at": 9.2,
+   "shot": "view-river"
+  },
+  {
+   "at": 10.0,
+   "call": "look_from",
+   "args": [
+    "lake"
+   ]
+  },
+  {
+   "at": 11.2,
+   "shot": "view-lake"
+  },
+  {
+   "at": 12.0,
+   "call": "look_from",
+   "args": [
+    "craters"
+   ]
+  },
+  {
+   "at": 13.2,
+   "shot": "view-craters"
+  },
+  {
+   "at": 14.0,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 16.0,
+   "shot": "mech-start"
+  },
+  {
+   "at": 16.5,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 8.0
+  },
+  {
+   "at": 20.0,
+   "sample": "walking"
+  },
+  {
+   "at": 23.0,
+   "shot": "mech-walked"
+  },
+  {
+   "at": 24.0,
+   "measure": 8.0,
+   "label": "standing-view"
+  },
+  {
+   "at": 33.0,
+   "quit": true
+  }
+ ]
+}

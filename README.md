@@ -286,3 +286,15 @@ gantry, and `tools/bot/combat_check.json`. Tests 97/98 (the 1 is B3's). Details 
 Air control (steer with the stick, swing and pitch the chassis with the mouse in flight, fire mid-air), body-tilt
 aim on by default, chase camera follows the aim pitch. New `tests/test_air.gd`; the old "no air control" and
 "level by default" tests now set their settings off. 114/114 tests; `images/086-air_check/`.
+
+### 2026-09-30 · lane B3 · Chihiro (ejb-73) · part 1: the small map and the asset kit
+Emerson could not see the Relay session on B3 (Nene), so it was stopped and taken over here from Nene's data
+(kit, weather, the small_map entry, four CC0 texture sets). Built the level "Ashen valley" (about 1 km): terrain
+from maps.json with the river and lake below the water line, levelled roads and town, craters, a rim; chunked
+near/far ground meshes over one height-field collider; the kit builders (rocks, plants, 57 mm round and case,
+walls, ruins, bridge, mast, tank traps, rubble) with break_apart for B5; scatter; sky, clouds and four weathers.
+It is now the first map in the list.
+
+Verified: `tools/run_tests.sh` 116 passed, 0 failed (13 new). `images/097-small_map_check/`. Frame rates at the
+start view: Low 75, Medium 36, High 23 (targets 60/45/30: Medium and High not met yet). Details and next steps:
+`~/Forge/sessions/juggernaut-alpha/results/B3.md`.

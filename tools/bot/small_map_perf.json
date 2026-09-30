@@ -1,0 +1,173 @@
+{
+ "name": "small_map_perf",
+ "map": "small_map",
+ "_about": "Lane B3: frame cost at the start with one feature off at a time; the preset is put back after each. tools/bot_run.sh small_map_perf --preset=<p> (this copy is for medium; /tmp copies for the others)",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 4.0,
+   "measure": 4.0,
+   "label": "baseline"
+  },
+  {
+   "at": 8.2,
+   "shot": "baseline"
+  },
+  {
+   "at": 8.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 9.0,
+   "setting": "graphics.volumetric_fog",
+   "value": false
+  },
+  {
+   "at": 10.0,
+   "measure": 4.0,
+   "label": "no-volfog"
+  },
+  {
+   "at": 14.2,
+   "shot": "no-volfog"
+  },
+  {
+   "at": 14.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 14.5,
+   "setting": "graphics.volumetric_fog",
+   "value": true
+  },
+  {
+   "at": 15.0,
+   "setting": "graphics.clouds",
+   "value": "off"
+  },
+  {
+   "at": 16.0,
+   "measure": 4.0,
+   "label": "no-clouds"
+  },
+  {
+   "at": 20.2,
+   "shot": "no-clouds"
+  },
+  {
+   "at": 20.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 20.5,
+   "setting": "graphics.clouds",
+   "value": "low"
+  },
+  {
+   "at": 21.0,
+   "setting": "graphics.foliage_density",
+   "value": 0.0
+  },
+  {
+   "at": 22.0,
+   "measure": 4.0,
+   "label": "no-foliage"
+  },
+  {
+   "at": 26.2,
+   "shot": "no-foliage"
+  },
+  {
+   "at": 26.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 26.5,
+   "setting": "graphics.foliage_density",
+   "value": 0.6
+  },
+  {
+   "at": 27.0,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 28.0,
+   "measure": 4.0,
+   "label": "no-ssao"
+  },
+  {
+   "at": 32.2,
+   "shot": "no-ssao"
+  },
+  {
+   "at": 32.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 32.5,
+   "setting": "graphics.ssao",
+   "value": true
+  },
+  {
+   "at": 33.0,
+   "setting": "graphics.shadow_distance",
+   "value": 40.0
+  },
+  {
+   "at": 34.0,
+   "measure": 4.0,
+   "label": "shadow40"
+  },
+  {
+   "at": 38.2,
+   "shot": "shadow40"
+  },
+  {
+   "at": 38.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 38.5,
+   "setting": "graphics.shadow_distance",
+   "value": 100.0
+  },
+  {
+   "at": 39.0,
+   "setting": "graphics.draw_distance",
+   "value": 400.0
+  },
+  {
+   "at": 40.0,
+   "measure": 4.0,
+   "label": "draw400"
+  },
+  {
+   "at": 44.2,
+   "shot": "draw400"
+  },
+  {
+   "at": 44.5,
+   "setting": "graphics.preset",
+   "value": "medium"
+  },
+  {
+   "at": 44.5,
+   "setting": "graphics.draw_distance",
+   "value": 1000.0
+  },
+  {
+   "at": 45.0,
+   "quit": true
+  }
+ ]
+}
