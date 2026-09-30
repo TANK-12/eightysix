@@ -70,3 +70,29 @@ func test_mast_and_outcrop_have_anchors() -> void:
 	assert_gt(rock.get_meta("anchors").size(), 0, "outcrops anchor on top")
 	mast.free()
 	rock.free()
+
+
+## Lane B4: what falls off a damaged building lies at its foot as low, drawn-only chunks.
+func test_damaged_building_leaves_rubble_at_its_foot() -> void:
+	var whole := Kit.build("ruin_house", 5, {"damage": 0.0})
+	var hurt := Kit.build("ruin_house", 5, {"damage": 0.7})
+	var boxes_whole := _drawn_boxes(whole)
+	var boxes_hurt := _drawn_boxes(hurt)
+	var pieces_whole: int = (whole.get_meta("pieces") as Array).size()
+	var pieces_hurt: int = (hurt.get_meta("pieces") as Array).size()
+	# the undamaged house's surplus of drawn boxes over breakable pieces is the baseline (no rubble)
+	assert_gt(float((boxes_hurt - pieces_hurt) - (boxes_whole - pieces_whole)), 10.0, "a damaged house draws rubble beyond its pieces")
+	var low := INF
+	for mi: MeshInstance3D in hurt.find_children("*", "MeshInstance3D", true, false):
+		low = minf(low, mi.get_aabb().position.y)
+	assert_gt(low, -0.5, "rubble sits on the ground, not buried")
+	whole.free()
+	hurt.free()
+
+
+func _drawn_boxes(node: Node3D) -> int:
+	var verts := 0
+	for mi: MeshInstance3D in node.find_children("*", "MeshInstance3D", true, false):
+		for i in mi.mesh.get_surface_count():
+			verts += (mi.mesh.surface_get_arrays(i)[Mesh.ARRAY_VERTEX] as PackedVector3Array).size()
+	return verts / 24

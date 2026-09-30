@@ -1,0 +1,45 @@
+{
+ "name": "b4_ssao_ruins",
+ "map": "small_map",
+ "_about": "Lane B4: SSAO on and off at the ruins close-up (where contact shadows should matter most), shot and frame measure each. tools/bot_run.sh b4_ssao_ruins --preset=high",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "ruins"
+   ]
+  },
+  {
+   "at": 3.5,
+   "shot": "ruins-ssao"
+  },
+  {
+   "at": 3.7,
+   "measure": 3.0,
+   "label": "ruins-ssao"
+  },
+  {
+   "at": 7.0,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 8.5,
+   "shot": "ruins-nossao"
+  },
+  {
+   "at": 8.7,
+   "measure": 3.0,
+   "label": "ruins-nossao"
+  },
+  {
+   "at": 12.0,
+   "quit": true
+  }
+ ]
+}

@@ -57,6 +57,17 @@ static func material(id: String) -> Material:
 			m.albedo_color = _colour(spec.get("albedo", [0.5, 0.5, 0.5]))
 		m.metallic = float(spec.get("metallic", 0.0))
 		m.roughness = float(spec.get("roughness", 0.8))
+		if float(spec.get("grime", 0.0)) > 0.0:
+			# lane B4: mottled dirt and soot over the texture, fixed in the world (kit pieces do not move
+			# until they break, and then nobody checks their stains)
+			var step := roundi(clampf(float(spec["grime"]), 0.0, 1.0) * Finish.GRIME_STEPS)
+			m.detail_enabled = true
+			m.detail_albedo = Finish.grime_texture(step)
+			m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+			m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+			m.uv2_triplanar = true
+			m.uv2_world_triplanar = true
+			m.uv2_scale = Vector3.ONE * float(spec.get("grime_scale", 0.18))
 		mat = m
 	_materials[id] = mat
 	return mat
@@ -383,6 +394,7 @@ static func _building(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -
 	var corner := Vector2(sx * 0.5 * (1 if rng.randf() < 0.5 else -1), sz * 0.5 * (1 if rng.randf() < 0.5 else -1))
 	var diag := Vector2(sx, sz).length()
 	var rows := [[0.0, 0.9], [0.9, 2.1], [2.1, fh]]
+	var fallen: Array = []  # [wall point, wall basis, lost area m2] for the rubble (lane B4)
 	# walls: 0 front (+z), 1 back (-z), 2 right (+x), 3 left (-x)
 	var walls := [
 		[Vector3(0, 0, sz * 0.5 - t * 0.5), sx, 0.0],
@@ -410,6 +422,8 @@ static func _building(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -
 					var world := centre + basis * Vector3(lx, 0.0, 0.0)
 					var bias := damage * 0.6 * (1.0 - Vector2(world.x, world.z).distance_to(corner) / diag)
 					var keep := _survives(rng, y1 / total_h, damage, bias)
+					if keep < 1.0:
+						fallen.append([world, basis, cw * (y1 - y0) * (1.0 - keep)])
 					if keep <= 0.0:
 						continue
 					var ph := (y1 - y0) * keep
@@ -430,6 +444,26 @@ static func _building(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -
 	for cx in [-1, 1]:
 		for cz in [-1, 1]:
 			parts.anchor_on_pieces(Vector3(cx * sx * 0.5, total_h, cz * sz * 0.5), 4.0)
+	_fallen_rubble(parts, fallen, mat, t, rng)
+
+
+## Lane B4: what fell off a wall lies at its foot, mostly outside: a few low chunks per lost piece,
+## drawn only (no colliders, all under 0.5 m, so feet clip at most a little and break_apart is
+## unchanged). The pile is densest under the most damaged stretch.
+static func _fallen_rubble(parts: Parts, fallen: Array, mat: String, t: float, rng: RandomNumberGenerator) -> void:
+	for f: Array in fallen:
+		var at: Vector3 = f[0]
+		var basis: Basis = f[1]
+		var area: float = f[2]
+		var out := basis * Vector3(0.0, 0.0, 1.0)
+		var along := basis * Vector3(1.0, 0.0, 0.0)
+		for k in clampi(int(area * 1.2), 1, 5):
+			var d := rng.randf_range(-0.6, 2.6)
+			var p := at + out * d + along * rng.randf_range(-1.0, 1.0)
+			var size := Vector3(rng.randf_range(0.3, 0.9), rng.randf_range(0.15, 0.4), rng.randf_range(0.25, 0.6)) * (t / 0.4)
+			size.y = minf(size.y, 0.45)
+			var b := Basis.from_euler(Vector3(rng.randf_range(-0.4, 0.4), rng.randf() * TAU, rng.randf_range(-0.4, 0.4)))
+			parts.box(mat if rng.randf() < 0.7 else "concrete", Transform3D(b, p + Vector3(0.0, size.y * 0.3, 0.0)), size)
 
 
 ## A road bridge along +X from 0 to length_m: deck spans on pillars, parapets, broken spans left

@@ -1,0 +1,106 @@
+{
+ "name": "score_look",
+ "map": "small_map",
+ "_about": "Scoreboard, look half (lane B4): six fixed camera shots (five viewpoints and the chase camera at the spawn) and two frame measures, the start viewpoint standing and the mech walking toward the town. tools/scoreboard.sh runs it once per preset. Keep the shots and timings fixed so rows compare.",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 3.2,
+   "shot": "score-start"
+  },
+  {
+   "at": 3.6,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 4.8,
+   "shot": "score-town"
+  },
+  {
+   "at": 5.2,
+   "call": "look_from",
+   "args": [
+    "river"
+   ]
+  },
+  {
+   "at": 6.4,
+   "shot": "score-river"
+  },
+  {
+   "at": 6.800000000000001,
+   "call": "look_from",
+   "args": [
+    "bridge"
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "score-bridge"
+  },
+  {
+   "at": 8.4,
+   "call": "look_from",
+   "args": [
+    "mast"
+   ]
+  },
+  {
+   "at": 9.6,
+   "shot": "score-mast"
+  },
+  {
+   "at": 10.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 11.0,
+   "measure": 5.0,
+   "label": "view"
+  },
+  {
+   "at": 16.5,
+   "call": "follow_mech"
+  },
+  {
+   "at": 17.3,
+   "shot": "score-mech"
+  },
+  {
+   "at": 17.6,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 9.0
+  },
+  {
+   "at": 19.3,
+   "measure": 6.0,
+   "label": "walk"
+  },
+  {
+   "at": 26.8,
+   "quit": true
+  }
+ ]
+}

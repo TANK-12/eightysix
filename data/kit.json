@@ -3,8 +3,8 @@
   "materials": {
     "rock": {"textures": "rock", "triplanar": true, "scale_m": 3.2, "tint": [0.86, 0.84, 0.8], "roughness": 0.92},
     "rock_dark": {"textures": "rock", "triplanar": true, "scale_m": 4.0, "tint": [0.62, 0.6, 0.57], "roughness": 0.95},
-    "concrete": {"textures": "concrete", "triplanar": true, "scale_m": 2.6, "tint": [0.92, 0.9, 0.86], "roughness": 0.9},
-    "brick": {"textures": "brick_ruin", "triplanar": true, "scale_m": 2.2, "tint": [0.95, 0.92, 0.9], "roughness": 0.9},
+    "concrete": {"textures": "concrete", "triplanar": true, "scale_m": 2.6, "tint": [0.92, 0.9, 0.86], "roughness": 0.9, "grime": 0.6},
+    "brick": {"textures": "brick_ruin", "triplanar": true, "scale_m": 2.2, "tint": [0.95, 0.92, 0.9], "roughness": 0.9, "grime": 0.7},
     "brass": {"albedo": [0.78, 0.6, 0.3], "metallic": 1.0, "roughness": 0.32},
     "brass_spent": {"albedo": [0.55, 0.42, 0.24], "metallic": 1.0, "roughness": 0.55},
     "shell_steel": {"albedo": [0.2, 0.21, 0.19], "metallic": 0.7, "roughness": 0.45},

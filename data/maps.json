@@ -59,7 +59,16 @@
         {"kit": "ruin_block", "at": [84, -232], "rot": 90, "damage": 0.65, "seed": 9},
         {"kit": "ruin_house_two", "at": [-72, -96], "rot": 270, "damage": 0.45, "seed": 10},
         {"kit": "ruin_house", "at": [-60, -262], "rot": 180, "damage": 0.55, "seed": 11},
-        {"kit": "ruin_house_two", "at": [58, -262], "rot": 0, "damage": 0.7, "seed": 12}
+        {"kit": "ruin_house_two", "at": [58, -262], "rot": 0, "damage": 0.7, "seed": 12},
+        {"kit": "ruin_house", "at": [-27, -104], "rot": 75, "damage": 0.4, "seed": 13},
+        {"kit": "ruin_house_two", "at": [0, -97], "rot": 255, "damage": 0.35, "seed": 14},
+        {"kit": "ruin_house", "at": [6, -119], "rot": 255, "damage": 0.55, "seed": 15},
+        {"kit": "ruin_house_two", "at": [-16, -145], "rot": 75, "damage": 0.7, "seed": 16},
+        {"kit": "ruin_block", "at": [12, -169], "rot": 285, "damage": 0.25, "seed": 17},
+        {"kit": "ruin_house", "at": [2, -199], "rot": 285, "damage": 0.5, "seed": 18},
+        {"kit": "ruin_house_two", "at": [-6, -229], "rot": 285, "damage": 0.8, "seed": 19},
+        {"kit": "ruin_house", "at": [-42, -251], "rot": 105, "damage": 0.4, "seed": 20},
+        {"kit": "ruin_house_two", "at": [-14, -259], "rot": 285, "damage": 0.35, "seed": 21}
       ],
       "structures": [
         {"kit": "mast", "at": [66, -62], "rot": 20},
@@ -95,6 +104,7 @@
       "viewpoints": {
         "start": {"eye": [-262, 7, 350], "look": [-200, 6, 250]},
         "town": {"eye": [-120, 34, -20], "look": [0, 8, -170]},
+        "street": {"eye": [-20, 4.5, -72], "look": [2, 4, -150]},
         "river": {"eye": [120, 22, -40], "look": [215, 2, -90]},
         "lake": {"eye": [120, 28, 170], "look": [290, 0, 310]},
         "craters": {"eye": [-260, 30, 330], "look": [-140, 4, 170]},

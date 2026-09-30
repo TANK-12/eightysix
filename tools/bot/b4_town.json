@@ -1,0 +1,60 @@
+{
+ "name": "b4_town",
+ "map": "small_map",
+ "_about": "Lane B4: the town from street level, the ruins and above, and a frame measure in the street. tools/bot_run.sh b4_town --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "street"
+   ]
+  },
+  {
+   "at": 3.3,
+   "shot": "town-street"
+  },
+  {
+   "at": 3.6,
+   "call": "look_from",
+   "args": [
+    "ruins"
+   ]
+  },
+  {
+   "at": 4.9,
+   "shot": "town-ruins"
+  },
+  {
+   "at": 5.2,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 6.5,
+   "shot": "town-town"
+  },
+  {
+   "at": 6.800000000000001,
+   "call": "look_from",
+   "args": [
+    "street"
+   ]
+  },
+  {
+   "at": 7.800000000000001,
+   "measure": 4.0,
+   "label": "street"
+  },
+  {
+   "at": 12.3,
+   "quit": true
+  }
+ ]
+}

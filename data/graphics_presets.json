@@ -69,7 +69,7 @@
       "shadow_filter": 2,
       "shadow_distance": 160,
       "sdfgi": false,
-      "ssao": true,
+      "ssao": false,
       "ssao_quality": "low",
       "ssil": false,
       "ssr": false,
@@ -82,7 +82,7 @@
       "anisotropic": 3,
       "foliage_density": 0.85,
       "clouds": "high",
-      "note": "Retuned 2026-09-30 (lane A1) from measured GPU costs on the Iris Xe at 1080p, standing on the test range: SDFGI 20 ms, TAA 5.7, 128x96 fog 5.7, SSR 3.8, 4096 shadows 3.0. Those stay in Ultra. The old High ran 15 fps on the route (target 30)."
+      "note": "Retuned 2026-09-30 (lane A1) from measured GPU costs on the Iris Xe at 1080p, standing on the test range: SDFGI 20 ms, TAA 5.7, 128x96 fog 5.7, SSR 3.8, 4096 shadows 3.0. Those stay in Ultra. The old High ran 15 fps on the route (target 30). Lane B4 (2026-10-01): SSAO off, measured 9.6 ms at the ruins (29.6 to 40.8 fps, images/132) with no visible difference on this map; Ultra keeps it."
     },
     "ultra": {
       "label": "Ultra",
