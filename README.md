@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 135 passed, 0 failed (2026-10-01, after A3 part 4). Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -25,8 +25,15 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `tools/bot_run.sh combat_check`: the gun, reload, combat HUD, wire anchor swing and recoil dodge
   (latest `images/080-combat_check/`). `tools/bot_run.sh air_check`: tilt-aim, a running jump with air
   control, swinging and pitching in flight and a mid-air shot (latest `images/086-air_check/`).
-- **Aiming and air (Emerson, A3)**: body-tilt aim and air control are on by default (Gameplay settings "Body tilts
-  to aim", "Air control"); the chase camera follows the aim pitch.
+- **Physics only (Emerson, A3 part 4, 2026-10-01)**: the Juggernaut weighs its realistic 5,423 kg (B1's
+  `realistic_mass.json`, read by `tools/build_juggernaut_data.py`). Recoil is the real projectile + gas impulse
+  (1.03 m/s on the body in the air). In flight nothing pushes it: the legs swing and tuck to turn it (angular
+  momentum conserved, 4-6 deg/s), the gun's recoil and the wire are the only other forces. The wire anchor fires
+  where you look (camera crosshair, look pitch to +75 deg), limited by the sub-arms; winch 120 kW, 16 mm cable
+  breaks at 170 kN, pay-out while hanging abseils at 4 m/s. Gallop 70 km/h; Ctrl / L2 at speed is an analog,
+  directional slide (Settings > Gameplay > Physics > Movement: slide friction, slide turn rate). The belly clears
+  flat ground at a gallop and in a crouch. `tools/bot_run.sh score_move` measures all of it on Ashen valley and
+  writes `logs/score_move.json` for `tools/scoreboard.py`.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
@@ -318,3 +325,13 @@ Frame rate: Medium read 31-45 fps between identical runs on this laptop, so reac
 Sprint legs no longer trail, straighten or fold: speed-scaled stride and cadence, strides gathered under the body,
 firmer attitude at speed. Grapple aim assist from the level's grapple points; taller range plates; camera follows
 the view setting live. 120/120 tests; `images/116-sprint_check/`. Next: physics-based air movement (results/A3.md).
+
+### 2026-10-01 · lane A3 · Tetsu (ejb-d4) · part 4: realistic mass, physics-only air, aimed wire, 70 km/h and the slide
+Commits `1dac32e` (4a) and `03e52f7` (4b). Realistic 5,423 kg mass from B1's table; real recoil (5,580 N s APFSDS)
+with no game scales; air movement from leg swing only (12 deg in 2 s of held turn, total angular momentum 0.0);
+wire anchor aimed by the crosshair with a real winch and cable (the abseil test found free-spooling snaps the
+cable, so hanging pay-out lowers at 4 m/s); gallop 70.4 km/h, 0-50 km/h 1.25 s (600 kW drive power);
+analog directional slide; belly scraping fixed (the run stance lowered the front exactly the belly's 0.46 m
+clearance). New `test_slide.gd`; 135 passed, 0 failed. Ashen valley route `score_move` (`images/139-score_move`):
+0 stuck events, 0 flat-ground belly scrapes, slide 43.5 m, recoil 1.03 m/s. Build: version 006. Details and the
+"try this" note: `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
