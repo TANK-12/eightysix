@@ -1,0 +1,27 @@
+{
+  "name": "field_check",
+  "_about": "Lane A3 on B3's small map (Ashen valley): combat HUD, a shot, the wire anchor on the map's own grapple surfaces, a running jump with air control and a mid-air shot. tools/bot_run.sh field_check",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 4.0, "shot": "valley-hud"},
+    {"at": 4.1, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 4.18, "shot": "valley-shot"},
+    {"at": 5.0, "press": "aim_up", "strength": 1.0, "for": 0.6},
+    {"at": 5.8, "press": "grapple_fire", "strength": 1.0, "for": 0.1},
+    {"at": 6.5, "shot": "valley-anchor"},
+    {"at": 6.6, "press": "grapple_reel_in", "strength": 1.0, "for": 2.5},
+    {"at": 8.0, "shot": "valley-reel"},
+    {"at": 9.2, "press": "grapple_fire", "strength": 1.0, "for": 0.1},
+    {"at": 10.0, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 10.0, "press": "move_forward", "strength": 1.0, "for": 4.0},
+    {"at": 10.0, "press": "sprint", "strength": 1.0, "for": 2.5},
+    {"at": 11.5, "press": "jump", "strength": 1.0, "for": 1.0},
+    {"at": 12.8, "press": "turn_left", "strength": 1.0, "for": 0.5},
+    {"at": 13.4, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 13.48, "shot": "valley-air-shot"},
+    {"at": 13.5, "sample": "air"},
+    {"at": 16.0, "shot": "valley-landed"},
+    {"at": 16.5, "quit": true}
+  ]
+}

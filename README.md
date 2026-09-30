@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 114 passed, 0 failed (2026-09-30, after A3 part 1b). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 116 passed, 0 failed (2026-09-30, after A3 part 2). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -298,3 +298,8 @@ It is now the first map in the list.
 Verified: `tools/run_tests.sh` 116 passed, 0 failed (13 new). `images/097-small_map_check/`. Frame rates at the
 start view: Low 75, Medium 36, High 23 (targets 60/45/30: Medium and High not met yet). Details and next steps:
 `~/Forge/sessions/juggernaut-alpha/results/B3.md`.
+
+### 2026-09-30 · lane A3 · Aiko (ejb-68) · part 2: look and feel
+Chase camera keeps 6 m off the hull and tightens at speed; shake on fire, hits and skids. Skid dust was drawing black
+balls at the feet: now one-shot puffs. Mech meshes on render layer 20 so ground gouges skip them. New bot checks
+`skid_check` and `field_check` (on B3's Ashen valley). 116/116 tests.
