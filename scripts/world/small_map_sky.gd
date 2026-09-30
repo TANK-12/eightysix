@@ -13,6 +13,7 @@ var world_env := WorldEnvironment.new()
 var sun := DirectionalLight3D.new()
 var sky_mat := ShaderMaterial.new()
 var weather_id := ""
+var water_mats: Array[ShaderMaterial] = []  # lane B4: water reflects this weather's sky
 
 
 func _init(parent: Node, weather: String) -> void:
@@ -74,6 +75,9 @@ func apply(id: String) -> void:
 	sun.basis = Basis.looking_at(-to_sun, Vector3.UP if absf(to_sun.y) < 0.99 else Vector3.FORWARD)
 	sun.light_energy = float(w.get("sun_energy", 1.3))
 	sun.light_color = _c(w, "sun_colour")
+	for m in water_mats:
+		m.set_shader_parameter("sky_top", _c(w, "sky_top"))
+		m.set_shader_parameter("sky_horizon", _c(w, "sky_horizon"))
 	sky_mat.set_shader_parameter("sky_top", _c(w, "sky_top"))
 	sky_mat.set_shader_parameter("sky_horizon", _c(w, "sky_horizon"))
 	sky_mat.set_shader_parameter("ground_colour", _c(w, "ground_colour"))

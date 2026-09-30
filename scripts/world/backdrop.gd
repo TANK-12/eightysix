@@ -6,7 +6,7 @@ extends RefCounted
 ## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed}.
 
 
-static func build(parent: Node3D, entry: Dictionary) -> MeshInstance3D:
+static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null) -> MeshInstance3D:
 	var b: Dictionary = entry.get("backdrop", {})
 	if b.is_empty():
 		return null
@@ -49,6 +49,13 @@ static func build(parent: Node3D, entry: Dictionary) -> MeshInstance3D:
 	mat.albedo_color = Color(float(c[0]), float(c[1]), float(c[2]))
 	mat.roughness = 1.0
 	mat.metallic_specular = 0.2
+	if rock != null:
+		# the map's rock at a hill-sized scale, projected three ways, so the far hills are not cardboard
+		mat.albedo_texture = rock
+		mat.uv1_triplanar = true
+		mat.uv1_world_triplanar = true
+		mat.uv1_scale = Vector3.ONE / float(b.get("texture_m", 60.0))
+		mat.albedo_color = mat.albedo_color * 1.6
 	mi.material_override = mat
 	parent.add_child(mi)
 	return mi

@@ -43,7 +43,7 @@ func _ready() -> void:
 	t0 = Time.get_ticks_msec()
 	_build_ground()
 	_build_water()
-	Backdrop.build(self, entry)
+	Backdrop.build(self, entry, load(TEX + "rock/color.jpg"))
 	build_ms["ground"] = Time.get_ticks_msec() - t0
 	t0 = Time.get_ticks_msec()
 	var avoid := _build_places()
@@ -204,6 +204,8 @@ func _build_water() -> void:
 	mat.shader = WATER_SHADER
 	mat.set_shader_parameter("wave_a", _noise(true, 0.02, 3))
 	mat.set_shader_parameter("wave_b", _noise(true, 0.05, 4))
+	sky.water_mats.append(mat)
+	sky.apply(sky.weather_id)
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(terrain.size_m, terrain.size_m)
 	plane.subdivide_width = 8

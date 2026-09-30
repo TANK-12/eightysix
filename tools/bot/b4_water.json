@@ -1,0 +1,48 @@
+{
+ "name": "b4_water",
+ "map": "small_map",
+ "_about": "Lane B4: the lake, the river and the overview (water reflection, far hills). tools/bot_run.sh b4_water",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "lake"
+   ]
+  },
+  {
+   "at": 3.3,
+   "shot": "water-lake"
+  },
+  {
+   "at": 3.6,
+   "call": "look_from",
+   "args": [
+    "river"
+   ]
+  },
+  {
+   "at": 4.9,
+   "shot": "water-river"
+  },
+  {
+   "at": 5.2,
+   "call": "look_from",
+   "args": [
+    "overview"
+   ]
+  },
+  {
+   "at": 6.5,
+   "shot": "water-overview"
+  },
+  {
+   "at": 6.800000000000001,
+   "quit": true
+  }
+ ]
+}
