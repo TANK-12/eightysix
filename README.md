@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 135 passed, 0 failed (2026-10-01, after A3 part 4). Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 145 passed, 0 failed (2026-10-01, after A3 part 5). After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -33,7 +33,8 @@ The "Current state" section may be updated in place, but only to keep it true; t
   breaks at 170 kN, pay-out while hanging abseils at 4 m/s. Gallop 70 km/h; Ctrl / L2 at speed is an analog,
   directional slide (Settings > Gameplay > Physics > Movement: slide friction, slide turn rate). The belly clears
   flat ground at a gallop and in a crouch. `tools/bot_run.sh score_move` measures all of it on Ashen valley and
-  writes `logs/score_move.json` for `tools/scoreboard.py`.
+  writes `logs/score_move.json` for `tools/scoreboard.py`. Sub-arm 12.7 mm guns on right mouse / R1 (A3 part 5):
+  both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
@@ -335,3 +336,10 @@ analog directional slide; belly scraping fixed (the run stance lowered the front
 clearance). New `test_slide.gd`; 135 passed, 0 failed. Ashen valley route `score_move` (`images/139-score_move`):
 0 stuck events, 0 flat-ground belly scrapes, slide 43.5 m, recoil 1.03 m/s. Build: version 006. Details and the
 "try this" note: `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
+
+### 2026-10-01 · lane A3 · Tetsu (ejb-d4) · part 5: sub-arm guns, legs at speed
+Commits `accba14`, `73b9d3c`. The sub-arm 12.7 mm pair fires in turn, each arm slewing to the crosshair within
+its reach; 60 N s recoil a round, belts' 140 kg on the sub-arms (mech 5,563.7 kg). Straightened legs in the
+sprint/turn/charge/jump run 6-8% -> 0.23% (stride gather follows stride length, targets inside reach and clear
+of the hip, overreaching feet step at once, lifted feet travel with the body). Winch drum ramps while hanging.
+145 passed, 0 failed; `images/148-sub_check`, `images/151-score_move` (build 007).
