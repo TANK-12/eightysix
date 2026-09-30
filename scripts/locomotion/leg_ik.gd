@@ -25,10 +25,14 @@ static func reachable(hip: Vector3, foot: Vector3, upper: float, lower: float) -
 	return hip + to_foot.normalized() * reach
 
 
-## Transform for a box segment running from `a` to `b` (its long axis is local Z).
-static func segment(a: Vector3, b: Vector3) -> Transform3D:
+## Transform for a box segment running from `a` to `b` (its long axis is local Z). `up_hint` sets
+## its roll (local Y towards it; a leg passes its bend direction so the knee hinge stays square as
+## the leg swings); by default world up.
+static func segment(a: Vector3, b: Vector3, up_hint: Vector3 = Vector3.ZERO) -> Transform3D:
 	var dir := b - a
 	if dir.length() < 0.0001:
 		return Transform3D(Basis.IDENTITY, a)
-	var up := Vector3.UP if absf(dir.normalized().dot(Vector3.UP)) < 0.98 else Vector3.FORWARD
+	var up := up_hint.normalized() if up_hint.length() > 0.0001 else Vector3.UP
+	if absf(dir.normalized().dot(up)) >= 0.98:
+		up = Vector3.UP if absf(dir.normalized().dot(Vector3.UP)) < 0.98 else Vector3.FORWARD
 	return Transform3D(Basis.looking_at(dir, up), (a + b) * 0.5)

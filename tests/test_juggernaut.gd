@@ -17,6 +17,10 @@ func before_each() -> void:
 	cs.position.y = -1.0
 	ground.add_child(cs)
 	tree.root.add_child(ground)
+	# The geometry tests check the modelled pose; Emerson's stance controls default elsewhere.
+	Settings.set_value("mech.leg_length", 1.0, false)
+	Settings.set_value("mech.foot_spread", 1.0, false)
+	Settings.set_value("mech.ride_lift_m", 0.0, false)
 	mech = MechBuilder.build("juggernaut_m2")
 	mech.position = Vector3(0, 3.0, 0)
 	tree.root.add_child(mech)
@@ -78,6 +82,7 @@ func test_walks_forward_without_falling() -> void:
 
 
 func test_gun_rises_when_idle_and_levels_off_when_moving() -> void:
+	Settings.set_value("gameplay.gun_idle_raise", true, false)
 	await physics_frames(400)
 	assert_gt(mech.get("_gun_bone"), -1, "gun_pitch bone found on the real skeleton")
 	assert_lt(mech.linear_velocity.length(), 0.3, "settled before checking the idle gun pose")
@@ -111,6 +116,7 @@ func test_running_widens_and_lowers_the_stance() -> void:
 	await physics_frames(360)
 	var rest_pitch: float = mech.call("telemetry")["pitch_deg"]
 	var rest_y := mech.global_position.y
+	var rest_sole_x: float = mech.to_local(_leg("fr")["sole_hit"]).x
 	Settings.set_value("controls.sprint_mode", "hold", false)
 	Input.action_press("move_forward", 1.0)
 	Input.action_press("sprint", 1.0)
@@ -124,6 +130,7 @@ func test_running_widens_and_lowers_the_stance() -> void:
 	var hip_x: float = (fr["hip"] as Vector3).x
 	var foot_x: float = mech.to_local(fr["hit"]).x
 	assert_gt(foot_x - hip_x, 0.3, "front-right foot plants further outboard than the hip while running (run_stance.splay_m)")
+	assert_gt(mech.to_local(fr["sole_hit"]).x - rest_sole_x, 0.3, "the front-right sole target moves outboard too (part 4: feet stand at the sole sockets)")
 
 
 ## ANALYSIS.md's outward-braced skid turn ("turning at speed: a drift with the legs braced to the
@@ -131,6 +138,7 @@ func test_running_widens_and_lowers_the_stance() -> void:
 ## .brace_out_m while `skidding` is true, independent of whether the mech is also running.
 func test_skidding_braces_the_stance_outward() -> void:
 	await physics_frames(360)
+	var rest_sole_x: float = mech.to_local(_leg("fr")["sole_hit"]).x
 	Input.action_press("move_forward", 1.0)
 	await physics_frames(240)
 	Input.action_press("brake", 1.0)
@@ -147,6 +155,7 @@ func test_skidding_braces_the_stance_outward() -> void:
 	var hip_x: float = (fr["hip"] as Vector3).x
 	var foot_x: float = mech.to_local(fr["hit"]).x
 	assert_gt(foot_x - hip_x, 0.3, "front-right foot plants further outboard than the hip while skidding")
+	assert_gt(mech.to_local(fr["sole_hit"]).x - rest_sole_x, 0.3, "the front-right sole target braces outboard too")
 
 
 func test_cockpit_camera_uses_the_real_socket() -> void:
@@ -176,3 +185,238 @@ func test_feet_stay_planted_while_grounded() -> void:
 		if bool(leg["contact"]) and float(leg["step_t"]) < 0.0:
 			var drift: float = (planted[i] as Vector3).distance_to(leg["planted"])
 			assert_lt(drift, 0.05, "a planted, non-stepping foot does not slip while idle")
+
+
+## Lane A2 part 4: every leg hitbox is B1's own convex hull (parts[].hulls, read from the synced
+## export json), not a box, and it sits on the visible leg mesh at rest and while walking. Both
+## follow the same IK segment frames (MechBuilder.rest_segments), so a shell that clips the visible
+## leg hits the leg. Checked in each mesh's own frame, so a rotated leg cannot hide an offset.
+func test_leg_hitboxes_are_the_real_hulls_on_the_visible_legs() -> void:
+	await physics_frames(240)
+	_assert_hulls_on_leg_meshes("at rest")
+	Input.action_press("move_forward", 1.0)
+	await physics_frames(150)
+	_assert_hulls_on_leg_meshes("while walking")
+
+
+## Lane A2 part 4: the chassis colliders are the export's convex hulls too, one collider per hull
+## piece (the barrel and receiver come split into several), each on its visible part. Parts on the
+## gun_pitch bone are left out of the position check: the gun rises at rest and its colliders do not
+## follow it yet (lane A3).
+func test_chassis_colliders_are_the_real_hulls() -> void:
+	var model: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str((mech.get("def") as Dictionary)["model_data"])))
+	var by_name := {}
+	var expected := 0
+	for p: Dictionary in model["parts"]:
+		by_name[str(p["name"])] = p
+		var bone := str(p["bone"])
+		if not (bone.begins_with("thigh.") or bone.begins_with("shin.") or bone.begins_with("foot.")):
+			expected += (p["hulls"] as Array).size()
+	var gun := {"gun_pitch": true}
+	for i in 4:
+		for j: Dictionary in model["joints"]:
+			if gun.has(str(j["parent"])):
+				gun[str(j["bone"])] = true
+	var hull_boxes := {}
+	var hulls := 0
+	var boxes := 0
+	for c: Node in mech.get_children():
+		if not c is CollisionShape3D:
+			continue
+		var cs := c as CollisionShape3D
+		if not cs.shape is ConvexPolygonShape3D:
+			boxes += 1
+			continue
+		hulls += 1
+		var from := str(Registry.entry("parts", str(cs.get_meta("part_id")))["collider"]["hulls_from"])
+		for q: Vector3 in (cs.shape as ConvexPolygonShape3D).points:
+			var w := cs.global_transform * q
+			hull_boxes[from] = (hull_boxes[from] as AABB).expand(w) if hull_boxes.has(from) else AABB(w, Vector3.ZERO)
+	assert_eq(hulls, expected, "one chassis collider per hull piece in the export")
+	assert_eq(boxes, 0, "no box colliders left on the Juggernaut's chassis")
+	var checked := 0
+	for from: String in hull_boxes:
+		if gun.has(str(by_name[from]["bone"])):
+			continue
+		var mesh := mech.find_child(from.replace(".", "_"), true, false) as MeshInstance3D
+		if mesh == null:
+			continue
+		var off := (hull_boxes[from] as AABB).get_center().distance_to((mesh.global_transform * mesh.get_aabb()).get_center())
+		assert_lt(off, 0.1, "%s collider sits on its visible mesh (off by %.3f m)" % [from, off])
+		checked += 1
+	assert_gt(checked, 30, "most chassis parts checked against their mesh")
+
+
+## Lane A2 part 4: the feet stand where the model's sole sockets are (mechs.json legs.<leg>.sole,
+## generated from B1's sole_* sockets), 2-3 m outboard of the hips with the soles on the ground,
+## instead of on the ground straight under each hip.
+func test_feet_stand_on_the_sole_sockets() -> void:
+	await physics_frames(480)
+	var def: Dictionary = mech.get("def")
+	assert_eq(int(mech.call("telemetry")["feet_on_ground"]), 4, "ground found under every sole")
+	for leg: Dictionary in (mech.get("legs") as Array):
+		var sole: Array = def["legs"][leg["name"]]["sole"]
+		var foot := mech.to_local(leg["foot"])
+		var off := Vector2(foot.x - float(sole[0]), foot.z - float(sole[2])).length()
+		assert_lt(off, 0.3, "%s foot stands at its sole socket (off by %.2f m)" % [leg["name"], off])
+		assert_gt(absf(foot.x - (leg["hip"] as Vector3).x), 1.5, "%s foot well outboard of its hip, not tucked under it" % leg["name"])
+		assert_almost_eq((leg["foot"] as Vector3).y, 0.0, 0.05, "%s sole on the ground (the ground's top is y = 0)" % leg["name"])
+		var rest := MechBuilder.rest_segments(leg)
+		var mesh_sole: Vector3 = mech.global_transform * ((leg["foot_mesh"] as Node3D).transform * ((rest["foot"] as Transform3D).affine_inverse() * (leg["sole_rest"] as Vector3)))
+		assert_almost_eq(mesh_sole.y, 0.0, 0.03, "%s visible foot's sole touches the ground (%.3f)" % [leg["name"], mesh_sole.y])
+
+
+## Lane A2 part 4: on a slope a planted foot tilts to lie flat on the ground under its sole (the
+## ray's hit normal), not level with the body.
+func test_feet_lie_flat_on_a_slope() -> void:
+	ground.rotation_degrees = Vector3(12.0, 0.0, 0.0)
+	await physics_frames(480)
+	var n := ground.global_transform.basis.y.normalized()
+	var planted := 0
+	for leg: Dictionary in (mech.get("legs") as Array):
+		assert_true(bool(leg["sole_contact"]), "%s sole finds the slope" % leg["name"])
+		if float(leg["step_t"]) >= 0.0:
+			continue
+		planted += 1
+		var up := (leg["foot_mesh"] as Node3D).global_transform.basis.y.normalized()
+		var err := rad_to_deg(up.angle_to(n))
+		assert_lt(err, 3.0, "%s foot lies on the 12 deg slope (%.1f deg off)" % [leg["name"], err])
+	assert_gt(planted, 1, "at least two feet planted to check")
+
+
+func _leg(leg_name: String) -> Dictionary:
+	return (mech.get("legs") as Array).filter(func(l: Dictionary) -> bool: return str(l["name"]) == leg_name)[0]
+
+
+func _assert_hulls_on_leg_meshes(when: String) -> void:
+	var real: Dictionary = mech.get("_real_mesh")
+	for leg: Dictionary in (mech.get("legs") as Array):
+		for seg: String in ["upper", "lower", "foot"]:
+			var mesh := (real[leg["name"]] as Dictionary)[seg] as MeshInstance3D
+			var boxes: Array = leg[seg + "_hitboxes"]
+			var hull := AABB()
+			var first := true
+			for cs: CollisionShape3D in boxes:
+				assert_true(cs.shape is ConvexPolygonShape3D, "%s %s hitbox is a hull, not a box" % [leg["name"], seg])
+				if not cs.shape is ConvexPolygonShape3D:
+					return
+				var to_mesh := mesh.global_transform.affine_inverse() * cs.global_transform
+				for p: Vector3 in (cs.shape as ConvexPolygonShape3D).points:
+					hull = AABB(to_mesh * p, Vector3.ZERO) if first else hull.expand(to_mesh * p)
+					first = false
+			var box := mesh.get_aabb()
+			var off := hull.get_center().distance_to(box.get_center())
+			assert_lt(off, 0.08, "%s %s hull centred on its visible mesh %s (off by %.3f m)" % [leg["name"], seg, when, off])
+			for axis in 3:
+				var ratio := hull.size[axis] / maxf(box.size[axis], 0.001)
+				assert_between(ratio, 0.75, 1.25, "%s %s hull as big as its mesh along axis %d %s (ratio %.2f)" % [leg["name"], seg, axis, when, ratio])
+
+
+## The gun's real direction, not just the pitch number: while moving the barrel lies where B1
+## modelled it (its rest pose), and at rest it is raised by tuning.juggernaut.gun.idle_deg with the
+## muzzle higher. Godot 4 bone poses replace the rest pose rather than add to it, so a pitch set
+## without the rest rotation swung the barrel off its modelled line (found 2026-09-30 from
+## Emerson's "the gun looks too long").
+func test_gun_barrel_points_where_the_pitch_says() -> void:
+	var model: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(str((mech.get("def") as Dictionary)["model_data"])))
+	var muzzle := Vector3.ZERO
+	for sock: Dictionary in model["sockets"]:
+		if str(sock["name"]) == "muzzle":
+			muzzle = Vector3(float(sock["pos"][0]), float(sock["pos"][1]), float(sock["pos"][2]))
+	var sk: Skeleton3D = mech.get("_skeleton")
+	var bone: int = mech.get("_gun_bone")
+	var rest := sk.get_bone_global_rest(bone)
+	var local := rest.affine_inverse() * muzzle
+	await physics_frames(400)
+	var parked := sk.get_bone_global_pose(bone)
+	var parked_off := rad_to_deg((rest.basis * local).angle_to(parked.basis * local))
+	assert_lt(parked_off, 1.5, "by default the gun stays on its modelled line even parked (fixed to the body; %.1f deg off)" % parked_off)
+	Settings.set_value("gameplay.gun_idle_raise", true, false)
+	await physics_frames(120)
+	var idle := sk.get_bone_global_pose(bone)
+	var raised := rad_to_deg((rest.basis * local).angle_to(idle.basis * local))
+	assert_almost_eq(raised, 40.0, 2.0, "barrel raised 40 deg from its modelled line at rest (%.1f)" % raised)
+	assert_gt((idle * local).y, muzzle.y + 1.0, "muzzle well above its level height at rest (%.2f vs %.2f)" % [(idle * local).y, muzzle.y])
+	Input.action_press("move_forward", 1.0)
+	await physics_frames(180)
+	var moving := sk.get_bone_global_pose(bone)
+	var off := rad_to_deg((rest.basis * local).angle_to(moving.basis * local))
+	assert_lt(off, 1.5, "barrel on its modelled line while moving (%.1f deg off)" % off)
+
+
+## Emerson, 2026-09-30: nothing follows the mouse up and down. The body only tilts to aim with
+## gameplay.aim_tilt switched on.
+func test_aim_does_not_tilt_the_body_by_default() -> void:
+	await physics_frames(30)
+	mech.set("_aim", Vector2(0.0, 1.0))
+	mech.call("_pitch_aim", 0.5)
+	assert_almost_eq(float(mech.get("aim_pitch_deg")), 0.0, 0.001, "aim input leaves the body level by default")
+	Settings.set_value("gameplay.aim_tilt", true, false)
+	mech.call("_pitch_aim", 0.5)
+	assert_gt(float(mech.get("aim_pitch_deg")), 5.0, "with the option on, the body tilts to aim")
+
+
+## Emerson, 2026-09-30: "the limbs separate during walking". The IK chain now runs through the
+## model's real joints (thigh head, knee, ankle: mechs.json legs.<leg>.pivot/knee/ankle), so the thigh
+## stays on its hip joint, thigh and shin share the knee, and shin and foot share the ankle, at rest
+## and all through a walk. Each joint is carried by both parts it links and the two must agree.
+func test_leg_joints_stay_together_while_walking() -> void:
+	await physics_frames(240)
+	_assert_joints_together("at rest")
+	Input.action_press("move_forward", 1.0)
+	for i in 6:
+		await physics_frames(25)
+		_assert_joints_together("walking, sample %d" % i)
+
+
+func _assert_joints_together(when: String) -> void:
+	var def: Dictionary = mech.get("def")
+	for leg: Dictionary in (mech.get("legs") as Array):
+		var ld: Dictionary = def["legs"][leg["name"]]
+		var rest := MechBuilder.rest_segments(leg)
+		var up_move: Transform3D = (leg["upper_mesh"] as Node3D).transform * (rest["upper"] as Transform3D).affine_inverse()
+		var lo_move: Transform3D = (leg["lower_mesh"] as Node3D).transform * (rest["lower"] as Transform3D).affine_inverse()
+		var ft_move: Transform3D = (leg["foot_mesh"] as Node3D).transform * (rest["foot"] as Transform3D).affine_inverse()
+		var pivot := Vector3(float(ld["pivot"][0]), float(ld["pivot"][1]), float(ld["pivot"][2]))
+		var knee := Vector3(float(ld["knee"][0]), float(ld["knee"][1]), float(ld["knee"][2]))
+		var ankle := Vector3(float(ld["ankle"][0]), float(ld["ankle"][1]), float(ld["ankle"][2]))
+		var hip_gap := (up_move * pivot).distance_to(pivot)
+		var knee_gap := (up_move * knee).distance_to(lo_move * knee)
+		var ankle_gap := (lo_move * ankle).distance_to(ft_move * ankle)
+		assert_lt(hip_gap, 0.02, "%s thigh stays on its hip joint %s (%.3f m)" % [leg["name"], when, hip_gap])
+		assert_lt(knee_gap, 0.02, "%s thigh and shin meet at the knee %s (%.3f m)" % [leg["name"], when, knee_gap])
+		assert_lt(ankle_gap, 0.02, "%s shin and foot meet at the ankle %s (%.3f m)" % [leg["name"], when, ankle_gap])
+
+
+## Emerson, 2026-09-30: "make this all adjustable so I can do the testing for the best playing
+## positions". The stance controls (Settings > Gameplay > Juggernaut) work live on a standing mech:
+## taller, feet drawn in, longer legs, with every joint still together and planted feet on the ground.
+func test_stance_controls_work_live() -> void:
+	await physics_frames(360)
+	var y0 := mech.global_position.y
+	var fr := _leg("fr")
+	var out0: float = mech.to_local(fr["sole_hit"]).x - (fr["pivot"] as Vector3).x
+	Settings.set_value("mech.ride_lift_m", 0.5, false)
+	Settings.set_value("mech.foot_spread", 0.8, false)
+	Settings.set_value("mech.leg_length", 1.2, false)
+	await physics_frames(480)
+	var rise := mech.global_position.y - y0
+	assert_gt(rise, 0.35, "rides about 0.5 m higher (%.2f)" % rise)
+	var out1: float = mech.to_local(fr["sole_hit"]).x - (fr["pivot"] as Vector3).x
+	assert_almost_eq(out1 / out0, 0.8, 0.1, "feet stand 0.8 as far out (%.2f)" % (out1 / out0))
+	assert_almost_eq(float(mech.get("_leg_scale")), 1.2, 0.001, "legs 1.2 long")
+	_assert_joints_together("after the stance changed")
+	for leg: Dictionary in (mech.get("legs") as Array):
+		if float(leg["step_t"]) < 0.0:
+			assert_almost_eq((leg["foot"] as Vector3).y, 0.0, 0.05, "%s planted foot on the ground" % leg["name"])
+
+
+func test_metal_shine_is_adjustable_live() -> void:
+	var mats: Array = mech.get("_shine_mats")
+	assert_gt(mats.size(), 0, "the model's metal materials have per-mech copies")
+	Settings.set_value("mech.shine", 1.0, false)
+	for m: Dictionary in mats:
+		assert_almost_eq((m["mat"] as BaseMaterial3D).metallic, float(m["metallic"]), 0.001, "100% is the exported finish")
+	Settings.set_value("mech.shine", 0.25, false)
+	for m: Dictionary in mats:
+		assert_almost_eq((m["mat"] as BaseMaterial3D).metallic, float(m["metallic"]) * 0.25, 0.001, "shine scales the metal")

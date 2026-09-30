@@ -26,6 +26,8 @@ var _run_lift_m := 0.85
 var _skeleton: Skeleton3D
 var _gun_bone := -1
 var _gun_axis := Vector3.RIGHT
+var _gun_rest_rot := Quaternion.IDENTITY
+var _shine_mats: Array = []  # [{"mat": BaseMaterial3D copy, "metallic": exported, "specular": exported}]
 var _gun_pitch_deg := 0.0
 var _gun_idle_deg := 0.0
 var _gun_idle_speed_m_s := 0.5
@@ -46,10 +48,61 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 	if not ResourceLoader.exists(model_scene):
 		push_warning("juggernaut_mech: %s not synced yet (tools/sync_models.py juggernaut)" % model_scene)
 		return
-	var skin := (load(model_scene) as PackedScene).instantiate()
+	var skin := (load(model_scene) as PackedScene).instantiate() as Node3D
+	# The glb's origin is the ground under the model; this body's origin is the model's "body" bone
+	# (mechs.json model_origin, chest height), the frame every collider, hip and socket is in. Found
+	# in lane A2 part 4 by the hull-on-mesh test: without this shift the whole visible model sat
+	# 1.41 m above its own colliders.
+	var o: Array = mech_def.get("model_origin", [0, 0, 0])
+	skin.position = -Vector3(float(o[0]), float(o[1]), float(o[2]))
 	add_child(skin)
+	_wire_shine(skin)
 	_wire_real_legs(skin)
+	Settings.changed.connect(_on_setting_changed)
 	_wire_gun(skin)
+
+
+## Emerson's play-testing controls, Settings > Gameplay > Juggernaut (live, see _apply_stance).
+func _read_stance() -> void:
+	_leg_scale = Settings.get_f("mech.leg_length")
+	_lift = Settings.get_f("mech.ride_lift_m")
+	_spread = Settings.get_f("mech.foot_spread")
+
+
+func _on_setting_changed(key: String, _value: Variant) -> void:
+	if key == "mech.shine":
+		_apply_shine()
+	elif key.begins_with("mech."):
+		_read_stance()
+		_apply_stance()
+
+
+## A per-mech copy of every metal material on the model, so "Metal shine" (mech.shine) can dull or
+## brighten the finish live: metallic and specular scale with it; 100% is the finish B1 exported.
+func _wire_shine(skin: Node) -> void:
+	var copies := {}
+	for node: Node in skin.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(i) as BaseMaterial3D
+			if mat == null or mat.metallic <= 0.0:
+				continue
+			if not copies.has(mat):
+				var dup := mat.duplicate() as BaseMaterial3D
+				copies[mat] = dup
+				_shine_mats.append({"mat": dup, "metallic": mat.metallic, "specular": mat.metallic_specular})
+			mi.set_surface_override_material(i, copies[mat])
+	_apply_shine()
+
+
+func _apply_shine() -> void:
+	var s := Settings.get_f("mech.shine")
+	for m: Dictionary in _shine_mats:
+		var mat: BaseMaterial3D = m["mat"]
+		mat.metallic = float(m["metallic"]) * s
+		mat.metallic_specular = float(m["specular"]) * lerpf(0.4, 1.0, s)
 
 
 ## Reads "step_run" (used instead of "step" while sprinting) and "gun" (idle rise) on top of the
@@ -78,7 +131,15 @@ func _wire_gun(skin: Node) -> void:
 	if _gun_bone < 0:
 		push_warning("juggernaut_mech: no gun_pitch bone, idle gun rise disabled")
 		return
-	_gun_axis = _skeleton.get_bone_rest(_gun_bone).basis.x.normalized()
+	# Godot 4 bone poses are the bone's whole local transform, not an offset from its rest pose, so
+	# the pitch goes on top of the rest rotation, about the body's side-to-side axis (skeleton X: the
+	# glb is not rotated against the body) expressed in the parent bone's frame. Setting the pitch
+	# alone threw away the rest rotation and stood the barrel nearly upright (lane A2 part 4, from
+	# Emerson's "the gun looks too long"; tests/test_juggernaut.gd measures the barrel's real line).
+	_gun_rest_rot = _skeleton.get_bone_rest(_gun_bone).basis.get_rotation_quaternion()
+	var parent := _skeleton.get_bone_parent(_gun_bone)
+	var parent_basis := _skeleton.get_bone_global_rest(parent).basis if parent >= 0 else Basis.IDENTITY
+	_gun_axis = (parent_basis.inverse() * Vector3.RIGHT).normalized()
 
 
 ## Detach each leg's real thigh/shin/foot mesh from the glb's (never re-posed) skeleton and
@@ -96,16 +157,13 @@ func _wire_real_legs(skin: Node) -> void:
 		if thigh == null or shin == null or foot == null:
 			push_warning("juggernaut_mech: no real mesh for leg %s, keeping the box" % leg_name)
 			continue
-		var hip: Vector3 = leg["hip"]
-		var foot_rest := MechBuilder.rest_foot(def, hip)
-		var knee_rest := LegIK.knee(hip, foot_rest, leg["upper_len"], leg["lower_len"], MechBuilder.knee_pole(hip))
-		var upper_rest := LegIK.segment(hip, knee_rest)
-		var lower_rest := LegIK.segment(knee_rest, foot_rest)
-		var foot_rest_xf := Transform3D(Basis.IDENTITY, foot_rest + Vector3(0, 0.1, 0))
+		# The same rest frames MechBuilder gave the hitboxes and their hulls, so the visible leg and
+		# its hitbox stay on each other whatever the IK does.
+		var rest := MechBuilder.rest_segments(leg)
 		_mesh_offset[leg_name] = {
-			"upper": upper_rest.affine_inverse() * _rest_transform_to(thigh, self),
-			"lower": lower_rest.affine_inverse() * _rest_transform_to(shin, self),
-			"foot": foot_rest_xf.affine_inverse() * _rest_transform_to(foot, self),
+			"upper": (rest["upper"] as Transform3D).affine_inverse() * _rest_transform_to(thigh, self),
+			"lower": (rest["lower"] as Transform3D).affine_inverse() * _rest_transform_to(shin, self),
+			"foot": (rest["foot"] as Transform3D).affine_inverse() * _rest_transform_to(foot, self),
 		}
 		thigh.owner = null
 		shin.owner = null
@@ -150,6 +208,9 @@ func _physics_process(delta: float) -> void:
 func _update_gun_pitch(delta: float) -> void:
 	if _gun_bone < 0:
 		return
-	var target := _gun_idle_deg if linear_velocity.length() < _gun_idle_speed_m_s else 0.0
+	# Emerson, 2026-09-30: the gun is fixed to the body. The parked raise is an option
+	# (gameplay.gun_idle_raise, off by default), and the gun never tracks anything.
+	var raise := _gun_idle_deg if Settings.get_b("gameplay.gun_idle_raise") else 0.0
+	var target := raise if linear_velocity.length() < _gun_idle_speed_m_s else 0.0
 	_gun_pitch_deg = move_toward(_gun_pitch_deg, target, _gun_transition_deg_s * delta)
-	_skeleton.set_bone_pose_rotation(_gun_bone, Quaternion(_gun_axis, deg_to_rad(_gun_pitch_deg)))
+	_skeleton.set_bone_pose_rotation(_gun_bone, Quaternion(_gun_axis, deg_to_rad(_gun_pitch_deg)) * _gun_rest_rot)

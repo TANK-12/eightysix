@@ -49,6 +49,9 @@ var _step_lift_m := 0.55
 var _stuck_s := 0.0
 var _run_stance := 0.0
 var _skid_brace := 0.0
+var _leg_scale := 1.0
+var _lift := 0.0
+var _spread := 1.0
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -73,11 +76,70 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 		leg["step_t"] = -1.0
 		leg["foot"] = Vector3.ZERO
 		leg["hit"] = Vector3.ZERO
+		if not leg.has("sole_rest"):
+			leg["sole_rest"] = MechBuilder.rest_foot(def, hip)
+		if not leg.has("pivot"):
+			leg["pivot"] = hip
+			leg["end_offset"] = MechBuilder.FOOT_RAISE
+			leg["pole"] = MechBuilder.knee_pole(hip)
+		leg["sole_contact"] = false
+		leg["sole_hit"] = Vector3.ZERO
+		leg["sole_normal"] = Vector3.UP
+		leg["planted_normal"] = Vector3.UP
+		leg["foot_up"] = Vector3.UP
+		leg["needs_seat"] = true
+		leg["step_lift"] = _step_lift_m
 	var reach := 0.0
 	if legs.size() > 0:
 		reach = float(legs[0]["upper_len"]) + float(legs[0]["lower_len"])
 	for a: Dictionary in actuators:
 		_bench_speed_cap = minf(_bench_speed_cap, JumpCharge.bench_speed_cap(a.get("bench", {}), reach))
+	_read_stance()
+	_apply_stance()
+
+
+## The stance controls; the stand-in keeps the modelled pose (juggernaut_mech.gd reads Settings).
+func _read_stance() -> void:
+	pass
+
+
+## Emerson's play-testing controls (2026-09-30): the stance the feet aim for and the springs hold.
+## `_lift` raises the body (the springs' rest length grows and the soles aim that much lower),
+## `_spread` draws the feet in towards (or out from) the hip joints, and `_leg_scale` lengthens the
+## thigh and shin (IK, meshes and hitboxes together). The rest frames stay the modelled pose; only
+## the targets move, and every foot steps into the new stance.
+func _apply_stance() -> void:
+	var height := float(def.get("stance", {}).get("height_m", 2.0))
+	var k := _stiffness()
+	for leg: Dictionary in legs:
+		var hip: Vector3 = leg["hip"]
+		leg["rest_len"] = height + _lift + hip.y + float(mass_info["mass"]) * 9.81 / (legs.size() * k)
+		var sole: Vector3 = leg["sole_rest"]
+		var pivot: Vector3 = leg["pivot"]
+		leg["sole_stance"] = Vector3(pivot.x + (sole.x - pivot.x) * _spread, sole.y - _lift, pivot.z + (sole.z - pivot.z) * _spread)
+		leg["needs_seat"] = true
+		for seg: String in ["upper", "lower"]:
+			for hb: Variant in leg.get(seg + "_hitboxes", [leg.get(seg + "_hitbox")]):
+				_stretch_hitbox(hb as CollisionShape3D, _leg_scale)
+
+
+## Stretches a leg segment's hitbox along the leg (local Z) from the shape it was built with, so it
+## keeps matching the stretched mesh without scaling the CollisionShape3D node itself.
+static func _stretch_hitbox(cs: CollisionShape3D, s: float) -> void:
+	if cs == null or cs.shape == null:
+		return
+	if cs.shape is ConvexPolygonShape3D:
+		var hull := cs.shape as ConvexPolygonShape3D
+		if not cs.has_meta("base_points"):
+			cs.set_meta("base_points", hull.points)
+		var base: PackedVector3Array = cs.get_meta("base_points")
+		hull.points = Transform3D(Basis.from_scale(Vector3(1, 1, s)), Vector3.ZERO) * base
+	elif cs.shape is BoxShape3D:
+		var box := cs.shape as BoxShape3D
+		if not cs.has_meta("base_size"):
+			cs.set_meta("base_size", box.size)
+		var size: Vector3 = cs.get_meta("base_size")
+		box.size = Vector3(size.x, size.y, size.z * s)
 
 
 func _ready() -> void:
@@ -86,9 +148,10 @@ func _ready() -> void:
 		add_to_group("player_mech")
 	_aim_yaw = _yaw_of(global_transform.basis)
 	for leg: Dictionary in legs:
-		var foot_world := to_global(MechBuilder.rest_foot(def, leg["hip"]))
+		var foot_world := to_global(leg["sole_stance"])
 		leg["planted"] = foot_world
 		leg["foot"] = foot_world
+		leg["planted_normal"] = global_transform.basis.y
 
 
 ## Reads "step" (swing_s, lift_m) from `_t`; a subclass that swaps `_t` for its own tuning block
@@ -216,7 +279,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
 		var hip_w := xf * (leg["hip"] as Vector3)
-		var cast_w := hip_w + xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
+		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
+		var cast_w := hip_w + out_w
+		_cast_sole(leg, space, xf, out_w, margin)
 		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45))) - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
@@ -394,7 +459,13 @@ func _unstick(state: PhysicsDirectBodyState3D, basis: Basis, recover: float) -> 
 	state.apply_central_force(dir * accel * mass)
 
 
+## Body tilt to aim up and down (mouse or right stick). Emerson, 2026-09-30: nothing follows the
+## mouse up and down, the chassis and gun are fixed; so this is an option (gameplay.aim_tilt, off by
+## default), and with it off the body eases back level.
 func _pitch_aim(dt: float) -> void:
+	if not Settings.get_b("gameplay.aim_tilt"):
+		aim_pitch_deg = move_toward(aim_pitch_deg, 0.0, 40.0 * dt)
+		return
 	var a: Dictionary = Registry.tune("aim", {})
 	var rate := 40.0
 	aim_pitch_deg += _aim.y * rate * dt - _mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
@@ -412,49 +483,108 @@ func _on_landed(impact: float) -> void:
 # --- legs: two-bone IK, a simple step when a foot drifts, hitboxes follow ----------------------
 
 
+## Lane A2 part 4: where the foot really stands. The leg's sole (MechBuilder.leg_sole: the model's
+## sole socket, the foot's contact point at the rest pose) is pushed out by the run/skid splay, and a
+## ray goes down through it from hip height, so each foot lands on the ground under it rather than
+## on the ground under the hip 2-3 m further in (on rocky ground those differ). The springs keep
+## their own rays at the hips: this places the feet and changes nothing about how the body is held.
+func _cast_sole(leg: Dictionary, space: PhysicsDirectSpaceState3D, xf: Transform3D, out_w: Vector3, margin: float) -> void:
+	var sole: Vector3 = leg["sole_stance"]
+	var rise := maxf((leg["hip"] as Vector3).y - sole.y, 0.5)
+	var sole_w := xf * sole + out_w
+	var up := xf.basis.y
+	var query := PhysicsRayQueryParameters3D.create(sole_w + up * rise, sole_w - up * margin, RAY_MASK, [get_rid()])
+	var hit := space.intersect_ray(query)
+	leg["sole_contact"] = not hit.is_empty()
+	if not hit.is_empty():
+		leg["sole_hit"] = hit["position"]
+		leg["sole_normal"] = hit["normal"]
+
+
 func _physics_process(delta: float) -> void:
 	var xf := global_transform
+	var feet: Dictionary = _t.get("feet", {})
+	var max_tilt := deg_to_rad(float(feet.get("max_tilt_deg", 25.0)))
+	var reseat := float(feet.get("reseat_m", 0.3))
 	for leg: Dictionary in legs:
-		var hip: Vector3 = leg["hip"]
+		var on_ground: bool = leg["sole_contact"] or leg["contact"]
 		var target_world: Vector3
-		if leg["contact"]:
+		var target_normal := xf.basis.y
+		if leg["sole_contact"]:
+			target_world = leg["sole_hit"]
+			target_normal = leg["sole_normal"]
+		elif leg["contact"]:
 			target_world = leg["hit"]
 		else:
-			target_world = xf * (hip + Vector3(signf(hip.x) * 0.9, -float(leg["rest_len"]) * 0.95, 0.0))
+			# Nothing under the foot: the leg hangs in its rest pose (fronts forward, rears back,
+			# not tucked in: ANALYSIS.md's airborne legs).
+			target_world = xf * (leg["sole_stance"] as Vector3)
 		var t := float(leg["step_t"])
 		if t >= 0.0:
 			t += delta / _step_s
 			leg["step_t"] = t
 			var from: Vector3 = leg["step_from"]
-			var to: Vector3 = leg["step_to"] if not leg["contact"] else target_world
-			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * _step_lift_m
+			var to: Vector3 = leg["step_to"] if not on_ground else target_world
+			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * float(leg["step_lift"])
 			leg["foot"] = foot
 			if t >= 1.0:
 				leg["step_t"] = -1.0
 				leg["planted"] = to
+				leg["planted_normal"] = target_normal
 				stepped.emit(str(leg["name"]))
-				if is_player and leg["contact"]:
+				if is_player and on_ground:
 					Rumble.play("footstep")
 		else:
-			var drift := (leg["planted"] as Vector3).distance_to(target_world)
-			if not leg["contact"] or airborne:
+			var gap: Vector3 = target_world - (leg["planted"] as Vector3)
+			var seat := bool(leg["needs_seat"]) and gap.length() > 0.05
+			if not on_ground or airborne:
 				leg["planted"] = leg["planted"].lerp(target_world, minf(delta * 8.0, 1.0))
-			elif drift > 0.9 and not _partner_stepping(str(leg["name"])):
+				leg["planted_normal"] = target_normal
+				leg["needs_seat"] = true
+			elif (gap.length() > 0.9 or absf(gap.dot(xf.basis.y)) > reseat or seat) and not _partner_stepping(str(leg["name"])):
+				# Step when the foot has drifted too far from where it should stand, is left
+				# hovering above (or sunk into) the ground, or has just come down from the air (a
+				# landing, or the drop at spawn) and is not yet where its sole belongs. A short
+				# re-seat step lifts the foot less than a full stride.
 				leg["step_from"] = leg["planted"]
 				leg["step_to"] = target_world + linear_velocity * 0.15
 				leg["step_t"] = 0.0
+				leg["step_lift"] = _step_lift_m * clampf(gap.length() / 0.9, 0.3, 1.0)
+				leg["needs_seat"] = false
+			elif gap.length() <= 0.05:
+				leg["needs_seat"] = false
 			leg["foot"] = leg["planted"]
-		var foot_local := LegIK.reachable(hip, to_local(leg["foot"]), leg["upper_len"], leg["lower_len"])
-		var knee := LegIK.knee(hip, foot_local, leg["upper_len"], leg["lower_len"], MechBuilder.knee_pole(hip))
-		var upper_xf := LegIK.segment(hip, knee)
-		var lower_xf := LegIK.segment(knee, foot_local)
-		var foot_xf := Transform3D(Basis.IDENTITY, foot_local + Vector3(0, 0.1, 0))
-		(leg["upper_mesh"] as Node3D).transform = upper_xf
-		(leg["lower_mesh"] as Node3D).transform = lower_xf
+		# The foot pivots about its sole on the ground; the IK chain ends at its ankle above that.
+		var planted := float(leg["step_t"]) < 0.0 and on_ground
+		var tilt := Basis(Quaternion(Vector3.UP, _foot_up(leg, xf, planted, max_tilt, delta)))
+		var pose := MechBuilder.pose_segments(leg, to_local(leg["foot"]) + tilt * (leg["end_offset"] as Vector3), tilt, _leg_scale)
+		var upper_xf: Transform3D = pose["upper"]
+		var lower_xf: Transform3D = pose["lower"]
+		var foot_xf: Transform3D = pose["foot"]
+		(leg["upper_mesh"] as Node3D).transform = upper_xf.scaled_local(Vector3(1, 1, _leg_scale))
+		(leg["lower_mesh"] as Node3D).transform = lower_xf.scaled_local(Vector3(1, 1, _leg_scale))
 		(leg["foot_mesh"] as Node3D).transform = foot_xf
-		(leg["upper_hitbox"] as Node3D).transform = upper_xf
-		(leg["lower_hitbox"] as Node3D).transform = lower_xf
-		(leg["foot_hitbox"] as Node3D).transform = foot_xf
+		for hb: Node3D in leg.get("upper_hitboxes", [leg["upper_hitbox"]]):
+			hb.transform = upper_xf
+		for hb: Node3D in leg.get("lower_hitboxes", [leg["lower_hitbox"]]):
+			hb.transform = lower_xf
+		for hb: Node3D in leg.get("foot_hitboxes", [leg["foot_hitbox"]]):
+			hb.transform = foot_xf
+
+
+## The foot's up direction in the body frame: square to the ground it is planted on (the sole
+## socket's normal is the model's up at rest), level while it swings or hangs, tilted at most
+## feet.max_tilt_deg, and eased in so a foot settles onto a slope instead of snapping to it.
+func _foot_up(leg: Dictionary, xf: Transform3D, planted: bool, max_tilt: float, delta: float) -> Vector3:
+	var want := Vector3.UP
+	if planted:
+		want = (xf.basis.inverse() * (leg["planted_normal"] as Vector3)).normalized()
+		var angle := want.angle_to(Vector3.UP)
+		if angle > max_tilt:
+			want = Vector3.UP.slerp(want, max_tilt / angle)
+	var up := (leg["foot_up"] as Vector3).slerp(want, minf(delta * 12.0, 1.0)).normalized()
+	leg["foot_up"] = up
+	return up
 
 
 func _partner_stepping(name: String) -> bool:
@@ -472,10 +602,13 @@ func telemetry() -> Dictionary:
 	var p := global_position
 	var clearance := 0.0
 	var n := 0
+	var soles := 0
 	for leg: Dictionary in legs:
 		if leg["contact"]:
 			clearance += (global_transform * (leg["hip"] as Vector3)).distance_to(leg["hit"])
 			n += 1
+		if leg["sole_contact"]:
+			soles += 1
 	return {
 		"position": [snappedf(p.x, 0.01), snappedf(p.y, 0.01), snappedf(p.z, 0.01)],
 		"speed_m_s": snappedf(linear_velocity.length(), 0.01),
@@ -483,6 +616,7 @@ func telemetry() -> Dictionary:
 		"pitch_deg": snappedf(rad_to_deg(global_transform.basis.get_euler().x), 0.1),
 		"roll_deg": snappedf(rad_to_deg(global_transform.basis.get_euler().z), 0.1),
 		"grounded_legs": grounded_legs,
+		"feet_on_ground": soles,
 		"airborne": airborne,
 		"skidding": skidding,
 		"charging": charging,

@@ -245,15 +245,16 @@
     "jg2_thigh_FR": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (FR)",
-      "mass_kg": 262.24,
+      "mass_kg": 249.31,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_thigh.FR",
         "size": [
-          0.268,
-          0.47,
+          0.255,
+          0.258,
           1.677
         ]
       },
@@ -261,20 +262,21 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_shin_FR": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (FR)",
-      "mass_kg": 203.09,
+      "mass_kg": 193.09,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_shin.FR",
         "size": [
-          0.199,
-          0.242,
+          0.195,
+          0.237,
           2.093
         ]
       },
@@ -282,7 +284,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_foot_FR": {
       "kind": "foot",
@@ -291,7 +293,8 @@
       "health": 900,
       "armour_mm": 14,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_foot.FR",
         "size": [
           0.329,
           0.318,
@@ -302,7 +305,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
     },
     "jg2_act_hip_yaw_FR": {
       "kind": "actuator",
@@ -314,27 +317,27 @@
       "joint": "hip_yaw",
       "game_motor": "hip_yaw",
       "game_motor_figures": {
-        "max_torque_nm": 244455.13246642277,
+        "max_torque_nm": 242580.87475157733,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 24445.513246642276,
+      "static_torque_nm": 24258.087475157732,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 30556.891558302847,
+        "rated_torque_nm": 30322.609343947166,
         "speed_rad_s": 0.15,
-        "power_w": 7051.590359608348,
-        "current_a": 73.45406624592029,
-        "heat_w": 2468.0566258629215,
-        "seconds_to_overheat": 486.21250721118963,
-        "rated_power_w": 7051.590359608348,
+        "power_w": 6997.525233218576,
+        "current_a": 72.89088784602684,
+        "heat_w": 2449.1338316265014,
+        "seconds_to_overheat": 489.9691411322608,
+        "rated_power_w": 6997.525233218576,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 36436.2,
+        "peak_force_n": 36156.8,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_hip_pitch_FR": {
       "kind": "actuator",
@@ -346,27 +349,27 @@
       "joint": "hip_pitch",
       "game_motor": "hip_pitch",
       "game_motor_figures": {
-        "max_torque_nm": 1629700.8831094853,
+        "max_torque_nm": 1617205.8316771823,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 162970.08831094851,
+      "static_torque_nm": 161720.58316771823,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 203712.61038868566,
+        "rated_torque_nm": 202150.7289596478,
         "speed_rad_s": 0.15,
-        "power_w": 47010.60239738899,
-        "current_a": 489.693774972802,
-        "heat_w": 16453.710839086147,
-        "seconds_to_overheat": 72.93187608167842,
-        "rated_power_w": 47010.60239738899,
+        "power_w": 46650.16822145718,
+        "current_a": 485.9392523068456,
+        "heat_w": 16327.558877510011,
+        "seconds_to_overheat": 73.49537116983912,
+        "rated_power_w": 46650.16822145718,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 242908.0,
+        "peak_force_n": 241045.6,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_knee_FR": {
       "kind": "actuator",
@@ -378,28 +381,28 @@
       "joint": "knee",
       "game_motor": "knee",
       "game_motor_figures": {
-        "max_torque_nm": 908983.0421603121,
+        "max_torque_nm": 902013.794011404,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 90898.3042160312,
+      "static_torque_nm": 90201.37940114041,
       "bench": {
         "kind": "linear",
         "moment_arm_m": 0.11113808182449325,
-        "rated_force_n": 1022357.7589675309,
+        "rated_force_n": 1014519.2574897998,
         "speed_m_s": 0.025,
-        "power_w": 39321.45226798196,
-        "current_a": 409.59846112481205,
-        "heat_w": 13762.508293793684,
-        "seconds_to_overheat": 87.19340794447695,
-        "rated_power_w": 39321.45226798196,
+        "power_w": 39019.971441915375,
+        "current_a": 406.45803585328514,
+        "heat_w": 13656.99000467038,
+        "seconds_to_overheat": 87.86709220623484,
+        "rated_power_w": 39019.971441915375,
         "thermal_mass_j_per_k": 15000.0,
-        "peak_force_n": 1022357.7589675309,
+        "peak_force_n": 1014519.2574897998,
         "no_load_speed_m_s": 0.025,
         "lever_arm_m": 0.11113808182449325,
         "stroke_m": 0.837,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_ankle_FR": {
       "kind": "actuator",
@@ -411,40 +414,41 @@
       "joint": "ankle",
       "game_motor": "ankle",
       "game_motor_figures": {
-        "max_torque_nm": 45449.15210801561,
+        "max_torque_nm": 45100.68970057021,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 4544.9152108015605,
+      "static_torque_nm": 4510.068970057021,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 5681.144013501951,
+        "rated_torque_nm": 5637.5862125712765,
         "speed_rad_s": 0.15,
-        "power_w": 1311.0332338850656,
-        "current_a": 13.656596186302766,
-        "heat_w": 458.8616318597729,
-        "seconds_to_overheat": 2615.1674419505994,
-        "rated_power_w": 1311.0332338850656,
+        "power_w": 1300.9814336702946,
+        "current_a": 13.551889934065569,
+        "heat_w": 455.34350178460306,
+        "seconds_to_overheat": 2635.373065162685,
+        "rated_power_w": 1300.9814336702946,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.523,
-        "peak_force_n": 10856.3,
+        "peak_force_n": 10773.1,
         "no_load_speed_m_s": 0.0785,
         "stroke_m": 0.157,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_thigh_FL": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (FL)",
-      "mass_kg": 262.25,
+      "mass_kg": 249.3,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_thigh.FL",
         "size": [
-          0.268,
-          0.47,
+          0.255,
+          0.258,
           1.677
         ]
       },
@@ -452,20 +456,21 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_shin_FL": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (FL)",
-      "mass_kg": 204.29,
+      "mass_kg": 193.16,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_shin.FL",
         "size": [
-          0.198,
-          0.247,
+          0.195,
+          0.245,
           2.093
         ]
       },
@@ -473,7 +478,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_foot_FL": {
       "kind": "foot",
@@ -482,7 +487,8 @@
       "health": 900,
       "armour_mm": 14,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_foot.FL",
         "size": [
           0.329,
           0.318,
@@ -493,7 +499,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
     },
     "jg2_act_hip_yaw_FL": {
       "kind": "actuator",
@@ -505,27 +511,27 @@
       "joint": "hip_yaw",
       "game_motor": "hip_yaw",
       "game_motor_figures": {
-        "max_torque_nm": 244455.13246642277,
+        "max_torque_nm": 242580.87475157733,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 24445.513246642276,
+      "static_torque_nm": 24258.087475157732,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 30556.891558302847,
+        "rated_torque_nm": 30322.609343947166,
         "speed_rad_s": 0.15,
-        "power_w": 7051.590359608348,
-        "current_a": 73.45406624592029,
-        "heat_w": 2468.0566258629215,
-        "seconds_to_overheat": 486.21250721118963,
-        "rated_power_w": 7051.590359608348,
+        "power_w": 6997.525233218576,
+        "current_a": 72.89088784602684,
+        "heat_w": 2449.1338316265014,
+        "seconds_to_overheat": 489.9691411322608,
+        "rated_power_w": 6997.525233218576,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 36436.2,
+        "peak_force_n": 36156.8,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_hip_pitch_FL": {
       "kind": "actuator",
@@ -537,27 +543,27 @@
       "joint": "hip_pitch",
       "game_motor": "hip_pitch",
       "game_motor_figures": {
-        "max_torque_nm": 1629700.8831094853,
+        "max_torque_nm": 1617205.8316771823,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 162970.08831094851,
+      "static_torque_nm": 161720.58316771823,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 203712.61038868566,
+        "rated_torque_nm": 202150.7289596478,
         "speed_rad_s": 0.15,
-        "power_w": 47010.60239738899,
-        "current_a": 489.693774972802,
-        "heat_w": 16453.710839086147,
-        "seconds_to_overheat": 72.93187608167842,
-        "rated_power_w": 47010.60239738899,
+        "power_w": 46650.16822145718,
+        "current_a": 485.9392523068456,
+        "heat_w": 16327.558877510011,
+        "seconds_to_overheat": 73.49537116983912,
+        "rated_power_w": 46650.16822145718,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 242908.0,
+        "peak_force_n": 241045.6,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_knee_FL": {
       "kind": "actuator",
@@ -569,28 +575,28 @@
       "joint": "knee",
       "game_motor": "knee",
       "game_motor_figures": {
-        "max_torque_nm": 908983.0421603121,
+        "max_torque_nm": 902013.794011404,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 90898.3042160312,
+      "static_torque_nm": 90201.37940114041,
       "bench": {
         "kind": "linear",
         "moment_arm_m": 0.11113808182449325,
-        "rated_force_n": 1022357.7589675309,
+        "rated_force_n": 1014519.2574897998,
         "speed_m_s": 0.025,
-        "power_w": 39321.45226798196,
-        "current_a": 409.59846112481205,
-        "heat_w": 13762.508293793684,
-        "seconds_to_overheat": 87.19340794447695,
-        "rated_power_w": 39321.45226798196,
+        "power_w": 39019.971441915375,
+        "current_a": 406.45803585328514,
+        "heat_w": 13656.99000467038,
+        "seconds_to_overheat": 87.86709220623484,
+        "rated_power_w": 39019.971441915375,
         "thermal_mass_j_per_k": 15000.0,
-        "peak_force_n": 1022357.7589675309,
+        "peak_force_n": 1014519.2574897998,
         "no_load_speed_m_s": 0.025,
         "lever_arm_m": 0.11113808182449325,
         "stroke_m": 0.837,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_ankle_FL": {
       "kind": "actuator",
@@ -602,40 +608,41 @@
       "joint": "ankle",
       "game_motor": "ankle",
       "game_motor_figures": {
-        "max_torque_nm": 45449.15210801561,
+        "max_torque_nm": 45100.68970057021,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 4544.9152108015605,
+      "static_torque_nm": 4510.068970057021,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 5681.144013501951,
+        "rated_torque_nm": 5637.5862125712765,
         "speed_rad_s": 0.15,
-        "power_w": 1311.0332338850656,
-        "current_a": 13.656596186302766,
-        "heat_w": 458.8616318597729,
-        "seconds_to_overheat": 2615.1674419505994,
-        "rated_power_w": 1311.0332338850656,
+        "power_w": 1300.9814336702946,
+        "current_a": 13.551889934065569,
+        "heat_w": 455.34350178460306,
+        "seconds_to_overheat": 2635.373065162685,
+        "rated_power_w": 1300.9814336702946,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.523,
-        "peak_force_n": 10856.3,
+        "peak_force_n": 10773.1,
         "no_load_speed_m_s": 0.0785,
         "stroke_m": 0.157,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_thigh_RR": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (RR)",
-      "mass_kg": 262.29,
+      "mass_kg": 249.36,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_thigh.RR",
         "size": [
-          0.268,
-          0.47,
+          0.255,
+          0.258,
           1.677
         ]
       },
@@ -643,20 +650,21 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_shin_RR": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (RR)",
-      "mass_kg": 204.31,
+      "mass_kg": 193.18,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_shin.RR",
         "size": [
-          0.197,
-          0.242,
+          0.2,
+          0.237,
           2.093
         ]
       },
@@ -664,7 +672,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_foot_RR": {
       "kind": "foot",
@@ -673,7 +681,8 @@
       "health": 900,
       "armour_mm": 14,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_foot.RR",
         "size": [
           0.329,
           0.318,
@@ -684,7 +693,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
     },
     "jg2_act_hip_yaw_RR": {
       "kind": "actuator",
@@ -696,27 +705,27 @@
       "joint": "hip_yaw",
       "game_motor": "hip_yaw",
       "game_motor_figures": {
-        "max_torque_nm": 244455.13246642277,
+        "max_torque_nm": 242580.87475157733,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 24445.513246642276,
+      "static_torque_nm": 24258.087475157732,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 30556.891558302847,
+        "rated_torque_nm": 30322.609343947166,
         "speed_rad_s": 0.15,
-        "power_w": 7051.590359608348,
-        "current_a": 73.45406624592029,
-        "heat_w": 2468.0566258629215,
-        "seconds_to_overheat": 486.21250721118963,
-        "rated_power_w": 7051.590359608348,
+        "power_w": 6997.525233218576,
+        "current_a": 72.89088784602684,
+        "heat_w": 2449.1338316265014,
+        "seconds_to_overheat": 489.9691411322608,
+        "rated_power_w": 6997.525233218576,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 36436.2,
+        "peak_force_n": 36156.8,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_hip_pitch_RR": {
       "kind": "actuator",
@@ -728,27 +737,27 @@
       "joint": "hip_pitch",
       "game_motor": "hip_pitch",
       "game_motor_figures": {
-        "max_torque_nm": 1629700.8831094853,
+        "max_torque_nm": 1617205.8316771823,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 162970.08831094851,
+      "static_torque_nm": 161720.58316771823,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 203712.61038868566,
+        "rated_torque_nm": 202150.7289596478,
         "speed_rad_s": 0.15,
-        "power_w": 47010.60239738899,
-        "current_a": 489.693774972802,
-        "heat_w": 16453.710839086147,
-        "seconds_to_overheat": 72.93187608167842,
-        "rated_power_w": 47010.60239738899,
+        "power_w": 46650.16822145718,
+        "current_a": 485.9392523068456,
+        "heat_w": 16327.558877510011,
+        "seconds_to_overheat": 73.49537116983912,
+        "rated_power_w": 46650.16822145718,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 242908.0,
+        "peak_force_n": 241045.6,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_knee_RR": {
       "kind": "actuator",
@@ -760,28 +769,28 @@
       "joint": "knee",
       "game_motor": "knee",
       "game_motor_figures": {
-        "max_torque_nm": 908983.0421603121,
+        "max_torque_nm": 902013.794011404,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 90898.3042160312,
+      "static_torque_nm": 90201.37940114041,
       "bench": {
         "kind": "linear",
         "moment_arm_m": 0.11113808182449325,
-        "rated_force_n": 1022357.7589675309,
+        "rated_force_n": 1014519.2574897998,
         "speed_m_s": 0.025,
-        "power_w": 39321.45226798196,
-        "current_a": 409.59846112481205,
-        "heat_w": 13762.508293793684,
-        "seconds_to_overheat": 87.19340794447695,
-        "rated_power_w": 39321.45226798196,
+        "power_w": 39019.971441915375,
+        "current_a": 406.45803585328514,
+        "heat_w": 13656.99000467038,
+        "seconds_to_overheat": 87.86709220623484,
+        "rated_power_w": 39019.971441915375,
         "thermal_mass_j_per_k": 15000.0,
-        "peak_force_n": 1022357.7589675309,
+        "peak_force_n": 1014519.2574897998,
         "no_load_speed_m_s": 0.025,
         "lever_arm_m": 0.11113808182449325,
         "stroke_m": 0.837,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_ankle_RR": {
       "kind": "actuator",
@@ -793,40 +802,41 @@
       "joint": "ankle",
       "game_motor": "ankle",
       "game_motor_figures": {
-        "max_torque_nm": 45449.15210801561,
+        "max_torque_nm": 45100.68970057021,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 4544.9152108015605,
+      "static_torque_nm": 4510.068970057021,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 5681.144013501951,
+        "rated_torque_nm": 5637.5862125712765,
         "speed_rad_s": 0.15,
-        "power_w": 1311.0332338850656,
-        "current_a": 13.656596186302766,
-        "heat_w": 458.8616318597729,
-        "seconds_to_overheat": 2615.1674419505994,
-        "rated_power_w": 1311.0332338850656,
+        "power_w": 1300.9814336702946,
+        "current_a": 13.551889934065569,
+        "heat_w": 455.34350178460306,
+        "seconds_to_overheat": 2635.373065162685,
+        "rated_power_w": 1300.9814336702946,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.523,
-        "peak_force_n": 10856.3,
+        "peak_force_n": 10773.1,
         "no_load_speed_m_s": 0.0785,
         "stroke_m": 0.157,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_thigh_RL": {
       "kind": "leg_upper",
       "label": "Juggernaut Model 2 thigh (RL)",
-      "mass_kg": 262.19,
+      "mass_kg": 249.27,
       "health": 1800,
       "armour_mm": 12,
       "length_m": 1.67728,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_thigh.RL",
         "size": [
-          0.268,
-          0.47,
+          0.255,
+          0.258,
           1.677
         ]
       },
@@ -834,20 +844,21 @@
         "color": "#5d6670",
         "mesh": "box"
       },
-      "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_shin_RL": {
       "kind": "leg_lower",
       "label": "Juggernaut Model 2 shin (RL)",
-      "mass_kg": 203.08,
+      "mass_kg": 193.08,
       "health": 1500,
       "armour_mm": 10,
       "length_m": 2.09321,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_shin.RL",
         "size": [
-          0.199,
-          0.247,
+          0.195,
+          0.245,
           2.093
         ]
       },
@@ -855,7 +866,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)"
     },
     "jg2_foot_RL": {
       "kind": "foot",
@@ -864,7 +875,8 @@
       "health": 900,
       "armour_mm": 14,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_foot.RL",
         "size": [
           0.329,
           0.318,
@@ -875,7 +887,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull; size is its axis-aligned bbox"
     },
     "jg2_act_hip_yaw_RL": {
       "kind": "actuator",
@@ -887,27 +899,27 @@
       "joint": "hip_yaw",
       "game_motor": "hip_yaw",
       "game_motor_figures": {
-        "max_torque_nm": 244455.13246642277,
+        "max_torque_nm": 242580.87475157733,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 24445.513246642276,
+      "static_torque_nm": 24258.087475157732,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 30556.891558302847,
+        "rated_torque_nm": 30322.609343947166,
         "speed_rad_s": 0.15,
-        "power_w": 7051.590359608348,
-        "current_a": 73.45406624592029,
-        "heat_w": 2468.0566258629215,
-        "seconds_to_overheat": 486.21250721118963,
-        "rated_power_w": 7051.590359608348,
+        "power_w": 6997.525233218576,
+        "current_a": 72.89088784602684,
+        "heat_w": 2449.1338316265014,
+        "seconds_to_overheat": 489.9691411322608,
+        "rated_power_w": 6997.525233218576,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 36436.2,
+        "peak_force_n": 36156.8,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_hip_pitch_RL": {
       "kind": "actuator",
@@ -919,27 +931,27 @@
       "joint": "hip_pitch",
       "game_motor": "hip_pitch",
       "game_motor_figures": {
-        "max_torque_nm": 1629700.8831094853,
+        "max_torque_nm": 1617205.8316771823,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 162970.08831094851,
+      "static_torque_nm": 161720.58316771823,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 203712.61038868566,
+        "rated_torque_nm": 202150.7289596478,
         "speed_rad_s": 0.15,
-        "power_w": 47010.60239738899,
-        "current_a": 489.693774972802,
-        "heat_w": 16453.710839086147,
-        "seconds_to_overheat": 72.93187608167842,
-        "rated_power_w": 47010.60239738899,
+        "power_w": 46650.16822145718,
+        "current_a": 485.9392523068456,
+        "heat_w": 16327.558877510011,
+        "seconds_to_overheat": 73.49537116983912,
+        "rated_power_w": 46650.16822145718,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.839,
-        "peak_force_n": 242908.0,
+        "peak_force_n": 241045.6,
         "no_load_speed_m_s": 0.1258,
         "stroke_m": 0.252,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_knee_RL": {
       "kind": "actuator",
@@ -951,28 +963,28 @@
       "joint": "knee",
       "game_motor": "knee",
       "game_motor_figures": {
-        "max_torque_nm": 908983.0421603121,
+        "max_torque_nm": 902013.794011404,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 90898.3042160312,
+      "static_torque_nm": 90201.37940114041,
       "bench": {
         "kind": "linear",
         "moment_arm_m": 0.11113808182449325,
-        "rated_force_n": 1022357.7589675309,
+        "rated_force_n": 1014519.2574897998,
         "speed_m_s": 0.025,
-        "power_w": 39321.45226798196,
-        "current_a": 409.59846112481205,
-        "heat_w": 13762.508293793684,
-        "seconds_to_overheat": 87.19340794447695,
-        "rated_power_w": 39321.45226798196,
+        "power_w": 39019.971441915375,
+        "current_a": 406.45803585328514,
+        "heat_w": 13656.99000467038,
+        "seconds_to_overheat": 87.86709220623484,
+        "rated_power_w": 39019.971441915375,
         "thermal_mass_j_per_k": 15000.0,
-        "peak_force_n": 1022357.7589675309,
+        "peak_force_n": 1014519.2574897998,
         "no_load_speed_m_s": 0.025,
         "lever_arm_m": 0.11113808182449325,
         "stroke_m": 0.837,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_act_ankle_RL": {
       "kind": "actuator",
@@ -984,27 +996,27 @@
       "joint": "ankle",
       "game_motor": "ankle",
       "game_motor_figures": {
-        "max_torque_nm": 45449.15210801561,
+        "max_torque_nm": 45100.68970057021,
         "max_speed_rad_s": 6.0
       },
-      "static_torque_nm": 4544.9152108015605,
+      "static_torque_nm": 4510.068970057021,
       "bench": {
         "kind": "rotary",
-        "rated_torque_nm": 5681.144013501951,
+        "rated_torque_nm": 5637.5862125712765,
         "speed_rad_s": 0.15,
-        "power_w": 1311.0332338850656,
-        "current_a": 13.656596186302766,
-        "heat_w": 458.8616318597729,
-        "seconds_to_overheat": 2615.1674419505994,
-        "rated_power_w": 1311.0332338850656,
+        "power_w": 1300.9814336702946,
+        "current_a": 13.551889934065569,
+        "heat_w": 455.34350178460306,
+        "seconds_to_overheat": 2635.373065162685,
+        "rated_power_w": 1300.9814336702946,
         "thermal_mass_j_per_k": 15000.0,
         "lever_arm_m": 0.523,
-        "peak_force_n": 10856.3,
+        "peak_force_n": 10773.1,
         "no_load_speed_m_s": 0.0785,
         "stroke_m": 0.157,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     },
     "jg2_ammobox_l": {
       "kind": "ammo",
@@ -1013,7 +1025,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ammobox.L",
         "size": [
           0.464,
           0.448,
@@ -1024,7 +1037,7 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ammobox_r": {
       "kind": "ammo",
@@ -1033,7 +1046,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ammobox.R",
         "size": [
           0.464,
           0.448,
@@ -1044,7 +1058,7 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_barrel": {
       "kind": "gun_barrel",
@@ -1053,7 +1067,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_barrel",
         "size": [
           0.584,
           0.722,
@@ -1064,7 +1079,7 @@
         "color": "#3a3f45",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_blade_l": {
       "kind": "armour",
@@ -1073,7 +1088,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_blade.L",
         "size": [
           0.076,
           0.4,
@@ -1084,7 +1100,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_blade_r": {
       "kind": "armour",
@@ -1093,7 +1109,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_blade.R",
         "size": [
           0.076,
           0.4,
@@ -1104,7 +1121,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_canopy": {
       "kind": "cockpit",
@@ -1113,7 +1130,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_canopy",
         "size": [
           0.708,
           0.826,
@@ -1124,7 +1142,7 @@
         "color": "#3b4046",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_coxa_fl": {
       "kind": "joint",
@@ -1133,7 +1151,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_coxa.FL",
         "size": [
           0.559,
           0.581,
@@ -1144,7 +1163,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_coxa_fr": {
       "kind": "joint",
@@ -1153,7 +1172,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_coxa.FR",
         "size": [
           0.559,
           0.581,
@@ -1164,7 +1184,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_coxa_rl": {
       "kind": "joint",
@@ -1173,7 +1193,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_coxa.RL",
         "size": [
           0.559,
           0.581,
@@ -1184,7 +1205,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_coxa_rr": {
       "kind": "joint",
@@ -1193,7 +1214,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_coxa.RR",
         "size": [
           0.559,
           0.581,
@@ -1204,7 +1226,7 @@
         "color": "#4b545d",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_dart_l": {
       "kind": "armour",
@@ -1213,7 +1235,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_dart.L",
         "size": [
           0.179,
           0.235,
@@ -1224,7 +1247,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_dart_r": {
       "kind": "armour",
@@ -1233,7 +1256,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_dart.R",
         "size": [
           0.179,
           0.235,
@@ -1244,7 +1268,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_eye": {
       "kind": "sensor",
@@ -1253,7 +1277,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_eye",
         "size": [
           0.422,
           0.783,
@@ -1264,7 +1289,7 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_flank_l": {
       "kind": "armour",
@@ -1273,7 +1298,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_flank.L",
         "size": [
           0.779,
           0.768,
@@ -1284,7 +1310,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_flank_r": {
       "kind": "armour",
@@ -1293,7 +1319,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_flank.R",
         "size": [
           0.784,
           0.768,
@@ -1304,7 +1331,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_gunmount": {
       "kind": "gun_mech",
@@ -1313,7 +1340,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_gunmount",
         "size": [
           0.663,
           0.542,
@@ -1324,7 +1352,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_gunram_cyl": {
       "kind": "gun_mech",
@@ -1333,7 +1361,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_gunram_cyl",
         "size": [
           0.157,
           0.566,
@@ -1344,7 +1373,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_gunram_rod": {
       "kind": "gun_mech",
@@ -1353,7 +1382,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_gunram_rod",
         "size": [
           0.088,
           0.624,
@@ -1364,7 +1394,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_gunsaddle": {
       "kind": "gun_mech",
@@ -1373,7 +1403,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_gunsaddle",
         "size": [
           0.631,
           0.286,
@@ -1384,7 +1415,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ladder": {
       "kind": "armour",
@@ -1393,7 +1424,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ladder",
         "size": [
           0.36,
           0.6,
@@ -1404,7 +1436,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_lamp_l": {
       "kind": "sensor",
@@ -1413,7 +1445,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_lamp.L",
         "size": [
           0.364,
           0.393,
@@ -1424,7 +1457,7 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_lamp_r": {
       "kind": "sensor",
@@ -1433,7 +1466,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_lamp.R",
         "size": [
           0.364,
           0.393,
@@ -1444,7 +1478,7 @@
         "color": "#2f5c6b",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_lowerside_l": {
       "kind": "armour",
@@ -1453,7 +1487,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_lowerside.L",
         "size": [
           0.066,
           0.738,
@@ -1464,7 +1499,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_lowerside_r": {
       "kind": "armour",
@@ -1473,7 +1508,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_lowerside.R",
         "size": [
           0.066,
           0.738,
@@ -1484,7 +1520,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_magazine": {
       "kind": "ammo",
@@ -1493,7 +1529,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_magazine",
         "size": [
           0.459,
           1.439,
@@ -1504,7 +1541,7 @@
         "color": "#7a4a2a",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_pod_tub": {
       "kind": "cockpit",
@@ -1513,7 +1550,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_pod_tub",
         "size": [
           0.661,
           1.405,
@@ -1524,7 +1562,7 @@
         "color": "#3b4046",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_podrear": {
       "kind": "gun_mech",
@@ -1533,7 +1571,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_podrear",
         "size": [
           0.724,
           0.713,
@@ -1544,7 +1583,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramcyl_fl": {
       "kind": "other",
@@ -1553,7 +1592,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramcyl.FL",
         "size": [
           0.627,
           0.666,
@@ -1564,7 +1604,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramcyl_fr": {
       "kind": "other",
@@ -1573,7 +1613,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramcyl.FR",
         "size": [
           0.627,
           0.666,
@@ -1584,7 +1625,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramcyl_rl": {
       "kind": "other",
@@ -1593,7 +1634,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramcyl.RL",
         "size": [
           0.627,
           0.666,
@@ -1604,7 +1646,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramcyl_rr": {
       "kind": "other",
@@ -1613,7 +1655,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramcyl.RR",
         "size": [
           0.627,
           0.666,
@@ -1624,7 +1667,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramrod_fl": {
       "kind": "other",
@@ -1633,7 +1676,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramrod.FL",
         "size": [
           0.592,
           0.64,
@@ -1644,7 +1688,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramrod_fr": {
       "kind": "other",
@@ -1653,7 +1697,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramrod.FR",
         "size": [
           0.592,
           0.64,
@@ -1664,7 +1709,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramrod_rl": {
       "kind": "other",
@@ -1673,7 +1718,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramrod.RL",
         "size": [
           0.592,
           0.64,
@@ -1684,7 +1730,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_ramrod_rr": {
       "kind": "other",
@@ -1693,7 +1739,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_ramrod.RR",
         "size": [
           0.592,
           0.64,
@@ -1704,7 +1751,7 @@
         "color": "#565f68",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_receiver": {
       "kind": "gun_mech",
@@ -1713,7 +1760,8 @@
       "health": 1000,
       "armour_mm": 0,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_receiver",
         "size": [
           1.084,
           1.897,
@@ -1724,7 +1772,7 @@
         "color": "#454c54",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_sidepanel_l": {
       "kind": "armour",
@@ -1733,7 +1781,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_sidepanel.L",
         "size": [
           0.216,
           0.392,
@@ -1744,7 +1793,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_sidepanel_r": {
       "kind": "armour",
@@ -1753,7 +1802,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_sidepanel.R",
         "size": [
           0.216,
           0.392,
@@ -1764,7 +1814,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_spool_l": {
       "kind": "armour",
@@ -1773,7 +1823,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_spool.L",
         "size": [
           0.446,
           0.353,
@@ -1784,7 +1835,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_spool_r": {
       "kind": "armour",
@@ -1793,7 +1844,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_spool.R",
         "size": [
           0.446,
           0.353,
@@ -1804,7 +1856,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_subarm_l": {
       "kind": "armour",
@@ -1813,7 +1865,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_subarm.L",
         "size": [
           0.384,
           0.292,
@@ -1824,7 +1877,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_subarm_r": {
       "kind": "armour",
@@ -1833,7 +1886,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_subarm.R",
         "size": [
           0.384,
           0.292,
@@ -1844,7 +1898,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_visor": {
       "kind": "armour",
@@ -1853,7 +1907,8 @@
       "health": 1000,
       "armour_mm": 6,
       "collider": {
-        "shape": "box",
+        "shape": "hulls",
+        "hulls_from": "JG2_visor",
         "size": [
           0.615,
           0.681,
@@ -1864,7 +1919,7 @@
         "color": "#6b7580",
         "mesh": "box"
       },
-      "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass"
+      "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox"
     },
     "jg2_act_gun_elevation": {
       "kind": "actuator",
@@ -1897,7 +1952,7 @@
         "stroke_m": 0.24,
         "efficiency": 0.85
       },
-      "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
+      "source": "B1 export from mk2_m37_shin_tube.blend (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque"
     }
   }
 }

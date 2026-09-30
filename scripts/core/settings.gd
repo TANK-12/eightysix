@@ -196,6 +196,8 @@ static func format_number(v: float, fmt: String) -> String:
 			return "%d°" % roundi(v)
 		"m":
 			return "%d m" % roundi(v)
+		"metres":
+			return "%.2f m" % v
 		"s":
 			return "%.2f s" % v
 		"int":

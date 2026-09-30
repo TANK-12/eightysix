@@ -3,13 +3,13 @@
 
 Reads assets/models/juggernaut/juggernaut_mk2.json (synced from B1's export by
 tools/sync_models.py) and writes:
-  - data/parts.json: one entry per real part ("jg2_<bone>", box collider from the part's own
-    hull, real mass) and one per leg actuator ("jg2_act_<joint>.<leg>", zero mass since the
+  - data/parts.json: one entry per real part ("jg2_<bone>", real mass, collider = the export's
+    own convex hulls by name, read at build time by MechBuilder) and one per leg actuator ("jg2_act_<joint>.<leg>", zero mass since the
     housing part already carries it, real game_motor and test_bench figures from the export,
     plus a linear-equivalent "bench" block so the existing charge-jump maths (which assumes a
     linear ram) keeps working -- reasoned, not measured; lane B6 owns real rotary bench physics).
-  - data/mechs.json: the "juggernaut_m2" entry's parts/legs/stance/cameras, and flips
-    "status" from "planned" to "ready".
+  - data/mechs.json: the "juggernaut_m2" entry's parts/legs (with each leg's sole socket)/
+    stance/cameras/model_origin, and flips "status" from "planned" to "ready".
 
 The RigidBody3D's local origin is the model's "body" bone (chest height, not the ground), the
 same convention the stand-in uses (hips sit a bit below the origin). Re-run this after every
@@ -93,6 +93,7 @@ def main() -> int:
     actuators_by_joint = {a["joint"]: a for a in model["actuators"]}
 
     origin = joints["body"]["head"]  # RigidBody3D local (0,0,0): chest height, x=z=0
+    src = f"B1 export from {model['source_blend']}"
     shift = lambda p: [p[0] - origin[0], p[1] - origin[1], p[2] - origin[2]]
 
     new_parts = {}
@@ -110,7 +111,7 @@ def main() -> int:
         foot_part = parts_by_bone[f"foot.{leg}"][0]
 
         o, x, y, z = segment_frame(
-            joints[f"coxa.{leg}"]["head"], joints[f"shin.{leg}"]["head"]
+            joints[f"thigh.{leg}"]["head"], joints[f"shin.{leg}"]["head"]
         )
         tw, th, _ = local_extents(thigh_hull, o, x, y, z)
         o2, x2, y2, z2 = segment_frame(
@@ -128,12 +129,9 @@ def main() -> int:
             "health": 1800,
             "armour_mm": 12,
             "length_m": round(upper_len, 5),
-            "collider": {
-                "shape": "box",
-                "size": [round(tw * 0.7, 3), round(th * 0.7, 3), round(upper_len, 3)],
-            },
+            "collider": _hull_collider(thigh_part, [tw * 0.7, th * 0.7, upper_len]),
             "look": {"color": "#5d6670", "mesh": "box"},
-            "source": "B1 export v3 (mk2_m32_left_strut): hull bbox in the segment's own frame, shrunk 30% for the diagonal-in-bbox effect (reasoned, not exact)",
+            "source": f"{src}: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
         }
         new_parts[f"jg2_shin_{leg}"] = {
             "kind": "leg_lower",
@@ -142,12 +140,9 @@ def main() -> int:
             "health": 1500,
             "armour_mm": 10,
             "length_m": round(lower_len, 5),
-            "collider": {
-                "shape": "box",
-                "size": [round(sw * 0.7, 3), round(sh * 0.7, 3), round(lower_len, 3)],
-            },
+            "collider": _hull_collider(shin_part, [sw * 0.7, sh * 0.7, lower_len]),
             "look": {"color": "#4b545d", "mesh": "box"},
-            "source": "B1 export v3: hull bbox in the segment's own frame, shrunk 30% (reasoned)",
+            "source": f"{src}: collision is the export's own convex hull; size is the hull bbox in the segment's frame shrunk 30% (inertia and placeholder only)",
         }
         new_parts[f"jg2_foot_{leg}"] = {
             "kind": "foot",
@@ -155,12 +150,9 @@ def main() -> int:
             "mass_kg": round(foot_part["mass_kg"], 2),
             "health": 900,
             "armour_mm": 14,
-            "collider": {
-                "shape": "box",
-                "size": [round(v, 3) for v in aabb_size(foot_hull)],
-            },
+            "collider": _hull_collider(foot_part, aabb_size(foot_hull)),
             "look": {"color": "#454c54", "mesh": "box"},
-            "source": "B1 export v3: axis-aligned hull bbox (the foot does not rotate much, so this is close)",
+            "source": f"{src}: collision is the export's own convex hull; size is its axis-aligned bbox",
         }
 
         acts = []
@@ -169,12 +161,18 @@ def main() -> int:
             act = actuators_by_joint[joint_id]
             part_id = f"jg2_act_{joint_kind}_{leg}"
             new_parts[part_id] = _actuator_entry(
-                joint_kind, leg, act, upper_len, lower_len
+                joint_kind, leg, act, upper_len, lower_len, src
             )
             acts.append(part_id)
 
+        sole = sockets[f"sole_{leg}"]
         leg_defs[leg.lower()] = {
             "hip": [round(v, 5) for v in hip],
+            "sole": [round(v, 5) for v in shift(sole["pos"])],
+            "sole_normal": sole.get("normal", [0.0, 1.0, 0.0]),
+            "pivot": [round(v, 5) for v in shift(joints[f"thigh.{leg}"]["head"])],
+            "knee": [round(v, 5) for v in shift(joints[f"shin.{leg}"]["head"])],
+            "ankle": [round(v, 5) for v in shift(joints[f"foot.{leg}"]["head"])],
             "upper": f"jg2_thigh_{leg}",
             "lower": f"jg2_shin_{leg}",
             "foot": f"jg2_foot_{leg}",
@@ -207,9 +205,9 @@ def main() -> int:
             "mass_kg": round(p["mass_kg"], 2),
             "health": 1000,
             "armour_mm": 6 if p["class"] == "armour" else 0,
-            "collider": {"shape": "box", "size": [round(v, 3) for v in size]},
+            "collider": _hull_collider(p, size),
             "look": {"color": _colour_for(p["class"]), "mesh": "box"},
-            "source": "B1 export v3: axis-aligned hull bbox at its rest-pose centre of mass",
+            "source": f"{src}: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
         }
         chassis_placements.append({"part": part_id, "at": [round(v, 5) for v in com]})
 
@@ -217,7 +215,7 @@ def main() -> int:
     gun_act = actuators_by_joint.get("gun_elevation")
     if gun_act:
         new_parts["jg2_act_gun_elevation"] = _actuator_entry(
-            "gun_elevation", "", gun_act, 0.6, 0.6
+            "gun_elevation", "", gun_act, 0.6, 0.6, src
         )
 
     # --- mechs.json juggernaut_m2 ------------------------------------------------------------
@@ -246,11 +244,12 @@ def main() -> int:
     entry["stance"] = stance
     entry["cameras"] = cameras
     entry["sockets"] = sockets_out
+    entry["model_origin"] = [round(v, 5) for v in origin]
     entry["origin"] = (
         "model2's 'body' bone (chest height); the coxa/thigh/shin/ram meshes stay fixed to it as ordinary chassis parts, and the gun/subarms are locked (see B1.md locked_bones)"
     )
     entry["source"] = (
-        "generated by tools/build_juggernaut_data.py from assets/models/juggernaut/juggernaut_mk2.json (B1 export v3, mk2_m32_left_strut); re-run after every model re-sync"
+        f"generated by tools/build_juggernaut_data.py from assets/models/juggernaut/juggernaut_mk2.json ({src}); re-run after every model re-sync"
     )
     MECHS_JSON.write_text(json.dumps(mechs, indent=2) + "\n")
 
@@ -281,8 +280,20 @@ def _colour_for(cls: str) -> str:
     }.get(cls, "#5d6670")
 
 
+def _hull_collider(part: dict, size: list) -> dict:
+    """The export's own convex hulls: MechBuilder reads parts[].hulls for `hulls_from` from the
+    synced export json (the mech's model_data), so the hull points are not copied into parts.json.
+    `size` is the box kept for inertia, the placeholder mesh and the fallback when not synced.
+    """
+    return {
+        "shape": "hulls",
+        "hulls_from": part["name"],
+        "size": [round(v, 3) for v in size],
+    }
+
+
 def _actuator_entry(
-    joint_kind: str, leg: str, act: dict, upper_len: float, lower_len: float
+    joint_kind: str, leg: str, act: dict, upper_len: float, lower_len: float, src: str
 ) -> dict:
     bench = act["test_bench"]
     label_leg = f" ({leg})" if leg else ""
@@ -300,7 +311,7 @@ def _actuator_entry(
         ],  # this actuator's own real max torque/speed, for B6
         "static_torque_nm": act["static_torque_nm"],
         "bench": dict(bench),
-        "source": "B1 export v3 (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque",
+        "source": f"{src} (results/B1.md): static need at a two-leg stance, real motor figures reasoned from that torque",
     }
     # rated_power_w/thermal_mass_j_per_k: the shape the game's actuator contract expects
     # (tests/test_registry.gd), aliased from B1's real figures (results/B1.md: 96 V bus, 65%

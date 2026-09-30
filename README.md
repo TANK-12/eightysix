@@ -14,28 +14,38 @@ The "Current state" section may be updated in place, but only to keep it true; t
 ## Current state
 (Kept true by each session; the log below has the history.)
 
-- Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) part 1 **in progress**: the real
-  Juggernaut walks on the test range; gait tuning against the anime reference and the fps/10-minute checks
-  are next (part 2).
-- Tests: `tools/run_tests.sh` 60 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
+  (combat, grapple, climbing, damage) is next.
+- Tests: `tools/run_tests.sh` 74 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
-  `tools/bot_run.sh jg_check` is the new one: the real Juggernaut standing then walking, `images/026-jg_check/`.
+  `tools/bot_run.sh jg_check`: the real Juggernaut standing, walking, running (latest `images/067-jg_check/`).
+  `tools/bot_run.sh long_walk`: the 10-minute no-fall soak.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
   mesh in place of the stand-in** (lane A2 part 2).
+- Juggernaut export **v5** synced (2026-09-30). Every Juggernaut collider (chassis and leg hitboxes) is B1's own
+  convex hull, read from the synced export json; the feet stand at B1's sole sockets and lie flat on slopes; the
+  visible model sits on its colliders (it was 1.41 m above them until A2 part 4). The legs run through the model's
+  real hip, knee and ankle joints. The gun and chassis are fixed to the body: Gameplay settings "Body tilts to aim"
+  and "Gun rests raised when parked" exist but are off by default. Settings > Gameplay > Juggernaut has Emerson's
+  live play-testing controls: ride height, foot spread, leg length, metal shine.
 - Juggernaut export v3 synced into `assets/models/juggernaut/` (`tools/sync_models.py`); it loads and its
   contract test passes. `mechs.json` `juggernaut_m2` status is now **ready**: `tools/build_juggernaut_data.py`
   generated its real parts/legs/stance/actuators from the export, and `scripts/mech/juggernaut_mech.gd` (lane
   A1's gait/physics, the real skinned mesh on top) builds and walks it. The test range now spawns the real
   Juggernaut, not the stand-in.
-- Linux export **works** (2026-09-30): the official Godot 4.7.2 export templates are installed (Linux x86_64
-  only, `~/.local/share/godot/export_templates/4.7.2.stable/`). `tools/export.sh` builds
-  `build/linux/eightysix.x86_64` + `eightysix.pck` in about 3 s; `tools/bot_run.sh smoke --build` plays the
-  smoke run on that build off screen. `build/` is git-ignored, so re-export after changes. The hub's Play still
-  runs `godot --path ~/Games/eightysix`.
+- **Playing, versions, sharing** (2026-09-30): `tools/play.sh` is the one way to play. It rebuilds the game
+  first when anything that goes into the export changed (a few seconds; `tools/builds.py ensure`), saves each
+  build whose pack differs as a numbered version in `build/versions/NNN-YYYY-MM-DD_HHMM/`, then runs it; if the
+  rebuild fails it plays the last good version. The desktop launcher "Eighty Six"
+  (`~/.local/share/applications/eightysix.desktop`, right-click: previous version, or from the project folder)
+  and the Forge hub's Play both call it; the hub's Versions panel plays any saved version.
+  `python3 tools/builds.py share` makes Windows, Linux and macOS zips for friends (each with a HOW-TO-RUN.txt)
+  in the newest version's `share/`. Platforms are one entry each in `tools/platforms.json`; templates for all
+  three are installed. `build/` is git-ignored and nothing deletes a version.
 
 ## Log
 
@@ -178,3 +188,69 @@ Not checked: the build in a window on the real desktop (only off screen), the de
 (`tools/export.sh --debug`), and fps of the build. The build is the tree as of 16:25, from before Hayato's
 (ejb-0a) A2 part 4 changes (B1 v5 sync and more). It is stale once those land: re-run `tools/export.sh` and
 `tools/bot_run.sh smoke --build`.
+
+### 2026-09-30 · lane A2 · Hayato (ejb-0a) · part 4 done, lane A2 done
+Synced B1's export v5. Every Juggernaut collider is now B1's own convex hull instead of a box (54 chassis
+pieces, 12 leg hitboxes that follow the legs exactly as the meshes do). Hull points are read at build time from
+the synced export json (`MechBuilder.model_hulls`) rather than copied into `parts.json`. The feet stand at B1's
+sole sockets (a ray per foot through the sole's rest point), lie flat on slopes and re-seat after landings; the
+springs and the rest of the physics are unchanged.
+
+Fixed: since A2 part 1 the visible model was drawn 1.41 m above its own physics body (the glb's origin is the
+ground, the body's is the chest). Found by the new hull-on-mesh test. Before/after: `images/065-jg_check/01`
+and `images/067-jg_check/01`.
+
+Then Emerson's notes from playing the old build: the gun's pitch threw away its bone's rest rotation and stood the
+barrel about 80 deg off its line (fixed, now measured by a test); the gun and aim are fixed to the body by default
+(two Gameplay settings keep the old behaviour, off); the leg IK now runs through the model's real hip, knee and
+ankle joints, so the parts no longer drift apart while walking (old chain: 7.9 cm knee gap on a 0.6 m step; new:
+0.0).
+
+Then his look notes, made adjustable so he can test playing positions himself: Settings > Gameplay > Juggernaut
+(ride height, foot spread, leg length, metal shine; live; defaults a notch taller, steeper, longer-legged and
+less shiny than the model).
+
+Verified: `tools/run_tests.sh` 74 passed, 0 failed (was 65; 9 new tests).
+`tools/bot_run.sh jg_check` screenshots looked at (`images/067-jg_check/`). 10-minute soak clean before the leg and stance changes (`images/069-long_walk/`);
+the final-code soak is logged in results/A2.md. Linux build re-exported and smoke-played, 29 shots, 0 errors
+(`images/071-build_smoke/`).
+Reasoned only: the gun's colliders stay level while the gun is raised at rest (lane A3). Details:
+`~/Forge/sessions/juggernaut-alpha/results/A2.md` "Part 4".
+
+### 2026-09-30 · Kaito (ejb-89/ejb-4f) · always-up-to-date launcher, saved versions, share zips for 3 platforms
+Emerson asked for: the game findable in his app search, launchable from the desktop and from Forge, always up
+to date, with version control, shareable with friends, on Windows, Linux and Mac.
+
+Changed:
+- `tools/builds.py` (new): `ensure` (rebuild when a fingerprint of every exported file's path, size and
+  change time differs; save a version when the pack's sha256 differs; the unchanged Godot binary is
+  hard-linked between versions, so a version costs about its 22 MB pack), `path`, `list`, `export`, `share`.
+  `tools/platforms.json` (new registry): linux / windows / macos with preset, file, templates, how-to-run text,
+  and what never needs a rebuild. `tools/play.sh` (new). `tools/export.sh` now `tools/export.sh [linux|windows|macos]`.
+- `export_presets.cfg`: Windows (x86_64, pck beside the exe, no rcedit) and macOS (universal, built-in ad-hoc
+  signing, not notarised) presets. `project.godot`: `import_etc2_astc=true` (Godot refuses a universal macOS
+  export without it; the Linux and Windows presets keep ETC2/ASTC off so their packs do not grow).
+- Windows (`windows_release_x86_64.exe`, debug + console) and macOS (`macos.zip`) templates added beside the
+  Linux ones (462 MB in total), from the same SHA-512-checked release file.
+- Desktop launcher + icon (`~/.local/share/icons/eightysix.svg`); Forge hub: Play goes through `tools/play.sh`,
+  new Versions panel (`/api/versions`, play a version, "Make share zips" -> `/api/share`).
+
+Verified:
+- `python3 -m unittest discover -s tools/tests`: 13 passed (7 new in `test_builds.py`: builds once, docs and
+  images never trigger a rebuild, a change makes version 2 and keeps 1 with one shared binary, same pack is no
+  new version, failed rebuild plays the last good one, share zips per platform with the exec bit kept).
+  pyright and black clean on `tools/builds.py` and the test.
+- Real run: `builds.py ensure` built and saved version 001 in 3 s; a second `ensure` did not rebuild; the
+  project.godot change made 002. `builds.py share`: exit 0 in 23 s, three zips in
+  `build/versions/002-2026-09-30_1645/share/` (linux, windows, macos), no errors or warnings in the log.
+  The macOS zip holds a signed universal `Eighty Six.app`.
+- The Windows build starts under Wine 11.18 (`--headless --quit-after 300`, exit 0, official 4.7.2 banner).
+- `gtk-launch eightysix` (the desktop entry): play.sh rebuilt (export presets had changed), saw the same pack,
+  made no new version and started 002; screenshot shows the game on the real desktop. Closed by PID.
+- Forge hub: pytest 25 passed (4 new), black + pyright clean; headless-Chrome screenshot of the Versions panel
+  against the real `build/versions/`.
+
+Not checked: the Windows build with graphics (only headless under Wine), the macOS build on a Mac (no Mac
+here; unsigned by Apple, so friends right-click, Open the first time), a friend on another machine. Versions
+001-002 were built from the tree with Hayato's A2 part 4 changes not yet committed ("uncommitted changes" in
+the list). No limit on how many versions pile up (about 22 MB each, plus about 195 MB when share zips are made).

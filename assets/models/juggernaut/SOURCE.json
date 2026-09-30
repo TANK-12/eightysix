@@ -1,19 +1,27 @@
 {
   "name": "juggernaut",
   "source": "/home/ejb/Models/juggernaut/model2/export/game",
-  "synced": "2026-09-30T11:34:44",
+  "synced": "2026-09-30T16:25:50",
   "files": {
     "juggernaut_mk2.glb": {
-      "bytes": 16554720,
-      "sha256": "3b43c8b703c43093a108b70c7cee89f5e278da230d22612f0a0b037cb54b57c2"
+      "bytes": 16648744,
+      "sha256": "25752c95b8ffd6e6326e2e4a7778a7aeb5da6b61f3c300c2206c48b73530d594"
     },
     "juggernaut_mk2.json": {
-      "bytes": 411617,
-      "sha256": "0162dd6e167d9ae10132218c7d1495829c571d63063db553e0b2793e3fdd7f0c"
+      "bytes": 412899,
+      "sha256": "3c333938f25936dda4a2e46dc925f0d0b9c4de7759a0b29f9d1b4ddea6277585"
+    },
+    "juggernaut_mk2_blue_metal_plate_arm_1k.jpg": {
+      "bytes": 419910,
+      "sha256": "9321b539fe9cf0136ea04c3405b95ae82383f31c258b9c0e37ff8a1e577b637f"
     },
     "juggernaut_mk2_lite.glb": {
-      "bytes": 4764576,
-      "sha256": "e8bb064fedcde1b298c10f97650b83ec0b10cd1f8af10fe8403d83f92d2ebc92"
+      "bytes": 4764128,
+      "sha256": "f2a1435f0880ae197d305e01dde8f761013aca3aa7ecbe06e701c2ff4028cfdd"
+    },
+    "juggernaut_mk2_lite_blue_metal_plate_arm_1k.jpg": {
+      "bytes": 419910,
+      "sha256": "9321b539fe9cf0136ea04c3405b95ae82383f31c258b9c0e37ff8a1e577b637f"
     }
   }
 }

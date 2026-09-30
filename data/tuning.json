@@ -13,6 +13,11 @@
     "gun_elevation": {"torque_nm": 50000.0, "speed_deg_s": 90.0}
   },
   "standin": {
+    "feet": {
+      "_about": "Lane A2 part 4: a planted foot tilts to lie flat on the ground under its sole, at most max_tilt_deg; a planted foot more than reseat_m above or below where the ground now is under its sole takes a step to re-seat (as after a landing).",
+      "max_tilt_deg": 25.0,
+      "reseat_m": 0.3
+    },
     "suspension": {
       "stiffness_n_per_m_per_t": 48000.0,
       "damping_ratio": 0.55,

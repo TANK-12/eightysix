@@ -189,7 +189,19 @@
         {"id": "physics", "label": "Physics", "groups": [
           {"label": "Simulation", "items": [
             {"key": "gameplay.physics_mode", "label": "Physics mode", "type": "choice", "options": [["game", "Game (anime motors)"], ["bench", "Test bench (real actuators)"]], "default": "game", "help": "Game mode uses strong magic motors. Test bench uses real electric actuator limits: slow, power-hungry and hot. Lane B6 builds the full test bench."},
-            {"key": "gameplay.upright_assist", "label": "Balance assist", "type": "toggle", "default": true, "help": "A gentle helper that keeps the chassis level. Off is harder."}
+            {"key": "gameplay.upright_assist", "label": "Balance assist", "type": "toggle", "default": true, "help": "A gentle helper that keeps the chassis level. Off is harder."},
+            {"key": "gameplay.aim_tilt", "label": "Body tilts to aim", "type": "toggle", "default": false, "help": "Up and down on the mouse or right stick leans the whole chassis on its legs. Off keeps everything fixed to the body."},
+            {"key": "gameplay.gun_idle_raise", "label": "Gun rests raised when parked", "type": "toggle", "default": false, "help": "The main gun lifts while standing still and levels when moving. Off keeps it fixed to the body."}
+          ]}
+        ]},
+        {"id": "mech", "label": "Juggernaut", "groups": [
+          {"label": "Stance (for play testing, changes live)", "items": [
+            {"key": "mech.ride_lift_m", "label": "Ride height", "type": "slider", "min": -0.2, "max": 1.0, "step": 0.05, "format": "metres", "default": 0.3, "help": "Raises the body on its legs, so the legs stand steeper. 0 is the modelled pose."},
+            {"key": "mech.foot_spread", "label": "Foot spread", "type": "slider", "min": 0.6, "max": 1.3, "step": 0.05, "format": "x", "default": 0.85, "help": "How far out the feet stand from the hip joints. Lower is a narrower, steeper stance; 1 is the modelled pose."},
+            {"key": "mech.leg_length", "label": "Leg length", "type": "slider", "min": 0.9, "max": 1.4, "step": 0.05, "format": "x", "default": 1.1, "help": "Stretches the thighs and shins (look, reach and hitboxes together). 1 is the modelled length."}
+          ]},
+          {"label": "Look", "items": [
+            {"key": "mech.shine", "label": "Metal shine", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.4, "help": "How mirror-like the metal is. 100% is the finish the model was exported with."}
           ]}
         ]},
         {"id": "interface", "label": "Menus and theme", "groups": [
