@@ -31,8 +31,11 @@ The "Current state" section may be updated in place, but only to keep it true; t
   generated its real parts/legs/stance/actuators from the export, and `scripts/mech/juggernaut_mech.gd` (lane
   A1's gait/physics, the real skinned mesh on top) builds and walks it. The test range now spawns the real
   Juggernaut, not the stand-in.
-- Linux export: `export_presets.cfg` and `tools/export.sh` ready; waits on Emerson's yes to the Godot export
-  templates. Until then the hub's Play runs `godot --path ~/Games/eightysix`.
+- Linux export **works** (2026-09-30): the official Godot 4.7.2 export templates are installed (Linux x86_64
+  only, `~/.local/share/godot/export_templates/4.7.2.stable/`). `tools/export.sh` builds
+  `build/linux/eightysix.x86_64` + `eightysix.pck` in about 3 s; `tools/bot_run.sh smoke --build` plays the
+  smoke run on that build off screen. `build/` is git-ignored, so re-export after changes. The hub's Play still
+  runs `godot --path ~/Games/eightysix`.
 
 ## Log
 
@@ -147,3 +150,31 @@ sit in the glb's bind pose and are not read by any code yet; the 10-minute no-fa
 Leg collision boxes are sized from each part's hull bounding box in its own segment frame, shrunk 30% for the
 diagonal-in-box effect -- a reasoned approximation, not the split convex hulls B1 exported. All lane A2 part 2
 work.
+
+### 2026-09-30 · Kaito (ejb-89) · first Linux build
+What happened: Emerson said yes to the export templates (question 6 in `results/A1.md`); Hotaru (ejb-54) wrote
+the steps and stopped before downloading. This session did them.
+
+Changed:
+- Installed `Godot_v4.7.2-stable_export_templates.tpz` from the godotengine/godot GitHub release (1,281,349,702
+  bytes; SHA-512 matches both the release's `SHA512-SUMS.txt` and the brief). Kept only
+  `linux_release.x86_64`, `linux_debug.x86_64` and `version.txt` (141 MB) in
+  `~/.local/share/godot/export_templates/4.7.2.stable/`; the 1.28 GB download was deleted.
+- `tools/bot_run.sh --build`: plays a bot script on the exported game instead of the project folder (no
+  `--path`, the script is handed over as a file path because the pack leaves out `tools/`; exits 2 if there is no
+  build). Documented in `tools/bot/README.md`.
+
+Verified:
+- `tools/export.sh` exit 0 in 3 s: `eightysix.x86_64` 73,519,416 bytes + `eightysix.pck` 23,116,276 bytes.
+- The pack holds all 14 `data/*.json` and `assets/models/juggernaut/juggernaut_mk2.json` (paths read from the
+  pack); `tests/`, `tools/`, `images/`, `logs/` are left out.
+- `build/linux/eightysix.x86_64 --headless --quit-after 600`: exit 0, no errors.
+- `tools/bot_run.sh smoke --build --name=build_smoke`: exit 0, 29 screenshots, 0 errors, Iris Xe
+  (`images/066-build_smoke/`). `godot.log` starts `Godot Engine v4.7.2.stable.official`, so the template ran,
+  not the system Godot. Looked at: main menu, settings (graphics quality), the range with the real Juggernaut
+  walking at 23 km/h, pause; all render as in the source runs.
+
+Not checked: the build in a window on the real desktop (only off screen), the debug template
+(`tools/export.sh --debug`), and fps of the build. The build is the tree as of 16:25, from before Hayato's
+(ejb-0a) A2 part 4 changes (B1 v5 sync and more). It is stale once those land: re-run `tools/export.sh` and
+`tools/bot_run.sh smoke --build`.

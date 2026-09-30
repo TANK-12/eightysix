@@ -3,11 +3,13 @@
 # screenshots and report.json in the next numbered check-image folder, images/NNN-<name>/.
 # Off-screen by default: the game runs inside a private headless mutter (GNOME's compositor) with one
 # virtual monitor, on its own D-Bus, so nothing appears on the desktop and no sound plays.
-# --visible opens the window on the desktop instead.
+# --visible opens the window on the desktop instead. --build plays the exported game
+# (build/linux/eightysix.x86_64 from tools/export.sh) instead of the project folder.
 # A game that stops writing its heartbeat for 30 s has stalled (seen now and then off screen,
 # cause not found yet): its thread states go to stall.txt and the run is retried once in a new folder.
 # Usage: tools/bot_run.sh <script name, res:// or absolute path> [--visible] [--name=label] [--timeout=S]
 #                         [--hz=60] [--retries=1] [--preset=low|medium|high|ultra] [--size=1920x1080]
+#                         [--build]
 # Prints the folder on the last line. Exit 0 when the run finished with no errors.
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -30,6 +32,7 @@ if [ ! -f "$SCRIPT_FILE" ]; then
 fi
 ORIGINAL_ARGS=("$@")
 VISIBLE=0
+BUILD=0
 RETRIES=1
 STALL_S=30
 NAME="$(basename "$SCRIPT" .json)"
@@ -42,6 +45,7 @@ EXTRA=()
 for a in "$@"; do
 	case "$a" in
 	--visible) VISIBLE=1 ;;
+	--build) BUILD=1 ;;
 	--name=*) NAME="${a#--name=}" ;;
 	--timeout=*) TIMEOUT="${a#--timeout=}" ;;
 	--hz=*) HZ="${a#--hz=}" ;;
@@ -54,6 +58,18 @@ for a in "$@"; do
 	esac
 done
 NAME="$(printf '%s' "$NAME" | tr -c 'A-Za-z0-9_-' '-')"
+# The exported game has no project folder and its pack leaves out tools/, so it gets the script
+# as a file path.
+PATH_ARGS=(--path "$ROOT")
+if [ "$BUILD" = 1 ]; then
+	GODOT="$ROOT/build/linux/eightysix.x86_64"
+	if [ ! -x "$GODOT" ]; then
+		echo "bot_run: no build at $GODOT; run tools/export.sh first" >&2
+		exit 2
+	fi
+	PATH_ARGS=()
+	SCRIPT="$SCRIPT_FILE"
+fi
 
 mkdir -p "$ROOT/images"
 LAST="$(find "$ROOT/images" -mindepth 1 -maxdepth 1 -type d -regex '.*/[0-9][0-9][0-9]-.*' -printf '%f\n' | sort | tail -1 | cut -c1-3)"
@@ -61,7 +77,7 @@ NEXT="$(printf '%03d' $((10#${LAST:-0} + 1)))"
 OUT="$ROOT/images/$NEXT-$NAME"
 mkdir -p "$OUT"
 
-if [ ! -d "$ROOT/.godot/imported" ]; then
+if [ "$BUILD" = 0 ] && [ ! -d "$ROOT/.godot/imported" ]; then
 	"$GODOT" --headless --path "$ROOT" --import >/dev/null 2>&1
 fi
 
@@ -85,7 +101,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-GAME_ARGS=(--path "$ROOT" --audio-driver Dummy -- "--bot=$SCRIPT" "--out=$OUT" "${EXTRA[@]}")
+GAME_ARGS=("${PATH_ARGS[@]}" --audio-driver Dummy -- "--bot=$SCRIPT" "--out=$OUT" "${EXTRA[@]}")
 if [ "$VISIBLE" = 1 ]; then
 	"$GODOT" "${GAME_ARGS[@]}" >"$OUT/godot.log" 2>&1 &
 	GAME_PID=$!
