@@ -173,6 +173,7 @@ def main() -> int:
             "pivot": [round(v, 5) for v in shift(joints[f"thigh.{leg}"]["head"])],
             "knee": [round(v, 5) for v in shift(joints[f"shin.{leg}"]["head"])],
             "ankle": [round(v, 5) for v in shift(joints[f"foot.{leg}"]["head"])],
+            "rams": _rams(joints, leg, shift),
             "upper": f"jg2_thigh_{leg}",
             "lower": f"jg2_shin_{leg}",
             "foot": f"jg2_foot_{leg}",
@@ -278,6 +279,21 @@ def _colour_for(cls: str) -> str:
         "joint": "#4b545d",
         "other": "#565f68",
     }.get(cls, "#5d6670")
+
+
+def _rams(joints: dict, leg: str, shift) -> list:
+    """The leg's knee ram (lane A2 part 5): the cylinder rides the thigh and the rod the shin, each
+    turning about its own mount to aim at the other's (B1's ram_*_tgt track constraints).
+    """
+    cyl, rod = joints.get(f"ram_cyl.{leg}"), joints.get(f"ram_rod.{leg}")
+    if not cyl or not rod:
+        return []
+    c = [round(v, 5) for v in shift(cyl["head"])]
+    r = [round(v, 5) for v in shift(rod["head"])]
+    return [
+        {"part": f"JG2_ramcyl.{leg}", "on": "upper", "mount": c, "aim": r},
+        {"part": f"JG2_ramrod.{leg}", "on": "lower", "mount": r, "aim": c},
+    ]
 
 
 def _hull_collider(part: dict, size: list) -> dict:

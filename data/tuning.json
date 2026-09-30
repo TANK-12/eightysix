@@ -102,6 +102,21 @@
     },
     "skid": {
       "brace_out_m": 0.6
+    },
+    "jump": {
+      "_about": "Lane A2 part 5, Emerson: the game-mode jump should be way better and more game-like (bench mode stays the physics test). Higher launch, a forward leap along the stick scaled by charge, a heavier fall than rise, and a short grace time after leaving the ground so a jump released mid-stride still fires.",
+      "min_launch_m_s": 6.0,
+      "max_launch_m_s": 13.0,
+      "leap_m_s": 7.0,
+      "fall_gravity_scale": 1.5,
+      "coyote_s": 0.2
+    },
+    "upright": {
+      "_about": "Lane A2 part 5, Emerson: normal play must not tip the spider over (no flail animations yet). Game mode only, gated by Balance assist: past keep_deg of lean a righting torque (rad/s2 per unit of lean past keep, capped at 3x) and spin damping; keep_air_factor of that in the air.",
+      "keep_deg": 12.0,
+      "keep_stiffness": 20.0,
+      "keep_damping": 4.0,
+      "keep_air_factor": 0.35
     }
   },
   "jump_bench": {

@@ -16,6 +16,7 @@ extends "res://scripts/mech/standin_mech.gd"
 ## Skeleton3D -- everything else is still the un-posed bind pose.
 
 const DEFAULT_MODEL_SCENE := "res://assets/models/juggernaut/juggernaut_mk2.glb"
+const Rams := preload("res://scripts/locomotion/leg_rams.gd")
 
 var _real_mesh: Dictionary = {}  # leg name ("fr"...) -> {"upper"/"lower"/"foot": Node3D}
 var _mesh_offset: Dictionary = {}  # leg name -> {"upper"/"lower"/"foot": Transform3D}
@@ -27,6 +28,7 @@ var _skeleton: Skeleton3D
 var _gun_bone := -1
 var _gun_axis := Vector3.RIGHT
 var _gun_rest_rot := Quaternion.IDENTITY
+var _rams: Array = []  # [{"node", "rest", "on", "mount", "aim", "leg"}] (lane A2 part 5)
 var _shine_mats: Array = []  # [{"mat": BaseMaterial3D copy, "metallic": exported, "specular": exported}]
 var _gun_pitch_deg := 0.0
 var _gun_idle_deg := 0.0
@@ -58,6 +60,7 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 	add_child(skin)
 	_wire_shine(skin)
 	_wire_real_legs(skin)
+	_wire_rams(skin)
 	Settings.changed.connect(_on_setting_changed)
 	_wire_gun(skin)
 
@@ -202,6 +205,7 @@ func _physics_process(delta: float) -> void:
 		(mesh["lower"] as Node3D).transform = (leg["lower_mesh"] as Node3D).transform * (offset["lower"] as Transform3D)
 		(mesh["foot"] as Node3D).transform = (leg["foot_mesh"] as Node3D).transform * (offset["foot"] as Transform3D)
 	_update_gun_pitch(delta)
+	_update_rams()
 
 
 ## Idle-rise: raised at rest, level while moving (the plan's one exception to the locked gun).
@@ -214,3 +218,43 @@ func _update_gun_pitch(delta: float) -> void:
 	var target := raise if linear_velocity.length() < _gun_idle_speed_m_s else 0.0
 	_gun_pitch_deg = move_toward(_gun_pitch_deg, target, _gun_transition_deg_s * delta)
 	_skeleton.set_bone_pose_rotation(_gun_bone, Quaternion(_gun_axis, deg_to_rad(_gun_pitch_deg)) * _gun_rest_rot)
+
+
+## Detach each leg's ram parts (mechs.json legs.<leg>.rams) from the never-posed skeleton, as the
+## legs are, and remember their rest transforms; _update_rams() keeps them on their mounts.
+func _wire_rams(skin: Node) -> void:
+	for leg: Dictionary in legs:
+		leg["rest_frames"] = MechBuilder.rest_segments(leg)
+		var leg_def: Dictionary = def.get("legs", {}).get(leg["name"], {})
+		for ram: Dictionary in leg_def.get("rams", []):
+			var node := skin.find_child(str(ram["part"]).replace(".", "_"), true, false) as Node3D
+			if node == null:
+				continue
+			var rest := _rest_transform_to(node, self)
+			node.owner = null
+			node.reparent(self, false)
+			node.transform = rest
+			var m: Array = ram["mount"]
+			var a: Array = ram["aim"]
+			_rams.append(
+				{
+					"node": node,
+					"rest": rest,
+					"on": str(ram["on"]),
+					"mount": Vector3(float(m[0]), float(m[1]), float(m[2])),
+					"aim": Vector3(float(a[0]), float(a[1]), float(a[2])),
+					"leg": leg,
+				}
+			)
+
+
+func _update_rams() -> void:
+	for r: Dictionary in _rams:
+		var leg: Dictionary = r["leg"]
+		var frames: Dictionary = leg["rest_frames"]
+		var on := str(r["on"])
+		var other := "lower" if on == "upper" else "upper"
+		var carry: Transform3D = (leg[on + "_hitbox"] as Node3D).transform * (frames[on] as Transform3D).affine_inverse()
+		var carry_scaled: Transform3D = (leg[on + "_mesh"] as Node3D).transform * (frames[on] as Transform3D).affine_inverse()
+		var other_scaled: Transform3D = (leg[other + "_mesh"] as Node3D).transform * (frames[other] as Transform3D).affine_inverse()
+		(r["node"] as Node3D).transform = Rams.pose(r["rest"], carry, carry_scaled, r["mount"], r["aim"], other_scaled * (r["aim"] as Vector3))

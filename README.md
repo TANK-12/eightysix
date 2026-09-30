@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) is next.
-- Tests: `tools/run_tests.sh` 74 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -254,3 +254,17 @@ Not checked: the Windows build with graphics (only headless under Wine), the mac
 here; unsigned by Apple, so friends right-click, Open the first time), a friend on another machine. Versions
 001-002 were built from the tree with Hayato's A2 part 4 changes not yet committed ("uncommitted changes" in
 the list). No limit on how many versions pile up (about 22 MB each, plus about 195 MB when share zips are made).
+
+### 2026-09-30 · lane A2 · Hayato (ejb-0a) · part 5: Emerson's playtest notes
+He found it collapsing, running breaking it, no charge jump while running, a weak game-mode jump, tipping over in
+normal use, and the knee rams coming off the legs in a charged jump. Cause of most of it, measured
+(`tools/bot/run_check.json`): the springs hung from the hips, only 0.85 m apart, so the body balanced on a tiny
+base (13.7 deg nose-up at rest, 0 of 180 sprint frames with 3+ legs loaded). Now each spring stands over its
+foot. Game-mode jump: fires on 2 legs or just after leaving the ground, launches higher, leaps forward along the
+stick, falls faster than it rises; bench mode unchanged. Game-mode keel against tipping past 12 deg (Balance
+assist). The knee rams ride their thigh and shin mounts and aim at each other (`scripts/locomotion/leg_rams.gd`).
+
+Verified: `tools/run_tests.sh` 79 passed, 0 failed (5 new tests, 3 red first). Range run `images/076-run_check`
+and `077`: sprint on 4/4 legs, charge jump mid-run at about 10 m/s, lands and runs on, worst lean 14.6 deg.
+Reasoned only: the keel's own effect (the anti-tip test passed before it); the ram colliders still sit at rest.
+Details: `~/Forge/sessions/juggernaut-alpha/results/A2.md` "Part 5".

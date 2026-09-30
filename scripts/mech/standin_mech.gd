@@ -50,6 +50,7 @@ var _stuck_s := 0.0
 var _run_stance := 0.0
 var _skid_brace := 0.0
 var _leg_scale := 1.0
+var _since_ground := 0.0
 var _lift := 0.0
 var _spread := 1.0
 
@@ -117,6 +118,9 @@ func _apply_stance() -> void:
 		var sole: Vector3 = leg["sole_rest"]
 		var pivot: Vector3 = leg["pivot"]
 		leg["sole_stance"] = Vector3(pivot.x + (sole.x - pivot.x) * _spread, sole.y - _lift, pivot.z + (sole.z - pivot.z) * _spread)
+		# The leg's spring stands over its foot at hip height (lane A2 part 5): the body is held on the
+		# feet's wide footprint, not on the hips, which sit only 0.85 m apart on the real Juggernaut.
+		leg["spring_at"] = Vector3((leg["sole_stance"] as Vector3).x, hip.y, (leg["sole_stance"] as Vector3).z)
 		leg["needs_seat"] = true
 		for seg: String in ["upper", "lower"]:
 			for hb: Variant in leg.get(seg + "_hitboxes", [leg.get(seg + "_hitbox")]):
@@ -214,21 +218,33 @@ func _read_input(dt: float) -> void:
 func _release_jump() -> void:
 	charging = false
 	Rumble.stop("jump_charge")
-	if grounded_legs < 3:
+	var p: Dictionary = _t.get("jump", {})
+	# Bench mode keeps the strict rule (3 loaded legs to push off). Game mode fires on 2, or within
+	# jump.coyote_s of last being on the ground, so a jump released mid-stride at a run still goes.
+	var ok := grounded_legs >= 3
+	if not bench_mode():
+		ok = grounded_legs >= 2 or _since_ground <= float(p.get("coyote_s", 0.0))
+	if not ok:
 		charge_s = 0.0
 		return
-	var p: Dictionary = _t.get("jump", {})
 	var speed := 0.0
+	var leap := 0.0
 	if bench_mode():
 		var reach := float(legs[0]["upper_len"]) + float(legs[0]["lower_len"])
 		speed = JumpCharge.bench_speed(charge_s, mass, actuators, reach, p, Registry.tune("jump_bench", {}))
 	else:
 		speed = JumpCharge.game_speed(charge_s, p)
+		leap = float(p.get("leap_m_s", 0.0)) * JumpCharge.fraction(charge_s, float(p.get("min_hold_s", 0.12)), float(p.get("full_charge_s", 1.1)))
 	charge_s = 0.0
 	if speed <= 0.0:
 		return
 	var dir := (ground_normal * 0.8 + global_transform.basis.y * 0.2).normalized()
-	apply_central_impulse(dir * speed * mass)
+	var impulse := dir * speed
+	# Game mode: a charged jump also leaps along the way the stick points (a running long jump).
+	var along := _flat(-global_transform.basis.z * _move.y + global_transform.basis.x * _move.x, ground_normal)
+	if leap > 0.0 and _move.length() > 0.1:
+		impulse += along * leap * minf(_move.length(), 1.0)
+	apply_central_impulse(impulse * mass)
 	last_launch_speed = speed
 	_no_spring_s = 0.18
 	airborne = true
@@ -278,9 +294,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	grounded_legs = 0
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
-		var hip_w := xf * (leg["hip"] as Vector3)
 		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
-		var cast_w := hip_w + out_w
+		var cast_w := xf * (leg["spring_at"] as Vector3) + out_w
 		_cast_sole(leg, space, xf, out_w, margin)
 		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45))) - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
@@ -303,14 +318,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		normal_sum += hit["normal"]
 		if _no_spring_s > 0.0:
 			continue
-		var point_v := v + w.cross(hip_w - com_world)
+		var point_v := v + w.cross(cast_w - com_world)
 		var force := k * compression - c * point_v.dot(up)
 		if force > 0.0:
-			state.apply_force(up * force, hip_w - xf.origin)
+			state.apply_force(up * force, cast_w - xf.origin)
 
 	ground_normal = normal_sum.normalized() if grounded_legs > 0 else Vector3.UP
 	var on_ground := grounded_legs >= 2 and _no_spring_s <= 0.0
 	if on_ground:
+		_since_ground = 0.0
 		if airborne and _air_s > 0.15:
 			_on_landed(-_fall_speed)
 		airborne = false
@@ -321,8 +337,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_steady(state, w, 0.0)
 	else:
 		_air_s += dt
+		_since_ground += dt
 		if grounded_legs == 0:
 			airborne = true
+		# Game-feel arc (game mode only, tuning jump.fall_gravity_scale): heavier on the way down.
+		# Still no air control: this only shapes the fall.
+		var fall_scale := float(_t.get("jump", {}).get("fall_gravity_scale", 1.0))
+		if airborne and v.y < 0.0 and fall_scale > 1.0 and not bench_mode():
+			state.apply_central_force(state.total_gravity * (fall_scale - 1.0) * mass)
 		_fall_speed = v.dot(Vector3.UP)
 		_aim_yaw = _yaw_of(xf.basis)
 		skidding = false
@@ -346,7 +368,33 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var recover := clampf((_stuck_s - delay) / float(rc.get("ramp_s", 2.0)), 0.0, 1.0)
 			_steady(state, w, recover)
 			_unstick(state, xf.basis, recover)
+	_keel(state, w)
 	_pitch_aim(dt)
+
+
+## Game mode only (Emerson, 2026-09-30: normal play must not tip the spider over, and there are no
+## fall or flail animations yet). Past upright.keep_deg of lean from the ground under it (world up
+## in the air), a righting torque grows with the lean, capped, and the tilting spin is damped, so
+## bumps, hard turns and landings settle back instead of rolling it. Weaker in the air
+## (keep_air_factor). Off with Balance assist off, and in bench mode, which stays raw physics.
+func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
+	var u: Dictionary = _t.get("upright", {})
+	var keep := deg_to_rad(float(u.get("keep_deg", 0.0)))
+	if keep <= 0.0 or bench_mode() or not Settings.get_b("gameplay.upright_assist"):
+		return
+	var up := state.transform.basis.y
+	var target := ground_normal if grounded_legs >= 2 else Vector3.UP
+	var lean := up.angle_to(target)
+	if lean <= keep:
+		return
+	var axis := up.cross(target)
+	if axis.length() < 0.0001:
+		return
+	var factor := 1.0 if grounded_legs >= 2 else float(u.get("keep_air_factor", 0.35))
+	var push := float(u.get("keep_stiffness", 20.0)) * minf((lean - keep) / keep, 3.0)
+	var spin := w - up * w.dot(up)
+	var accel := (axis.normalized() * push - spin * float(u.get("keep_damping", 4.0))) * factor
+	state.apply_torque(accel * inertia.x)
 
 
 func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
@@ -605,7 +653,7 @@ func telemetry() -> Dictionary:
 	var soles := 0
 	for leg: Dictionary in legs:
 		if leg["contact"]:
-			clearance += (global_transform * (leg["hip"] as Vector3)).distance_to(leg["hit"])
+			clearance += (global_transform * (leg["spring_at"] as Vector3)).distance_to(leg["hit"])
 			n += 1
 		if leg["sole_contact"]:
 			soles += 1
@@ -646,8 +694,8 @@ func _hip_span_z() -> float:
 	var lo := INF
 	var hi := -INF
 	for leg: Dictionary in legs:
-		lo = minf(lo, (leg["hip"] as Vector3).z)
-		hi = maxf(hi, (leg["hip"] as Vector3).z)
+		lo = minf(lo, (leg["spring_at"] as Vector3).z)
+		hi = maxf(hi, (leg["spring_at"] as Vector3).z)
 	return hi - lo if hi > lo else 1.0
 
 

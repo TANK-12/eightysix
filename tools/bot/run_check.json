@@ -1,0 +1,22 @@
+{
+  "name": "run_check",
+  "_about": "Emerson's 2026-09-30 playtest notes (collapses a lot, running breaks it, no charge jump while running): the real Juggernaut on the test range at the default stance, sprinting 9 s with a telemetry sample every 0.5 s, a charge jump held 0.8 s mid-run, then running on. tools/bot_run.sh run_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.0, "sample": "rest"},
+    {"at": 3.0, "shot": "rest"},
+    {"at": 3.1, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 3.2, "press": "move_forward", "strength": 1.0, "for": 10.0},
+    {"at": 3.2, "press": "sprint", "strength": 1.0, "for": 10.0},
+    {"at": 4.0, "sample": "run-4.0"}, {"at": 4.5, "sample": "run-4.5"}, {"at": 5.0, "sample": "run-5.0"},
+    {"at": 5.5, "sample": "run-5.5"}, {"at": 6.0, "sample": "run-6.0"}, {"at": 6.0, "shot": "running"},
+    {"at": 6.5, "sample": "run-6.5"}, {"at": 7.0, "sample": "run-7.0"}, {"at": 7.5, "sample": "run-7.5"},
+    {"at": 8.0, "press": "jump", "strength": 1.0, "for": 0.8},
+    {"at": 8.0, "sample": "charge-8.0"}, {"at": 8.4, "sample": "charge-8.4"}, {"at": 8.4, "shot": "charging-while-running"},
+    {"at": 8.8, "sample": "release-8.8"}, {"at": 9.0, "sample": "after-9.0"}, {"at": 9.2, "shot": "after-release"},
+    {"at": 9.3, "sample": "after-9.3"}, {"at": 9.6, "sample": "after-9.6"}, {"at": 10.0, "sample": "after-10.0"},
+    {"at": 11.0, "sample": "run-11.0"}, {"at": 12.0, "sample": "run-12.0"}, {"at": 12.0, "shot": "running-on"},
+    {"at": 13.5, "quit": true}
+  ]
+}

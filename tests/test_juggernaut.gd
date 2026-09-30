@@ -27,7 +27,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	for a: String in ["move_forward", "jump", "strafe_right", "brake", "turn_right", "sprint"]:
+	for a: String in ["move_forward", "jump", "strafe_right", "brake", "turn_right", "turn_left", "sprint"]:
 		Input.action_release(a)
 	mech.free()
 	ground.free()
@@ -420,3 +420,168 @@ func test_metal_shine_is_adjustable_live() -> void:
 	Settings.set_value("mech.shine", 0.25, false)
 	for m: Dictionary in mats:
 		assert_almost_eq((m["mat"] as BaseMaterial3D).metallic, float(m["metallic"]) * 0.25, 0.001, "shine scales the metal")
+
+
+## Emerson's playtest, 2026-09-30: "it collapses a lot and running breaks it". The springs hung from
+## the hips, which sit only 0.85 m apart on the real Juggernaut, so the 12 t body balanced on a tiny
+## base, sat nose-up and unloaded legs at a run. Each spring now stands over its foot. At the default
+## stance on flat ground: level at rest, and at a full sprint 3+ legs carry load nearly all the time.
+func test_running_keeps_its_footing() -> void:
+	_default_stance()
+	await physics_frames(360)
+	var rest_pitch: float = mech.call("telemetry")["pitch_deg"]
+	assert_lt(absf(rest_pitch), 4.0, "stands level at rest on flat ground (%.1f deg)" % rest_pitch)
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	Input.action_press("move_forward", 1.0)
+	Input.action_press("sprint", 1.0)
+	await physics_frames(360)
+	var loaded := 0
+	var worst_roll := 0.0
+	var flew := false
+	for i in 180:
+		await tree.physics_frame
+		var t: Dictionary = mech.call("telemetry")
+		if int(t["grounded_legs"]) >= 3:
+			loaded += 1
+		worst_roll = maxf(worst_roll, absf(float(t["roll_deg"])))
+		flew = flew or bool(t["airborne"])
+	assert_gt(loaded, 153, "3+ legs loaded in 85%% of sprint frames (%d of 180)" % loaded)
+	assert_lt(worst_roll, 8.0, "no rolling while sprinting (%.1f deg)" % worst_roll)
+	assert_false(flew, "never airborne while sprinting on flat ground")
+	assert_gt(mech.linear_velocity.length(), 8.0, "actually sprinting")
+
+
+## Emerson: "it can't charge jump while running" and "the jump should be way better and more game
+## like in the game [mode]". Charging while sprinting now fires on release, clears 2 m, and in game
+## mode leaps forward along the run (tuning.juggernaut.jump.leap_m_s). Bench mode is unchanged.
+func test_charge_jump_while_running() -> void:
+	_default_stance()
+	await physics_frames(240)
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	Input.action_press("move_forward", 1.0)
+	Input.action_press("sprint", 1.0)
+	await physics_frames(240)
+	var run_speed := Vector2(mech.linear_velocity.x, mech.linear_velocity.z).length()
+	var y0 := mech.global_position.y
+	Input.action_press("jump", 1.0)
+	await physics_frames(84)
+	Input.action_release("jump")
+	var v_release := Vector2(mech.linear_velocity.x, mech.linear_velocity.z).length()
+	var top := y0
+	var launched := 0.0
+	var fastest := 0.0
+	for i in 150:
+		await tree.physics_frame
+		top = maxf(top, mech.global_position.y)
+		launched = maxf(launched, float(mech.get("last_launch_speed")))
+		fastest = maxf(fastest, Vector2(mech.linear_velocity.x, mech.linear_velocity.z).length())
+	assert_gt(launched, 0.0, "the charge jump fires while running")
+	assert_gt(top - y0, 2.0, "and clears 2 m (%.2f)" % (top - y0))
+	assert_gt(run_speed, 10.0, "was really running (%.1f m/s)" % run_speed)
+	assert_gt(fastest, v_release + 2.5, "the game jump leaps forward along the run (%.1f m/s after vs %.1f at release)" % [fastest, v_release])
+
+
+## Game-feel arc for the game-mode jump: it comes down quicker than it went up
+## (tuning.juggernaut.jump.fall_gravity_scale); still no air control.
+func test_game_jump_falls_faster_than_it_rises() -> void:
+	await physics_frames(360)
+	Input.action_press("jump", 1.0)
+	await physics_frames(132)
+	Input.action_release("jump")
+	var up_frames := 0
+	var down_frames := 0
+	var left := false
+	for i in 720:
+		await tree.physics_frame
+		if bool(mech.get("airborne")):
+			left = true
+			if mech.linear_velocity.y > 0.0 and down_frames == 0:
+				up_frames += 1
+			else:
+				down_frames += 1
+		elif left:
+			break
+	assert_true(left, "left the ground")
+	assert_lt(float(down_frames), 0.88 * up_frames, "comes down quicker than it went up (%d vs %d frames)" % [down_frames, up_frames])
+
+
+func _default_stance() -> void:
+	for key: String in ["mech.leg_length", "mech.foot_spread", "mech.ride_lift_m"]:
+		Settings.set_value(key, Settings.default_of(key), false)
+
+
+## Emerson, 2026-09-30: "normal usage of the spider mech makes it tip over ... there are no flail
+## mechanics yet, I don't want it falling over so much". Normal hard play at the default stance: a
+## sprint into a 0.7 m step, a hard turn at speed, a skid, a charged running jump and a stop. It
+## never leans past 40 deg and ends upright on all four legs.
+func test_does_not_tip_over_in_normal_play() -> void:
+	_default_stance()
+	var step := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(10, 0.7, 5)
+	cs.shape = box
+	step.add_child(cs)
+	step.position = Vector3(0, 0.35, -22)
+	tree.root.add_child(step)
+	await physics_frames(240)
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	var worst := 0.0
+	var plan := [
+		["move_forward", "sprint", 300], ["move_forward", "turn_right", 120], ["brake", "turn_left", 60],
+		["move_forward", "sprint", 120], ["move_forward", "jump", 90], ["move_forward", "", 120], ["", "", 360],
+	]
+	for leg_of_plan: Array in plan:
+		for a: String in ["move_forward", "sprint", "turn_right", "turn_left", "brake", "jump"]:
+			Input.action_release(a)
+		for a: String in [str(leg_of_plan[0]), str(leg_of_plan[1])]:
+			if a != "":
+				Input.action_press(a, 1.0)
+		for i in int(leg_of_plan[2]):
+			await tree.physics_frame
+			var t: Dictionary = mech.call("telemetry")
+			worst = maxf(worst, maxf(absf(float(t["roll_deg"])), absf(float(t["pitch_deg"]))))
+	var end: Dictionary = mech.call("telemetry")
+	step.free()
+	assert_lt(worst, 40.0, "never leans past 40 deg in normal hard play (worst %.1f)" % worst)
+	assert_lt(maxf(absf(float(end["roll_deg"])), absf(float(end["pitch_deg"]))), 8.0, "ends upright")
+	assert_eq(int(end["grounded_legs"]), 4, "ends standing on all four legs")
+
+
+## Emerson, 2026-09-30: "a charged jump will separate the pistons from the legs". Each knee ram's
+## cylinder stays on its thigh mount and aims at the rod's shin mount, and the rod aims back, at
+## rest, fully crouched on a charge, in the air and walking.
+func test_knee_rams_stay_on_the_legs() -> void:
+	assert_eq((mech.get("_rams") as Array).size(), 8, "two ram parts on each of the four legs")
+	await physics_frames(240)
+	_assert_rams_on("at rest")
+	Input.action_press("jump", 1.0)
+	await physics_frames(130)
+	_assert_rams_on("fully crouched on a charge")
+	Input.action_release("jump")
+	await physics_frames(30)
+	_assert_rams_on("in the air")
+	await physics_frames(240)
+	Input.action_press("move_forward", 1.0)
+	await physics_frames(90)
+	_assert_rams_on("walking")
+
+
+func _assert_rams_on(when: String) -> void:
+	for r: Dictionary in (mech.get("_rams") as Array):
+		var leg: Dictionary = r["leg"]
+		var frames: Dictionary = leg["rest_frames"]
+		var on := str(r["on"])
+		var other := "lower" if on == "upper" else "upper"
+		var mount: Vector3 = r["mount"]
+		var aim: Vector3 = r["aim"]
+		var mount_now: Vector3 = (leg[on + "_mesh"] as Node3D).transform * ((frames[on] as Transform3D).affine_inverse() * mount)
+		var aim_now: Vector3 = (leg[other + "_mesh"] as Node3D).transform * ((frames[other] as Transform3D).affine_inverse() * aim)
+		var moved: Transform3D = (r["node"] as Node3D).transform * (r["rest"] as Transform3D).affine_inverse()
+		var gap := (moved * mount).distance_to(mount_now)
+		var off := rad_to_deg((moved.basis * (aim - mount)).angle_to(aim_now - mount_now))
+		var stretch := mount_now.distance_to(aim_now) / mount.distance_to(aim)
+		var label := "%s %s" % [leg["name"], (r["node"] as Node).name]
+		assert_lt(gap, 0.01, "%s stays on its mount %s (%.3f m)" % [label, when, gap])
+		assert_lt(off, 1.0, "%s aims at its partner %s (%.2f deg)" % [label, when, off])
+		assert_between(stretch, 0.6, 1.6, "%s ram length sane %s (x%.2f)" % [label, when, stretch])
