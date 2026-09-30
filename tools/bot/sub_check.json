@@ -1,0 +1,21 @@
+{
+  "name": "sub_check",
+  "_about": "Lane A3 part 5: the sub-arm 12.7 mm guns on Ashen valley: a burst straight ahead, the arms swung up to the crosshair (look pitch) for a burst at the sky line while the body stays level, the HUD belt count and a reload. tools/bot_run.sh sub_check",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 3.0, "shot": "before"},
+    {"at": 3.2, "press": "fire_sub", "strength": 1.0, "for": 1.6},
+    {"at": 3.5, "shot": "burst"},
+    {"at": 4.0, "shot": "burst-2"},
+    {"at": 4.1, "sample": "burst"},
+    {"at": 5.0, "press": "aim_up", "strength": 1.0, "for": 0.5},
+    {"at": 6.0, "press": "fire_sub", "strength": 1.0, "for": 1.2},
+    {"at": 6.6, "shot": "burst-up"},
+    {"at": 6.7, "sample": "burst-up"},
+    {"at": 7.5, "press": "reload", "strength": 1.0, "for": 0.1},
+    {"at": 8.0, "shot": "belts"},
+    {"at": 8.5, "quit": true}
+  ]
+}

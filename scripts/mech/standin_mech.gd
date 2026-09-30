@@ -96,7 +96,7 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 		leg["front"] = hip.z < 0.0
 		leg["contact"] = false
 		leg["planted"] = Vector3.ZERO
-		leg["step_from"] = Vector3.ZERO
+		leg["step_from_local"] = Vector3.ZERO
 		leg["step_to"] = Vector3.ZERO
 		leg["step_t"] = -1.0
 		leg["foot"] = Vector3.ZERO
@@ -378,7 +378,11 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	# the body, as in the anime run: rears land further forward (feet.gather_rear_m), fronts a little
 	# further back (feet.gather_front_m). A rear foot trailing behind its rest spot runs out of reach
 	# much sooner than a front one, hence the bigger share.
-	var run_dir := planar.normalized() * _run_fraction(state) if speed > 0.3 else Vector3.ZERO
+	# Gathered at least as far as the stride needs (lane A3 part 4, item 4): a long stride centred on the
+	# rest spot overreaches the front legs forward and the rears back, so the gather follows the stride
+	# length as well as the run speed (while speeding up, or slowed by a jump charge, it lagged behind).
+	var reach_share := clampf((_stride_half - half_min) / maxf(cap - half_min, 0.01), 0.0, 1.0)
+	var run_dir := planar.normalized() * maxf(_run_fraction(state), reach_share) if speed > 0.3 else Vector3.ZERO
 	var gather_rear := run_dir * float(fdef.get("gather_rear_m", 0.0))
 	var gather_front := -run_dir * float(fdef.get("gather_front_m", 0.0))
 	var load_margin := float(sus.get("load_margin_m", 0.05))
@@ -392,7 +396,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for leg: Dictionary in legs:
 		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
 		var cast_w := xf * (leg["spring_at"] as Vector3) + out_w
-		_cast_sole(leg, space, xf, out_w + lead + (gather_front if leg["front"] else gather_rear), margin)
+		_cast_sole(leg, space, xf, _within_reach(leg, xf, out_w + lead + (gather_front if leg["front"] else gather_rear)), margin)
 		var rest := float(leg["rest_len"]) - crouch_drop - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
@@ -864,10 +868,13 @@ func _physics_process(delta: float) -> void:
 		if t >= 0.0:
 			t += delta / _swing_now
 			leg["step_t"] = t
-			var from: Vector3 = leg["step_from"]
+			# Lifted, the foot travels with the body: its lift-off spot is kept in the body's frame
+			# (item 4: held in the world, at 70 km/h the body ran ~1 m away from it in the first
+			# tenth of the swing and the leg went straight).
+			var from: Vector3 = xf * (leg["step_from_local"] as Vector3)
 			var to: Vector3 = leg["step_to"] if not on_ground else target_world
 			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * float(leg["step_lift"])
-			leg["foot"] = foot
+			leg["foot"] = _clear_of_hip(leg, xf, foot)
 			if t >= 1.0:
 				leg["step_t"] = -1.0
 				leg["planted"] = to
@@ -885,13 +892,13 @@ func _physics_process(delta: float) -> void:
 				leg["planted"] = xf * local.lerp(xf.affine_inverse() * target_world, minf(delta * 20.0, 1.0))
 				leg["planted_normal"] = target_normal
 				leg["needs_seat"] = true
-			elif (gap.length() > maxf(0.9, 2.0 * _stride_half) or absf(gap.dot(xf.basis.y)) > reseat or seat) and (not _partner_stepping(str(leg["name"])) or gap.length() > 1.4 * maxf(0.9, 2.0 * _stride_half)):
+			elif _overreaching(leg, xf) or (gap.length() > maxf(0.9, 2.0 * _stride_half) or absf(gap.dot(xf.basis.y)) > reseat or seat) and (not _partner_stepping(str(leg["name"])) or gap.length() > 1.4 * maxf(0.9, 2.0 * _stride_half)):
 				# Step when the foot has drifted too far from where it should stand, is left
 				# hovering above (or sunk into) the ground, or has just come down from the air (a
 				# landing, or the drop at spawn) and is not yet where its sole belongs. A short
 				# re-seat step lifts the foot less than a full stride. A foot badly overdue (1.4x the
 				# stride behind) goes even out of turn rather than be dragged until the leg is straight.
-				leg["step_from"] = leg["planted"]
+				leg["step_from_local"] = xf.affine_inverse() * (leg["planted"] as Vector3)
 				leg["step_to"] = target_world
 				leg["step_t"] = 0.0
 				leg["step_lift"] = _step_lift_m * clampf(gap.length() / 0.9, 0.3, 1.0)
@@ -942,6 +949,60 @@ func _foot_up(leg: Dictionary, xf: Transform3D, planted: bool, max_tilt: float, 
 	var up := want if had.angle_to(want) < 0.002 else had.slerp(want, minf(delta * 12.0, 1.0)).normalized()
 	leg["foot_up"] = up
 	return up
+
+
+## The foot target's shift from its stance spot (splay, stride lead, gather; world frame), shortened
+## so the target stays inside feet.target_reach of the leg's reach from the hip pivot and no closer
+## than feet.min_reach to it (horizontally): at a gallop the lead follows the momentum, which after a
+## hard turn points well off to the side, outward or in under the body (item 4).
+func _within_reach(leg: Dictionary, xf: Transform3D, shift_w: Vector3) -> Vector3:
+	var fdef: Dictionary = _t.get("feet", {})
+	var leg_len := (float(leg["upper_len"]) + float(leg["lower_len"])) * _leg_scale
+	var reach := leg_len * float(fdef.get("target_reach", 0.88))
+	var near := leg_len * float(fdef.get("min_reach", 0.0))
+	var pivot: Vector3 = leg["pivot"]
+	var sole: Vector3 = leg["sole_stance"]
+	var shift := xf.basis.inverse() * shift_w
+	var t := 1.0
+	while t > 0.0:
+		var d := sole + shift * t - pivot
+		if d.length() <= reach and Vector2(d.x, d.z).length() >= near:
+			break
+		t -= 0.1
+	return shift_w * maxf(t, 0.0)
+
+
+## A planted foot about to pull its leg straight (the ankle past feet.overreach of the leg's reach
+## from the hip pivot), or drifted in under the hip (closer than feet.min_reach, horizontally), steps
+## now, even out of turn (lane A3 part 5, item 4): after a sprinting turn the body keeps yawing while
+## its momentum carries it sideways, and a foot drifting sideways runs out of reach (or under the body)
+## long before it is a stride's length from its target.
+func _overreaching(leg: Dictionary, xf: Transform3D) -> bool:
+	var reach := (float(leg["upper_len"]) + float(leg["lower_len"])) * _leg_scale
+	var ankle := xf.affine_inverse() * (leg["planted"] as Vector3) + (leg["end_offset"] as Vector3)
+	var d := ankle - (leg["pivot"] as Vector3)
+	var fdef: Dictionary = _t.get("feet", {})
+	return d.length() > reach * float(fdef.get("overreach", 0.93)) or Vector2(d.x, d.z).length() < reach * float(fdef.get("min_reach", 0.0))
+
+
+## A swinging foot kept at least feet.min_reach of the leg's reach from its hip, horizontally: a swing
+## from under the body out to the side went straight past the hip and the knee flipped (item 4).
+func _clear_of_hip(leg: Dictionary, xf: Transform3D, foot_w: Vector3) -> Vector3:
+	var min_r := (float(leg["upper_len"]) + float(leg["lower_len"])) * _leg_scale * float(_t.get("feet", {}).get("min_reach", 0.0))
+	if min_r <= 0.0:
+		return foot_w
+	var pivot: Vector3 = leg["pivot"]
+	var local := xf.affine_inverse() * foot_w
+	var flat := Vector2(local.x - pivot.x, local.z - pivot.z)
+	if flat.length() >= min_r:
+		return foot_w
+	var out := flat.normalized() if flat.length() > 0.01 else Vector2(signf(pivot.x), 0.0)
+	var pushed := out * min_r
+	# Still inside the leg's reach in 3D: a lifted foot pushed out comes up or down toward hip height.
+	var reach := (float(leg["upper_len"]) + float(leg["lower_len"])) * _leg_scale * 0.95
+	var dy := local.y - pivot.y
+	var max_dy := sqrt(maxf(reach * reach - min_r * min_r, 0.0))
+	return xf * Vector3(pivot.x + pushed.x, pivot.y + clampf(dy, -max_dy, max_dy), pivot.z + pushed.y)
 
 
 func _partner_stepping(name: String) -> bool:

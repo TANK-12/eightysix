@@ -90,6 +90,12 @@ static func pose_segments(geom: Dictionary, end: Vector3, tilt: Basis, scale: fl
 	var knee := LegIK.knee(pivot, reach, upper, lower, geom["pole"])
 	var line := (reach - pivot).normalized()
 	var bend := (knee - pivot) - line * (knee - pivot).dot(line)
+	# A straight leg's knee sits on the hip-ankle line, so its bend is zero and the segments' roll
+	# fell back to world up (the thigh and shin meshes twisted apart at the knee): keep the roll from
+	# the knee's pole instead.
+	if bend.length() < 0.05:
+		var pole: Vector3 = geom["pole"]
+		bend = pole - line * pole.dot(line)
 	return {
 		"knee": knee,
 		"end": reach,

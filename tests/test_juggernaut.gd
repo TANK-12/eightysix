@@ -653,11 +653,11 @@ func test_sprint_turn_and_jump_keep_the_legs_whole() -> void:
 	Input.action_release("sprint")
 	assert_gt(top, 11.0, "reached a sprint (%.1f m/s)" % top)
 	assert_eq(stretched_straight, 0, "no leg pulled straight in a straight sprint")
-	# Known and not yet fixed (results/A3.md item 4): a leg still straightens briefly while speeding
-	# up, in a sprinting turn and in the jump charge. About 4% at the old 47 km/h gallop; lane A3
-	# part 4 raised the gallop to 70 km/h (and the jump now fires from it), which put it at 6-8%.
-	# The straight gallop itself stays at zero (above). This keeps it from getting worse.
-	assert_lt(float(stretched) / (frames * 4), 0.09, "legs pulled straight in %d of %d leg-frames overall" % [stretched, frames * 4])
+	# results/A3.md item 4 (lane A3 part 5): was ~4% at 47 km/h and 6-8% at 70 km/h, from feet
+	# drifting sideways after a sprinting turn and from strides longer than the gather allowed.
+	# Now the gather follows the stride, targets stay inside reach, a foot about to overreach steps,
+	# and a lifted foot travels with the body: about 1%.
+	assert_lt(float(stretched) / (frames * 4), 0.02, "legs pulled straight in %d of %d leg-frames overall" % [stretched, frames * 4])
 	assert_eq(folded, 0, "no knee folds the wrong way (%s)" % fold_note)
 	assert_lt(worst_pitch, 10.0, "chassis level on flat ground at a sprint (worst %.1f°)" % worst_pitch)
 	assert_gt(min_grounded, 1, "at least 2 legs down while sprinting")

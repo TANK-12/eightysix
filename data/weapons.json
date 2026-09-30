@@ -37,7 +37,7 @@
       "reload_s": 3.0,
       "cycle_s": 0.06,
       "ammo": {
-        "ball": {"label": "Ball", "projectile_kg": 0.045, "propellant_kg": 0.015, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20, "drag_per_s": 0.15, "tracer_len_m": 4.0, "tracer_w_m": 0.035}
+        "ball": {"label": "Ball", "projectile_kg": 0.045, "propellant_kg": 0.015, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20, "drag_per_s": 0.15, "tracer_len_m": 6.0, "tracer_w_m": 0.06}
       },
       "default_ammo": "ball",
       "recoil_impulse_ns": 60.0,
