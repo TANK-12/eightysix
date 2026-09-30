@@ -1,0 +1,26 @@
+{
+ "name": "b4_river_exit",
+ "map": "small_map",
+ "_about": "Lane B4: where the river leaves the map through the rim. tools/bot_run.sh b4_river_exit",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "river_exit"
+   ]
+  },
+  {
+   "at": 3.3,
+   "shot": "river-exit"
+  },
+  {
+   "at": 3.6,
+   "quit": true
+  }
+ ]
+}

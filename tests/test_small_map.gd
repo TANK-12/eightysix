@@ -183,3 +183,16 @@ func test_backdrop_hides_under_the_rim_and_rises() -> void:
 	for s in [-300.0, 0.0, 300.0]:
 		assert_lt(Backdrop.height_at(s, half, half, b, noise), t.height_at(s, half - 6.0), "under the rim at the edge")
 	assert_gt(Backdrop.height_at(0.0, half + 500.0, half, b, noise), Backdrop.height_at(0.0, half + 10.0, half, b, noise) + 40.0, "rises outward")
+
+
+## Lane B4: where the river leaves through the rim, the far hills do not wall it off.
+func test_backdrop_leaves_the_river_gorge_open() -> void:
+	var e := Registry.entry("maps", "small_map")
+	var b: Dictionary = e["backdrop"]
+	var noise := FastNoiseLite.new()
+	var half := float(e["size_m"]) * 0.5
+	var edge := _t().height_at(160.0, -half)
+	assert_lt(edge, 10.0, "the rim is low where the river leaves")
+	assert_lt(Backdrop.height_at(160.0, -half - 40.0, half, b, noise, edge), edge + 6.0, "the gorge runs on past the edge")
+	assert_gt(Backdrop.height_at(160.0, -half - 600.0, half, b, noise, edge), 40.0, "and climbs into hills further out")
+

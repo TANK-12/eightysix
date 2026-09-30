@@ -1,12 +1,16 @@
 class_name Backdrop
 extends RefCounted
+
+const GORGE_M := 350.0
 ## Far hills beyond a map's edge (lane B4), so the rim is not the end of the world. Visual only: no
 ## collision, no shadows. A grid over the square out to extent_m, minus the playable map, rising from
 ## just under the rim top at the edge to ridges further out; fog does the rest. From the map entry's
 ## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed}.
 
 
-static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null) -> MeshInstance3D:
+## edge_height(x, z): the map terrain's height at a point on its edge. Where the rim is low (the river's
+## gorge), the far hills start at that height and climb over GORGE_M, so the gorge runs on out of the map.
+static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null, edge_height: Callable = Callable()) -> MeshInstance3D:
 	var b: Dictionary = entry.get("backdrop", {})
 	if b.is_empty():
 		return null
@@ -23,7 +27,12 @@ static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null) -> 
 	heights.resize((cells + 1) * (cells + 1))
 	for zi in cells + 1:
 		for xi in cells + 1:
-			heights[zi * (cells + 1) + xi] = height_at(-extent + xi * cell, -extent + zi * cell, half, b, noise)
+			var x := -extent + xi * cell
+			var z := -extent + zi * cell
+			var edge := INF
+			if edge_height.is_valid() and maxf(absf(x), absf(z)) > half - cell:
+				edge = float(edge_height.call(clampf(x, -half, half), clampf(z, -half, half)))
+			heights[zi * (cells + 1) + xi] = height_at(x, z, half, b, noise, edge)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for zi in cells:
@@ -63,10 +72,16 @@ static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null) -> 
 
 ## Height (m) of the backdrop at (x, z): under the rim top at the map's edge (so the rim hides the
 ## join), rising outward, with ridged hills on top. Inside the map it sinks well below the ground.
-static func height_at(x: float, z: float, half: float, b: Dictionary, noise: FastNoiseLite) -> float:
+static func height_at(x: float, z: float, half: float, b: Dictionary, noise: FastNoiseLite, edge: float = INF) -> float:
 	var out := maxf(absf(x), absf(z)) - half
+	var start := float(b.get("start_m", 30.0))
+	var gorge := 1.0
+	if edge < start:
+		# a gap in the rim: begin just under the terrain there and climb to the usual hills over GORGE_M
+		gorge = smoothstep(0.0, GORGE_M, maxf(out, 0.0))
+		start = lerpf(edge - 1.0, start, gorge)
 	if out < 0.0:
-		return float(b.get("start_m", 30.0)) + out * 0.5
-	var rise := clampf(out / 400.0, 0.0, 1.0)
+		return start + out * 0.5
+	var rise := clampf(out / 400.0, 0.0, 1.0) * gorge
 	var ridge := noise.get_noise_2d(x, z) * 0.5 + 0.5
-	return float(b.get("start_m", 30.0)) + rise * float(b.get("rise_m", 60.0)) + ridge * rise * float(b.get("ridge_m", 110.0))
+	return start + rise * float(b.get("rise_m", 60.0)) + ridge * rise * float(b.get("ridge_m", 110.0))
