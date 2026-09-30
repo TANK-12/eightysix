@@ -190,7 +190,8 @@
           {"label": "Simulation", "items": [
             {"key": "gameplay.physics_mode", "label": "Physics mode", "type": "choice", "options": [["game", "Game (anime motors)"], ["bench", "Test bench (real actuators)"]], "default": "game", "help": "Game mode uses strong magic motors. Test bench uses real electric actuator limits: slow, power-hungry and hot. Lane B6 builds the full test bench."},
             {"key": "gameplay.upright_assist", "label": "Balance assist", "type": "toggle", "default": true, "help": "A gentle helper that keeps the chassis level. Off is harder."},
-            {"key": "gameplay.aim_tilt", "label": "Body tilts to aim", "type": "toggle", "default": false, "help": "Up and down on the mouse or right stick leans the whole chassis on its legs. Off keeps everything fixed to the body."},
+            {"key": "gameplay.aim_tilt", "label": "Body tilts to aim", "type": "toggle", "default": true, "help": "Up and down on the mouse or right stick leans the whole chassis on its legs (and pitches it in the air) to aim the fixed gun. Off keeps everything level."},
+            {"key": "gameplay.air_control", "label": "Air control", "type": "toggle", "default": true, "help": "In the air the move stick pushes the mech and the mouse or right stick swings the chassis to aim. Off makes every jump a pure ballistic arc."},
             {"key": "gameplay.gun_idle_raise", "label": "Gun rests raised when parked", "type": "toggle", "default": false, "help": "The main gun lifts while standing still and levels when moving. Off keeps it fixed to the body."}
           ]}
         ]},

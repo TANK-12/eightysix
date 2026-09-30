@@ -49,6 +49,12 @@ func find_ledge() -> Dictionary:
 
 
 func _physics_process(delta: float) -> void:
+	_tick(delta)
+	if "hauling" in mech:
+		mech.set("hauling", climbing)
+
+
+func _tick(delta: float) -> void:
 	if mech == null or not mech.get("is_player") or Game.is_paused() or Controls.stick("move").y < 0.5:
 		climbing = false
 		return

@@ -16,15 +16,17 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 97 passed, 1 failed on 2026-09-30 (the failure is B3's unfinished small_map entry,
-  not A3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 114 passed, 0 failed (2026-09-30, after A3 part 1b). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
   `tools/bot_run.sh jg_check`: the real Juggernaut standing, walking, running (latest `images/067-jg_check/`).
   `tools/bot_run.sh long_walk`: the 10-minute no-fall soak.
   `tools/bot_run.sh combat_check`: the gun, reload, combat HUD, wire anchor swing and recoil dodge
-  (latest `images/080-combat_check/`).
+  (latest `images/080-combat_check/`). `tools/bot_run.sh air_check`: tilt-aim, a running jump with air
+  control, swinging and pitching in flight and a mid-air shot (latest `images/086-air_check/`).
+- **Aiming and air (Emerson, A3)**: body-tilt aim and air control are on by default (Gameplay settings "Body tilts
+  to aim", "Air control"); the chase camera follows the aim pitch.
 - Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
@@ -279,3 +281,8 @@ limp through the drive's `speed_scale`, grapple reel input, winch stall, sustain
 prefers high surfaces, climb holds until over the lip). Added `CombatHud`, the range's target plates and
 gantry, and `tools/bot/combat_check.json`. Tests 97/98 (the 1 is B3's). Details and what's left:
 `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
+
+### 2026-09-30 · lane A3 · Aiko (ejb-68) · part 1b: Emerson's air control and tilt-aim
+Air control (steer with the stick, swing and pitch the chassis with the mouse in flight, fire mid-air), body-tilt
+aim on by default, chase camera follows the aim pitch. New `tests/test_air.gd`; the old "no air control" and
+"level by default" tests now set their settings off. 114/114 tests; `images/086-air_check/`.

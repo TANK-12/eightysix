@@ -32,6 +32,8 @@ var ground_normal := Vector3.UP
 var last_launch_speed := 0.0
 ## Scales the drive's top speeds (walk, run, reverse, strafe); MechCombat lowers it for a hurt leg.
 var speed_scale := 1.0
+## True while MechClimb hauls the mech up a ledge (feet off the ground, but not a jump).
+var hauling := false
 
 var _aim_yaw := 0.0
 var _crouch_toggled := false
@@ -343,12 +345,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if grounded_legs == 0:
 			airborne = true
 		# Game-feel arc (game mode only, tuning jump.fall_gravity_scale): heavier on the way down.
-		# Still no air control: this only shapes the fall.
 		var fall_scale := float(_t.get("jump", {}).get("fall_gravity_scale", 1.0))
 		if airborne and v.y < 0.0 and fall_scale > 1.0 and not bench_mode():
 			state.apply_central_force(state.total_gravity * (fall_scale - 1.0) * mass)
 		_fall_speed = v.dot(Vector3.UP)
-		_aim_yaw = _yaw_of(xf.basis)
+		if airborne and air_control_on():
+			_air_control(state, v, w, dt)
+		else:
+			_aim_yaw = _yaw_of(xf.basis)
 		skidding = false
 		# Fewer than 2 legs grounded normally means "mid-jump, no assist" by design (a bad landing
 		# angle should punish you). But a real jump keeps moving; a mech that has stayed almost still
@@ -374,6 +378,47 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_pitch_aim(dt)
 
 
+func air_control_on() -> bool:
+	return not bench_mode() and not hauling and Settings.get_b("gameplay.air_control")
+
+
+## Game-mode air control (Emerson, 2026-09-30: "movement in mid-air", aim with the mouse in the air
+## too; Settings > Gameplay "Air control", off = the supplement's pure ballistic jump). An attitude
+## controller swings the chassis to the aim yaw (mouse / right stick, faster than on the ground) and
+## the aim pitch, so the fixed gun can be pointed and fired in flight (the recoil dodge included).
+## The move stick adds a push along the chassis' heading and side, up to tuning air.max_m_s along
+## that direction; momentum already past that is kept, never braked.
+func _air_control(state: PhysicsDirectBodyState3D, v: Vector3, w: Vector3, dt: float) -> void:
+	var a: Dictionary = _t.get("air", {})
+	var basis := state.transform.basis.orthonormalized()
+	var aim_cfg: Dictionary = Registry.tune("aim", {})
+	_aim_yaw -= deg_to_rad(float(a.get("turn_rate_deg_s", 150.0))) * _aim.x * dt
+	_aim_yaw -= deg_to_rad(float(aim_cfg.get("mouse_turn_deg_per_px", 0.09))) * _mouse.x
+	var yaw := _yaw_of(basis)
+	var lead := deg_to_rad(float(a.get("yaw_lead_deg", 90.0)))
+	var diff := wrapf(_aim_yaw - yaw, -PI, PI)
+	if absf(diff) > lead:
+		_aim_yaw = yaw + clampf(diff, -lead, lead)
+	var want := Basis(Vector3.UP, _aim_yaw) * Basis(Vector3.RIGHT, deg_to_rad(aim_pitch_deg))
+	var err := (want * basis.inverse()).get_rotation_quaternion()
+	var angle := err.get_angle()
+	if angle > PI:
+		angle -= TAU
+	var axis := err.get_axis() if absf(angle) > 0.0001 else Vector3.ZERO
+	var acc := axis * angle * float(a.get("attitude_stiffness", 40.0)) - w * float(a.get("attitude_damping", 10.0))
+	acc = acc.limit_length(deg_to_rad(float(a.get("max_ang_accel_deg_s2", 900.0))))
+	var local := basis.inverse() * acc
+	state.apply_torque(basis * (local * inertia))
+	var fwd := Vector3(-basis.z.x, 0.0, -basis.z.z).normalized()
+	var right := Vector3(basis.x.x, 0.0, basis.x.z).normalized()
+	var dir := (fwd * _move.y + right * _move.x).limit_length(1.0)
+	if dir.length() < 0.05:
+		return
+	var along := Vector3(v.x, 0.0, v.z).dot(dir.normalized())
+	if along < float(a.get("max_m_s", 14.0)):
+		state.apply_central_force(dir * float(a.get("accel_m_s2", 6.0)) * mass)
+
+
 ## Game mode only (Emerson, 2026-09-30: normal play must not tip the spider over, and there are no
 ## fall or flail animations yet). Past upright.keep_deg of lean from the ground under it (world up
 ## in the air), a righting torque grows with the lean, capped, and the tilting spin is damped, so
@@ -384,6 +429,8 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	var keep := deg_to_rad(float(u.get("keep_deg", 0.0)))
 	if keep <= 0.0 or bench_mode() or not Settings.get_b("gameplay.upright_assist"):
 		return
+	if airborne and air_control_on():
+		return  # _air_control holds the attitude in the air
 	var up := state.transform.basis.y
 	var target := ground_normal if grounded_legs >= 2 else Vector3.UP
 	var lean := up.angle_to(target)

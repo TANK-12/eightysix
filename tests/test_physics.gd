@@ -49,6 +49,7 @@ func test_walks_forward() -> void:
 
 
 func test_charge_jump_then_no_air_control() -> void:
+	Settings.set_value("gameplay.air_control", false, false)  # the supplement's pure ballistic jump
 	await physics_frames(240)
 	Input.action_press("jump")
 	await physics_frames(144)

@@ -73,9 +73,15 @@ func _process(delta: float) -> void:
 	var yaw := atan2(-forward.x, -forward.z) + _orbit.x
 	var dist := float(cfg.get("distance_m", 12.0)) * Settings.get_f("gameplay.camera_distance")
 	var height := float(cfg.get("height_m", 4.0))
-	var offset := Basis(Vector3.UP, yaw) * (Basis(Vector3.RIGHT, -_orbit.y) * Vector3(0.0, height, dist))
+	# Aiming up or down tilts the whole chassis (gameplay.aim_tilt), so the camera drops behind and
+	# looks up the same line (aim_follow of the aim pitch), keeping the reticle near the middle.
+	var aim_p := 0.0
+	if "aim_pitch_deg" in target:
+		aim_p = deg_to_rad(float(target.get("aim_pitch_deg"))) * float(cfg.get("aim_follow", 0.8))
+	var offset := Basis(Vector3.UP, yaw) * (Basis(Vector3.RIGHT, -_orbit.y + aim_p) * Vector3(0.0, height, dist))
 	var velocity: Vector3 = target.get("linear_velocity") if "linear_velocity" in target else Vector3.ZERO
 	var look := body_xf.origin + Vector3(0.0, float(cfg.get("look_height_m", 1.5)), 0.0)
+	look += Vector3.UP * sin(aim_p) * dist
 	look += Vector3(velocity.x, 0.0, velocity.z) * float(cfg.get("look_ahead_s", 0.25))
 	var desired := body_xf.origin + offset
 

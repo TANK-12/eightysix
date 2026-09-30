@@ -1,0 +1,28 @@
+{
+  "name": "air_check",
+  "_about": "Lane A3 (Emerson 2026-09-30): aim up and down by tilting the body (default on), then a charged running jump with air control: steer, swing the chassis right, pitch up and fire in flight. tools/bot_run.sh air_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.0, "press": "aim_up", "strength": 1.0, "for": 1.0},
+    {"at": 4.2, "shot": "tilted-up-to-aim"},
+    {"at": 4.3, "press": "aim_down", "strength": 1.0, "for": 1.2},
+    {"at": 5.6, "shot": "tilted-down"},
+    {"at": 5.7, "press": "aim_up", "strength": 1.0, "for": 0.4},
+    {"at": 6.2, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 6.2, "press": "move_forward", "strength": 1.0, "for": 6.0},
+    {"at": 6.2, "press": "sprint", "strength": 1.0, "for": 3.0},
+    {"at": 8.0, "press": "jump", "strength": 1.0, "for": 1.1},
+    {"at": 9.4, "shot": "launched"},
+    {"at": 9.4, "sample": "launched"},
+    {"at": 9.5, "press": "turn_right", "strength": 1.0, "for": 0.6},
+    {"at": 9.5, "press": "aim_up", "strength": 1.0, "for": 0.6},
+    {"at": 10.2, "shot": "swung-in-air"},
+    {"at": 10.3, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 10.38, "shot": "air-shot"},
+    {"at": 10.5, "sample": "after-air-shot"},
+    {"at": 13.0, "shot": "landed"},
+    {"at": 13.1, "sample": "landed"},
+    {"at": 13.5, "quit": true}
+  ]
+}

@@ -344,16 +344,17 @@ func test_gun_barrel_points_where_the_pitch_says() -> void:
 	assert_lt(off, 1.5, "barrel on its modelled line while moving (%.1f deg off)" % off)
 
 
-## Emerson, 2026-09-30: nothing follows the mouse up and down. The body only tilts to aim with
-## gameplay.aim_tilt switched on.
-func test_aim_does_not_tilt_the_body_by_default() -> void:
+## Emerson, 2026-09-30 (later the same day, lane A3): aim up and down by tilting the whole body is
+## now the default (gameplay.aim_tilt on); switched off, nothing follows the mouse up and down.
+func test_aim_tilts_the_body_by_default() -> void:
 	await physics_frames(30)
 	mech.set("_aim", Vector2(0.0, 1.0))
 	mech.call("_pitch_aim", 0.5)
-	assert_almost_eq(float(mech.get("aim_pitch_deg")), 0.0, 0.001, "aim input leaves the body level by default")
-	Settings.set_value("gameplay.aim_tilt", true, false)
-	mech.call("_pitch_aim", 0.5)
-	assert_gt(float(mech.get("aim_pitch_deg")), 5.0, "with the option on, the body tilts to aim")
+	assert_gt(float(mech.get("aim_pitch_deg")), 5.0, "by default the body tilts to aim")
+	Settings.set_value("gameplay.aim_tilt", false, false)
+	for i in 30:
+		mech.call("_pitch_aim", 0.5)
+	assert_almost_eq(float(mech.get("aim_pitch_deg")), 0.0, 0.001, "switched off, aim input leaves the body level")
 
 
 ## Emerson, 2026-09-30: "the limbs separate during walking". The IK chain now runs through the
