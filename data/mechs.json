@@ -133,7 +133,7 @@
       "status": "ready",
       "owner_lane": "B1 (model and game export), A2 (locomotion)",
       "controller": "juggernaut",
-      "model": "res://assets/models/juggernaut/juggernaut_mk2.glb",
+      "model": "res://assets/models/juggernaut/juggernaut_mk2_lite.glb",
       "model_data": "res://assets/models/juggernaut/juggernaut_mk2.json",
       "description": "The Reginleif-style walker from lane B1's export: parts, colliders, sockets and actuators arrive with it.",
       "parts": [
@@ -244,17 +244,17 @@
         {
           "part": "jg2_flank_l",
           "at": [
-            -0.68337,
-            -0.18167,
-            -0.66346
+            -0.68434,
+            -0.18753,
+            -0.66442
           ]
         },
         {
           "part": "jg2_flank_r",
           "at": [
-            0.68337,
-            -0.18168,
-            -0.66345
+            0.68434,
+            -0.18752,
+            -0.6644
           ]
         },
         {
@@ -420,9 +420,9 @@
         {
           "part": "jg2_receiver",
           "at": [
-            -0.00407,
-            0.89074,
-            2.0446
+            -0.00405,
+            0.89066,
+            2.04415
           ]
         },
         {
@@ -555,8 +555,8 @@
       },
       "stance": {
         "height_m": 1.4099,
-        "foot_out_m": 2.3861,
-        "foot_forward_m": 1.4989
+        "foot_out_m": 2.4261,
+        "foot_forward_m": 1.5249
       },
       "cameras": {
         "cockpit": [
@@ -630,33 +630,33 @@
         "sole_FR": {
           "bone": "foot.FR",
           "at": [
-            2.8239,
+            2.8639,
             -1.4099,
-            -1.9256
+            -1.9516
           ]
         },
         "sole_FL": {
           "bone": "foot.FL",
           "at": [
-            -2.8239,
+            -2.8639,
             -1.4099,
-            -1.9256
+            -1.9516
           ]
         },
         "sole_RR": {
           "bone": "foot.RR",
           "at": [
-            2.8239,
+            2.8639,
             -1.4099,
-            1.9256
+            1.9516
           ]
         },
         "sole_RL": {
           "bone": "foot.RL",
           "at": [
-            -2.8239,
+            -2.8639,
             -1.4099,
-            1.9256
+            1.9516
           ]
         }
       },

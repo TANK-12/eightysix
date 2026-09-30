@@ -61,10 +61,19 @@
     }
   },
   "juggernaut": {
-    "_about": "Overrides on top of \"standin\" (scripts/mech/juggernaut_mech.gd deep-merges this over the standin block) for the real Model 2's much bigger legs: refs/anime-motion/ANALYSIS.md measured a 0.5 s step cycle at duty about 0.62 walking (swing_s = 0.5 * (1 - duty)) with the knee lifting well above the hull. Drive speed, run duty, the skid's outward leg brace and the jump's leg-stretch pose are not tuned yet (lane A2 part 2): this pass only fixes the step timing so it does not look like the stand-in's placeholder shuffle.",
+    "_about": "Overrides on top of \"standin\" (scripts/mech/juggernaut_mech.gd deep-merges this over the standin block) for the real Model 2's much bigger legs, tuned to refs/anime-motion/ANALYSIS.md (lane A2 part 2). \"step\" is the walk timing (0.5 s cycle, duty about 0.62: swing_s = 0.5 * (1 - duty)); \"step_run\" applies instead while sprinting (duty about 0.3-0.35, so a longer swing relative to the same drift-triggered stance: swing_s = 0.5 * (1 - 0.325)), matching the anime's faster, lower-duty run gait. \"gun\" rises at rest and levels while moving (the plan's one exception to \"no independent gun traverse\"): about 40 deg parked, the field pose everywhere else. Wide-splayed low running stance and the skid's outward leg brace are still reasoned, not implemented (results/A2.md).",
     "step": {
       "swing_s": 0.19,
       "lift_m": 0.85
+    },
+    "step_run": {
+      "swing_s": 0.34,
+      "lift_m": 0.9
+    },
+    "gun": {
+      "idle_deg": 40.0,
+      "idle_speed_m_s": 0.5,
+      "transition_deg_s": 70.0
     }
   },
   "jump_bench": {

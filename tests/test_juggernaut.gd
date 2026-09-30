@@ -23,7 +23,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
-	for a: String in ["move_forward", "jump", "strafe_right", "brake", "turn_right"]:
+	for a: String in ["move_forward", "jump", "strafe_right", "brake", "turn_right", "sprint"]:
 		Input.action_release(a)
 	mech.free()
 	ground.free()
@@ -75,6 +75,46 @@ func test_walks_forward_without_falling() -> void:
 	var t: Dictionary = mech.call("telemetry")
 	assert_gt(t["grounded_legs"], 0, "still standing, not tipped over or fallen through")
 	assert_lt(absf(t["roll_deg"]), 25.0, "did not tip over")
+
+
+func test_gun_rises_when_idle_and_levels_off_when_moving() -> void:
+	await physics_frames(400)
+	assert_gt(mech.get("_gun_bone"), -1, "gun_pitch bone found on the real skeleton")
+	assert_lt(mech.linear_velocity.length(), 0.3, "settled before checking the idle gun pose")
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 40.0, 1.0, "raised to tuning.juggernaut.gun.idle_deg at rest")
+	Input.action_press("move_forward", 1.0)
+	await physics_frames(180)
+	Input.action_release("move_forward")
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 0.0, 1.0, "levels off while moving")
+
+
+func test_running_uses_the_run_step_timing() -> void:
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	await physics_frames(60)
+	Input.action_press("move_forward", 1.0)
+	Input.action_press("sprint", 1.0)
+	await physics_frames(60)
+	assert_true(bool(mech.get("running")), "sprint held with sprint_mode=hold")
+	assert_almost_eq(mech.get("_step_s"), 0.34, 0.001, "tuning.juggernaut.step_run.swing_s while running")
+	assert_almost_eq(mech.get("_step_lift_m"), 0.9, 0.001, "tuning.juggernaut.step_run.lift_m while running")
+	Input.action_release("sprint")
+	await physics_frames(30)
+	assert_almost_eq(mech.get("_step_s"), 0.19, 0.001, "back to tuning.juggernaut.step.swing_s walking")
+
+
+func test_cockpit_camera_uses_the_real_socket() -> void:
+	await physics_frames(30)
+	var cam := Camera3D.new()
+	cam.set_script(load("res://scripts/camera/chase_camera.gd"))
+	tree.root.add_child(cam)
+	cam.call("follow", mech)
+	cam.set("view", "cockpit")
+	cam.call("_process", 0.0)
+	var eye: Array = (mech.get("def") as Dictionary).get("cameras", {}).get("cockpit")
+	assert_not_null(eye, "juggernaut_m2 has a generated cockpit socket")
+	var expected: Vector3 = mech.global_transform * Vector3(eye[0], eye[1], eye[2])
+	assert_almost_eq(cam.global_position, expected, 0.3, "camera sits at model2's real cockpit socket, not a placeholder")
+	cam.free()
 
 
 func test_feet_stay_planted_while_grounded() -> void:

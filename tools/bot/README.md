@@ -27,4 +27,6 @@ Each step has `at` (seconds on the bot clock) and one action:
 | `{"quit": true}` | writes `report.json` and quits |
 
 Scripts: `smoke.json` (menus, every settings page, loading, the range: walk, charge jump, run, skid,
-pause) and `fps_route.json` (a fixed 20 s drive for frame rates).
+pause), `fps_route.json` (a fixed 20 s drive for frame rates), `jg_check.json` (the real Juggernaut
+stands then walks), and `long_walk.json` (the 10-minute no-fall soak: a zigzag walk/run/skid path that
+stays inside the test range, sampling telemetry every 20 s; `tools/bot_run.sh long_walk --timeout=650`).

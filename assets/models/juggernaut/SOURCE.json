@@ -1,19 +1,19 @@
 {
   "name": "juggernaut",
   "source": "/home/ejb/Models/juggernaut/model2/export/game",
-  "synced": "2026-09-30T06:36:46",
+  "synced": "2026-09-30T11:34:44",
   "files": {
     "juggernaut_mk2.glb": {
-      "bytes": 15869424,
-      "sha256": "3d53672b9f83f544bd6dfa4df1455c11df442091d1e5586a25a7f5703a4d7bb1"
+      "bytes": 16554720,
+      "sha256": "3b43c8b703c43093a108b70c7cee89f5e278da230d22612f0a0b037cb54b57c2"
     },
     "juggernaut_mk2.json": {
-      "bytes": 409141,
-      "sha256": "7038dab521fdf9138786491f28fdfed25efefa15598698c0639af424da974a5e"
+      "bytes": 411617,
+      "sha256": "0162dd6e167d9ae10132218c7d1495829c571d63063db553e0b2793e3fdd7f0c"
     },
     "juggernaut_mk2_lite.glb": {
-      "bytes": 4751380,
-      "sha256": "cdef8ef12e070786ed23a696f5e66ee1a5fe9c3b9b52ec7fea648a5c06df6102"
+      "bytes": 4764576,
+      "sha256": "e8bb064fedcde1b298c10f97650b83ec0b10cd1f8af10fe8403d83f92d2ebc92"
     }
   }
 }

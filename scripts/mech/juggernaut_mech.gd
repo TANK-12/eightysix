@@ -8,14 +8,28 @@ extends "res://scripts/mech/standin_mech.gd"
 ## Only the four legs' meshes are swapped for the real skinned ones: the standin's invisible box
 ## meshes stay as the hitbox and IK reference (every physics tick still writes their transform;
 ## see standin_mech.gd), and the real thigh/shin/foot meshes are detached from the glb's skeleton
-## and follow the same transform plus a fixed rest-pose offset. Nothing else needs to move: the
-## chassis, gun and sub-arms are locked to the body (no independent traverse, B1.md
-## "locked_bones"), so they stay exactly where B1 placed them in the glb.
+## and follow the same transform plus a fixed rest-pose offset. The chassis and sub-arms are
+## locked to the body (no independent traverse, B1.md "locked_bones"), so they stay exactly where
+## B1 placed them in the glb. The one exception, per the plan: the gun_pitch bone (unlocked in the
+## export, carrying the barrel/receiver/magazine) rises to tuning.juggernaut.gun.idle_deg while
+## stationary and levels off while moving, by setting that one bone's pose on the glb's own
+## Skeleton3D -- everything else is still the un-posed bind pose.
 
-const MODEL_SCENE := "res://assets/models/juggernaut/juggernaut_mk2.glb"
+const DEFAULT_MODEL_SCENE := "res://assets/models/juggernaut/juggernaut_mk2.glb"
 
 var _real_mesh: Dictionary = {}  # leg name ("fr"...) -> {"upper"/"lower"/"foot": Node3D}
 var _mesh_offset: Dictionary = {}  # leg name -> {"upper"/"lower"/"foot": Transform3D}
+var _walk_step_s := 0.19
+var _walk_lift_m := 0.85
+var _run_step_s := 0.19
+var _run_lift_m := 0.85
+var _skeleton: Skeleton3D
+var _gun_bone := -1
+var _gun_axis := Vector3.RIGHT
+var _gun_pitch_deg := 0.0
+var _gun_idle_deg := 0.0
+var _gun_idle_speed_m_s := 0.5
+var _gun_transition_deg_s := 70.0
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -28,12 +42,43 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 		(leg["upper_mesh"] as MeshInstance3D).visible = false
 		(leg["lower_mesh"] as MeshInstance3D).visible = false
 		(leg["foot_mesh"] as MeshInstance3D).visible = false
-	if not ResourceLoader.exists(MODEL_SCENE):
-		push_warning("juggernaut_mech: %s not synced yet (tools/sync_models.py juggernaut)" % MODEL_SCENE)
+	var model_scene := str(mech_def.get("model", DEFAULT_MODEL_SCENE))
+	if not ResourceLoader.exists(model_scene):
+		push_warning("juggernaut_mech: %s not synced yet (tools/sync_models.py juggernaut)" % model_scene)
 		return
-	var skin := (load(MODEL_SCENE) as PackedScene).instantiate()
+	var skin := (load(model_scene) as PackedScene).instantiate()
 	add_child(skin)
 	_wire_real_legs(skin)
+	_wire_gun(skin)
+
+
+## Reads "step_run" (used instead of "step" while sprinting) and "gun" (idle rise) on top of the
+## base class's "step" (walk timing), both from the "juggernaut" tuning block merged in setup().
+func _apply_tuning() -> void:
+	super._apply_tuning()
+	_walk_step_s = _step_s
+	_walk_lift_m = _step_lift_m
+	var run: Dictionary = _t.get("step_run", {})
+	_run_step_s = float(run.get("swing_s", _walk_step_s))
+	_run_lift_m = float(run.get("lift_m", _walk_lift_m))
+	var gun: Dictionary = _t.get("gun", {})
+	_gun_idle_deg = float(gun.get("idle_deg", 0.0))
+	_gun_idle_speed_m_s = float(gun.get("idle_speed_m_s", 0.5))
+	_gun_transition_deg_s = float(gun.get("transition_deg_s", 70.0))
+
+
+## Finds the gun_pitch bone the export's gun_elevation actuator drives (unlocked; carries the
+## barrel/receiver/magazine) and its rotation axis, read from the bone's own rest pose so it is
+## correct in Godot's import space regardless of the export json's axis convention.
+func _wire_gun(skin: Node) -> void:
+	_skeleton = skin.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	if _skeleton == null:
+		return
+	_gun_bone = _skeleton.find_bone("gun_pitch")
+	if _gun_bone < 0:
+		push_warning("juggernaut_mech: no gun_pitch bone, idle gun rise disabled")
+		return
+	_gun_axis = _skeleton.get_bone_rest(_gun_bone).basis.x.normalized()
 
 
 ## Detach each leg's real thigh/shin/foot mesh from the glb's (never re-posed) skeleton and
@@ -84,6 +129,10 @@ static func _rest_transform_to(node: Node3D, ancestor: Node) -> Transform3D:
 
 
 func _physics_process(delta: float) -> void:
+	# running is set by standin_mech's _integrate_forces, which runs before _physics_process in
+	# the same physics tick, so it already reflects this tick's input by the time we read it here.
+	_step_s = _run_step_s if running else _walk_step_s
+	_step_lift_m = _run_lift_m if running else _walk_lift_m
 	super._physics_process(delta)
 	for leg: Dictionary in legs:
 		var leg_name: String = leg["name"]
@@ -94,3 +143,13 @@ func _physics_process(delta: float) -> void:
 		(mesh["upper"] as Node3D).transform = (leg["upper_mesh"] as Node3D).transform * (offset["upper"] as Transform3D)
 		(mesh["lower"] as Node3D).transform = (leg["lower_mesh"] as Node3D).transform * (offset["lower"] as Transform3D)
 		(mesh["foot"] as Node3D).transform = (leg["foot_mesh"] as Node3D).transform * (offset["foot"] as Transform3D)
+	_update_gun_pitch(delta)
+
+
+## Idle-rise: raised at rest, level while moving (the plan's one exception to the locked gun).
+func _update_gun_pitch(delta: float) -> void:
+	if _gun_bone < 0:
+		return
+	var target := _gun_idle_deg if linear_velocity.length() < _gun_idle_speed_m_s else 0.0
+	_gun_pitch_deg = move_toward(_gun_pitch_deg, target, _gun_transition_deg_s * delta)
+	_skeleton.set_bone_pose_rotation(_gun_bone, Quaternion(_gun_axis, deg_to_rad(_gun_pitch_deg)))

@@ -1,0 +1,163 @@
+{
+  "name": "long_walk",
+  "_about": "Lane A2 part 2: the 10-minute no-fall soak results/A1.md asked for. A tight, verified-safe walking loop (radius grazing 17-23 m, the inner edge of the rock field: turn_right 0.6 continuous is fps_route.json's own known-safe turn strength) so it neither falls through the ground nor repeats the two tip-over/wedge incidents found while tuning this script against the test range's discrete rocks and slabs at 45+ m (results/A2.md: a real, unfixed gait gap -- grounded_legs<2 disables drive/turn/steady entirely, so a trip has no recovery). Samples telemetry every 20 s. tools/bot_run.sh long_walk --timeout=650",
+  "map": "test_range",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 1.5,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 600.0
+    },
+    {
+      "at": 1.5,
+      "press": "turn_right",
+      "strength": 0.6,
+      "for": 600.0
+    },
+    {
+      "at": 5.0,
+      "shot": "long-walk-start"
+    },
+    {
+      "at": 20.0,
+      "sample": "soak-0"
+    },
+    {
+      "at": 40.0,
+      "sample": "soak-1"
+    },
+    {
+      "at": 60.0,
+      "sample": "soak-2"
+    },
+    {
+      "at": 80.0,
+      "sample": "soak-3"
+    },
+    {
+      "at": 100.0,
+      "sample": "soak-4"
+    },
+    {
+      "at": 120.0,
+      "sample": "soak-5"
+    },
+    {
+      "at": 140.0,
+      "sample": "soak-6"
+    },
+    {
+      "at": 160.0,
+      "sample": "soak-7"
+    },
+    {
+      "at": 180.0,
+      "sample": "soak-8"
+    },
+    {
+      "at": 200.0,
+      "sample": "soak-9"
+    },
+    {
+      "at": 220.0,
+      "sample": "soak-10"
+    },
+    {
+      "at": 240.0,
+      "sample": "soak-11"
+    },
+    {
+      "at": 260.0,
+      "sample": "soak-12"
+    },
+    {
+      "at": 280.0,
+      "sample": "soak-13"
+    },
+    {
+      "at": 300.0,
+      "sample": "soak-14"
+    },
+    {
+      "at": 300.0,
+      "shot": "long-walk-mid"
+    },
+    {
+      "at": 320.0,
+      "sample": "soak-15"
+    },
+    {
+      "at": 340.0,
+      "sample": "soak-16"
+    },
+    {
+      "at": 360.0,
+      "sample": "soak-17"
+    },
+    {
+      "at": 380.0,
+      "sample": "soak-18"
+    },
+    {
+      "at": 400.0,
+      "sample": "soak-19"
+    },
+    {
+      "at": 420.0,
+      "sample": "soak-20"
+    },
+    {
+      "at": 440.0,
+      "sample": "soak-21"
+    },
+    {
+      "at": 460.0,
+      "sample": "soak-22"
+    },
+    {
+      "at": 480.0,
+      "sample": "soak-23"
+    },
+    {
+      "at": 500.0,
+      "sample": "soak-24"
+    },
+    {
+      "at": 520.0,
+      "sample": "soak-25"
+    },
+    {
+      "at": 540.0,
+      "sample": "soak-26"
+    },
+    {
+      "at": 560.0,
+      "sample": "soak-27"
+    },
+    {
+      "at": 580.0,
+      "sample": "soak-28"
+    },
+    {
+      "at": 598.0,
+      "shot": "long-walk-end"
+    },
+    {
+      "at": 600.0,
+      "release": "move_forward"
+    },
+    {
+      "at": 600.0,
+      "release": "turn_right"
+    },
+    {
+      "at": 602.0,
+      "quit": true
+    }
+  ]
+}
