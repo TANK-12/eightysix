@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 116 passed, 0 failed (2026-09-30, after A3 part 2). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -313,3 +313,8 @@ patches, four close viewpoints, two shadow cascades up to 100 m, lighter shrubs,
 Verified: B3's 14 tests pass; full run 119 passed, 2 failed, both in other lanes' uncommitted work in progress
 (test_combat plate, test_juggernaut sprint legs), not touched by B3. Shots `images/115-small_map_check`.
 Frame rate: Medium read 31-45 fps between identical runs on this laptop, so reaching 45 is not verified.
+
+### 2026-09-30 · lane A3 · Aiko (ejb-68) · part 3: Emerson's sprint notes
+Sprint legs no longer trail, straighten or fold: speed-scaled stride and cadence, strides gathered under the body,
+firmer attitude at speed. Grapple aim assist from the level's grapple points; taller range plates; camera follows
+the view setting live. 120/120 tests; `images/116-sprint_check/`. Next: physics-based air movement (results/A3.md).
