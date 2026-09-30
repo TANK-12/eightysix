@@ -84,6 +84,8 @@ static func build(mech_id: String) -> RigidBody3D:
 	body.collision_mask = LAYER_WORLD | LAYER_MECH | LAYER_DEBRIS
 	body.can_sleep = false
 	body.continuous_cd = true
+	body.contact_monitor = true
+	body.max_contacts_reported = 8
 
 	for placement: Dictionary in def.get("parts", []):
 		var part_id := str(placement["part"])

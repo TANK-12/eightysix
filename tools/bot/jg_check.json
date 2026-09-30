@@ -1,12 +1,16 @@
 {
   "name": "jg_check",
-  "_about": "Lane A2: the real Juggernaut standing (gun raised at rest, part 2) then walking (gun level, part 2). The cockpit camera view (mechs.json cameras.cockpit) is checked instead by tests/test_juggernaut.gd:test_cockpit_camera_uses_the_real_socket -- Input.action_press(\"camera_view\") (the only way a bot script can press a key) does not reach chase_camera.gd's _unhandled_input, so a bot step here cannot toggle the view; a direct unit test can. tools/bot_run.sh jg_check",
+  "_about": "Lane A2: the real Juggernaut standing (gun raised at rest, part 2) then walking (gun level, part 2), then sprinting (part 3: the low, wide-splayed, nose-down run_stance from ANALYSIS.md). The cockpit camera view (mechs.json cameras.cockpit) is checked instead by tests/test_juggernaut.gd:test_cockpit_camera_uses_the_real_socket -- Input.action_press(\"camera_view\") (the only way a bot script can press a key) does not reach chase_camera.gd's _unhandled_input, so a bot step here cannot toggle the view; a direct unit test can. tools/bot_run.sh jg_check",
   "map": "test_range",
   "steps": [
     {"at": 0.5, "wait": "level"},
     {"at": 3.5, "shot": "juggernaut-settled"},
     {"at": 3.6, "press": "move_forward", "strength": 1.0, "for": 3.0},
     {"at": 6.5, "shot": "juggernaut-walking"},
-    {"at": 7.0, "quit": true}
+    {"at": 6.6, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 6.7, "press": "move_forward", "strength": 1.0, "for": 4.0},
+    {"at": 6.7, "press": "sprint", "strength": 1.0, "for": 4.0},
+    {"at": 10.0, "shot": "juggernaut-running"},
+    {"at": 10.5, "quit": true}
   ]
 }

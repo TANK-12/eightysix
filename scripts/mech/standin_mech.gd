@@ -46,6 +46,9 @@ var _bench_speed_cap := INF
 var _t: Dictionary = {}
 var _step_s := 0.28
 var _step_lift_m := 0.55
+var _stuck_s := 0.0
+var _run_stance := 0.0
+var _skid_brace := 0.0
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -194,14 +197,29 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var tilt := tan(deg_to_rad(aim_pitch_deg)) * span * 0.5
 	_no_spring_s = maxf(_no_spring_s - dt, 0.0)
 
+	# Lane A2 part 3, ANALYSIS.md's run pose ("very low and level, stance wide... does not bob") and
+	# the anime's outward-braced skid turn: both are a wider stance and (for running) a lower, nose-
+	# down body, not just timing, so they live here with the suspension rather than as a step-timing
+	# tuning number. Smoothed with move_toward (not snapped) so the transition itself does not read
+	# as a bob. All zero on the stand-in by default (juggernaut.json supplies the real numbers), so
+	# lane A1's own tests are unaffected.
+	var rs: Dictionary = _t.get("run_stance", {})
+	var stance_rate := 1.0 / maxf(float(rs.get("transition_s", 0.4)), 0.01)
+	_run_stance = move_toward(_run_stance, 1.0 if running else 0.0, stance_rate * dt)
+	_skid_brace = move_toward(_skid_brace, 1.0 if skidding else 0.0, stance_rate * dt)
+	var splay := float(rs.get("splay_m", 0.0)) * _run_stance + float(_t.get("skid", {}).get("brace_out_m", 0.0)) * _skid_brace
+	var run_drop := float(rs.get("drop_m", 0.0)) * _run_stance
+	var run_tilt := tan(deg_to_rad(float(rs.get("pitch_deg", 0.0)))) * span * 0.5 * _run_stance
+
 	var load_margin := float(sus.get("load_margin_m", 0.05))
 	grounded_legs = 0
 	var normal_sum := Vector3.ZERO
 	for leg: Dictionary in legs:
 		var hip_w := xf * (leg["hip"] as Vector3)
-		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45)))
-		rest += tilt if leg["front"] else -tilt
-		var query := PhysicsRayQueryParameters3D.create(hip_w, hip_w - up * (rest + margin), RAY_MASK, [get_rid()])
+		var cast_w := hip_w + xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
+		var rest := float(leg["rest_len"]) * (1.0 - crouch * float(sus.get("crouch_fraction", 0.45))) - run_drop
+		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
+		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
 		var hit := space.intersect_ray(query)
 		# The long ray only places the feet; a leg carries load (and counts as grounded) when the
 		# ground is within its rest length plus a few centimetres, or, after a launch, only once
@@ -212,7 +230,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			continue
 		var hit_pos: Vector3 = hit["position"]
 		leg["hit"] = hit_pos
-		var compression := rest - hip_w.distance_to(hit_pos)
+		var compression := rest - cast_w.distance_to(hit_pos)
 		if compression < (0.0 if airborne else -load_margin):
 			continue
 		leg["loaded"] = true
@@ -232,9 +250,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_on_landed(-_fall_speed)
 		airborne = false
 		_air_s = 0.0
+		_stuck_s = 0.0
 		_drive(state, v)
 		_turn(state, xf.basis, w, dt)
-		_steady(state, w)
+		_steady(state, w, 0.0)
 	else:
 		_air_s += dt
 		if grounded_legs == 0:
@@ -242,6 +261,26 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_fall_speed = v.dot(Vector3.UP)
 		_aim_yaw = _yaw_of(xf.basis)
 		skidding = false
+		# Fewer than 2 legs grounded normally means "mid-jump, no assist" by design (a bad landing
+		# angle should punish you). But a real jump keeps moving; a mech that has stayed almost still
+		# without regaining ground for a while is not falling, it is tipped over or wedged on terrain
+		# (results/A2.md: long_walk's tries 1 and 2, against a slab corner and a rock), and nothing
+		# else in this file ever recovers that on its own. Only then does a proportional righting
+		# torque and a small free-itself shove switch on, ramping in so it never fights a genuine
+		# jump arc. (Checked and ruled out: a mech that stays fully grounded but rams itself against
+		# an obstacle -- calibrated against the same slab -- was not actually stuck; plain reverse
+		# input already frees it under the unmodified drive/turn, since those are never disabled
+		# while on_ground. Only the documented < 2 legs case needed this.)
+		var rc: Dictionary = _t.get("recover", {})
+		if v.length() < float(rc.get("stuck_speed_m_s", 1.0)):
+			_stuck_s += dt
+		else:
+			_stuck_s = 0.0
+		var delay := float(rc.get("stuck_delay_s", 1.25))
+		if _stuck_s > delay:
+			var recover := clampf((_stuck_s - delay) / float(rc.get("ramp_s", 2.0)), 0.0, 1.0)
+			_steady(state, w, recover)
+			_unstick(state, xf.basis, recover)
 	_pitch_aim(dt)
 
 
@@ -309,12 +348,50 @@ func _turn(state: PhysicsDirectBodyState3D, basis: Basis, w: Vector3, dt: float)
 	state.apply_torque(n * ang * inertia.y)
 
 
-func _steady(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
+## `recover` is 0 on ordinary standing ground (rate damping only, as before). Above 0 (only reached
+## from the stuck path in `_integrate_forces`, below 2 grounded legs for a while) it adds a
+## proportional righting torque toward world up -- using the "stiffness" tuning figure that sat
+## unread in tuning.json's "upright" block until now -- so a mech that has already settled tipped
+## over gets pushed back upright instead of just having its (already zero) angular rate damped.
+## World up, not `ground_normal`: with under 2 legs grounded, `ground_normal` can come from a single
+## leg pressed against a tilted rock or a wall, which would read as "already upright" relative to
+## itself and right the mech toward the wrong orientation.
+func _steady(state: PhysicsDirectBodyState3D, w: Vector3, recover: float) -> void:
 	if not Settings.get_b("gameplay.upright_assist"):
 		return
 	var u: Dictionary = _t.get("upright", {})
 	var tilt_w := w - ground_normal * w.dot(ground_normal)
-	state.apply_torque(-tilt_w * float(u.get("damping", 2.0)) * inertia.x)
+	var torque := -tilt_w * float(u.get("damping", 2.0))
+	if recover > 0.0:
+		var up := state.transform.basis.y
+		torque += up.cross(Vector3.UP) * float(u.get("stiffness", 6.0)) * recover
+	state.apply_torque(torque * inertia.x)
+
+
+## Only reached once `_integrate_forces` has decided the mech is genuinely stuck (not mid-jump): a
+## small, capped shove away from whatever the chassis is actually pressed against, plus a little
+## lift, so it can work itself free instead of sitting in permanent equilibrium. Pushing along the
+## body's own forward was tried first and made things worse: calibrating against the slab at
+## (34, -30) showed the real jam is the chassis rammed nose-first into the slab's vertical face, so
+## a forward-biased shove presses it harder into the wall it is stuck on. Reading the actual contact
+## normals from Jolt (the chassis parts collide; the leg hitboxes do not, see mech_builder.gd) and
+## pushing along their sum is the direction that is actually open, whatever the obstacle is. Ramps
+## in with `recover` and is gated by the same upright-assist setting as `_steady`, since it is the
+## same recovery system.
+func _unstick(state: PhysicsDirectBodyState3D, basis: Basis, recover: float) -> void:
+	if not Settings.get_b("gameplay.upright_assist"):
+		return
+	var rc: Dictionary = _t.get("recover", {})
+	var push := Vector3.ZERO
+	for i in state.get_contact_count():
+		push += state.get_contact_local_normal(i)
+	var dir: Vector3
+	if push.length() > 0.01:
+		dir = (push.normalized() + Vector3.UP * 0.3).normalized()
+	else:
+		dir = (-basis.z * 0.7 + Vector3.UP * 0.3).normalized()
+	var accel := float(rc.get("unstick_accel_m_s2", 3.0)) * recover
+	state.apply_central_force(dir * accel * mass)
 
 
 func _pitch_aim(dt: float) -> void:

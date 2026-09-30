@@ -102,6 +102,53 @@ func test_running_uses_the_run_step_timing() -> void:
 	assert_almost_eq(mech.get("_step_s"), 0.19, 0.001, "back to tuning.juggernaut.step.swing_s walking")
 
 
+## Lane A2 part 3, ANALYSIS.md's measured run pose ("very low and level, stance wide... does not
+## bob", m19's own numbers "drop 0.28 m, -6 deg"): standin_mech.gd's leg loop now casts each leg's
+## ground ray from a point offset outward by tuning.juggernaut.run_stance.splay_m while running (not
+## just from the hip), and lowers/pitches the rest length by drop_m/pitch_deg, smoothed in over
+## transition_s so the transition itself does not read as a bob.
+func test_running_widens_and_lowers_the_stance() -> void:
+	await physics_frames(360)
+	var rest_pitch: float = mech.call("telemetry")["pitch_deg"]
+	var rest_y := mech.global_position.y
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	Input.action_press("move_forward", 1.0)
+	Input.action_press("sprint", 1.0)
+	await physics_frames(300)
+	assert_almost_eq(mech.get("_run_stance"), 1.0, 0.05, "tuning.juggernaut.run_stance faded fully in over transition_s")
+	var t: Dictionary = mech.call("telemetry")
+	assert_lt(t["pitch_deg"], rest_pitch - 2.0, "nose pitches down while running (run_stance.pitch_deg)")
+	assert_lt(mech.global_position.y, rest_y - 0.08, "rides lower while running (run_stance.drop_m)")
+	var legs: Array = mech.get("legs")
+	var fr: Dictionary = legs.filter(func(l: Dictionary) -> bool: return str(l["name"]) == "fr")[0]
+	var hip_x: float = (fr["hip"] as Vector3).x
+	var foot_x: float = mech.to_local(fr["hit"]).x
+	assert_gt(foot_x - hip_x, 0.3, "front-right foot plants further outboard than the hip while running (run_stance.splay_m)")
+
+
+## ANALYSIS.md's outward-braced skid turn ("turning at speed: a drift with the legs braced to the
+## outside"): the same splay mechanism as the run stance above, added in via tuning.juggernaut.skid
+## .brace_out_m while `skidding` is true, independent of whether the mech is also running.
+func test_skidding_braces_the_stance_outward() -> void:
+	await physics_frames(360)
+	Input.action_press("move_forward", 1.0)
+	await physics_frames(240)
+	Input.action_press("brake", 1.0)
+	Input.action_press("turn_right", 1.0)
+	await physics_frames(30)
+	assert_true(bool(mech.get("skidding")), "brake + hard turn at speed triggers a skid")
+	for i in 60:
+		await tree.physics_frame
+		if not bool(mech.get("skidding")):
+			break
+	assert_gt(float(mech.get("_skid_brace")), 0.2, "tuning.juggernaut.skid.brace_out_m faded in while skidding")
+	var legs: Array = mech.get("legs")
+	var fr: Dictionary = legs.filter(func(l: Dictionary) -> bool: return str(l["name"]) == "fr")[0]
+	var hip_x: float = (fr["hip"] as Vector3).x
+	var foot_x: float = mech.to_local(fr["hit"]).x
+	assert_gt(foot_x - hip_x, 0.3, "front-right foot plants further outboard than the hip while skidding")
+
+
 func test_cockpit_camera_uses_the_real_socket() -> void:
 	await physics_frames(30)
 	var cam := Camera3D.new()

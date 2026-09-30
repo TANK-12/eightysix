@@ -1,0 +1,19 @@
+{
+  "name": "recovery_check",
+  "_about": "Lane A2 part 3: drives straight into the slab's vertical face at (34, -30) hard enough to jam the chassis nose-first against it (grounded_legs stayed 4/4 throughout when this was calibrated -- a different, milder situation than the documented < 2 legs freeze in results/A2.md, but a real jam: it sat frozen until the right input, holding move_forward with the wrong action name (or reverse with the wrong action name) never moves it, only real move_back input does), then reverses. Regression coverage that ramming an obstacle and reversing away still works cleanly: 4/4 legs grounded, roll back under 2 deg, moving at speed within about 4 s. tools/bot_run.sh recovery_check --timeout=45",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 1.0, "press": "turn_right", "strength": 1.0, "for": 0.6},
+    {"at": 1.7, "press": "move_forward", "strength": 1.0, "for": 18.3},
+    {"at": 20.0, "shot": "jammed-against-slab"},
+    {"at": 20.0, "sample": "jammed"},
+    {"at": 20.5, "release": "move_forward"},
+    {"at": 20.6, "press": "move_back", "strength": 1.0, "for": 10.0},
+    {"at": 24.0, "sample": "reversing"},
+    {"at": 24.0, "shot": "reversing"},
+    {"at": 30.0, "sample": "free"},
+    {"at": 30.0, "shot": "free"},
+    {"at": 30.0, "quit": true}
+  ]
+}
