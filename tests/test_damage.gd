@@ -127,3 +127,32 @@ func test_repairs_when_damage_is_not_permanent() -> void:
 	assert_eq(back, ["jg2_sidepanel_r"], "the panel came back")
 	assert_almost_eq(d.fraction("jg2_sidepanel_r"), 1.0, 0.001)
 	assert_true(perm.is_lost("jg2_sidepanel_r"), "permanent damage stays")
+
+
+func test_mech_meshes_sit_on_the_mech_layer() -> void:
+	await physics_frames(2)
+	var meshes := mech.find_children("*", "MeshInstance3D", true, false)
+	assert_gt(meshes.size(), 0)
+	for mi: MeshInstance3D in meshes:
+		if mi.get_parent() == combat:
+			continue
+		assert_eq(mi.layers, CombatFx.MECH_LAYER, "%s is on the mech layer, so ground gouges skip it" % mi.name)
+	var ground_mark := CombatFx.decal(tree.root, Vector3.ZERO, Vector3.UP, 0.7, true)
+	assert_eq(ground_mark.cull_mask & CombatFx.MECH_LAYER, 0, "a ground gouge does not paint the mech")
+	ground_mark.free()
+
+
+func test_skid_fx_hidden_when_not_skidding() -> void:
+	await physics_frames(200)
+	for n: Node in combat.get_children():
+		if n is CPUParticles3D:
+			assert_false((n as CPUParticles3D).visible, "%s hidden at rest (idle particles draw black)" % n.name)
+	for i in 10:
+		mech.set("skidding", true)
+		mech.linear_velocity = Vector3(0, 0, -10)
+		await physics_frames(1)
+	var shown := 0
+	for n: Node in combat.get_children():
+		if n is CPUParticles3D and (n as CPUParticles3D).visible:
+			shown += 1
+	assert_gt(shown, 0, "shown while skidding")

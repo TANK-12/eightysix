@@ -33,7 +33,7 @@ var _gun_rest_pos := Vector3.ZERO
 var _gun_back := Vector3.BACK
 var _kick := 0.0
 var _skid_sparks: Dictionary = {}  # leg name -> CPUParticles3D
-var _skid_dust: Dictionary = {}
+var _skid_live_s: Dictionary = {}  # leg name -> seconds its skid particles stay alive after stopping
 var _gouge_s := 0.0
 
 
@@ -64,6 +64,16 @@ func _ready() -> void:
 	add_child(climb)
 	_wire_gun_kick()
 	_build_skid_fx()
+	_tag_mech_layer.call_deferred()
+
+
+## Puts every mesh of the mech (the skinned model loads in setup, so after the tree settles) on
+## CombatFx.MECH_LAYER only.
+func _tag_mech_layer() -> void:
+	for node: Node in mech.find_children("*", "GeometryInstance3D", true, false):
+		if node is Decal or node.get_parent() == self:
+			continue
+		(node as VisualInstance3D).layers = CombatFx.MECH_LAYER
 
 
 func _socket(name: String, fallback: Vector3) -> Vector3:
@@ -148,6 +158,7 @@ func _build_skid_fx() -> void:
 		s.amount = 40
 		s.lifetime = 0.45
 		s.emitting = false
+		s.visible = false
 		s.particle_flag_align_y = true
 		s.direction = Vector3.UP
 		s.spread = 65.0
@@ -158,30 +169,6 @@ func _build_skid_fx() -> void:
 		s.name = "SkidSparks_" + str(leg["name"])
 		add_child(s)
 		_skid_sparks[leg["name"]] = s
-		var d := CPUParticles3D.new()
-		var quad := QuadMesh.new()
-		quad.size = Vector2.ONE * 1.6
-		quad.material = CombatFx.smoke_material()
-		d.mesh = quad
-		d.amount = 24
-		d.lifetime = 1.6
-		d.emitting = false
-		d.direction = Vector3.UP
-		d.spread = 50.0
-		d.initial_velocity_min = 0.5
-		d.initial_velocity_max = 2.5
-		d.gravity = Vector3(0, 0.4, 0)
-		var grow := Curve.new()
-		grow.add_point(Vector2(0.0, 0.4))
-		grow.add_point(Vector2(1.0, 1.8))
-		d.scale_amount_curve = grow
-		var ramp := Gradient.new()
-		ramp.set_color(0, Color(0.55, 0.5, 0.43, 0.55))
-		ramp.set_color(1, Color(0.55, 0.5, 0.43, 0.0))
-		d.color_ramp = ramp
-		d.name = "SkidDust_" + str(leg["name"])
-		add_child(d)
-		_skid_dust[leg["name"]] = d
 
 
 # --- the gun ------------------------------------------------------------------------------------
@@ -278,6 +265,7 @@ func take_hit(info: Dictionary) -> Dictionary:
 		var normal: Vector3 = info.get("normal", Vector3.UP)
 		var mark := CombatFx.decal(mech, point, normal, 0.9 if bool(r["penetrated"]) else 0.55)
 		mark.modulate = Color(1, 1, 1, 0.95)
+		mark.cull_mask = CombatFx.MECH_LAYER
 	if mech.get("is_player"):
 		Rumble.play("hit_heavy" if float(r["dealt"]) >= 400.0 else "hit_light")
 	hit_taken.emit(key, float(r["dealt"]), info)
@@ -367,13 +355,18 @@ func _update_skid_fx(delta: float) -> void:
 		var on := skid and bool(leg.get("sole_contact", false))
 		var foot: Vector3 = leg.get("foot", mech.global_position)
 		var s: CPUParticles3D = _skid_sparks.get(leg["name"])
-		var d: CPUParticles3D = _skid_dust.get(leg["name"])
 		if s == null:
 			continue
 		s.global_position = foot + Vector3.UP * 0.1
-		d.global_position = foot + Vector3.UP * 0.3
-		s.emitting = on
-		d.emitting = on
+		if s.emitting != on:  # assigning it every frame restarts the emitter
+			s.emitting = on
+		# Shown only while emitting and for one lifetime after, until the last spark fades.
+		var live := float(_skid_live_s.get(leg["name"], 0.0))
+		live = s.lifetime if on else maxf(live - delta, 0.0)
+		_skid_live_s[leg["name"]] = live
+		s.visible = on or live > 0.0
 		if on and gouge:
 			var n: Vector3 = leg.get("sole_normal", Vector3.UP)
+			# Dust as one-shot puffs on the gouge beat (a looping emitter here drew black balls).
+			CombatFx.smoke(mech.get_parent(), foot + Vector3.UP * 0.3, Vector3.UP, 3, 1.5, Color(0.6, 0.55, 0.47, 0.35), 1.4, 2.2)
 			CombatFx.decal(mech.get_parent(), foot, n, 0.7, true, mech.linear_velocity)

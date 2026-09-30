@@ -30,6 +30,11 @@ func follow(node: Node3D) -> void:
 		node.connect("landed", func(impact: float) -> void: add_shake(clampf(impact / 12.0, 0.1, 1.0)))
 	if node.has_signal("stepped"):
 		node.connect("stepped", func(_leg: String) -> void: add_shake(0.06))
+	# Lane A3: the 57 mm kicks the view, a hit taken jolts it (the Combat child is added with the mech).
+	var combat := node.get_node_or_null("Combat")
+	if combat != null:
+		combat.connect("fired", func(_w: String, _a: String) -> void: add_shake(0.45))
+		combat.connect("hit_taken", func(_k: String, dealt: float, _i: Dictionary) -> void: add_shake(clampf(dealt / 900.0, 0.15, 0.8)))
 
 
 func add_shake(amount: float) -> void:
@@ -49,6 +54,8 @@ func _process(delta: float) -> void:
 		return
 	var cfg: Dictionary = Registry.tune("camera.third_person", {})
 	var body_xf := target.global_transform
+	if bool(target.get("skidding")) and (target.get("linear_velocity") as Vector3).length() > 3.0:
+		add_shake(0.18)  # the skid grinds: a steady rumble while it slides
 	_shake = move_toward(_shake, 0.0, delta * 2.5)
 	_shake_t += delta
 	var jitter := Vector3(_noise.get_noise_2d(_shake_t * 60.0, 0.0), _noise.get_noise_2d(0.0, _shake_t * 60.0), 0.0) * _shake * 0.35
@@ -87,6 +94,9 @@ func _process(delta: float) -> void:
 
 	var weight := Settings.get_f("gameplay.camera_weight")
 	var rate := float(cfg.get("follow_rate", 5.5)) * lerpf(2.2, 0.55, weight)
+	# The weighty lag is right at walking pace; at grapple-swing speeds (70 km/h) it let the mech fly
+	# into the camera, so the follow tightens with speed.
+	rate *= 1.0 + velocity.length() / maxf(float(cfg.get("fast_follow_m_s", 15.0)), 0.1)
 	if not _started:
 		_pos = desired
 		_look = look
@@ -100,6 +110,12 @@ func _process(delta: float) -> void:
 	var hit := space.intersect_ray(query)
 	if not hit.is_empty():
 		final = (hit["position"] as Vector3) + (hit["normal"] as Vector3) * float(cfg.get("collision_margin_m", 0.4))
+	# Never inside the chassis: keep at least min_clear_m from the body's centre.
+	var clear := float(cfg.get("min_clear_m", 6.0))
+	var from_body := final - body_xf.origin
+	if from_body.length() < clear:
+		final = body_xf.origin + (from_body.normalized() if from_body.length() > 0.01 else body_xf.basis.z) * clear
+		_pos = final
 	fov = Settings.get_f("gameplay.fov_third")
 	global_position = final + jitter
 	if global_position.distance_to(_look) > 0.01:

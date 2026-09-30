@@ -1,0 +1,20 @@
+{
+  "name": "skid_check",
+  "_about": "Lane A3 part 2: the anime skid as a combat turn: sprint, then brake and turn hard; sparks, dust, gouges under the feet, the chassis whipping round while momentum carries on; then a shot at the plates. tools/bot_run.sh skid_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.0, "setting": "controls.sprint_mode", "value": "hold"},
+    {"at": 3.0, "press": "move_forward", "strength": 1.0, "for": 5.0},
+    {"at": 3.0, "press": "sprint", "strength": 1.0, "for": 5.0},
+    {"at": 6.0, "press": "brake", "strength": 1.0, "for": 1.2},
+    {"at": 6.0, "press": "turn_right", "strength": 1.0, "for": 1.0},
+    {"at": 6.3, "shot": "skid-start"},
+    {"at": 6.3, "sample": "skid-start"},
+    {"at": 6.7, "shot": "skid-mid"},
+    {"at": 6.7, "sample": "skid-mid"},
+    {"at": 7.2, "shot": "skid-end"},
+    {"at": 8.2, "shot": "gouges"},
+    {"at": 8.5, "quit": true}
+  ]
+}
