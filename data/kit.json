@@ -11,7 +11,7 @@
     "copper_band": {"albedo": [0.72, 0.4, 0.26], "metallic": 1.0, "roughness": 0.35},
     "steel_rust": {"albedo": [0.3, 0.2, 0.15], "metallic": 0.55, "roughness": 0.78},
     "steel_paint": {"albedo": [0.36, 0.38, 0.35], "metallic": 0.4, "roughness": 0.6},
-    "foliage": {"shader": "foliage", "colour_a": [0.2, 0.26, 0.12], "colour_b": [0.34, 0.36, 0.18]},
+    "foliage": {"shader": "foliage", "colour_a": [0.13, 0.15, 0.08], "colour_b": [0.36, 0.37, 0.22]},
     "grass": {"shader": "grass", "colour_a": [0.16, 0.2, 0.09], "colour_b": [0.52, 0.5, 0.28]}
   },
   "entries": {
@@ -32,7 +32,7 @@
     },
     "shrub": {
       "label": "Shrub", "kind": "plant", "builder": "shrub", "material": "foliage",
-      "size_m": [0.8, 2.4], "blobs": [4, 6], "collision": "none", "order": 20
+      "size_m": [0.8, 2.4], "clusters": [36, 52], "stems": 4, "collision": "none", "order": 20
     },
     "grass": {
       "label": "Grass clump", "kind": "plant", "builder": "grass", "material": "grass",

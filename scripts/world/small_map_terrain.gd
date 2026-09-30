@@ -34,7 +34,7 @@ func _init(entry: Dictionary) -> void:
 	water_level = float(entry.get("water_level_m", 0.0))
 	var seed_value := int(entry.get("seed", 1))
 	var t: Dictionary = entry.get("terrain", {})
-	_base(seed_value, t)
+	_base(seed_value, t, _road_distance(entry.get("roads", [])))
 	var s := PackedByteArray()
 	s.resize(n * n * 4)
 	s.fill(0)
@@ -88,7 +88,7 @@ func _index(x: float, z: float) -> int:
 # --- building the grid -----------------------------------------------------------------------
 
 
-func _base(seed_value: int, t: Dictionary) -> void:
+func _base(seed_value: int, t: Dictionary, road_d: PackedFloat32Array) -> void:
 	var base := FastNoiseLite.new()
 	base.seed = seed_value
 	base.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
@@ -113,6 +113,14 @@ func _base(seed_value: int, t: Dictionary) -> void:
 	var hills_m := float(t.get("hills_m", 12.0))
 	var ridges_m := float(t.get("ridges_m", 6.0))
 	var rough_m := float(t.get("rough_m", 0.45))
+	var rim_spur := FastNoiseLite.new()
+	rim_spur.seed = seed_value + 71
+	rim_spur.frequency = 0.011
+	rim_spur.fractal_octaves = 2
+	var rim_peaks := FastNoiseLite.new()
+	rim_peaks.seed = seed_value + 72
+	rim_peaks.frequency = 0.007
+	rim_peaks.fractal_octaves = 3
 	var rim_m := float(t.get("rim_m", 50.0))
 	var rim_w := float(t.get("rim_width_m", 90.0))
 	grid.resize(n * n)
@@ -129,9 +137,43 @@ func _base(seed_value: int, t: Dictionary) -> void:
 			var r := ridge.get_noise_2d(x, z) * 0.5 + 0.5
 			var h := floor_m + b * base_m + hl * hl * hills_m + r * ridges_m * (0.35 + 0.65 * hl)
 			h += rough.get_noise_2d(x, z) * rough_m
-			var edge := smoothstep(half - rim_w, half - 4.0, maxf(absf(x), absf(z)))
-			h += edge * edge * rim_m * (0.75 + 0.5 * b)
+			# lane B4: spurs reach inward and peaks and saddles run along the rim, so it reads as
+			# mountains rather than one even wall; the wobble only moves the rim inward, so the
+			# edge itself stays closed
+			var spur := rim_spur.get_noise_2d(x, z) * 0.5 + 0.5
+			# roads leave through passes: no spurs within about 60 m of a road
+			spur *= smoothstep(20.0, 60.0, road_d[(zi / ROAD_D_STEP) * _road_d_n() + xi / ROAD_D_STEP])
+			var edge := smoothstep(half - rim_w, half - 4.0, maxf(absf(x), absf(z)) + spur * spur * rim_w * 0.55)
+			var peaks := rim_peaks.get_noise_2d(x, z)
+			h += edge * edge * rim_m * maxf(0.75, 0.8 + 0.5 * b + 0.55 * peaks)
 			grid[zi * n + xi] = h
+
+
+const ROAD_D_STEP := 8
+
+
+func _road_d_n() -> int:
+	return (n - 1) / ROAD_D_STEP + 1
+
+
+## Distance (m) from the road centre lines on a coarse 8 m grid, for the rim's passes (lane B4).
+func _road_distance(roads: Array) -> PackedFloat32Array:
+	var m := _road_d_n()
+	var out := PackedFloat32Array()
+	out.resize(m * m)
+	out.fill(1.0e6)
+	for road: Dictionary in roads:
+		var pts: Array = road.get("points", [])
+		for k in pts.size() - 1:
+			var a := Vector2(float(pts[k][0]), float(pts[k][1]))
+			var b := Vector2(float(pts[k + 1][0]), float(pts[k + 1][1]))
+			for zi in m:
+				for xi in m:
+					var q := Vector2(xi * ROAD_D_STEP - half, zi * ROAD_D_STEP - half)
+					var d := q.distance_to(Geometry2D.get_closest_point_to_segment(q, a, b))
+					if d < out[zi * m + xi]:
+						out[zi * m + xi] = d
+	return out
 
 
 ## The town and other flats: blend the ground to the height at their centre, keeping a little

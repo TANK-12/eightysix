@@ -1,0 +1,71 @@
+{
+ "name": "b4_scenery",
+ "map": "small_map",
+ "_about": "Lane B4: four scenery viewpoints (shrubs, rim, river) and a frame measure at the start view. tools/bot_run.sh b4_scenery --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "mast"
+   ]
+  },
+  {
+   "at": 3.5,
+   "shot": "view-mast"
+  },
+  {
+   "at": 3.7,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 5.0,
+   "shot": "view-start"
+  },
+  {
+   "at": 5.2,
+   "call": "look_from",
+   "args": [
+    "outcrop"
+   ]
+  },
+  {
+   "at": 6.5,
+   "shot": "view-outcrop"
+  },
+  {
+   "at": 6.7,
+   "call": "look_from",
+   "args": [
+    "river"
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "view-river"
+  },
+  {
+   "at": 8.2,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 9.0,
+   "measure": 4.0,
+   "label": "start-view"
+  },
+  {
+   "at": 13.5,
+   "quit": true
+  }
+ ]
+}

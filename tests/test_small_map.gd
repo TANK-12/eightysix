@@ -146,3 +146,40 @@ func test_level_loads_and_the_mech_stands() -> void:
 	print("small_map build ms: ", level.get("build_ms"))
 	level.free()
 	Game.level = null
+
+
+## Lane B4: the rim has spurs and saddles (not one even wall) but still closes the map everywhere.
+func test_rim_varies_but_closes_the_map() -> void:
+	var t := _t()
+	var half := 508.0
+	var heights: Array[float] = []
+	var lowest := 1.0e9
+	for i in 60:
+		var s := -480.0 + i * 16.0
+		for p: Vector2 in [Vector2(s, half), Vector2(s, -half), Vector2(half, s), Vector2(-half, s)]:
+			if t.water_edge_at(p.x, p.y) < 60.0:
+				continue  # the river's own gap through the rim
+			var h := t.height_at(p.x, p.y)
+			heights.append(h)
+			lowest = minf(lowest, h)
+	assert_gt(lowest, 38.0, "the rim is high enough to close the map all round")
+	var mean := 0.0
+	for h in heights:
+		mean += h
+	mean /= heights.size()
+	var spread := 0.0
+	for h in heights:
+		spread += (h - mean) * (h - mean)
+	assert_gt(sqrt(spread / heights.size()), 9.0, "the rim's height varies along the edge (spurs and saddles)")
+
+
+## Lane B4: the far hills start under the rim top at the edge (the rim hides the join) and rise outward.
+func test_backdrop_hides_under_the_rim_and_rises() -> void:
+	var e := Registry.entry("maps", "small_map")
+	var b: Dictionary = e["backdrop"]
+	var noise := FastNoiseLite.new()
+	var half := float(e["size_m"]) * 0.5
+	var t := _t()
+	for s in [-300.0, 0.0, 300.0]:
+		assert_lt(Backdrop.height_at(s, half, half, b, noise), t.height_at(s, half - 6.0), "under the rim at the edge")
+	assert_gt(Backdrop.height_at(0.0, half + 500.0, half, b, noise), Backdrop.height_at(0.0, half + 10.0, half, b, noise) + 40.0, "rises outward")

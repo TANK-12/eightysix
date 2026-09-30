@@ -3,17 +3,17 @@
 // tinted by large-scale noise; rock on slopes, projected three ways so cliffs do not smear; each set
 // sampled at two scales so the tiling does not show at a distance.
 shader_type spatial;
-render_mode diffuse_burley, specular_schlick_ggx;
+render_mode diffuse_lambert, specular_schlick_ggx;
 
 uniform sampler2D splat : filter_linear, repeat_disable;
 uniform float splat_half = 512.0;
 uniform float splat_n = 1025.0;
 uniform sampler2D ground_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D ground_nrm : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D rock_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D rock_nrm : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D ground_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
+uniform sampler2D rock_col : source_color, filter_linear_mipmap, repeat_enable;
+uniform sampler2D rock_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D town_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D town_nrm : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D town_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D macro : hint_default_white, filter_linear_mipmap, repeat_enable;
 uniform float ground_scale = 0.3;
 uniform float rock_scale = 0.16;
@@ -76,10 +76,28 @@ void fragment() {
 	float rockiness = smoothstep(0.2, 0.36, slope + (m2 - 0.5) * 0.16);
 	if (rockiness > 0.01) {
 		// the two side projections only: rock only shows on slopes, where the top one smears
-		vec2 side_uv = (abs(wn.x) > abs(wn.z) ? wp.zy : wp.xy) * rock_scale;
-		vec3 r = mix(texture(rock_col, side_uv).rgb, texture(rock_col, wp.xz * rock_scale).rgb, clamp(wn.y * 1.4 - 0.4, 0.0, 1.0));
+		// both side projections blended by the normal (lane B4): a hard switch left a straight seam down the cliffs
+		// only the projections that show are sampled (most pixels need one side): the rim's cliffs
+		// cover a lot of the screen
+		float wx = smoothstep(0.3, 0.7, abs(wn.x) / (abs(wn.x) + abs(wn.z) + 1e-4));
+		vec2 uv_x = wp.zy * rock_scale;
+		vec2 uv_z = wp.xy * rock_scale;
+		vec3 r_side;
+		vec3 n_side;
+		if (wx < 0.01) {
+			r_side = texture(rock_col, uv_z).rgb;
+			n_side = texture(rock_nrm, uv_z).rgb;
+		} else if (wx > 0.99) {
+			r_side = texture(rock_col, uv_x).rgb;
+			n_side = texture(rock_nrm, uv_x).rgb;
+		} else {
+			r_side = mix(texture(rock_col, uv_z).rgb, texture(rock_col, uv_x).rgb, wx);
+			n_side = mix(texture(rock_nrm, uv_z).rgb, texture(rock_nrm, uv_x).rgb, wx);
+		}
+		float top = clamp(wn.y * 1.4 - 0.4, 0.0, 1.0);
+		vec3 r = top > 0.01 ? mix(r_side, texture(rock_col, wp.xz * rock_scale).rgb, top) : r_side;
 		col = mix(col, r * rock_tint, rockiness);
-		nrm = mix(nrm, texture(rock_nrm, side_uv).rgb, rockiness);
+		nrm = mix(nrm, n_side, rockiness);
 	}
 
 	// shell scorch

@@ -1,0 +1,115 @@
+{
+ "name": "b4_perf_probe",
+ "map": "small_map",
+ "_about": "Lane B4: frame time at the start viewpoint with one part off at a time (shrubs, ground shader, terrain shadows, volumetric fog), baseline at start and end. tools/bot_run.sh b4_perf_probe --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 3.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 5.0,
+   "measure": 3.0,
+   "label": "base"
+  },
+  {
+   "at": 8.6,
+   "measure": 3.0,
+   "label": "base-again"
+  },
+  {
+   "at": 11.899999999999999,
+   "call": "probe",
+   "args": [
+    "shrub",
+    false
+   ]
+  },
+  {
+   "at": 12.7,
+   "measure": 3.0,
+   "label": "shrub-off"
+  },
+  {
+   "at": 16.0,
+   "call": "probe",
+   "args": [
+    "shrub",
+    true
+   ]
+  },
+  {
+   "at": 16.3,
+   "call": "probe",
+   "args": [
+    "ground_plain",
+    false
+   ]
+  },
+  {
+   "at": 17.1,
+   "measure": 3.0,
+   "label": "ground_plain-off"
+  },
+  {
+   "at": 20.400000000000002,
+   "call": "probe",
+   "args": [
+    "ground_plain",
+    true
+   ]
+  },
+  {
+   "at": 20.700000000000003,
+   "call": "probe",
+   "args": [
+    "terrain_shadows",
+    false
+   ]
+  },
+  {
+   "at": 21.500000000000004,
+   "measure": 3.0,
+   "label": "terrain_shadows-off"
+  },
+  {
+   "at": 24.800000000000004,
+   "call": "probe",
+   "args": [
+    "terrain_shadows",
+    true
+   ]
+  },
+  {
+   "at": 25.400000000000006,
+   "setting": "graphics.volumetric_fog",
+   "value": false
+  },
+  {
+   "at": 25.900000000000006,
+   "measure": 3.0,
+   "label": "volfog-off"
+  },
+  {
+   "at": 29.500000000000007,
+   "setting": "graphics.volumetric_fog",
+   "value": true
+  },
+  {
+   "at": 30.000000000000007,
+   "measure": 3.0,
+   "label": "base-end"
+  },
+  {
+   "at": 33.900000000000006,
+   "quit": true
+  }
+ ]
+}

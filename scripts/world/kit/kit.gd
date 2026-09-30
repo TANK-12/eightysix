@@ -222,28 +222,53 @@ static func _rock(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> vo
 
 
 static func _shrub(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
+	# Lane B4: a dome of small leaf clusters on a few stems instead of 4-6 big blobs, so the plant has a
+	# ragged, see-through silhouette. Each cluster is a stretched, turned octahedron (8 triangles):
+	# about the triangle count of the old blobs. COLOR: r tone, g height share (sway), b 1 on stems.
 	var s := _range(e, "size_m", rng, 1.4)
-	var blobs := int(_range(e, "blobs", rng, 6))
+	var n := int(_range(e, "clusters", rng, 24))
 	var st := parts.surface(str(e.get("material", "foliage")))
-	for b in blobs:
-		var r := s * rng.randf_range(0.22, 0.38)
-		var c := Vector3(rng.randf_range(-0.3, 0.3) * s, r * 0.7 + rng.randf_range(0.0, 0.45) * s, rng.randf_range(-0.3, 0.3) * s)
+	var stems := int(e.get("stems", 4))
+	var tips: Array[Vector3] = []
+	for k in stems:
+		var ang := TAU * (float(k) + rng.randf_range(-0.3, 0.3)) / stems
+		tips.append(Vector3(cos(ang) * s * rng.randf_range(0.12, 0.3), s * rng.randf_range(0.45, 0.7), sin(ang) * s * rng.randf_range(0.12, 0.3)))
+		_stem(st, Vector3(0.0, -0.05, 0.0), tips[k], s * 0.025, s)
+	for c in n:
+		# points spread through a squashed dome, denser toward the outside so the middle reads dark
+		var dir := Vector3(rng.randf_range(-1, 1), rng.randf_range(0.05, 1.0), rng.randf_range(-1, 1)).normalized()
+		var r := pow(rng.randf(), 0.4)
+		var at := Vector3(dir.x * s * 0.48, dir.y * s * 0.62 + s * 0.12, dir.z * s * 0.48) * r
+		var size := s * rng.randf_range(0.065, 0.12)
+		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)).scaled(Vector3(1.0, rng.randf_range(0.6, 0.95), rng.randf_range(0.8, 1.2)))
 		var tone := rng.randf()
-		var sphere := SphereMesh.new()
-		sphere.radius = r
-		sphere.height = r * 1.6
-		sphere.radial_segments = 6
-		sphere.rings = 3
-		var arrays := sphere.get_mesh_arrays()
-		var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
-		var normals: PackedVector3Array = arrays[Mesh.ARRAY_NORMAL]
-		var idx: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-		for i in idx:
-			var v := verts[i] * rng.randf_range(0.85, 1.15) + c
-			st.set_color(Color(tone, clampf(v.y / (s * 0.9), 0.0, 1.0), 0.0))
-			st.set_normal((normals[i] * 0.4 + (v - Vector3(0, s * 0.2, 0)).normalized() * 0.6).normalized())
-			st.add_vertex(v)
+		var hv := clampf(at.y / (s * 0.9), 0.0, 1.0)
+		var pts := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+		var faces := [[0, 2, 4], [2, 1, 4], [1, 3, 4], [3, 0, 4], [2, 0, 5], [1, 2, 5], [3, 1, 5], [0, 3, 5]]
+		for f: Array in faces:
+			for k: int in f:
+				var v: Vector3 = basis * (pts[k] as Vector3) * size
+				st.set_color(Color(tone, hv, 0.0))
+				# normals point away from the plant's middle, so the dome lights as one soft mass
+				st.set_normal(((at + v) - Vector3(0.0, s * 0.25, 0.0)).normalized().lerp(v.normalized(), 0.35).normalized())
+				st.add_vertex(at + v)
 	parts.no_normals.append(str(e.get("material", "foliage")))
+
+
+## A thin three-sided stem from a to b (COLOR.b = 1 marks wood for the foliage shader).
+static func _stem(st: SurfaceTool, a: Vector3, b: Vector3, r: float, s: float) -> void:
+	var up := (b - a).normalized()
+	var side := up.cross(Vector3.FORWARD if absf(up.z) < 0.9 else Vector3.RIGHT).normalized()
+	var ring: Array[Vector3] = []
+	for k in 3:
+		ring.append(side.rotated(up, TAU * k / 3.0) * r)
+	for k in 3:
+		var p := ring[k]
+		var q := ring[(k + 1) % 3]
+		for v: Vector3 in [a + p, b + p * 0.4, b + q * 0.4, a + p, b + q * 0.4, a + q]:
+			st.set_color(Color(0.0, clampf(v.y / (s * 0.9), 0.0, 1.0), 1.0))
+			st.set_normal(((p + q) * 0.5).normalized())
+			st.add_vertex(v)
 
 
 ## A clump of grass blades, one leaning triangle each (cheap enough for thousands per chunk); UV.y runs 0 at the root to 1 at the tip (the shader sways by it).

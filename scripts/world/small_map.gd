@@ -35,6 +35,7 @@ func _ready() -> void:
 	t0 = Time.get_ticks_msec()
 	_build_ground()
 	_build_water()
+	Backdrop.build(self, entry)
 	build_ms["ground"] = Time.get_ticks_msec() - t0
 	t0 = Time.get_ticks_msec()
 	var avoid := _build_places()
