@@ -1,0 +1,76 @@
+{
+ "name": "b4_sound_check",
+ "map": "small_map",
+ "_about": "Lane B4: records 24 s of the game's own sound (walk, sprint, a 57 mm shot and its casing, reload, a jump and landing, another shot) to sound-check.wav in the run folder. The Dummy driver still mixes, so this works off screen. tools/bot_run.sh b4_sound_check",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 1.0,
+   "call": "record_audio",
+   "args": [
+    true
+   ]
+  },
+  {
+   "at": 1.5,
+   "press": "move_forward",
+   "strength": 0.5,
+   "for": 4.0
+  },
+  {
+   "at": 5.5,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 6.0
+  },
+  {
+   "at": 6.0,
+   "press": "sprint",
+   "for": 4.0
+  },
+  {
+   "at": 11.8,
+   "press": "fire_main",
+   "for": 0.1
+  },
+  {
+   "at": 14.0,
+   "press": "reload",
+   "for": 0.1
+  },
+  {
+   "at": 17.0,
+   "press": "jump",
+   "for": 0.6
+  },
+  {
+   "at": 21.0,
+   "press": "fire_main",
+   "for": 0.1
+  },
+  {
+   "at": 25.0,
+   "call": "record_audio",
+   "args": [
+    false,
+    "sound-check"
+   ]
+  },
+  {
+   "at": 25.5,
+   "shot": "end"
+  },
+  {
+   "at": 26.0,
+   "quit": true
+  }
+ ]
+}

@@ -23,6 +23,7 @@ func build_buses() -> void:
 			AudioServer.set_bus_name(index, name)
 		if bus.has("send"):
 			AudioServer.set_bus_send(index, str(bus["send"]))
+	_build_reverbs()
 	var master := AudioServer.get_bus_index("Master")
 	if AudioServer.get_bus_effect_count(master) == 0:
 		var squash := AudioEffectCompressor.new()
@@ -32,6 +33,43 @@ func build_buses() -> void:
 		AudioServer.add_bus_effect(master, squash)
 		var limiter := AudioEffectHardLimiter.new()
 		AudioServer.add_bus_effect(master, limiter)
+
+
+## Lane B4: one reverb on the Effects bus. Sfx sets its character from the reverb zone the listener
+## is in (sounds.json "reverbs"), so every category keeps its own volume slider.
+const REVERB_FIELDS := ["room_size", "damping", "spread", "wet", "predelay_ms", "predelay_feedback", "hipass"]
+
+
+func _build_reverbs() -> void:
+	var fx := AudioServer.get_bus_index("Effects")
+	if fx < 0 or effects_reverb() != null:
+		return
+	var rv := AudioEffectReverb.new()
+	rv.dry = 1.0
+	rv.wet = 0.0
+	AudioServer.add_bus_effect(fx, rv)
+
+
+func effects_reverb() -> AudioEffectReverb:
+	var fx := AudioServer.get_bus_index("Effects")
+	for i in AudioServer.get_bus_effect_count(fx):
+		if AudioServer.get_bus_effect(fx, i) is AudioEffectReverb:
+			return AudioServer.get_bus_effect(fx, i)
+	return null
+
+
+## Sets the Effects reverb from a dictionary of REVERB_FIELDS (missing fields are left alone).
+func set_reverb(spec: Dictionary) -> void:
+	var rv := effects_reverb()
+	if rv == null:
+		return
+	rv.room_size = float(spec.get("room_size", rv.room_size))
+	rv.damping = float(spec.get("damping", rv.damping))
+	rv.spread = float(spec.get("spread", rv.spread))
+	rv.wet = float(spec.get("wet", rv.wet))
+	rv.predelay_msec = float(spec.get("predelay_ms", rv.predelay_msec))
+	rv.predelay_feedback = float(spec.get("predelay_feedback", rv.predelay_feedback))
+	rv.hipass = float(spec.get("hipass", rv.hipass))
 
 
 func apply() -> void:

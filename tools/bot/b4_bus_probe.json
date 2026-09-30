@@ -1,0 +1,100 @@
+{
+ "name": "b4_bus_probe",
+ "map": "small_map",
+ "_about": "Lane B4: records 2 s with everything, then with one bus muted at a time (ambience, mech, effects, music, all but UI), standing still, to find what makes the constant background. tools/bot_run.sh b4_bus_probe",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 1.0,
+   "call": "record_audio",
+   "args": [
+    true
+   ]
+  },
+  {
+   "at": 3.0,
+   "setting": "audio.ambience",
+   "value": 0.0
+  },
+  {
+   "at": 4.99,
+   "setting": "audio.ambience",
+   "value": 1.0
+  },
+  {
+   "at": 5.0,
+   "setting": "audio.mech",
+   "value": 0.0
+  },
+  {
+   "at": 6.99,
+   "setting": "audio.mech",
+   "value": 1.0
+  },
+  {
+   "at": 7.0,
+   "setting": "audio.effects",
+   "value": 0.0
+  },
+  {
+   "at": 8.99,
+   "setting": "audio.effects",
+   "value": 1.0
+  },
+  {
+   "at": 9.0,
+   "setting": "audio.music",
+   "value": 0.0
+  },
+  {
+   "at": 10.99,
+   "setting": "audio.music",
+   "value": 1.0
+  },
+  {
+   "at": 11.0,
+   "setting": "audio.effects",
+   "value": 0.0
+  },
+  {
+   "at": 11.0,
+   "setting": "audio.music",
+   "value": 0.0
+  },
+  {
+   "at": 11.0,
+   "setting": "audio.voice",
+   "value": 0.0
+  },
+  {
+   "at": 12.99,
+   "setting": "audio.effects",
+   "value": 1.0
+  },
+  {
+   "at": 12.99,
+   "setting": "audio.music",
+   "value": 1.0
+  },
+  {
+   "at": 12.99,
+   "setting": "audio.voice",
+   "value": 1.0
+  },
+  {
+   "at": 13.0,
+   "call": "record_audio",
+   "args": [
+    false,
+    "bus-probe"
+   ]
+  },
+  {
+   "at": 13.3,
+   "quit": true
+  }
+ ]
+}

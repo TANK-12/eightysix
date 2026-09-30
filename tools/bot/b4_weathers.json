@@ -1,0 +1,84 @@
+{
+ "name": "b4_weathers",
+ "map": "small_map",
+ "_about": "Lane B4: the start viewpoint in each weather (light, fog, grade). tools/bot_run.sh b4_weathers --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 3.0,
+   "call": "set_weather",
+   "args": [
+    "golden_afternoon"
+   ]
+  },
+  {
+   "at": 4.2,
+   "shot": "weather-golden_afternoon"
+  },
+  {
+   "at": 4.6,
+   "call": "set_weather",
+   "args": [
+    "overcast_morning"
+   ]
+  },
+  {
+   "at": 5.8,
+   "shot": "weather-overcast_morning"
+  },
+  {
+   "at": 6.199999999999999,
+   "call": "set_weather",
+   "args": [
+    "clear_noon"
+   ]
+  },
+  {
+   "at": 7.3999999999999995,
+   "shot": "weather-clear_noon"
+  },
+  {
+   "at": 7.799999999999999,
+   "call": "set_weather",
+   "args": [
+    "dusk_haze"
+   ]
+  },
+  {
+   "at": 8.999999999999998,
+   "shot": "weather-dusk_haze"
+  },
+  {
+   "at": 9.399999999999999,
+   "call": "set_weather",
+   "args": [
+    "storm_grey"
+   ]
+  },
+  {
+   "at": 10.599999999999998,
+   "shot": "weather-storm_grey"
+  },
+  {
+   "at": 10.999999999999998,
+   "call": "set_weather",
+   "args": [
+    "golden_afternoon"
+   ]
+  },
+  {
+   "at": 11.499999999999998,
+   "quit": true
+  }
+ ]
+}

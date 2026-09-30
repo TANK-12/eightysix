@@ -30,6 +30,14 @@ func _ready() -> void:
 	entry = Registry.entry("maps", MAP_ID)
 	var t0 := Time.get_ticks_msec()
 	sky = SmallMapSky.new(self, str(entry.get("weather", "overcast_morning")))
+	Sfx.loop(str(entry.get("ambience", "wind_loop")), self)
+	Sfx.clear_reverb_zones()
+	for z: Dictionary in entry.get("reverb_zones", []):
+		var at: Array = z["at"]
+		var sz: Array = z["size_m"]
+		var size := Vector3(float(sz[0]), float(sz[1]), float(sz[2]))
+		var box := AABB(Vector3(float(at[0]) - size.x * 0.5, -20.0, float(at[1]) - size.z * 0.5), size)
+		Sfx.add_reverb_zone(box, str(z["reverb"]), float(z.get("amount", 0.5)), int(z.get("priority", 0)))
 	terrain = SmallMapTerrain.new(entry)
 	build_ms["terrain"] = Time.get_ticks_msec() - t0
 	t0 = Time.get_ticks_msec()
@@ -70,6 +78,11 @@ func capture_mouse() -> void:
 
 func ground_height(x: float, z: float) -> float:
 	return terrain.height_at(x, z)
+
+
+## Bot hook (lane B4): record the game's sound to <bot out folder>/<name>.wav between two calls.
+func record_audio(on: bool, name: String = "sound") -> void:
+	Sfx.record(on, Bot.out_dir.path_join(name + ".wav") if Bot.out_dir != "" else "")
 
 
 func set_weather(id: String) -> void:

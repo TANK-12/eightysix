@@ -1,0 +1,1151 @@
+{
+ "_about": "Sound recipes for tools/audio/synth.py (lane B4), one entry per sound. Layers: noise {band [lo, hi] Hz, tilt dB/octave, env, lfo}, sweep {f0, f1, glide, harmonics, env} (a falling tone: booms, thuds), partials {freqs, decays, gains, hits [[t, gain]]} (ringing metal), hum {f, harmonics, wobble, grit} (motors). env = {attack, hold, decay} in seconds (decay is the exponential time constant). reverb {time_s, mix, lowpass, predelay_s}. variants = takes with small random differences (jitter). loop = cross-faded to repeat seamlessly. Output assets/audio/review/synth/<id>_<n>.wav. volume_db sets the sound's level in the mix, in the order of real loudness (57 mm muzzle blast about 170 dB SPL at the gun, a Juggernaut footstep about 115): every take is peak-normalised, so without it a footstep plays as loud as the cannon (it did, lane B4). Loops (servo, skid, winch) are levelled live in scripts/audio/mech_sounds.gd.",
+ "entries": {
+  "gun_57mm_fire": {
+   "label": "57 mm main gun, fired",
+   "bus": "weapons",
+   "duration_s": 1.8,
+   "variants": 3,
+   "seed": 1,
+   "peak_db": -0.5,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      900,
+      14000
+     ],
+     "env": {
+      "attack": 0.0004,
+      "decay": 0.012
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      50,
+      1600
+     ],
+     "tilt": -3,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.09
+     },
+     "gain": 0.9
+    },
+    {
+     "type": "sweep",
+     "f0": 92,
+     "f1": 36,
+     "glide": 0.28,
+     "harmonics": [
+      1,
+      0.35,
+      0.12
+     ],
+     "env": {
+      "attack": 0.002,
+      "decay": 0.34
+     },
+     "gain": 0.85
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      410,
+      1130,
+      2270,
+      3890
+     ],
+     "decays": [
+      0.2,
+      0.11,
+      0.06,
+      0.04
+     ],
+     "start_s": 0.07,
+     "gain": 0.2
+    }
+   ],
+   "reverb": {
+    "time_s": 2.4,
+    "mix": 0.45,
+    "lowpass": 1700,
+    "predelay_s": 0.07
+   },
+   "volume_db": 0.0
+  },
+  "gun_57mm_reload": {
+   "label": "57 mm autoloader cycle",
+   "bus": "weapons",
+   "duration_s": 1.7,
+   "variants": 2,
+   "seed": 2,
+   "peak_db": -4,
+   "layers": [
+    {
+     "type": "partials",
+     "freqs": [
+      260,
+      690,
+      1480,
+      2900
+     ],
+     "decays": [
+      0.12,
+      0.08,
+      0.05,
+      0.03
+     ],
+     "hits": [
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.38,
+       0.6
+      ],
+      [
+       0.95,
+       0.9
+      ],
+      [
+       1.3,
+       1.0
+      ]
+     ],
+     "gain": 0.8
+    },
+    {
+     "type": "noise",
+     "band": [
+      1800,
+      9000
+     ],
+     "env": {
+      "attack": 0.05,
+      "hold": 0.25,
+      "decay": 0.1
+     },
+     "start_s": 0.45,
+     "gain": 0.25
+    },
+    {
+     "type": "hum",
+     "f": 140,
+     "harmonics": [
+      1,
+      0.6,
+      0.3
+     ],
+     "wobble": 0.03,
+     "wobble_hz": 2.0,
+     "env": {
+      "attack": 0.05,
+      "hold": 0.4,
+      "decay": 0.08
+     },
+     "start_s": 0.4,
+     "gain": 0.3
+    }
+   ],
+   "volume_db": -13.0
+  },
+  "casing_57mm_drop": {
+   "label": "57 mm casing hits the ground",
+   "bus": "impacts",
+   "duration_s": 0.9,
+   "variants": 4,
+   "seed": 3,
+   "peak_db": -3,
+   "layers": [
+    {
+     "type": "partials",
+     "freqs": [
+      780,
+      1900,
+      3350,
+      5200
+     ],
+     "decays": [
+      0.14,
+      0.08,
+      0.05,
+      0.03
+     ],
+     "hits": [
+      [
+       0.0,
+       1.0
+      ],
+      [
+       0.22,
+       0.45
+      ],
+      [
+       0.34,
+       0.22
+      ],
+      [
+       0.41,
+       0.08
+      ]
+     ],
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      90,
+      900
+     ],
+     "env": {
+      "attack": 0.001,
+      "decay": 0.025
+     },
+     "gain": 0.45
+    }
+   ],
+   "volume_db": -15.0
+  },
+  "mg_12_7_fire": {
+   "label": "12.7 mm sub-arm gun, one shot",
+   "bus": "weapons",
+   "duration_s": 0.35,
+   "variants": 3,
+   "seed": 4,
+   "peak_db": -2,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      1100,
+      14000
+     ],
+     "env": {
+      "attack": 0.0003,
+      "decay": 0.007
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      100,
+      3000
+     ],
+     "env": {
+      "attack": 0.0005,
+      "decay": 0.04
+     },
+     "gain": 0.8
+    },
+    {
+     "type": "sweep",
+     "f0": 170,
+     "f1": 80,
+     "glide": 0.08,
+     "harmonics": [
+      1,
+      0.3
+     ],
+     "env": {
+      "attack": 0.001,
+      "decay": 0.07
+     },
+     "gain": 0.6
+    }
+   ],
+   "reverb": {
+    "time_s": 0.7,
+    "mix": 0.2,
+    "lowpass": 2500,
+    "predelay_s": 0.04
+   },
+   "max_voices": 6,
+   "volume_db": -7.0
+  },
+  "impact_dirt": {
+   "label": "Shell hits dirt",
+   "bus": "impacts",
+   "duration_s": 1.4,
+   "variants": 3,
+   "seed": 5,
+   "peak_db": -1,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 72,
+     "f1": 34,
+     "glide": 0.2,
+     "harmonics": [
+      1,
+      0.3
+     ],
+     "env": {
+      "attack": 0.002,
+      "decay": 0.2
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      80,
+      2500
+     ],
+     "tilt": -2,
+     "env": {
+      "attack": 0.002,
+      "decay": 0.12
+     },
+     "gain": 0.8
+    },
+    {
+     "type": "noise",
+     "band": [
+      1500,
+      8000
+     ],
+     "env": {
+      "attack": 0.05,
+      "decay": 0.3
+     },
+     "start_s": 0.08,
+     "lfo": {
+      "hz": 9,
+      "depth": 0.7
+     },
+     "gain": 0.25
+    }
+   ],
+   "reverb": {
+    "time_s": 1.6,
+    "mix": 0.35,
+    "lowpass": 1800,
+    "predelay_s": 0.05
+   },
+   "volume_db": -3.0
+  },
+  "impact_metal": {
+   "label": "Round hits armour",
+   "bus": "impacts",
+   "duration_s": 1.5,
+   "variants": 3,
+   "seed": 6,
+   "peak_db": -1,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      2000,
+      15000
+     ],
+     "env": {
+      "attack": 0.0003,
+      "decay": 0.01
+     },
+     "gain": 0.9
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      310,
+      890,
+      1570,
+      2710,
+      4230
+     ],
+     "decays": [
+      0.6,
+      0.4,
+      0.25,
+      0.15,
+      0.1
+     ],
+     "gain": 0.9
+    },
+    {
+     "type": "sweep",
+     "f0": 120,
+     "f1": 60,
+     "glide": 0.1,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.1
+     },
+     "gain": 0.6
+    }
+   ],
+   "reverb": {
+    "time_s": 1.2,
+    "mix": 0.3,
+    "lowpass": 3000,
+    "predelay_s": 0.04
+   },
+   "volume_db": -4.0
+  },
+  "impact_rock": {
+   "label": "Round hits rock or concrete",
+   "bus": "impacts",
+   "duration_s": 1.2,
+   "variants": 3,
+   "seed": 7,
+   "peak_db": -1,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      1500,
+      14000
+     ],
+     "env": {
+      "attack": 0.0003,
+      "decay": 0.012
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      300,
+      6000
+     ],
+     "env": {
+      "attack": 0.001,
+      "decay": 0.06
+     },
+     "gain": 0.8
+    },
+    {
+     "type": "noise",
+     "band": [
+      2000,
+      9000
+     ],
+     "env": {
+      "attack": 0.04,
+      "decay": 0.25
+     },
+     "start_s": 0.05,
+     "lfo": {
+      "hz": 14,
+      "depth": 0.8
+     },
+     "gain": 0.3
+    },
+    {
+     "type": "sweep",
+     "f0": 110,
+     "f1": 50,
+     "glide": 0.12,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.12
+     },
+     "gain": 0.6
+    }
+   ],
+   "reverb": {
+    "time_s": 1.4,
+    "mix": 0.3,
+    "lowpass": 2500,
+    "predelay_s": 0.05
+   },
+   "volume_db": -4.0
+  },
+  "foot_dirt": {
+   "label": "Juggernaut foot on dirt",
+   "bus": "mech",
+   "duration_s": 0.5,
+   "variants": 4,
+   "seed": 8,
+   "peak_db": -3,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 62,
+     "f1": 38,
+     "glide": 0.12,
+     "harmonics": [
+      1,
+      0.3
+     ],
+     "env": {
+      "attack": 0.003,
+      "decay": 0.11
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      150,
+      3000
+     ],
+     "tilt": -2,
+     "env": {
+      "attack": 0.002,
+      "decay": 0.06
+     },
+     "gain": 0.5
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      520,
+      1340,
+      2410
+     ],
+     "decays": [
+      0.08,
+      0.05,
+      0.04
+     ],
+     "start_s": 0.01,
+     "gain": 0.15
+    }
+   ],
+   "volume_db": -17.0
+  },
+  "foot_rock": {
+   "label": "Juggernaut foot on rock or concrete",
+   "bus": "mech",
+   "duration_s": 0.5,
+   "variants": 4,
+   "seed": 9,
+   "peak_db": -3,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 78,
+     "f1": 46,
+     "glide": 0.1,
+     "harmonics": [
+      1,
+      0.35
+     ],
+     "env": {
+      "attack": 0.002,
+      "decay": 0.09
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      400,
+      7000
+     ],
+     "env": {
+      "attack": 0.001,
+      "decay": 0.04
+     },
+     "gain": 0.55
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      540,
+      1380,
+      2480,
+      3900
+     ],
+     "decays": [
+      0.1,
+      0.06,
+      0.04,
+      0.03
+     ],
+     "start_s": 0.005,
+     "gain": 0.35
+    }
+   ],
+   "volume_db": -16.0
+  },
+  "land_heavy": {
+   "label": "Juggernaut lands from a jump",
+   "bus": "mech",
+   "duration_s": 1.3,
+   "variants": 2,
+   "seed": 10,
+   "peak_db": -1,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 58,
+     "f1": 29,
+     "glide": 0.3,
+     "harmonics": [
+      1,
+      0.4,
+      0.15
+     ],
+     "env": {
+      "attack": 0.004,
+      "decay": 0.35
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      80,
+      2500
+     ],
+     "tilt": -2,
+     "env": {
+      "attack": 0.003,
+      "decay": 0.2
+     },
+     "gain": 0.7
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      260,
+      720,
+      1450,
+      2600
+     ],
+     "decays": [
+      0.3,
+      0.2,
+      0.1,
+      0.06
+     ],
+     "start_s": 0.02,
+     "gain": 0.4
+    }
+   ],
+   "reverb": {
+    "time_s": 1.0,
+    "mix": 0.25,
+    "lowpass": 1500,
+    "predelay_s": 0.04
+   },
+   "volume_db": -9.0
+  },
+  "servo_loop": {
+   "label": "Leg servos while moving (loop)",
+   "bus": "mech",
+   "duration_s": 3.0,
+   "loop": true,
+   "crossfade_s": 0.4,
+   "variants": 1,
+   "seed": 11,
+   "peak_db": -6,
+   "layers": [
+    {
+     "type": "hum",
+     "f": 210,
+     "harmonics": [
+      1,
+      0.6,
+      0.4,
+      0.2,
+      0.1
+     ],
+     "wobble": 0.02,
+     "wobble_hz": 1.3,
+     "grit": {
+      "band": [
+       1500,
+       6000
+      ],
+      "gain": 0.25
+     },
+     "gain": 1.0
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "hydraulic_hiss": {
+   "label": "Hydraulic vent (knee rams)",
+   "bus": "mech",
+   "duration_s": 0.7,
+   "variants": 3,
+   "seed": 12,
+   "peak_db": -8,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      2000,
+      11000
+     ],
+     "env": {
+      "attack": 0.02,
+      "hold": 0.08,
+      "decay": 0.12
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      200,
+      900
+     ],
+     "env": {
+      "attack": 0.01,
+      "decay": 0.08
+     },
+     "gain": 0.3
+    }
+   ],
+   "volume_db": -18.0
+  },
+  "skid_loop": {
+   "label": "Feet skidding over gravel (loop)",
+   "bus": "mech",
+   "duration_s": 2.0,
+   "loop": true,
+   "crossfade_s": 0.3,
+   "variants": 1,
+   "seed": 13,
+   "peak_db": -4,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      300,
+      5000
+     ],
+     "tilt": -1,
+     "lfo": {
+      "hz": 11,
+      "depth": 0.55
+     },
+     "env": {
+      "attack": 0.01,
+      "hold": 99
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      60,
+      400
+     ],
+     "lfo": {
+      "hz": 3,
+      "depth": 0.4
+     },
+     "env": {
+      "attack": 0.01,
+      "hold": 99
+     },
+     "gain": 0.5
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "wind_loop": {
+   "label": "Wind across the valley (loop)",
+   "bus": "ambience",
+   "duration_s": 14.0,
+   "loop": true,
+   "crossfade_s": 2.5,
+   "variants": 1,
+   "seed": 14,
+   "peak_db": -8,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      40,
+      1800
+     ],
+     "tilt": -4,
+     "lfo": {
+      "hz": 0.15,
+      "depth": 0.6
+     },
+     "env": {
+      "attack": 0.5,
+      "hold": 99
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      700,
+      1100
+     ],
+     "lfo": {
+      "hz": 0.25,
+      "depth": 0.9
+     },
+     "env": {
+      "attack": 0.5,
+      "hold": 99
+     },
+     "gain": 0.15
+    }
+   ],
+   "volume_db": -15.0
+  },
+  "wire_fire": {
+   "label": "Wire anchor launched",
+   "bus": "mech",
+   "duration_s": 1.0,
+   "variants": 2,
+   "seed": 15,
+   "peak_db": -2,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      60,
+      900
+     ],
+     "env": {
+      "attack": 0.001,
+      "decay": 0.05
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "sweep",
+     "f0": 180,
+     "f1": 60,
+     "glide": 0.08,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.08
+     },
+     "gain": 0.6
+    },
+    {
+     "type": "noise",
+     "band": [
+      2500,
+      9000
+     ],
+     "env": {
+      "attack": 0.02,
+      "decay": 0.45
+     },
+     "start_s": 0.03,
+     "gain": 0.35
+    }
+   ],
+   "volume_db": -9.0
+  },
+  "wire_reel_loop": {
+   "label": "Wire winch reeling (loop)",
+   "bus": "mech",
+   "duration_s": 2.0,
+   "loop": true,
+   "crossfade_s": 0.3,
+   "variants": 1,
+   "seed": 16,
+   "peak_db": -6,
+   "layers": [
+    {
+     "type": "hum",
+     "f": 95,
+     "harmonics": [
+      1,
+      0.5,
+      0.3,
+      0.2
+     ],
+     "wobble": 0.015,
+     "wobble_hz": 5.0,
+     "grit": {
+      "band": [
+       800,
+       4000
+      ],
+      "gain": 0.45
+     },
+     "gain": 1.0
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "wire_anchor_hit": {
+   "label": "Wire anchor bites",
+   "bus": "impacts",
+   "duration_s": 0.6,
+   "variants": 2,
+   "seed": 17,
+   "peak_db": -3,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      1500,
+      12000
+     ],
+     "env": {
+      "attack": 0.0003,
+      "decay": 0.008
+     },
+     "gain": 0.9
+    },
+    {
+     "type": "partials",
+     "freqs": [
+      640,
+      1720,
+      3100
+     ],
+     "decays": [
+      0.2,
+      0.1,
+      0.06
+     ],
+     "gain": 0.8
+    }
+   ],
+   "volume_db": -11.0
+  },
+  "lowe_fire": {
+   "label": "Löwe 120 mm gun, fired (Legion)",
+   "bus": "weapons",
+   "duration_s": 2.4,
+   "variants": 2,
+   "seed": 18,
+   "peak_db": -0.5,
+   "layers": [
+    {
+     "type": "noise",
+     "band": [
+      700,
+      12000
+     ],
+     "env": {
+      "attack": 0.0005,
+      "decay": 0.016
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      40,
+      1200
+     ],
+     "tilt": -3,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.14
+     },
+     "gain": 1.0
+    },
+    {
+     "type": "sweep",
+     "f0": 70,
+     "f1": 27,
+     "glide": 0.4,
+     "harmonics": [
+      1,
+      0.4,
+      0.15
+     ],
+     "env": {
+      "attack": 0.003,
+      "decay": 0.5
+     },
+     "gain": 1.0
+    }
+   ],
+   "reverb": {
+    "time_s": 3.0,
+    "mix": 0.5,
+    "lowpass": 1300,
+    "predelay_s": 0.09
+   },
+   "volume_db": 0.0
+  },
+  "legion_step_light": {
+   "label": "Ameise or Grauwolf foot (Legion)",
+   "bus": "mech",
+   "duration_s": 0.25,
+   "variants": 4,
+   "seed": 19,
+   "peak_db": -8,
+   "layers": [
+    {
+     "type": "partials",
+     "freqs": [
+      900,
+      2300,
+      4100
+     ],
+     "decays": [
+      0.05,
+      0.03,
+      0.02
+     ],
+     "gain": 0.7
+    },
+    {
+     "type": "sweep",
+     "f0": 120,
+     "f1": 80,
+     "glide": 0.04,
+     "env": {
+      "attack": 0.001,
+      "decay": 0.04
+     },
+     "gain": 0.8
+    }
+   ],
+   "volume_db": -19.0
+  },
+  "legion_servo_loop": {
+   "label": "Legion machine whine (loop)",
+   "bus": "mech",
+   "duration_s": 3.0,
+   "loop": true,
+   "crossfade_s": 0.5,
+   "variants": 1,
+   "seed": 20,
+   "peak_db": -10,
+   "layers": [
+    {
+     "type": "hum",
+     "f": 330,
+     "harmonics": [
+      1,
+      0.2,
+      0.5,
+      0.1,
+      0.3
+     ],
+     "wobble": 0.04,
+     "wobble_hz": 0.7,
+     "grit": {
+      "band": [
+       3000,
+       9000
+      ],
+      "gain": 0.2
+     },
+     "gain": 1.0
+    }
+   ],
+   "volume_db": -6.0
+  },
+  "ui_click": {
+   "label": "Menu click",
+   "bus": "ui",
+   "duration_s": 0.12,
+   "variants": 1,
+   "seed": 21,
+   "peak_db": -8,
+   "layers": [
+    {
+     "type": "partials",
+     "freqs": [
+      2400,
+      5100
+     ],
+     "decays": [
+      0.015,
+      0.008
+     ],
+     "gain": 1.0
+    },
+    {
+     "type": "noise",
+     "band": [
+      3000,
+      10000
+     ],
+     "env": {
+      "attack": 0.0003,
+      "decay": 0.004
+     },
+     "gain": 0.3
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "ui_hover": {
+   "label": "Menu hover",
+   "bus": "ui",
+   "duration_s": 0.08,
+   "variants": 1,
+   "seed": 22,
+   "peak_db": -16,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 1800,
+     "f1": 2200,
+     "glide": 0.03,
+     "env": {
+      "attack": 0.002,
+      "decay": 0.02
+     },
+     "gain": 1.0
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "ui_back": {
+   "label": "Menu back",
+   "bus": "ui",
+   "duration_s": 0.15,
+   "variants": 1,
+   "seed": 23,
+   "peak_db": -10,
+   "layers": [
+    {
+     "type": "sweep",
+     "f0": 1400,
+     "f1": 900,
+     "glide": 0.06,
+     "env": {
+      "attack": 0.002,
+      "decay": 0.05
+     },
+     "gain": 1.0
+    }
+   ],
+   "volume_db": 0.0
+  },
+  "ui_confirm": {
+   "label": "Menu confirm",
+   "bus": "ui",
+   "duration_s": 0.22,
+   "variants": 1,
+   "seed": 24,
+   "peak_db": -8,
+   "layers": [
+    {
+     "type": "partials",
+     "freqs": [
+      1600,
+      3300
+     ],
+     "decays": [
+      0.04,
+      0.02
+     ],
+     "hits": [
+      [
+       0.0,
+       0.8
+      ],
+      [
+       0.06,
+       1.0
+      ]
+     ],
+     "gain": 1.0
+    }
+   ],
+   "volume_db": 0.0
+  }
+ }
+}

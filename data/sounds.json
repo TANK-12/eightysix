@@ -1,15 +1,451 @@
 {
-  "_about": "Sound registry. \"buses\" is the mixer: AudioMix (scripts/audio/audio_mix.gd) builds these buses at start and each one gets a volume slider under Settings > Audio (the setting key is audio.<bus id>). \"entries\" are sounds, one each (lane B4 fills them): {\"files\": [\"res://assets/audio/...\"], \"bus\": \"weapons\", \"volume_db\": 0, \"pitch_jitter\": 0.05, \"max_distance_m\": 400, \"attenuation\": \"inverse_square\"}. Candidates under review live in assets/audio/review/ with its listening page.",
+  "_about": "Sound registry. \"buses\" is the mixer: AudioMix (scripts/audio/audio_mix.gd) builds these buses at start and each one gets a volume slider under Settings > Audio (the setting key is audio.<bus id>). \"entries\" are sounds, one each (lane B4 fills them): {\"files\": [\"res://assets/audio/...\"], \"bus\": \"weapons\", \"volume_db\": 0, \"pitch_jitter\": 0.05, \"max_distance_m\": 400, \"attenuation\": \"inverse_square\"}. \"weapons\" and \"surfaces\" say which sound a weapon or a surface makes. Sfx.play(\"<entry>\", where) plays one (scripts/audio/sfx.gd). Candidates under review live in assets/audio/review/ with its listening page.",
   "buses": [
-    {"id": "master", "name": "Master", "label": "Master"},
-    {"id": "music", "name": "Music", "label": "Music", "send": "Master"},
-    {"id": "effects", "name": "Effects", "label": "All effects", "send": "Master"},
-    {"id": "weapons", "name": "Weapons", "label": "Weapons", "send": "Effects"},
-    {"id": "mech", "name": "Mech", "label": "Servos, hydraulics and footsteps", "send": "Effects"},
-    {"id": "impacts", "name": "Impacts", "label": "Impacts and debris", "send": "Effects"},
-    {"id": "ambience", "name": "Ambience", "label": "Wind and ambience", "send": "Effects"},
-    {"id": "voice", "name": "Voice", "label": "Radio and voices", "send": "Master"},
-    {"id": "ui", "name": "UI", "label": "Menus", "send": "Master"}
+    {
+      "id": "master",
+      "name": "Master",
+      "label": "Master"
+    },
+    {
+      "id": "music",
+      "name": "Music",
+      "label": "Music",
+      "send": "Master"
+    },
+    {
+      "id": "effects",
+      "name": "Effects",
+      "label": "All effects",
+      "send": "Master"
+    },
+    {
+      "id": "weapons",
+      "name": "Weapons",
+      "label": "Weapons",
+      "send": "Effects"
+    },
+    {
+      "id": "mech",
+      "name": "Mech",
+      "label": "Servos, hydraulics and footsteps",
+      "send": "Effects"
+    },
+    {
+      "id": "impacts",
+      "name": "Impacts",
+      "label": "Impacts and debris",
+      "send": "Effects"
+    },
+    {
+      "id": "ambience",
+      "name": "Ambience",
+      "label": "Wind and ambience",
+      "send": "Effects"
+    },
+    {
+      "id": "voice",
+      "name": "Voice",
+      "label": "Radio and voices",
+      "send": "Master"
+    },
+    {
+      "id": "ui",
+      "name": "UI",
+      "label": "Menus",
+      "send": "Master"
+    }
   ],
-  "entries": {}
+  "entries": {
+    "gun_57mm_fire": {
+      "label": "57 mm main gun, fired",
+      "files": [
+        "res://assets/audio/sfx/gun_57mm_fire_1.wav",
+        "res://assets/audio/sfx/gun_57mm_fire_2.wav",
+        "res://assets/audio/sfx/gun_57mm_fire_3.wav"
+      ],
+      "bus": "weapons",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 40.0,
+      "max_distance_m": 2500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "gun_57mm_reload": {
+      "label": "57 mm autoloader cycle",
+      "files": [
+        "res://assets/audio/sfx/gun_57mm_reload_1.wav",
+        "res://assets/audio/sfx/gun_57mm_reload_2.wav"
+      ],
+      "bus": "weapons",
+      "volume_db": -13.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 40.0,
+      "max_distance_m": 2500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "casing_57mm_drop": {
+      "label": "57 mm casing hits the ground",
+      "files": [
+        "res://assets/audio/sfx/casing_57mm_drop_1.wav",
+        "res://assets/audio/sfx/casing_57mm_drop_2.wav",
+        "res://assets/audio/sfx/casing_57mm_drop_3.wav",
+        "res://assets/audio/sfx/casing_57mm_drop_4.wav"
+      ],
+      "bus": "impacts",
+      "volume_db": -15.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 20.0,
+      "max_distance_m": 1500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "mg_12_7_fire": {
+      "label": "12.7 mm sub-arm gun, one shot",
+      "files": [
+        "res://assets/audio/sfx/mg_12_7_fire_1.wav",
+        "res://assets/audio/sfx/mg_12_7_fire_2.wav",
+        "res://assets/audio/sfx/mg_12_7_fire_3.wav"
+      ],
+      "bus": "weapons",
+      "volume_db": -7.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 40.0,
+      "max_distance_m": 2500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true,
+      "max_voices": 6
+    },
+    "impact_dirt": {
+      "label": "Shell hits dirt",
+      "files": [
+        "res://assets/audio/sfx/impact_dirt_1.wav",
+        "res://assets/audio/sfx/impact_dirt_2.wav",
+        "res://assets/audio/sfx/impact_dirt_3.wav"
+      ],
+      "bus": "impacts",
+      "volume_db": -3.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 20.0,
+      "max_distance_m": 1500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "impact_metal": {
+      "label": "Round hits armour",
+      "files": [
+        "res://assets/audio/sfx/impact_metal_1.wav",
+        "res://assets/audio/sfx/impact_metal_2.wav",
+        "res://assets/audio/sfx/impact_metal_3.wav"
+      ],
+      "bus": "impacts",
+      "volume_db": -4.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 20.0,
+      "max_distance_m": 1500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "impact_rock": {
+      "label": "Round hits rock or concrete",
+      "files": [
+        "res://assets/audio/sfx/impact_rock_1.wav",
+        "res://assets/audio/sfx/impact_rock_2.wav",
+        "res://assets/audio/sfx/impact_rock_3.wav"
+      ],
+      "bus": "impacts",
+      "volume_db": -4.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 20.0,
+      "max_distance_m": 1500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "foot_dirt": {
+      "label": "Juggernaut foot on dirt",
+      "files": [
+        "res://assets/audio/sfx/foot_dirt_1.wav",
+        "res://assets/audio/sfx/foot_dirt_2.wav",
+        "res://assets/audio/sfx/foot_dirt_3.wav",
+        "res://assets/audio/sfx/foot_dirt_4.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -17.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "foot_rock": {
+      "label": "Juggernaut foot on rock or concrete",
+      "files": [
+        "res://assets/audio/sfx/foot_rock_1.wav",
+        "res://assets/audio/sfx/foot_rock_2.wav",
+        "res://assets/audio/sfx/foot_rock_3.wav",
+        "res://assets/audio/sfx/foot_rock_4.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -16.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "land_heavy": {
+      "label": "Juggernaut lands from a jump",
+      "files": [
+        "res://assets/audio/sfx/land_heavy_1.wav",
+        "res://assets/audio/sfx/land_heavy_2.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -9.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "servo_loop": {
+      "label": "Leg servos while moving (loop)",
+      "files": [
+        "res://assets/audio/sfx/servo_loop_1.wav"
+      ],
+      "bus": "mech",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.0,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false,
+      "loop": true
+    },
+    "hydraulic_hiss": {
+      "label": "Hydraulic vent (knee rams)",
+      "files": [
+        "res://assets/audio/sfx/hydraulic_hiss_1.wav",
+        "res://assets/audio/sfx/hydraulic_hiss_2.wav",
+        "res://assets/audio/sfx/hydraulic_hiss_3.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -18.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "skid_loop": {
+      "label": "Feet skidding over gravel (loop)",
+      "files": [
+        "res://assets/audio/sfx/skid_loop_1.wav"
+      ],
+      "bus": "mech",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.0,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false,
+      "loop": true
+    },
+    "wind_loop": {
+      "label": "Wind across the valley (loop)",
+      "files": [
+        "res://assets/audio/sfx/wind_loop_1.wav"
+      ],
+      "bus": "ambience",
+      "volume_db": -15.0,
+      "pitch_jitter": 0.0,
+      "2d": true,
+      "loop": true
+    },
+    "wire_fire": {
+      "label": "Wire anchor launched",
+      "files": [
+        "res://assets/audio/sfx/wire_fire_1.wav",
+        "res://assets/audio/sfx/wire_fire_2.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -9.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "wire_reel_loop": {
+      "label": "Wire winch reeling (loop)",
+      "files": [
+        "res://assets/audio/sfx/wire_reel_loop_1.wav"
+      ],
+      "bus": "mech",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.0,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false,
+      "loop": true
+    },
+    "wire_anchor_hit": {
+      "label": "Wire anchor bites",
+      "files": [
+        "res://assets/audio/sfx/wire_anchor_hit_1.wav",
+        "res://assets/audio/sfx/wire_anchor_hit_2.wav"
+      ],
+      "bus": "impacts",
+      "volume_db": -11.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 20.0,
+      "max_distance_m": 1500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "lowe_fire": {
+      "label": "Löwe 120 mm gun, fired (Legion)",
+      "files": [
+        "res://assets/audio/sfx/lowe_fire_1.wav",
+        "res://assets/audio/sfx/lowe_fire_2.wav"
+      ],
+      "bus": "weapons",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 40.0,
+      "max_distance_m": 2500.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true
+    },
+    "legion_step_light": {
+      "label": "Ameise or Grauwolf foot (Legion)",
+      "files": [
+        "res://assets/audio/sfx/legion_step_light_1.wav",
+        "res://assets/audio/sfx/legion_step_light_2.wav",
+        "res://assets/audio/sfx/legion_step_light_3.wav",
+        "res://assets/audio/sfx/legion_step_light_4.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -19.0,
+      "pitch_jitter": 0.04,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false
+    },
+    "legion_servo_loop": {
+      "label": "Legion machine whine (loop)",
+      "files": [
+        "res://assets/audio/sfx/legion_servo_loop_1.wav"
+      ],
+      "bus": "mech",
+      "volume_db": -6.0,
+      "pitch_jitter": 0.0,
+      "unit_size": 8.0,
+      "max_distance_m": 400.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false,
+      "loop": true
+    },
+    "ui_click": {
+      "label": "Menu click",
+      "files": [
+        "res://assets/audio/sfx/ui_click_1.wav"
+      ],
+      "bus": "ui",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "2d": true
+    },
+    "ui_hover": {
+      "label": "Menu hover",
+      "files": [
+        "res://assets/audio/sfx/ui_hover_1.wav"
+      ],
+      "bus": "ui",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "2d": true
+    },
+    "ui_back": {
+      "label": "Menu back",
+      "files": [
+        "res://assets/audio/sfx/ui_back_1.wav"
+      ],
+      "bus": "ui",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "2d": true
+    },
+    "ui_confirm": {
+      "label": "Menu confirm",
+      "files": [
+        "res://assets/audio/sfx/ui_confirm_1.wav"
+      ],
+      "bus": "ui",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.04,
+      "2d": true
+    }
+  },
+  "weapons": {
+    "_about": "Which sounds a weapon makes, by weapons.json id (lane B4): fire, reload, casing (a casing landing about 0.6 s after the shot, where it falls).",
+    "gun_57mm": {
+      "fire": "gun_57mm_fire",
+      "reload": "gun_57mm_reload",
+      "casing": "casing_57mm_drop"
+    },
+    "mg_12_7": {
+      "fire": "mg_12_7_fire"
+    },
+    "wire_anchor": {
+      "fire": "wire_fire"
+    },
+    "lowe_120mm": {
+      "fire": "lowe_fire"
+    },
+    "lowe_mg": {
+      "fire": "mg_12_7_fire"
+    },
+    "ameise_mg": {
+      "fire": "mg_12_7_fire"
+    }
+  },
+  "surfaces": {
+    "_about": "Impact and footstep sounds per surface (lane B4). A hit or a foot on a moving body (a mech) is metal; on a kit piece (walls, rubble, rocks) rock; on the terrain dirt.",
+    "dirt": {
+      "impact": "impact_dirt",
+      "foot": "foot_dirt"
+    },
+    "rock": {
+      "impact": "impact_rock",
+      "foot": "foot_rock"
+    },
+    "metal": {
+      "impact": "impact_metal",
+      "foot": "foot_rock"
+    }
+  },
+  "reverbs": {
+    "_about": "Reverb characters for reverb zones (lane B4). The Effects bus has one reverb; while the listener is inside a map's reverb zone (maps.json reverb_zones) it blends toward that zone's entry, wet scaled by the zone's amount. Fields: room_size, damping, spread, wet, predelay_ms, predelay_feedback, hipass (AudioEffectReverb).",
+    "valley": {
+      "room_size": 0.9,
+      "damping": 0.7,
+      "spread": 1.0,
+      "wet": 0.3,
+      "predelay_ms": 120,
+      "predelay_feedback": 0.25,
+      "hipass": 0.05
+    },
+    "town": {
+      "room_size": 0.5,
+      "damping": 0.45,
+      "spread": 0.8,
+      "wet": 0.45,
+      "predelay_ms": 35,
+      "predelay_feedback": 0.3,
+      "hipass": 0.1
+    }
+  }
 }
