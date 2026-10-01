@@ -1,0 +1,70 @@
+{
+ "name": "b4_cliffs",
+ "map": "small_map",
+ "_about": "Lane B4 part 3: the rim's cliffs from four views (stripes in the rock's layers), plus a frame measure at the start view. tools/bot_run.sh b4_cliffs --preset=medium",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "press": "turn_right",
+   "strength": 1.0,
+   "for": 2.8
+  },
+  {
+   "at": 7.5,
+   "shot": "cliffs-sunward"
+  },
+  {
+   "at": 7.7,
+   "call": "look_from",
+   "args": [
+    "craters"
+   ]
+  },
+  {
+   "at": 9.5,
+   "shot": "craters"
+  },
+  {
+   "at": 9.7,
+   "call": "look_from",
+   "args": [
+    "overview"
+   ]
+  },
+  {
+   "at": 11.5,
+   "shot": "overview"
+  },
+  {
+   "at": 11.7,
+   "call": "look_from",
+   "args": [
+    "river_exit"
+   ]
+  },
+  {
+   "at": 13.5,
+   "shot": "river-exit"
+  },
+  {
+   "at": 13.7,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 15.0,
+   "measure": 2.5,
+   "label": "start"
+  },
+  {
+   "at": 18.0,
+   "quit": true
+  }
+ ]
+}
