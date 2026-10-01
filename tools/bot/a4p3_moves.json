@@ -1,0 +1,24 @@
+{
+  "name": "a4p3_moves",
+  "_about": "Lane A4 part 3 (Emerson's notes 2026-10-01): a full side flip (charge, crouch and stick left at the release) seen through the roll and the landing, then park on P and unpark. tools/bot_run.sh a4p3_moves",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 3.0, "shot": "standing"},
+    {"at": 4.0, "press": "jump", "strength": 1.0, "for": 1.4},
+    {"at": 5.0, "press": "crouch", "strength": 1.0, "for": 0.5},
+    {"at": 5.0, "press": "strafe_left", "strength": 1.0, "for": 0.6},
+    {"at": 5.6, "shot": "flip-1"},
+    {"at": 6.0, "shot": "flip-2"},
+    {"at": 6.4, "shot": "flip-3"},
+    {"at": 6.8, "shot": "flip-4"},
+    {"at": 7.3, "shot": "flip-5"},
+    {"at": 8.4, "shot": "landed"},
+    {"at": 10.0, "press": "park", "strength": 1.0, "for": 0.1},
+    {"at": 11.5, "shot": "parked"},
+    {"at": 12.0, "press": "park", "strength": 1.0, "for": 0.1},
+    {"at": 13.5, "shot": "unparked"},
+    {"at": 14.0, "quit": true}
+  ]
+}
