@@ -319,20 +319,18 @@ func _build_places() -> Array[Rect2]:
 	holder.name = "Places"
 	add_child(holder)
 	for b: Dictionary in entry.get("buildings", []):
-		var node := _place(holder, b, {"damage": float(b.get("damage", 0.4))}, true)
+		_place(holder, b, {"damage": float(b.get("damage", 0.4))}, true)
 		var fp: Array = Kit.entry(str(b["kit"])).get("footprint_m", [8, 8])
 		var r := maxf(float(fp[0]), float(fp[1])) * 0.75
 		var at: Array = b["at"]
 		avoid.append(Rect2(float(at[0]) - r, float(at[1]) - r, r * 2.0, r * 2.0))
-		_anchors_of(node)
 	for s: Dictionary in entry.get("structures", []):
 		var over := {}
 		if s.has("damage"):
 			over["damage"] = float(s["damage"])
-		var node := _place(holder, s, over, false)
+		_place(holder, s, over, false)
 		var at: Array = s["at"]
 		avoid.append(Rect2(float(at[0]) - 4.0, float(at[1]) - 4.0, 8.0, 8.0))
-		_anchors_of(node)
 	for br: Dictionary in entry.get("bridges", []):
 		_bridge(holder, br, avoid)
 	for line: Dictionary in entry.get("tank_trap_lines", []):
@@ -357,15 +355,19 @@ func _build_places() -> Array[Rect2]:
 	return avoid
 
 
-func _place(holder: Node3D, spec: Dictionary, over: Dictionary, flat: bool) -> Node3D:
+func _place(holder: Node3D, spec: Dictionary, over: Dictionary, flat: bool) -> Destructible:
 	var at: Array = spec["at"]
 	var x := float(at[0])
 	var z := float(at[1])
-	var node := Kit.build(str(spec["kit"]), int(spec.get("seed", x * 13 + z)), over)
+	# lane B5: buildings and walls break under fire (Destructible), their grapple points with them
+	var node := Destructible.make(str(spec["kit"]), int(spec.get("seed", x * 13 + z)), over)
 	var y := _lowest(x, z, 4.0) - 0.15 if flat else ground_height(x, z)
 	node.position = Vector3(x, y, z)
 	node.rotation.y = deg_to_rad(float(spec.get("rot", 0.0)))
 	holder.add_child(node)
+	node.sync_anchors(grapple_points)
+	node.broke.connect(node.sync_anchors.bind(grapple_points).unbind(1))
+	node.collapsed.connect(node.sync_anchors.bind(grapple_points))
 	return node
 
 

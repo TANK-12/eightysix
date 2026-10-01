@@ -128,3 +128,27 @@ func test_grapple_points_follow_a_building_as_it_breaks() -> void:
 	d.collapse()
 	assert_eq(points.size(), 0, "a collapsed house has no anchors")
 	assert_gt(first.size(), 0, "(it had some before)")
+
+
+func test_small_map_buildings_break_and_take_their_grapple_points_with_them() -> void:
+	var level: Node3D = (load("res://scenes/levels/small_map.tscn") as PackedScene).instantiate()
+	tree.root.add_child(level)
+	var places: Node = level.get_node("Places")
+	var houses: Array[Destructible] = []
+	for n: Node in places.get_children():
+		if n is Destructible and (n as Destructible).pieces.size() > 10:
+			houses.append(n)
+	assert_gt(houses.size(), 2, "the small map's buildings are Destructibles (%d)" % houses.size())
+	var points: Array[Vector3] = level.get("grapple_points")
+	var before := points.size()
+	var d: Destructible = houses[0]
+	assert_gt(d.listed.size(), 0, "a house lists its anchors")
+	for k in 40:
+		if d.is_collapsed:
+			break
+		var at: AABB = d._boxes[d._nearest(Vector3(0.0, 1.5, -3.0 + k * 0.15))]
+		d.take_hit({"point": d.to_global(at.get_center()), "dir": Vector3.BACK, "damage": 900.0, "ammo": "he"})
+	assert_true(d.is_collapsed, "enough fire brings the house down")
+	assert_lt(points.size(), before, "its grapple points left the map's list (%d -> %d)" % [before, points.size()])
+	level.free()
+	Game.level = null
