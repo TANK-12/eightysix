@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 194 passed, 0 failed (2026-10-01, A4 part 3 (Ami/Tetsu, ejb-a4): the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -476,3 +476,11 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
 - Tests: full suite 201 passed, 0 failed; `python3 -m unittest discover -s tools/audio` 11 passed. Commit fbf945c.
   Details: `~/Forge/sessions/juggernaut-alpha/results/B4.md` "Part 3".
 
+### 2026-10-01 · lane A4 · Ami/Tetsu (ejb-a4) · part 3: Emerson's notes
+- Flips: the flight computer leans the launch push just enough for `gameplay.flip_turns` (default 1) over the flight;
+  front / back / side now 0.95 / 0.95 / 0.94 turns (side was 7.7), no foot in the ground on landing. test_flip 8/8.
+- Park: P toggles the gun raise (`park` action); standing still no longer does. Photo mode moved to O. test_juggernaut.
+- The 57 mm is solid on the frame: no barrel slide, the whole kick lands in the body in one tick. test_combat 13/13.
+- Walk and run: the drive's moment from a push at the feet (half held back by the legs, smoothed): gallop start
+  squats 1.3 deg (was 0), stop dips 2.3, turn leans 0.8. test_feel 4/4; score route 0-50 1.33 s (was 1.27).
+- Details and what was tried and dropped: `~/Forge/sessions/juggernaut-alpha/results/A4.md` part 3.
