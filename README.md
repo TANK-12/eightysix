@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 194 passed, 0 failed (2026-10-01, A4 part 3 (Ami/Tetsu, ejb-a4): the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -25,6 +25,10 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `tools/bot_run.sh combat_check`: the gun, reload, combat HUD, wire anchor swing and recoil dodge
   (latest `images/080-combat_check/`). `tools/bot_run.sh air_check`: tilt-aim, a running jump with air
   control, swinging and pitching in flight and a mid-air shot (latest `images/086-air_check/`).
+- **Mission and Legion AI (lane A4 part 2, 2026-10-01).** Deploy plays "First contact" on Ashen valley (data/missions.json:
+  Ameise scouts, a Grauwolf pack, a Löwe push; objective HUD; win/lose screens with Restart mission). Brains in
+  scripts/ai/ (sight, hearing, packs, patrol/alert/attack/retreat). HE shells push by real blast physics
+  (scripts/combat/blast.gd). `tools/bot_run.sh a4_mission` and `a4_fps_legion`. How to play: PLAYTEST.md.
 - **Physics only (Emerson, A3 part 4, 2026-10-01)**: the Juggernaut weighs its realistic 5,423 kg (B1's
   `realistic_mass.json`, read by `tools/build_juggernaut_data.py`). Recoil is the real projectile + gas impulse
   (1.03 m/s on the body in the air). In flight nothing pushes it: the legs swing and tuck to turn it (angular
@@ -417,3 +421,36 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   releases held input after every test, and prints `LEFT` per file that leaks (sleeping debris at the origin made
   `test_grapple` ledge climb and `test_legion` fail only in the full run); compile failures now print. Full suite
   192 passed. Details: `~/Forge/sessions/juggernaut-alpha/results/A4-side.md`.
+
+### 2026-10-01 · lane A4 · Kenji (relay-12) · part 2: brains, honest blast, mission, PLAYTEST
+- Legion brains (scout, pack hunter, heavy) on enemies.json "ai" blocks. **Verified** tests/test_ai.gd 18/18.
+- The Löwe's draft 90 kN s "wake" replaced by HE blast physics (Kinney-Graham, reflected, per collider, shadowed):
+  a 120 mm HE burst 2 m off the Juggernaut gives 1.13 m/s. **Verified** test_ai.
+- Mission loop: missions.json, Mission node, objective HUD, end screens, restart. **Verified** tests/test_mission.gd 4/4
+  and bot runs images/206-209 (screens seen).
+- Legion CPU: one hitbox Area3D per joint and the pose written per frame: wave 3 went 15 -> 40-49 fps. **Verified**
+  images/210 vs 211. Lite model past 150 m: added, fps effect not proven.
+- PLAYTEST.md written. No version saved (Aiko saves the combined one). Next: Legion sounds, scoreboard row, Hangar.
+
+### 2026-10-01 · Tetsu · controller works in the menus
+- Cause: Godot 4.7.2's built-in menu actions (`ui_accept`, `ui_cancel`, `ui_up/down/left/right`) carry
+  keyboard keys only (checked by printing the InputMap), so a pad could not choose, back out or move focus;
+  only the mouse worked in menus.
+- Fix: those six actions are now entries in `data/input.json` (group Menus, context ui), so Controls builds
+  them like every other action and they are rebindable: Cross chooses, Circle cancels, the d-pad and the
+  left stick move; Enter / Kp Enter / Space, Escape and the arrow keys kept.
+- Verified: new `test_controls.gd:test_menus_answer_the_pad` (both schemes, keys, buttons and stick at 0.8)
+  passes; `test_controls` 8 of 8. The `test_mission.gd` compile failure in the same run is another
+  session's uncommitted mission work, untouched. Not checked with the real pad by Claude.
+- Not saved as a numbered version: `builds.py save` refuses while the mission work is uncommitted; the
+  playable build was rebuilt with `builds.py ensure`.
+
+### 2026-10-01 · lane A4 · Ami/Tetsu (ejb-a4) · part 3: the two flaky AI tests, Kenji's part 2 committed
+- Grauwolf pack spread (failed about 2 runs in 3): three causes. (1) Against a still target each wolf measured its flank
+  angle off its own line to the target every think, so the spot turned with it; now latched per flank run. (2) Flank
+  sides went by pack index, so a wolf on the left could draw the right flank; crossing, the keep-apart push held the
+  pair side by side and both charged straight in. Now the pack's angles go out left to right by where each wolf
+  stands (`pack_hunter.gd flank_angle`). (3) In the test the rockets sometimes destroyed the target, ending the
+  hunt; the test's target now has armour no rocket gets through. **Verified** 8 of 8 runs, bearings -140/81/138 every time.
+- Löwe ranging test: it scored where a round came down, so a round skimming over the mech scored 284 m. Now scored by
+  the round's closest pass. **Verified** 6 of 6 runs (1.5-2.4 m). Full suite 194 passed, 0 failed.

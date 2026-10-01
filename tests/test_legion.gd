@@ -144,3 +144,25 @@ func test_a_57mm_round_finds_a_leg_through_its_moving_hitbox() -> void:
 	assert_eq(got.size(), 1, "one hit")
 	if got.size() == 1:
 		assert_true(str(got[0]).begins_with("leg_") or str(got[0]).begins_with("knee_"), "on the leg (%s)" % got[0])
+
+
+func test_lite_model_past_lod_range_follows_the_pose() -> void:
+	var u := _spawn("grauwolf")
+	assert_not_null(u.lite, "the lite export is loaded")
+	var full_mesh := u.model.find_children("*", "GeometryInstance3D", true, false)[0] as GeometryInstance3D
+	var lite_mesh := u.lite.find_children("*", "GeometryInstance3D", true, false)[0] as GeometryInstance3D
+	assert_almost_eq(full_mesh.visibility_range_end, 150.0, 0.01, "full model up to 150 m")
+	assert_almost_eq(lite_mesh.visibility_range_begin, 150.0, 0.01, "lite model past it")
+	u.move_goal = -u.global_transform.basis.z * 6.0
+	u.aim_point = u.global_position + Vector3(30, 5, -30)
+	await physics_frames(240)
+	var worst := 0.0
+	var data := LegionMech.model_data(Registry.entry("enemies", "grauwolf"))
+	for j: Dictionary in data["joints"]:
+		var a := u.model.find_child(str(j["part"]), true, false) as Node3D
+		var b := u.lite.find_child(str(j["part"]), true, false) as Node3D
+		worst = maxf(worst, a.global_position.distance_to(b.global_position))
+	assert_lt(worst, 0.001, "every joint part of the lite model sits where the full one does (%.4f m)" % worst)
+	u.set_lod(0.0)
+	assert_eq(full_mesh.visibility_range_end, 0.0, "lod off: full model at every distance")
+	assert_false(u.lite.visible, "and the lite one hidden")

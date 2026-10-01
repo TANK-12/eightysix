@@ -224,21 +224,34 @@ func test_a_hurt_scout_retreats() -> void:
 
 func test_a_grauwolf_pack_spreads_to_flank_and_fires_rockets() -> void:
 	_player()
+	# This test is about where the pack goes, so its rockets must not end it: in about one run in
+	# four they took two legs and the mech was destroyed, and a pack with no live target goes back
+	# to patrol before it has spread. Armour no rocket gets through keeps the target standing.
+	var dm := (player.get_node("Combat") as MechCombat).damage
+	for key: String in dm.parts:
+		dm.parts[key]["armour_mm"] = 1.0e6
 	var members: Array = []
 	var wolves: Array = []
 	for i in 3:
 		wolves.append(_unit("grauwolf", Vector3(-20 + i * 20, 0, -260), Vector3(0, 0, 1), members, i))
 	await _until(func() -> bool: return (wolves[0] as LegionMech).get_node("Brain").get("state") == "attack", 6.0)
-	await physics_frames(120 * 13)
+	# The widest the pack gets round the Juggernaut over 18 s (bearings from it, degrees).
+	var spread := 0.0
 	var bearings: Array = []
+	for k in 36:
+		await physics_frames(60)
+		var now: Array = []
+		for w: LegionMech in wolves:
+			var to := w.global_position - player.global_position
+			now.append(rad_to_deg(atan2(to.x, -to.z)))
+		now.sort()
+		if float(now[-1]) - float(now[0]) > spread:
+			spread = float(now[-1]) - float(now[0])
+			bearings = now
 	var rockets := 0
 	for w: LegionMech in wolves:
-		var to := w.global_position - player.global_position
-		bearings.append(rad_to_deg(atan2(to.x, -to.z)))
 		rockets += _brain(w).shots
-	bearings.sort()
-	var spread := float(bearings[-1]) - float(bearings[0])
-	assert_gt(spread, 60.0, "the pack spreads round the Juggernaut (bearings %s)" % str(bearings))
+	assert_gt(spread, 90.0, "the pack spreads round the Juggernaut (widest: bearings %s)" % str(bearings))
 	assert_gt(rockets, 2, "rockets fired (%d)" % rockets)
 	print("    pack: bearings %s deg, %d rockets" % [str(bearings.map(func(b: float) -> int: return roundi(b))), rockets])
 
@@ -255,20 +268,33 @@ func test_a_grauwolf_closes_and_cuts_with_its_blade() -> void:
 	print("    blade: first cut after %.1f s (hull %.2f before)" % [t, hp0])
 
 
-func test_lowe_turret_leads_and_its_first_round_lands() -> void:
+func test_lowe_turret_leads_and_ranges_onto_a_still_target() -> void:
 	_player()
 	var lowe := _unit("lowe", Vector3(0, 0, -300), Vector3(0.5, 0, 1))
-	var lb := _brain(lowe)
 	var hits: Array = []
 	(player.get_node("Combat") as MechCombat).hit_taken.connect(func(key: String, dealt: float, info: Dictionary) -> void: hits.append([key, dealt, str(info.get("ammo", ""))]))
-	var big_shots := [0]
-	lowe.fired.connect(func(w: String, _a: String) -> void: big_shots[0] += 1 if w == "lowe_120mm" else 0)
-	var t := await _until(func() -> bool: return big_shots[0] > 0, 20.0)
-	assert_lt(t, 20.0, "the Löwe's 120 mm fires within 20 s (%.1f s)" % t)
-	await physics_frames(60)
-	var big := hits.filter(func(h: Array) -> bool: return h[2] == "apfsds" or h[2] == "he")
-	assert_gt(big.size(), 0, "its 120 mm round hits the still Juggernaut at 300 m (%s)" % str(hits))
-	print("    Löwe: first 120 mm after %.1f s, hits %s" % [t, str(big)])
+	# How close each 120 mm round's path came to the Juggernaut's centre, in metres. Not where it came
+	# down: a round that skims just over the mech lands hundreds of metres behind it (a 284 m "miss"
+	# in one run that had passed within a couple of metres). Back along the round's own flight line
+	# from where it struck; a round that fell short is scored by the distance itself.
+	var misses: Array = []
+	var catch_round := func(n: Node) -> void:
+		if n is Projectile and (n as Projectile).shooter == lowe and float((n as Projectile).ammo.get("projectile_kg", 0.0)) > 1.0:
+			var round := n as Projectile
+			round.impacted.connect(func(info: Dictionary) -> void:
+				var c := player.global_transform * player.center_of_mass
+				var to_c := c - (info["point"] as Vector3)
+				var back := -round.velocity.normalized()
+				var along := to_c.dot(back)
+				misses.append(snappedf((to_c - back * along).length() if along > 0.0 else to_c.length(), 0.1)))
+	tree.node_added.connect(catch_round)
+	var big := func() -> Array: return hits.filter(func(h: Array) -> bool: return h[2] == "apfsds" or h[2] == "he")
+	var t := await _until(func() -> bool: return not big.call().is_empty(), 24.0)
+	tree.node_added.disconnect(catch_round)
+	assert_lt(t, 24.0, "a 120 mm round hits the still Juggernaut at 300 m within three rounds (passed %s m off; hits %s)" % [str(misses), str(hits)])
+	for m: float in misses:
+		assert_lt(m, 8.0, "every round lands close: the lead is right and only the ranging error is left (%s)" % str(misses))
+	print("    Löwe: first 120 mm hit after %.1f s, rounds passed %s m from the centre, hits %s" % [t, str(misses), str(big.call())])
 
 
 func test_lowe_loads_he_for_a_moving_target() -> void:

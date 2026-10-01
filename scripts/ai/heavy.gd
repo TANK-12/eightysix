@@ -2,12 +2,13 @@ extends LegionBrain
 ## Löwe, the heavy (enemies.json "behaviour": "heavy"): advances slowly into its fighting range
 ## (ai.engage_range_m), squares its hull to the target and lets the turret do the work: the 120 mm
 ## leads the target and fires when the turret has settled on it (ai.fire_cone_deg for
-## ai.settle_s), one round every 6 s from its autoloader; the coaxial machine gun bursts inside
+## ai.settle_s), one round every 6 s from its autoloader, the first ones ranging in (ranging_mrad); the coaxial machine gun bursts inside
 ## ai.coax_range_m. Its next round is picked while the autoloader cycles: HE (a blast that shoves and
 ## spins what is near it) against a target moving faster than ai.he_when_target_m_s or further than
 ## ai.he_beyond_m, where a dart would likely miss; APFSDS against a still or close one.
 
 var _settled_s := 0.0
+var _rounds_on_target := 0
 var _coax_burst := 0.0
 var _coax_gap := 0.0
 
@@ -34,11 +35,26 @@ func _attack(dt: float) -> void:
 	else:
 		_settled_s = 0.0
 	if _settled_s >= float(ai.get("settle_s", 0.6)):
-		var p := try_fire("lowe_120mm", float(ai.get("fire_cone_deg", 0.6)), float(ai.get("spread_mrad", 0.4)), float(ai.get("gun_range_m", 1200.0)))
+		var p := try_fire("lowe_120mm", float(ai.get("fire_cone_deg", 0.6)), ranging_mrad(), float(ai.get("gun_range_m", 1200.0)))
 		if p != null:
 			_settled_s = 0.0
+			_rounds_on_target += 1
 			gun.selected_ammo = next_round()
 	_coax(dt, d)
+
+
+## The gun's error for the next round: the first at a new target is off by ai.first_round_mrad
+## (range estimate, crosswind, a moving hull), halving with each round as the fall of shot corrects
+## it, down to the gun's own ai.spread_mrad.
+func ranging_mrad() -> float:
+	var first := float(ai.get("first_round_mrad", 1.5))
+	return maxf(float(ai.get("spread_mrad", 0.4)), first * pow(0.5, float(_rounds_on_target)))
+
+
+func set_state(s: String) -> void:
+	if s == "attack" and state != "attack":
+		_rounds_on_target = 0
+	super(s)
 
 
 ## The round to load next: HE for a fast or far target, APFSDS otherwise.

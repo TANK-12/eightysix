@@ -4,7 +4,8 @@ extends Node3D
 ## river and lake, the ruined town, the broken bridge, the mast, tank-trap lines, outcrops to climb,
 ## scatter, mist over the water, and the weather. The player's Juggernaut, chase camera and HUD are
 ## set up the same way as the test range's. look_from("<viewpoint>") parks a camera at one of the
-## entry's viewpoints (the bot uses it for check screenshots); follow_mech() goes back.
+## entry's viewpoints (the bot uses it for check screenshots); follow_mech() goes back. Played for
+## real it runs the map's mission (start_mission, data/missions.json).
 
 const MAP_ID := "small_map"
 const MECH_ID := "juggernaut_m2"
@@ -21,6 +22,7 @@ var mech: RigidBody3D
 var camera: Camera3D
 var hud: CanvasLayer
 var view_camera: Camera3D
+var mission: Mission
 ## World positions a wire anchor holds on well: outcrop tops, the mast, ruin corners, the bridge.
 var grapple_points: Array[Vector3] = []
 var build_ms := {}
@@ -61,7 +63,11 @@ func _ready() -> void:
 	add_child(hud)
 	hud.call("watch", mech)
 	capture_mouse()
+	# A real game (started through Game.start_map, not a bot run or a test) plays the map's mission.
+	var playing := Game.pending_map == MAP_ID and not Bot.active
 	Game.register_level(self)
+	if playing:
+		start_mission()
 
 
 func _exit_tree() -> void:
@@ -69,6 +75,21 @@ func _exit_tree() -> void:
 		sky.disconnect_settings()
 	if scatter != null:
 		scatter.disconnect_settings()
+
+
+## Starts a mission on this map (data/missions.json; "" = the map's own) with its objective HUD.
+## Bot runs call it: {"call": "start_mission"}.
+func start_mission(mission_id: String = "") -> void:
+	if mission_id == "":
+		mission_id = Mission.for_map(MAP_ID)
+	if mission_id == "" or mission != null:
+		return
+	mission = Mission.start_in(self, mission_id)
+	if mission == null:
+		return
+	var mh := MissionHud.new()
+	add_child(mh)
+	mh.watch(mission)
 
 
 func capture_mouse() -> void:
@@ -106,6 +127,48 @@ func look_from(viewpoint: String) -> void:
 	view_camera.global_position = eye
 	view_camera.look_at(look, Vector3.UP)
 	view_camera.current = true
+
+
+## Bot hook (lane A4): park the still camera beside Legion unit `index` of the mission's wave
+## (`side_m` off its flank, `up_m` up), looking at it; follow_mech() ends it.
+func look_at_legion(index: int = 0, side_m: float = 22.0, up_m: float = 7.0) -> void:
+	if mission == null or mission.units.is_empty():
+		push_warning("small_map: no Legion to look at")
+		return
+	var u := mission.units[clampi(index, 0, mission.units.size() - 1)] as Node3D
+	var at := u.global_position
+	var eye := at + u.global_transform.basis.x * side_m + u.global_transform.basis.z * side_m * 0.5
+	eye.y = maxf(at.y + up_m, ground_height(eye.x, eye.z) + 2.0)
+	if view_camera == null:
+		view_camera = Camera3D.new()
+		view_camera.fov = 62.0
+		view_camera.add_to_group("game_camera")
+		add_child(view_camera)
+	view_camera.global_position = eye
+	view_camera.look_at(at + Vector3.UP * 2.0, Vector3.UP)
+	view_camera.current = true
+
+
+## Bot hook (lane A4): put the mission's state, every Legion unit's telemetry and the last hits the
+## player took into the bot report under "legion" (label: when).
+func report_legion(label: String) -> void:
+	if mission == null or not Bot.active:
+		return
+	if not Bot.report.has("legion"):
+		Bot.report["legion"] = []
+	(Bot.report["legion"] as Array).append({"label": label, "mission": mission.summary(), "units": mission.unit_report(), "player_hits": mission.player_hits.slice(-12)})
+
+
+## Bot hook (lane A4): where every Legion unit switches to its lite model (0: full model always).
+func legion_lod(metres: float) -> void:
+	for n: Node in get_tree().get_nodes_in_group("legion"):
+		(n as LegionMech).set_lod(metres)
+
+
+## Bot hook (lane A4): destroy the mission's current wave so a run can reach the later ones.
+func clear_wave() -> void:
+	if mission != null:
+		mission.clear_wave()
 
 
 ## Measuring aid for frame-rate work (bot scripts call it): switch one part of the map on or off.

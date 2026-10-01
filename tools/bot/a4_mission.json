@@ -1,0 +1,298 @@
+{
+  "name": "a4_mission",
+  "_about": "Lane A4 part 2: the mission on Ashen valley. Starts 'First contact', looks at the Ameise scouts, walks at them and fires, clears each wave with the map's clear_wave() hook to reach the Grauwolf pack and the Löwe, measures fps with the Legion on the map, strafes under the Löwe's fire (HE for a moving target), then clears the last wave for the end screen. tools/bot_run.sh a4_mission",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "controls.sprint_mode",
+      "value": "hold"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 1.0,
+      "call": "start_mission"
+    },
+    {
+      "at": 1.55,
+      "call": "report_legion",
+      "args": [
+        "start"
+      ]
+    },
+    {
+      "at": 2.0,
+      "shot": "mission-start"
+    },
+    {
+      "at": 2.2,
+      "call": "look_at_legion",
+      "args": [
+        0
+      ]
+    },
+    {
+      "at": 3.05,
+      "call": "report_legion",
+      "args": [
+        "t3"
+      ]
+    },
+    {
+      "at": 3.5,
+      "shot": "ameise-scout"
+    },
+    {
+      "at": 3.6,
+      "call": "follow_mech"
+    },
+    {
+      "at": 4.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 6.0
+    },
+    {
+      "at": 4.0,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 6.0
+    },
+    {
+      "at": 8.0,
+      "shot": "advance"
+    },
+    {
+      "at": 8.05,
+      "call": "report_legion",
+      "args": [
+        "t8"
+      ]
+    },
+    {
+      "at": 10.5,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 0.15
+    },
+    {
+      "at": 11.0,
+      "shot": "firefight"
+    },
+    {
+      "at": 11.05,
+      "call": "report_legion",
+      "args": [
+        "t11"
+      ]
+    },
+    {
+      "at": 12.0,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 0.15
+    },
+    {
+      "at": 13.5,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 0.15
+    },
+    {
+      "at": 14.0,
+      "sample": "wave1"
+    },
+    {
+      "at": 14.05,
+      "call": "report_legion",
+      "args": [
+        "t14"
+      ]
+    },
+    {
+      "at": 15.0,
+      "call": "clear_wave"
+    },
+    {
+      "at": 15.5,
+      "call": "look_at_legion",
+      "args": [
+        0
+      ]
+    },
+    {
+      "at": 18.0,
+      "shot": "ameise-wreck"
+    },
+    {
+      "at": 18.1,
+      "call": "follow_mech"
+    },
+    {
+      "at": 22.05,
+      "call": "report_legion",
+      "args": [
+        "w2-spawn"
+      ]
+    },
+    {
+      "at": 23.05,
+      "call": "report_legion",
+      "args": [
+        "w2-t23"
+      ]
+    },
+    {
+      "at": 24.0,
+      "call": "look_at_legion",
+      "args": [
+        0
+      ]
+    },
+    {
+      "at": 24.05,
+      "call": "report_legion",
+      "args": [
+        "w2-t24"
+      ]
+    },
+    {
+      "at": 25.0,
+      "shot": "grauwolf-pack"
+    },
+    {
+      "at": 25.1,
+      "call": "follow_mech"
+    },
+    {
+      "at": 25.2,
+      "measure": 8.0,
+      "label": "wave2"
+    },
+    {
+      "at": 25.3,
+      "press": "strafe_right",
+      "strength": 1.0,
+      "for": 8.0
+    },
+    {
+      "at": 25.3,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 8.0
+    },
+    {
+      "at": 26.05,
+      "call": "report_legion",
+      "args": [
+        "w2-t26"
+      ]
+    },
+    {
+      "at": 34.0,
+      "shot": "pack-attack"
+    },
+    {
+      "at": 34.05,
+      "call": "report_legion",
+      "args": [
+        "w2-t34"
+      ]
+    },
+    {
+      "at": 34.5,
+      "sample": "wave2"
+    },
+    {
+      "at": 35.0,
+      "call": "clear_wave"
+    },
+    {
+      "at": 45.0,
+      "call": "look_at_legion",
+      "args": [
+        0,
+        30.0,
+        10.0
+      ]
+    },
+    {
+      "at": 46.0,
+      "shot": "loewe"
+    },
+    {
+      "at": 46.1,
+      "call": "follow_mech"
+    },
+    {
+      "at": 46.2,
+      "press": "strafe_left",
+      "strength": 1.0,
+      "for": 10.0
+    },
+    {
+      "at": 46.2,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 10.0
+    },
+    {
+      "at": 46.2,
+      "measure": 10.0,
+      "label": "wave3"
+    },
+    {
+      "at": 47.05,
+      "call": "report_legion",
+      "args": [
+        "w3-t47"
+      ]
+    },
+    {
+      "at": 52.0,
+      "shot": "under-loewe-fire"
+    },
+    {
+      "at": 52.05,
+      "call": "report_legion",
+      "args": [
+        "w3-t52"
+      ]
+    },
+    {
+      "at": 57.0,
+      "shot": "under-loewe-fire-2"
+    },
+    {
+      "at": 58.0,
+      "sample": "wave3"
+    },
+    {
+      "at": 58.05,
+      "call": "report_legion",
+      "args": [
+        "w3-t58"
+      ]
+    },
+    {
+      "at": 59.0,
+      "call": "clear_wave"
+    },
+    {
+      "at": 63.5,
+      "shot": "end-screen"
+    },
+    {
+      "at": 64.0,
+      "quit": true
+    }
+  ]
+}

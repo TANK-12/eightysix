@@ -1,0 +1,24 @@
+{
+  "name": "a4_fps_legion",
+  "_about": "Lane A4 part 2: what the Legion costs in frame rate, in one sitting. The start view with no Legion, then the mission's wave 3 (Löwe, two Grauwolf, an Ameise, plus five wrecks) with full models at every distance against the lite model past 150 m, alternated twice. tools/bot_run.sh a4_fps_legion [--preset=medium]",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 1.5, "measure": 5.0, "label": "no-legion"},
+    {"at": 7.0, "call": "start_mission"},
+    {"at": 7.5, "call": "clear_wave"},
+    {"at": 14.5, "call": "clear_wave"},
+    {"at": 24.0, "shot": "wave3"},
+    {"at": 24.2, "call": "legion_lod", "args": [0.0]},
+    {"at": 24.5, "measure": 6.0, "label": "wave3-full-a"},
+    {"at": 30.7, "call": "legion_lod", "args": [150.0]},
+    {"at": 31.0, "measure": 6.0, "label": "wave3-lod-a"},
+    {"at": 37.2, "call": "legion_lod", "args": [0.0]},
+    {"at": 37.5, "measure": 6.0, "label": "wave3-full-b"},
+    {"at": 43.7, "call": "legion_lod", "args": [150.0]},
+    {"at": 44.0, "measure": 6.0, "label": "wave3-lod-b"},
+    {"at": 50.2, "call": "report_legion", "args": ["end"]},
+    {"at": 50.5, "quit": true}
+  ]
+}

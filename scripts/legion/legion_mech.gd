@@ -28,6 +28,7 @@ var enemy_id := ""
 var def: Dictionary = {}
 var data: Dictionary = {}
 var model: Node3D
+var lite: Node3D  # the lite export shown past lod_m (null when there is none)
 var legs: Array = []
 var damage: DamageModel
 var weapons: Dictionary = {}  # weapon id -> WeaponState
@@ -48,12 +49,17 @@ var arms_ok := true
 var _g: Dictionary = {}
 var _rest: Dictionary = {}  # node name -> Transform3D (model space, rest)
 var _nodes: Dictionary = {}  # node name -> Node3D
+var _lite_nodes: Dictionary = {}  # node name -> Node3D in the lite model
+var _joint_parent: Dictionary = {}  # joint part -> the joint part it rides on ("" = the body)
+var _node_owner: Dictionary = {}  # glb node name -> the joint it follows
+var _pose_dirty := false
 var _parts: Dictionary = {}  # part name -> export part entry
 var _joints: Dictionary = {}  # part name -> export joint entry
 var _owner_of: Dictionary = {}  # part name -> part name of the joint it rides ("" = rigid with the body)
 var _delta: Dictionary = {}  # joint part -> Transform3D (model-space motion from rest)
 var _angle: Dictionary = {}  # joint part -> radians now
-var _moving_boxes: Array = []  # [CollisionShape3D, joint part]
+var _moving_boxes: Array = []  # [Area3D, joint part]: each joint's hitboxes
+var _hit_areas: Dictionary = {}  # joint part -> Area3D holding the hitboxes that ride it
 var _colliders: Dictionary = {}  # damage key -> [CollisionShape3D]
 var _phase := 0.0
 var _k := 0.0
@@ -109,6 +115,7 @@ func _setup(id: String) -> void:
 	model.name = "Model"
 	add_child(model)
 	_index_nodes(model, Transform3D.IDENTITY, true)
+	_add_lite_model()
 	for p: Dictionary in data.get("parts", []):
 		_parts[str(p["name"])] = p
 	for j: Dictionary in data.get("joints", []):
@@ -132,6 +139,35 @@ func _setup(id: String) -> void:
 		brain.set_script(load(brain_path))
 		brain.name = "Brain"
 		add_child(brain)
+
+
+## Distance LOD: B2's lite export (same joints and node tree, a third of the meshes, so a third of
+## the draw calls in every pass) shows past "lod_m" (enemies.json, default 150 m); the full model
+## shows inside it. Both are posed by the same joints; sockets and colliders come from the full one.
+func _add_lite_model() -> void:
+	var path := str(def["model"]).get_basename() + "_lite.glb"
+	var lod := float(def.get("lod_m", 150.0))
+	if lod <= 0.0 or not ResourceLoader.exists(path):
+		return
+	lite = (load(path) as PackedScene).instantiate() as Node3D
+	lite.name = "ModelLite"
+	add_child(lite)
+	for n: Node in lite.find_children("*", "Node3D", true, false):
+		_lite_nodes[str(n.name)] = n
+	set_lod(lod)
+
+
+## Where the lite model takes over, metres (0: the full model at every distance).
+func set_lod(metres: float) -> void:
+	if lite == null:
+		return
+	for gi: Node in model.find_children("*", "GeometryInstance3D", true, false):
+		(gi as GeometryInstance3D).visibility_range_end = metres
+		(gi as GeometryInstance3D).visibility_range_end_margin = 10.0 if metres > 0.0 else 0.0
+	lite.visible = metres > 0.0
+	for gi: Node in lite.find_children("*", "GeometryInstance3D", true, false):
+		(gi as GeometryInstance3D).visibility_range_begin = metres
+		(gi as GeometryInstance3D).visibility_range_begin_margin = 10.0
 
 
 func _index_nodes(n: Node, parent_xf: Transform3D, is_root: bool) -> void:
@@ -296,12 +332,10 @@ func _build_colliders() -> void:
 			damage.add_part(key, "knee " + str(leg["tag"]), "weak", health * float(cfg.get("share", 0.15)), float(cfg.get("armour_mm", 4.0)), str(leg["tag"]))
 			(damage.legs[str(leg["tag"])] as Array).append(key)
 			_weak[key] = cfg
-	var boxes := Area3D.new()
+	# Jointed parts are hitboxes in one Area3D per joint, moved as one with the joint each tick
+	# (moving each shape on its own cost the Löwe 95 shape moves a tick: most of the Legion's CPU).
+	var boxes := Node3D.new()
 	boxes.name = "Hitboxes"
-	boxes.collision_layer = LAYER_HITBOX
-	boxes.collision_mask = 0
-	boxes.monitoring = false
-	boxes.monitorable = false
 	add_child(boxes)
 	for name: String in _parts:
 		var p: Dictionary = _parts[name]
@@ -322,8 +356,17 @@ func _build_colliders() -> void:
 		if owner_joint == "":
 			add_child(cs)
 		else:
-			boxes.add_child(cs)
-			_moving_boxes.append([cs, owner_joint])
+			if not _hit_areas.has(owner_joint):
+				var area := Area3D.new()
+				area.name = "Hitbox_" + owner_joint
+				area.collision_layer = LAYER_HITBOX
+				area.collision_mask = 0
+				area.monitoring = false
+				area.monitorable = false
+				boxes.add_child(area)
+				_hit_areas[owner_joint] = area
+				_moving_boxes.append([area, owner_joint])
+			(_hit_areas[owner_joint] as Area3D).add_child(cs)
 		if not _colliders.has(key):
 			_colliders[key] = []
 		(_colliders[key] as Array).append(cs)
@@ -515,8 +558,9 @@ func _pose() -> void:
 	_aim_joints_toward(get_physics_process_delta_time())
 	for part: String in _joints:
 		_apply_joint(part)
+	_pose_dirty = true
 	for pair: Array in _moving_boxes:
-		(pair[0] as CollisionShape3D).transform = _delta_of(str(pair[1]))
+		(pair[0] as Area3D).transform = _delta_of(str(pair[1]))
 
 
 ## Hip yaw about the body's up, then hip pitch and knee in the leg's plane (both about the thigh
@@ -623,22 +667,39 @@ func _delta_of(part: String) -> Transform3D:
 
 func _apply_joint(part: String) -> void:
 	var j: Dictionary = _joints[part]
+	if not _joint_parent.has(part):
+		_joint_parent[part] = _joint_owner(str(_parts.get(part, {}).get("parent", "")))
 	var pivot := _v(j["pivot"])
-	var axis := _v(j["axis"]).normalized()
-	var parent_part := _joint_owner(str(_parts.get(part, {}).get("parent", "")))
-	var local := Transform3D(Basis(axis, float(_angle[part])), Vector3.ZERO)
+	var local := Transform3D(Basis(_v(j["axis"]).normalized(), float(_angle[part])), Vector3.ZERO)
 	var about := Transform3D(Basis.IDENTITY, pivot) * local * Transform3D(Basis.IDENTITY, -pivot)
-	var d := _delta_of(parent_part) * about
-	_delta[part] = d
-	var node: Node3D = _nodes.get(part)
-	if node == null:
-		return
-	var parent_node := node.get_parent() as Node3D
-	var parent_posed := Transform3D.IDENTITY
-	if parent_node != null and parent_node != model:
-		var pn := str(parent_node.name)
-		parent_posed = _delta_of(_owner_for_node(parent_node)) * (_rest[pn] as Transform3D)
-	node.transform = parent_posed.affine_inverse() * d * (_rest[part] as Transform3D)
+	_delta[part] = _delta_of(str(_joint_parent[part])) * about
+
+
+## Writes the joints' pose onto the model's nodes and the lite twin. Only the eye needs it, so it
+## runs once per drawn frame (each write moves every mesh under that node); the hitboxes follow
+## _delta every physics tick. Profiled: posing the nodes at 120 Hz cost most of the Legion's CPU.
+func _write_pose() -> void:
+	for part: String in _joints:
+		var node: Node3D = _nodes.get(part)
+		if node == null:
+			continue
+		var parent_node := node.get_parent() as Node3D
+		var parent_posed := Transform3D.IDENTITY
+		if parent_node != null and parent_node != model:
+			var pn := str(parent_node.name)
+			if not _node_owner.has(pn):
+				_node_owner[pn] = _owner_for_node(parent_node)
+			parent_posed = _delta_of(str(_node_owner[pn])) * (_rest[pn] as Transform3D)
+		node.transform = parent_posed.affine_inverse() * (_delta[part] as Transform3D) * (_rest[part] as Transform3D)
+		var twin: Node3D = _lite_nodes.get(part)
+		if twin != null:
+			twin.transform = node.transform
+
+
+func _process(_delta_s: float) -> void:
+	if _pose_dirty:
+		_pose_dirty = false
+		_write_pose()
 
 
 ## The joint whose motion a glb node follows (the nearest export part up its tree, then that part's joint).
@@ -693,9 +754,8 @@ func fire(weapon_id: String, muzzle: Transform3D, dir: Vector3, spread_mrad: flo
 	aim = (aim + side * randfn(0.0, err) + up * randfn(0.0, err)).normalized()
 	var speed := float(ammo.get("muzzle_m_s", 800.0))
 	var skip: Array[RID] = [get_rid()]
-	var boxes := get_node_or_null("Hitboxes") as Area3D
-	if boxes != null:
-		skip.append(boxes.get_rid())
+	for area: Area3D in _hit_areas.values():
+		skip.append(area.get_rid())
 	var wdef := Registry.entry("weapons", weapon_id)
 	var p := Projectile.spawn(get_parent(), muzzle.origin + aim * 0.3, aim * speed + linear_velocity, ammo, self, 1.0, skip)
 	# Recoil: the round's and the gas's momentum back into the body at the muzzle.

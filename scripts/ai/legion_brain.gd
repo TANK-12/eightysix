@@ -387,9 +387,13 @@ func distance_to_target() -> float:
 
 
 ## Fires `weapon_id` from its next muzzle socket (enemies.json ai.muzzles) at the lead point when
-## the turret, launcher or body bears within `cone_deg` and the target is within `range_m`.
+## the turret, launcher or body bears within `cone_deg` and the target is within `range_m`, once
+## ai.react_s has passed since it went over to attack.
 func try_fire(weapon_id: String, cone_deg: float, spread_mrad: float, range_m: float) -> Projectile:
 	if not sees or not unit.weapons.has(weapon_id):
+		return null
+	# The first sight of a target takes a moment to classify and lay the guns (ai.react_s).
+	if state == "attack" and state_age_s < float(ai.get("react_s", 1.0)):
 		return null
 	var ws: WeaponState = unit.weapons[weapon_id]
 	if not ws.can_fire():

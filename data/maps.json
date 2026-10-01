@@ -20,6 +20,7 @@
       "order": 10,
       "scene": "res://scenes/levels/small_map.tscn",
       "status": "ready",
+      "mission": "ashen_first_contact",
       "owner_lane": "B3",
       "size_m": 1024,
       "seed": 8686,
