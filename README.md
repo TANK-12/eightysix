@@ -377,3 +377,13 @@ review page and an in-game mix check (PASS: a 57 mm shot 23 dB over the median).
 a reverb echo from circular FFT filtering, Area3D reverb sends that cut every sound 6-14 dB, all sounds equally loud
 from peak normalising. Not done: music (see results/B4.md), Legion sounds hooked to A4's enemies, rumble by feel.
 
+
+### 2026-10-01 · lane A4 · Koharu/Tetsu (ejb-a4) · part 1: Emerson's notes, the Legion's body
+Commits `23bdc82`, `42fbf6e`, `e2d5798`. Mid-air flips from an off-centre launch push and a crouch tuck that
+spins faster (`test_flip.gd` 4/4); the wire anchor dart falls and slows on its line, fire control lands it on the
+crosshair, a dotted arc shows its path, Dyneema line and a 300 kW / 240 kN winch (`test_grapple.gd` 9/9); sprint
+sideways 52 km/h and backwards 48 km/h (`test_juggernaut.gd`); Heavy AP overcharged round, 8,360 N s and 1510
+damage (`test_combat.gd`). The Legion (`scripts/legion/legion_mech.gd`): Ameise, Grauwolf and Löwe from B2's
+exports, mass from parts, leg IK, tripod and 4+4 gaits on springs, grip-capped drive and turn, damage zones and
+weak points (`test_legion.gd` 5/5). No brains or mission yet; nothing Legion seen on screen yet. Details:
+`~/Forge/sessions/juggernaut-alpha/results/A4.md`.
