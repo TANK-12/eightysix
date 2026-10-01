@@ -1,0 +1,17 @@
+{
+  "name": "b4_far_hills",
+  "map": "small_map",
+  "_about": "Lane B4 part 2: the far hills after the bend change, from the high viewpoints (corners and road passes), to look for seams. tools/bot_run.sh b4_far_hills --preset=medium",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.0, "call": "look_from", "args": ["overview"]},
+    {"at": 4.2, "shot": "overview"},
+    {"at": 4.4, "call": "look_from", "args": ["mast"]},
+    {"at": 5.6, "shot": "mast"},
+    {"at": 5.8, "call": "look_from", "args": ["town"]},
+    {"at": 7.0, "shot": "town"},
+    {"at": 7.2, "call": "look_from", "args": ["craters"]},
+    {"at": 8.4, "shot": "craters"},
+    {"at": 8.6, "quit": true}
+  ]
+}

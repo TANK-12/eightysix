@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 149 passed, 0 failed (2026-10-01, end of lane B4 part 1). `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -51,6 +51,14 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `tools/audio/review_page.py --serve` (http://127.0.0.1:8687/), then `tools/audio/promote.py`. Mix check:
   `tools/bot_run.sh b4_sound_check` then `tools/audio/sound_check.py` (records the game's own sound). Scoreboard:
   `tools/scoreboard.py`. Detail: `~/Forge/sessions/juggernaut-alpha/results/B4.md`.
+- **Look, lane B4 part 2 (2026-10-01).** Undertaker's emblem (headless skeleton with a shovel) on both cockpit
+  side panels as a worn decal: `data/emblems.json`, `scripts/look/emblem.gd`, the editable picture
+  `assets/textures/emblems/undertaker.svg`, Settings > Gameplay > Juggernaut > Emblem. Dust from each foot at a run
+  (`scripts/look/foot_dust.gd`, `tuning.json` "foot_dust", Settings > Graphics > Dust from the feet, off on Low;
+  about 2 fps at a full gallop on Medium). The river's gorge bends away past the map edge with the water running on
+  (`maps.json` backdrop `bend_m`, `water_reach_m`); the slab that hung across it was far-hill vertices skipping the
+  edge height, fixed. **Versions:** Play (`tools/play.sh`, `builds.py ensure`) never numbers a version now; save one
+  with `python3 tools/builds.py save --note "what is in it"`, refused while git shows uncommitted changes.
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
@@ -387,3 +395,14 @@ damage (`test_combat.gd`). The Legion (`scripts/legion/legion_mech.gd`): Ameise,
 exports, mass from parts, leg IK, tripod and 4+4 gaits on springs, grip-capped drive and turn, damage zones and
 weak points (`test_legion.gd` 5/5). No brains or mission yet; nothing Legion seen on screen yet. Details:
 `~/Forge/sessions/juggernaut-alpha/results/A4.md`.
+
+
+### 2026-10-01 · lane B4 · Kana (ejb-60) · part 2: emblem, foot dust, the gorge, the version rule
+Commits `c6f7204`, `9961261`. Undertaker emblem decal from an editable SVG (`test_look.gd` emblem 2/2,
+`images/176-b4_emblem`); dust from the feet at a run (dust 3/3, `images/180-b4_dust`, cost about 2 fps at a gallop
+on Medium, `images/181-184`); the river's gorge bends out of sight with the water running on, and the 22 m slab
+across it (far-hill vertices one and two cells inside the edge skipped the edge height) is gone
+(`test_small_map.gd` 15/15, `images/188-b4_river_exit`). Answered Emerson's question about versions 007/008 and made
+`builds.py` follow his rule (one version per committed part, `save --note`; `tools/tests` 16/16). Details:
+`~/Forge/sessions/juggernaut-alpha/results/B4.md`.
+
