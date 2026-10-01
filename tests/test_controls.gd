@@ -38,6 +38,21 @@ func test_every_registry_binding_parses() -> void:
 				assert_not_null(Controls.parse_binding(s), "%s %s %s" % [scheme, action, s])
 
 
+func test_menus_answer_the_pad() -> void:
+	for scheme_name: String in ["standard", "hardcore"]:
+		Controls.apply_scheme(scheme_name)
+		for pair: Array in [["ui_accept", "joy:cross"], ["ui_accept", "key:Enter"],
+				["ui_cancel", "joy:circle"], ["ui_cancel", "key:Escape"],
+				["ui_up", "joy:dpad_up"], ["ui_up", "joy:left_y-"], ["ui_down", "joy:left_y+"],
+				["ui_left", "joy:left_x-"], ["ui_right", "joy:left_x+"], ["ui_right", "key:Right"]]:
+			var ev := Controls.parse_binding(pair[1])
+			if ev is InputEventJoypadMotion:
+				(ev as InputEventJoypadMotion).axis_value *= 0.8
+			else:
+				ev.set("pressed", true)
+			assert_true(ev.is_action_pressed(pair[0]), "%s %s %s" % [scheme_name, pair[0], pair[1]])
+
+
 func test_schemes_swap_the_input_map() -> void:
 	assert_true(InputMap.has_action("move_forward"))
 	assert_gt(InputMap.action_get_events("move_forward").size(), 1)
