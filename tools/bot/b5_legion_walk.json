@@ -1,0 +1,183 @@
+{
+ "name": "b5_legion_walk",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: does an alerted Grauwolf pack cross ~800 m of the big map to the player? Clears wave 1, then logs every unit's position and state every 6 s for 80 s while the Juggernaut stands still. tools/bot_run.sh b5_legion_walk",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "report_legion",
+   "args": [
+    "t12"
+   ]
+  },
+  {
+   "at": 12.1,
+   "sample": "p12"
+  },
+  {
+   "at": 18.0,
+   "call": "report_legion",
+   "args": [
+    "t18"
+   ]
+  },
+  {
+   "at": 18.1,
+   "sample": "p18"
+  },
+  {
+   "at": 24.0,
+   "call": "report_legion",
+   "args": [
+    "t24"
+   ]
+  },
+  {
+   "at": 24.1,
+   "sample": "p24"
+  },
+  {
+   "at": 30.0,
+   "call": "report_legion",
+   "args": [
+    "t30"
+   ]
+  },
+  {
+   "at": 30.1,
+   "sample": "p30"
+  },
+  {
+   "at": 36.0,
+   "call": "report_legion",
+   "args": [
+    "t36"
+   ]
+  },
+  {
+   "at": 36.1,
+   "sample": "p36"
+  },
+  {
+   "at": 42.0,
+   "call": "report_legion",
+   "args": [
+    "t42"
+   ]
+  },
+  {
+   "at": 42.1,
+   "sample": "p42"
+  },
+  {
+   "at": 48.0,
+   "call": "report_legion",
+   "args": [
+    "t48"
+   ]
+  },
+  {
+   "at": 48.1,
+   "sample": "p48"
+  },
+  {
+   "at": 54.0,
+   "call": "report_legion",
+   "args": [
+    "t54"
+   ]
+  },
+  {
+   "at": 54.1,
+   "sample": "p54"
+  },
+  {
+   "at": 60.0,
+   "call": "report_legion",
+   "args": [
+    "t60"
+   ]
+  },
+  {
+   "at": 60.1,
+   "sample": "p60"
+  },
+  {
+   "at": 66.0,
+   "call": "report_legion",
+   "args": [
+    "t66"
+   ]
+  },
+  {
+   "at": 66.1,
+   "sample": "p66"
+  },
+  {
+   "at": 72.0,
+   "call": "report_legion",
+   "args": [
+    "t72"
+   ]
+  },
+  {
+   "at": 72.1,
+   "sample": "p72"
+  },
+  {
+   "at": 78.0,
+   "call": "report_legion",
+   "args": [
+    "t78"
+   ]
+  },
+  {
+   "at": 78.1,
+   "sample": "p78"
+  },
+  {
+   "at": 84.0,
+   "call": "report_legion",
+   "args": [
+    "t84"
+   ]
+  },
+  {
+   "at": 84.1,
+   "sample": "p84"
+  },
+  {
+   "at": 40.0,
+   "shot": "mid"
+  },
+  {
+   "at": 60.0,
+   "shot": "late"
+  },
+  {
+   "at": 84.5,
+   "shot": "end"
+  },
+  {
+   "at": 85.0,
+   "quit": true
+  }
+ ]
+}

@@ -12,6 +12,8 @@ signal wave_started(index: int, units: int)
 signal unit_destroyed(unit: LegionMech)
 signal ended(won: bool)
 
+const TRACK_EVERY_S := 4.0
+
 var id := ""
 var def: Dictionary = {}
 var level: Node3D
@@ -27,6 +29,7 @@ var objective := ""
 var player_hits: Array = []
 var hits_taken := 0
 var _wave_s := 0.0
+var _track_in := 0.0  # seconds to the next tracking call (wave "track_s")
 var _next_in := -1.0
 var _rng := RandomNumberGenerator.new()
 
@@ -84,6 +87,26 @@ func _physics_process(delta: float) -> void:
 	var after := float(_wave_def().get("after_s", 0.0))
 	if after > 0.0 and _wave_s >= after and wave + 1 < waves_total():
 		_start_wave(wave + 1)
+		return
+	_track_player(delta)
+
+
+## A wave with "track_s" keeps being told where the Juggernaut is (the same rough fix as when it was
+## called in, ai.hearing_error of the distance off) every TRACK_EVERY_S for that many seconds, so it
+## can cross a map much bigger than its own memory (perception.memory_s) allows. Lane B5 part 2.
+func _track_player(delta: float) -> void:
+	var track_s := float(_wave_def().get("track_s", 0.0))
+	if track_s <= 0.0 or _wave_s > track_s or player == null or not bool(_wave_def().get("alerted", false)):
+		return
+	_track_in -= delta
+	if _track_in > 0.0:
+		return
+	_track_in = TRACK_EVERY_S
+	for u: LegionMech in units:
+		var brain := u.get_node_or_null("Brain") as LegionBrain
+		if brain != null and is_instance_valid(u) and not u.dead:
+			var err := u.position.distance_to(player.global_position) * 0.1
+			brain.hear_of(player.global_position + Vector3(_rng.randfn(0.0, err), 0.0, _rng.randfn(0.0, err)))
 
 
 func waves_total() -> int:
@@ -105,6 +128,7 @@ func _start_wave(index: int) -> void:
 		return
 	wave = index
 	_wave_s = 0.0
+	_track_in = TRACK_EVERY_S
 	_next_in = -1.0
 	units = []
 	var w := _wave_def()

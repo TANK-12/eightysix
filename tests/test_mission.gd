@@ -113,7 +113,7 @@ func test_waves_spawn_follow_each_other_and_the_last_wins() -> void:
 	assert_eq(m.alive(), 1)
 	var called := (m.units[0] as LegionMech).get_node("Brain") as LegionBrain
 	assert_lt(called.contact_age_s, 2.0, "a called-in wave knows roughly where the Juggernaut is")
-	assert_lt(Vector2(called.last_known.x, called.last_known.z).length(), 80.0, "within its 10% error (%s)" % str(called.last_known))
+	assert_lt(Vector2(called.last_known.x, called.last_known.z).length(), 80.0, "within its 10 %% error (%s)" % str(called.last_known))
 	_kill(m.units[0])
 	await physics_frames(5)
 	assert_eq(m.state, "won")
@@ -161,3 +161,26 @@ func test_end_screen_pauses_with_restart_and_main_menu() -> void:
 	assert_true(" ".join(labels).contains("5:12"), "time shown as minutes (%s)" % str(labels))
 	tree.paused = false
 	end.free()
+
+
+## Lane B5 part 2: an alerted wave with "track_s" keeps hearing where the Juggernaut is, so on a 4 km
+## map it can walk the whole way; without it the call-in fades after perception.memory_s.
+func _alerted_wave(track_s: float) -> Dictionary:
+	var w := {"objective": "pack", "groups": [{"enemy": "grauwolf", "count": 1, "area": "a"}], "alerted": true, "delay_s": 0.0}
+	if track_s > 0.0:
+		w["track_s"] = track_s
+	return {"areas": {"a": {"at": [0.0, -900.0], "radius_m": 30.0}}, "waves": [w]}
+
+
+func test_an_alerted_wave_with_track_s_keeps_hearing_of_the_player() -> void:
+	var m := _mission(_alerted_wave(60.0))
+	await physics_frames(2400)  # 20 s at 120 Hz: past memory_s (15 s)
+	var brain := (m.units[0] as LegionMech).get_node("Brain") as LegionBrain
+	assert_lt(brain.contact_age_s, 6.0, "told again every few seconds (contact age %.1f s)" % brain.contact_age_s)
+
+
+func test_an_alerted_wave_without_track_s_forgets_after_its_memory() -> void:
+	var m := _mission(_alerted_wave(0.0))
+	await physics_frames(2400)
+	var brain := (m.units[0] as LegionMech).get_node("Brain") as LegionBrain
+	assert_gt(brain.contact_age_s, 15.0, "the call-in fades (contact age %.1f s)" % brain.contact_age_s)
