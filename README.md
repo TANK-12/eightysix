@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -493,4 +493,15 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
 - Later the same part: the comb of vertical stripes down the far cliffs came from the far ground's normals (the 2 m
   and 4 m rings took them from 1 m apart); `SmallMapTerrain._grid_normal` now spans the chunk's own step (test
   `test_far_ground_normals_follow_their_own_mesh`; `images/236` vs `245`). Commit 621cb21, in version 010.
+
+### 2026-10-02 · lane A4 · Tetsu/Ren (ejb-3e) · part 4: Emerson's 010 notes, Legion legs and the 57 mm's mark
+- **Legion walking, running, cliffs, the edge wall** (commit 0135a1b): active-suspension legs, footholds only
+  where a foot could stand (no roofs, wall tops or cliff faces), footfalls by heading, stride grows with speed, no
+  walking push on one leg; the brain probes three tracks ahead, keeps to `maps.json` `legion_area_half_m`, holds
+  detours, backs out of dead ends. Verified: test_legion 9/9 and test_ai 20/20 (before/after numbers in
+  ~/Forge/sessions/juggernaut-alpha/results/A4.md "Part 4"), bot `a4p4_legion_watch` (images/246 before, 258 after).
+- **The 57 mm's own mark and the sub-arm guns** (commit 5f491b3): the mark sits where the round lands, with its
+  range; the 12.7 mm guns have a small cross and a setting (fixed on the body by default / a little play / aimed by
+  the arms). Verified: test_combat 15/15, bot `a4p4_aim` (images/265).
+- Suite 229/229. Not done yet (part 5): aiming modes, cockpit view, the new HUD, the Juggernaut's legs crossing.
 
