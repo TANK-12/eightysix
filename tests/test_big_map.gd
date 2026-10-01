@@ -231,3 +231,33 @@ func test_the_frontier_sweep_mission_spawns_on_open_dry_ground() -> void:
 		for g: Dictionary in w["groups"]:
 			assert_true(m["areas"].has(str(g["area"])), "wave group area %s exists" % g["area"])
 			assert_true(Registry.has_entry("enemies", str(g["enemy"])), "enemy %s exists" % g["enemy"])
+
+
+## "Grappling everywhere it looks possible": the wire bites the grapple layer, and every streamed ground
+## collider (fine tile or 8 m overview) is on it, so a dart finds hills and cliffs anywhere on the map.
+func test_the_wire_can_bite_streamed_ground_near_and_far() -> void:
+	var s := _stream()
+	assert_not_null(s, "BigStream compiles and builds")
+	if s == null:
+		return
+	var o := _t().tile_origin(10, 20)
+	var anchor := Node3D.new()
+	anchor.add_to_group("mechs")
+	tree.root.add_child(anchor)
+	anchor.global_position = Vector3(o.x + 64.0, 0.0, o.y + 64.0)
+	s.focus = anchor
+	s.prime(anchor.global_position)
+	await _settle(s, 40)
+	await physics_frames(3)
+	var space := tree.root.get_world_3d().direct_space_state
+	var spots: Array[Vector2] = [o + Vector2(64.0, 64.0), o + Vector2(10.0, 100.0), Vector2(-1500.0, 900.0), Vector2(1700.0, -1700.0)]
+	for p in spots:
+		var top := Vector3(p.x, _t().height_at(p.x, p.y) + 40.0, p.y)
+		var q := PhysicsRayQueryParameters3D.create(top, top + Vector3.DOWN * 80.0, Kit.LAYER_GRAPPLE)
+		var hit := space.intersect_ray(q)
+		assert_false(hit.is_empty(), "a dart at %s finds the ground on the grapple layer" % str(p))
+		if not hit.is_empty():
+			assert_lt(absf((hit["position"] as Vector3).y - _t().height_at(p.x, p.y)), 1.5, "and it is the ground (%s)" % str(p))
+	anchor.free()
+	s.free()
+
