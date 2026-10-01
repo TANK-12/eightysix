@@ -1,0 +1,40 @@
+{
+  "_about": "Move hints, one entry each (lane A4 part 5). MoveHints (scripts/ui/move_hints.gd) shows a hint the first time its \"when\" holds, once, then never again (the seen list lives in user://move_hints_seen.json); Settings > Gameplay > HUD > Move hints turns them all off. \"text\" names actions in braces, {sprint}, and each is replaced by the player's own binding (key, and pad button when a pad is plugged in). \"when\" is a list that must all hold; each item tests one number or flag of the state MoveHints builds from the mech: play_s (seconds of play), speed_m_s, running, charging, airborne, skidding, anchor_ready (the wire anchor can bite where it aims), cockpit_view. {\"key\": k, \"min\": x} and {\"key\": k, \"max\": x} test numbers, {\"key\": k, \"is\": true/false} a flag. \"order\" ranks hints that are due together; \"show_s\" is how long one stays (default 7).",
+  "entries": {
+    "view": {
+      "order": 1,
+      "text": "Press {camera_view} to look out from the cockpit, and again to come back out.",
+      "when": [{"key": "play_s", "min": 5.0}, {"key": "cockpit_view", "is": false}]
+    },
+    "sprint": {
+      "order": 2,
+      "text": "Hold {sprint} while you move to gallop. It works sideways and backwards too.",
+      "when": [{"key": "play_s", "min": 8.0}, {"key": "speed_m_s", "min": 2.0}, {"key": "running", "is": false}, {"key": "airborne", "is": false}]
+    },
+    "jump": {
+      "order": 3,
+      "text": "Hold {jump} to charge a jump and let go to launch. The longer you hold, the harder it pushes.",
+      "when": [{"key": "play_s", "min": 16.0}, {"key": "speed_m_s", "max": 1.5}, {"key": "charging", "is": false}, {"key": "airborne", "is": false}]
+    },
+    "slide": {
+      "order": 4,
+      "text": "At a gallop, pull {brake} to slide. The deeper you pull, the less the feet grip: steer with the stick while it slides.",
+      "when": [{"key": "running", "is": true}, {"key": "speed_m_s", "min": 12.0}, {"key": "skidding", "is": false}]
+    },
+    "flip": {
+      "order": 5,
+      "text": "Hold {crouch} as you let go of the jump, with a direction held: forward is a front flip, back a backflip, sideways a side flip.",
+      "when": [{"key": "charging", "is": true}]
+    },
+    "wire": {
+      "order": 6,
+      "text": "A wire anchor can bite where you are aiming. {grapple_fire} fires it and lets go; {grapple_reel_in} reels in, {grapple_pay_out} pays out.",
+      "when": [{"key": "anchor_ready", "is": true}, {"key": "play_s", "min": 10.0}]
+    },
+    "air": {
+      "order": 7,
+      "text": "In the air nothing pushes you: the aim stick swings the legs to turn the body, slowly, and the 57 mm's recoil and the wire are your other levers.",
+      "when": [{"key": "airborne", "is": true}, {"key": "play_s", "min": 12.0}]
+    }
+  }
+}

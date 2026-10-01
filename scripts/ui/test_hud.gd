@@ -12,6 +12,7 @@ var mech: Node3D
 var _root: Control
 var _draw: Control
 var _combat: CombatHud
+var _hints: MoveHints
 var _main_hit: Dictionary = {}
 var _sub_hit: Dictionary = {}
 var _aim_s := 0.0
@@ -23,6 +24,7 @@ var _legs_down: Dictionary = {}  # leg name -> carrying weight
 func watch(node: Node3D) -> void:
 	mech = node
 	_combat.watch(node)
+	_hints.watch(node)
 
 
 func _ready() -> void:
@@ -40,6 +42,8 @@ func _ready() -> void:
 	_combat = CombatHud.new()
 	_root.add_child(_combat)
 
+	_hints = MoveHints.new()
+	_root.add_child(_hints)
 	_root.scale = Vector2.ONE * Settings.get_f("gameplay.hud_scale")
 
 

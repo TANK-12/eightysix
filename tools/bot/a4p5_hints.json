@@ -1,0 +1,38 @@
+{
+  "name": "a4p5_hints",
+  "_about": "Lane A4 part 5: the move hints. The view hint shows from about 5 s, the gallop hint about 18 s while walking; a bot run keeps its seen list in memory. tools/bot_run.sh a4p5_hints",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 2.0,
+      "press": "move_forward",
+      "strength": 0.6,
+      "for": 26.0
+    },
+    {
+      "at": 8.0,
+      "shot": "hint-view"
+    },
+    {
+      "at": 13.5,
+      "shot": "hint-gap"
+    },
+    {
+      "at": 20.0,
+      "shot": "hint-sprint"
+    },
+    {
+      "at": 21.0,
+      "quit": true
+    }
+  ]
+}
