@@ -484,3 +484,7 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
 - Walk and run: the drive's moment from a push at the feet (half held back by the legs, smoothed): gallop start
   squats 1.3 deg (was 0), stop dips 2.3, turn leans 0.8. test_feel 4/4; score route 0-50 1.33 s (was 1.27).
 - Details and what was tried and dropped: `~/Forge/sessions/juggernaut-alpha/results/A4.md` part 3.
+- Later the same part: the comb of vertical stripes down the far cliffs came from the far ground's normals (the 2 m
+  and 4 m rings took them from 1 m apart); `SmallMapTerrain._grid_normal` now spans the chunk's own step (test
+  `test_far_ground_normals_follow_their_own_mesh`; `images/236` vs `245`). Commit 621cb21, in version 010.
+
