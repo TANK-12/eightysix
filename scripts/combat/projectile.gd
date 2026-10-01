@@ -3,7 +3,8 @@ extends Node3D
 ## A round in flight: Ballistics steps it each physics tick and a ray covers the segment it moved,
 ## so it hits whatever lies on its path (world, mech chassis parts, leg hitboxes). On a hit it hands
 ## the struck part to the receiver's take_hit(), pushes loose rigid bodies with its momentum, sets
-## off splash damage for blast rounds, and leaves impact effects. A glowing tracer shows the path.
+## off splash damage for blast rounds, pushes what is near an explosive burst (Blast, from the
+## round's "tnt_kg"), and leaves impact effects. A glowing tracer shows the path.
 
 signal impacted(info: Dictionary)
 
@@ -114,6 +115,12 @@ func _impact(hit: Dictionary) -> void:
 		body.apply_impulse(dir * info["projectile_kg"] * speed * push_scale, point - body.global_position)
 	if blast_r > 0.0:
 		CombatHits.blast(get_world_3d().direct_space_state, point, blast_r, info, key)
+	var tnt := float(ammo.get("tnt_kg", 0.0))
+	if tnt > 0.0:
+		info["pushed"] = Blast.push(get_world_3d().direct_space_state, point + normal * 0.2, tnt, true)
+		for p: Dictionary in info["pushed"]:
+			if (p["body"] as Node).is_in_group("player_mech"):
+				Rumble.play("wake_near_miss", -1, clampf(float(p["impulse_ns"]) / 2000.0, 0.2, 1.5))
 	var world := get_parent()
 	var metal := target != null or (collider is Node and (collider as Node).is_in_group("mechs"))
 	CombatFx.impact(world, point, normal, metal, blast_r > 0.0)

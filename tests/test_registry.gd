@@ -48,7 +48,9 @@ func test_main_gun_is_fixed_forward() -> void:
 	var gun := Registry.entry("weapons", "gun_57mm")
 	assert_eq(gun["mount"], "fixed_forward")
 	assert_eq(gun["traverse_deg"], 0.0, "supplement point 2: no independent traverse")
-	assert_has(Registry.entry("weapons", "lowe_120mm"), "wake", "supplement point 4")
+	# Supplement point 4, done honestly (lane A4 part 2): the near-miss shove comes from an HE burst.
+	var he: Dictionary = (Registry.entry("weapons", "lowe_120mm")["ammo"] as Dictionary).get("he", {})
+	assert_gt(float(he.get("tnt_kg", 0.0)), 0.0, "the Löwe has an HE round with a filler")
 
 
 func test_enemies_weapons_and_maps_resolve() -> void:

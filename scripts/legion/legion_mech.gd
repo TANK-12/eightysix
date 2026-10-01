@@ -696,11 +696,8 @@ func fire(weapon_id: String, muzzle: Transform3D, dir: Vector3, spread_mrad: flo
 	var boxes := get_node_or_null("Hitboxes") as Area3D
 	if boxes != null:
 		skip.append(boxes.get_rid())
-	var round_def := ammo.duplicate()
 	var wdef := Registry.entry("weapons", weapon_id)
-	if wdef.has("wake"):
-		round_def["wake"] = wdef["wake"]
-	var p := Projectile.spawn(get_parent(), muzzle.origin + aim * 0.3, aim * speed + linear_velocity, round_def, self, 1.0, skip)
+	var p := Projectile.spawn(get_parent(), muzzle.origin + aim * 0.3, aim * speed + linear_velocity, ammo, self, 1.0, skip)
 	# Recoil: the round's and the gas's momentum back into the body at the muzzle.
 	var kick := Ballistics.recoil_impulse(wdef, ammo)
 	if kick > 0.0:
