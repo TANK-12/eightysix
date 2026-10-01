@@ -2,14 +2,20 @@ class_name Backdrop
 extends RefCounted
 
 const GORGE_M := 350.0
+const RIM_FALL := 0.25  # how fast (m per m outward) the far hills may fall below a high rim behind it
 ## Far hills beyond a map's edge (lane B4), so the rim is not the end of the world. Visual only: no
 ## collision, no shadows. A grid over the square out to extent_m, minus the playable map, rising from
 ## just under the rim top at the edge to ridges further out; fog does the rest. From the map entry's
-## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed}.
+## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed, texture_m, and for the
+## gorge: gorge_rise_m (how far out a gap in the rim takes to climb into the hills), bend_m and
+## bend_over_m (the rim's shape slides this far sideways over that distance out, so a gorge curves
+## out of sight instead of running straight into a ramp), water_reach_m (the map's water plane
+## reaches this far past the edge, showing only where the ground is below it: the river runs on)}.
 
 
 ## edge_height(x, z): the map terrain's height at a point on its edge. Where the rim is low (the river's
-## gorge), the far hills start at that height and climb over GORGE_M, so the gorge runs on out of the map.
+## gorge), the far hills start at that height and climb over gorge_rise_m (GORGE_M if the map does not
+## say), so the gorge runs on out of the map, curving by bend_m.
 static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null, edge_height: Callable = Callable()) -> MeshInstance3D:
 	var b: Dictionary = entry.get("backdrop", {})
 	if b.is_empty():
@@ -30,8 +36,11 @@ static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null, edg
 			var x := -extent + xi * cell
 			var z := -extent + zi * cell
 			var edge := INF
-			if edge_height.is_valid() and maxf(absf(x), absf(z)) > half - cell:
-				edge = float(edge_height.call(clampf(x, -half, half), clampf(z, -half, half)))
+			# every vertex a drawn cell uses (cells reach two cells inside the edge, see below); sampling
+			# only the outer row left the inner rows at the default height: a 22 m slab across the gorge
+			if edge_height.is_valid() and maxf(absf(x), absf(z)) >= half - 2.0 * cell - 0.01:
+				var at := edge_sample(x, z, half, b)
+				edge = float(edge_height.call(at.x, at.y))
 			heights[zi * (cells + 1) + xi] = height_at(x, z, half, b, noise, edge)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -67,21 +76,55 @@ static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null, edg
 		mat.albedo_color = mat.albedo_color * 1.6
 	mi.material_override = mat
 	parent.add_child(mi)
+	_reach_water(parent, half, float(b.get("water_reach_m", 0.0)))
 	return mi
+
+
+## Where on the map's edge (x, z) takes the rim's height from: straight in, slid sideways along the
+## edge by bend_m over bend_over_m outward, so whatever the rim does there (a gorge, a pass) curves.
+static func edge_sample(x: float, z: float, half: float, b: Dictionary) -> Vector2:
+	var out := maxf(maxf(absf(x), absf(z)) - half, 0.0)
+	var slide := float(b.get("bend_m", 0.0)) * smoothstep(0.0, float(b.get("bend_over_m", 300.0)), out)
+	if absf(z) >= absf(x):
+		x -= slide * signf(z)
+	else:
+		z += slide * signf(x)
+	return Vector2(clampf(x, -half, half), clampf(z, -half, half))
+
+
+## The map's own water plane (a "Water" PlaneMesh sibling, built before the backdrop) made reach_m
+## wider on every side. The far hills cover it everywhere but where they dip below the water.
+static func _reach_water(parent: Node, half: float, reach_m: float) -> void:
+	var water := parent.get_node_or_null("Water") as MeshInstance3D
+	if reach_m <= 0.0 or water == null or not (water.mesh is PlaneMesh):
+		return
+	var plane := (water.mesh as PlaneMesh).duplicate() as PlaneMesh
+	plane.size = Vector2.ONE * (half + reach_m) * 2.0
+	plane.subdivide_width = 16
+	plane.subdivide_depth = 16
+	water.mesh = plane
 
 
 ## Height (m) of the backdrop at (x, z): under the rim top at the map's edge (so the rim hides the
 ## join), rising outward, with ridged hills on top. Inside the map it sinks well below the ground.
+## With the terrain's edge height: below a low rim it starts at that height (the gorge, above); behind
+## a high rim it starts at the rim's height and falls at most RIM_FALL per metre outward.
 static func height_at(x: float, z: float, half: float, b: Dictionary, noise: FastNoiseLite, edge: float = INF) -> float:
 	var out := maxf(absf(x), absf(z)) - half
 	var start := float(b.get("start_m", 30.0))
 	var gorge := 1.0
 	if edge < start:
 		# a gap in the rim: begin just under the terrain there and climb to the usual hills over GORGE_M
-		gorge = smoothstep(0.0, GORGE_M, maxf(out, 0.0))
+		# eased in: the floor stays near the water for the first stretch, then climbs round the bend
+		gorge = pow(smoothstep(0.0, float(b.get("gorge_rise_m", GORGE_M)), maxf(out, 0.0)), 2.0)
 		start = lerpf(edge - 1.0, start, gorge)
 	if out < 0.0:
 		return start + out * 0.5
 	var rise := clampf(out / 400.0, 0.0, 1.0) * gorge
 	var ridge := noise.get_noise_2d(x, z) * 0.5 + 0.5
-	return start + rise * float(b.get("rise_m", 60.0)) + ridge * rise * float(b.get("ridge_m", 110.0))
+	var hills := start + rise * float(b.get("rise_m", 60.0)) + ridge * rise * float(b.get("ridge_m", 110.0))
+	if edge != INF and edge > start:
+		# a high rim: carry it on outward, falling gently, until the hills take over (no flat shelf
+		# of far hill behind the gorge's walls)
+		hills = maxf(hills, edge - 0.5 - out * RIM_FALL)
+	return hills

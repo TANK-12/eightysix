@@ -1,0 +1,61 @@
+{
+  "name": "b4_emblem",
+  "_about": "Lane B4 part 2: the Undertaker emblem on both sides of the hull, close up in photo mode (standing at the start). tools/bot_run.sh b4_emblem --preset=medium",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 4.0,
+      "goto": "photo"
+    },
+    {
+      "at": 4.2,
+      "press": "turn_right",
+      "strength": 1.0,
+      "for": 1.0
+    },
+    {
+      "at": 5.4,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 3.0
+    },
+    {
+      "at": 8.8,
+      "shot": "side-a"
+    },
+    {
+      "at": 8.9,
+      "press": "turn_right",
+      "strength": 1.0,
+      "for": 2.0
+    },
+    {
+      "at": 11.2,
+      "shot": "side-b"
+    },
+    {
+      "at": 11.3,
+      "press": "turn_right",
+      "strength": 1.0,
+      "for": 0.5
+    },
+    {
+      "at": 11.3,
+      "press": "aim_up",
+      "strength": 1.0,
+      "for": 0.3
+    },
+    {
+      "at": 12.1,
+      "shot": "side-b-quarter"
+    },
+    {
+      "at": 12.2,
+      "quit": true
+    }
+  ]
+}

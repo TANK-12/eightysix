@@ -196,3 +196,78 @@ func test_backdrop_leaves_the_river_gorge_open() -> void:
 	assert_lt(Backdrop.height_at(160.0, -half - 40.0, half, b, noise, edge), edge + 6.0, "the gorge runs on past the edge")
 	assert_gt(Backdrop.height_at(160.0, -half - 600.0, half, b, noise, edge), 40.0, "and climbs into hills further out")
 
+
+## Lane B4 part 2: the far hills carry the rim on past the edge, so looking down the river's gorge
+## its walls do not stop dead above a flat shelf of far hill (images/170-b4_river_exit).
+func test_backdrop_continues_the_rim_without_a_step() -> void:
+	var e := Registry.entry("maps", "small_map")
+	var b: Dictionary = e["backdrop"]
+	var noise := FastNoiseLite.new()
+	var half := float(e["size_m"]) * 0.5
+	var t := _t()
+	var worst := 0.0
+	for i in 41:
+		var x := -half + i * (2.0 * half / 40.0)
+		for side: float in [-1.0, 1.0]:
+			var z := side * half
+			var edge := t.height_at(x, z)
+			for out: float in [8.0, 16.0, 32.0]:
+				var h := Backdrop.height_at(x, z + side * out, half, b, noise, edge)
+				worst = maxf(worst, (edge - Backdrop.RIM_FALL * out) - h)
+	assert_lt(worst, 1.5, "no step down behind the rim (worst %.1f m)" % worst)
+
+
+
+## Lane B4 part 2: past the edge the river's gorge bends away and stays low (no ramp closing it
+## straight ahead), and the water plane reaches out so the river runs on round the bend.
+func test_gorge_bends_out_of_sight_with_the_river_in_it() -> void:
+	var e := Registry.entry("maps", "small_map")
+	var b: Dictionary = e["backdrop"]
+	var noise := FastNoiseLite.new()
+	var half := float(e["size_m"]) * 0.5
+	var t := _t()
+	var floor_x := {}
+	for out: float in [0.0, 150.0, 300.0]:
+		var lowest := INF
+		for i in 81:
+			var x := -100.0 + i * 5.0
+			var at := Backdrop.edge_sample(x, -half - out, half, b)
+			var h := Backdrop.height_at(x, -half - out, half, b, noise, t.height_at(at.x, at.y))
+			if h < lowest:
+				lowest = h
+				floor_x[out] = x
+		if out <= 150.0:
+			assert_lt(lowest, 3.0, "the gorge floor stays near the water %d m out (%.1f m)" % [out, lowest])
+	assert_gt(absf(float(floor_x[300.0]) - float(floor_x[0.0])), 80.0, "and has bent well away by 300 m out")
+	var holder := Node3D.new()
+	var water := MeshInstance3D.new()
+	water.name = "Water"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2.ONE * half * 2.0
+	water.mesh = plane
+	holder.add_child(water)
+	Backdrop.build(holder, e)
+	assert_almost_eq((water.mesh as PlaneMesh).size.x, (half + float(b["water_reach_m"])) * 2.0, 0.1, "water reaches past the edge")
+	holder.free()
+
+
+## Lane B4 part 2: the far hills never stand up out of the ground inside the map. The row of
+## vertices one cell inside the edge used to skip the edge height and sat at 22 m: a slab across
+## the river's gorge (images/170-b4_river_exit).
+func test_backdrop_never_pokes_out_of_the_ground_inside_the_map() -> void:
+	var e := Registry.entry("maps", "small_map")
+	var half := float(e["size_m"]) * 0.5
+	var t := _t()
+	var holder := Node3D.new()
+	var mi := Backdrop.build(holder, e, null, t.height_at)
+	var verts: PackedVector3Array = mi.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var worst := -INF
+	var at := Vector3.ZERO
+	for v: Vector3 in verts:
+		if absf(v.x) <= half and absf(v.z) <= half:
+			var above := v.y - t.height_at(v.x, v.z)
+			if above > worst:
+				worst = above
+				at = v
+	assert_lt(worst, 0.01, "backdrop above the ground inside the map by %.1f m at %s" % [worst, at])
+	holder.free()

@@ -61,7 +61,8 @@
           {"label": "Distance and detail", "items": [
             {"key": "graphics.draw_distance", "label": "Draw distance", "type": "slider", "min": 300.0, "max": 3000.0, "step": 100.0, "format": "m", "default": 1000.0, "preset_field": "draw_distance", "help": "How far the world is drawn."},
             {"key": "graphics.lod_bias", "label": "Model detail threshold", "type": "slider", "min": 0.25, "max": 4.0, "step": 0.25, "format": "x", "default": 1.5, "preset_field": "lod_bias", "help": "Lower keeps full-detail models further away."},
-            {"key": "graphics.foliage_density", "label": "Grass and shrub density", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.6, "preset_field": "foliage_density", "help": "Share of scattered grass, shrubs and small rocks drawn."}
+            {"key": "graphics.foliage_density", "label": "Grass and shrub density", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 0.6, "preset_field": "foliage_density", "help": "Share of scattered grass, shrubs and small rocks drawn."},
+            {"key": "graphics.foot_dust", "label": "Dust from the feet", "type": "toggle", "default": true, "preset_field": "foot_dust", "help": "Each foot throws a puff of dust at a run, more the faster you go; less on rock, none on steel."}
           ]}
         ]}
       ]
@@ -211,6 +212,7 @@
           ]},
           {"label": "Look", "items": [
             {"key": "mech.finish", "label": "Mech finish", "type": "choice", "options_from": "finishes", "default": "undertaker_field", "help": "Paint and wear on your Juggernaut: field worn, fresh from the hangar, or the bare model export."},
+            {"key": "mech.emblem", "label": "Emblem", "type": "choice", "options_from": "emblems", "default": "undertaker", "help": "The personal mark painted on both sides of the cockpit. Undertaker is Shin's headless skeleton with its shovel."},
             {"key": "mech.shine", "label": "Metal shine", "type": "slider", "min": 0.0, "max": 1.0, "step": 0.05, "format": "percent", "default": 1.0, "help": "How mirror-like the metal is. 100% is the chosen finish as painted."}
           ]}
         ]},

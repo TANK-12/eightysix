@@ -239,6 +239,21 @@
     "foot_clear_m": 0.25,
     "max_s": 4.0
   },
+  "foot_dust": {
+    "_about": "Dust thrown by each planted foot at a run (lane B4, scripts/look/foot_dust.gd). Pairs are [at min_speed_m_s, at full_speed_m_s] and blend between. surfaces: how much dust each ground gives (sounds.json surface names; metal is a steel deck or a mech, none). kick_back: how far back against the run the puff leans (0 straight up). camera_fade_m: a puff is clear nearer the camera than the first and full beyond the second. soft_ground_m: how softly it meets the ground. max_live: puffs alive at once, for frame rate.",
+    "min_speed_m_s": 6.0,
+    "full_speed_m_s": 19.0,
+    "amount": [3, 8],
+    "size_m": [1.0, 2.8],
+    "life_s": [1.5, 3.0],
+    "rise_m_s": [0.5, 1.4],
+    "colour": [0.6, 0.53, 0.43, 0.34],
+    "surfaces": {"dirt": 1.0, "rock": 0.4, "metal": 0.0},
+    "kick_back": 1.4,
+    "camera_fade_m": [2.5, 6.5],
+    "soft_ground_m": 0.8,
+    "max_live": 24
+  },
   "photo": {
     "_about": "Photo / inspect mode (scripts/camera/photo_mode.gd): the orbit camera's limits and speeds.",
     "start_distance_m": 14.0,

@@ -59,6 +59,8 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 	skin.position = -Vector3(float(o[0]), float(o[1]), float(o[2]))
 	add_child(skin)
 	_wire_shine(skin)
+	Emblem.attach(self, def.get("sockets", {}), Settings.get_s("mech.emblem"))
+	FootDust.attach(self)
 	_wire_real_legs(skin)
 	_wire_rams(skin)
 	Settings.changed.connect(_on_setting_changed)
@@ -72,11 +74,13 @@ func _read_stance() -> void:
 	_spread = Settings.get_f("mech.foot_spread")
 
 
-func _on_setting_changed(key: String, _value: Variant) -> void:
+func _on_setting_changed(key: String, value: Variant) -> void:
 	if key == "mech.shine":
 		_apply_shine()
 	elif key == "mech.finish":
 		_apply_finish()
+	elif key == "mech.emblem":
+		Emblem.attach(self, def.get("sockets", {}), str(value))
 	elif key.begins_with("mech."):
 		_read_stance()
 		_apply_stance()

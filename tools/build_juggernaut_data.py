@@ -240,7 +240,11 @@ def main() -> int:
         "eye": [round(v, 4) for v in shift(sockets["eye_camera"]["pos"])],
     }
     sockets_out = {
-        name: {"bone": s["bone"], "at": [round(v, 4) for v in shift(s["pos"])]}
+        name: {
+            "bone": s["bone"],
+            "at": [round(v, 4) for v in shift(s["pos"])],
+            "forward": [round(v, 4) for v in s.get("forward", [0, 0, -1])],
+        }
         for name, s in sockets.items()
         if name not in ("cockpit_camera", "eye_camera")
     }

@@ -1,0 +1,19 @@
+{
+  "_about": "Personal emblems painted on the Juggernaut's armour (lane B4), one entry each; Settings > Gameplay > Juggernaut > Emblem picks one (mech.emblem). An emblem is a one-colour SVG (black on clear) in assets/textures/emblems/, so a new one is one file plus one entry here. colour: linear 0-1 paint colour. size_m: how big it is painted (the cockpit side panel is 0.38 m tall). wear: 0 fresh to 1 nearly gone (chipped by noise). sockets: which mech sockets get it (the socket's forward is the way it faces). face_forward: on the left side the picture is mirrored so it faces the way the mech goes, as squadron markings are.",
+  "entries": {
+    "undertaker": {
+      "label": "Undertaker (headless skeleton)",
+      "order": 1,
+      "image": "res://assets/textures/emblems/undertaker.svg",
+      "colour": [0.035, 0.036, 0.04],
+      "size_m": 0.42,
+      "wear": 0.35,
+      "sockets": ["logo_L", "logo_R"],
+      "face_forward": true
+    },
+    "none": {
+      "label": "None",
+      "order": 9
+    }
+  }
+}

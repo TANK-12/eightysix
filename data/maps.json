@@ -28,7 +28,7 @@
       "weather": "golden_afternoon",
       "ambience": "wind_loop",
       "reverb_zones": [{"reverb": "valley", "at": [0, 0], "size_m": [1024, 200, 1024], "amount": 0.5, "priority": 0}, {"reverb": "town", "at": [10, -170], "size_m": [240, 60, 220], "amount": 0.8, "priority": 1}],
-      "backdrop": {"extent_m": 1600.0, "cell_m": 16.0, "start_m": 30.0, "rise_m": 60.0, "ridge_m": 120.0, "colour": [0.3, 0.26, 0.21], "seed": 86},
+      "backdrop": {"extent_m": 1600.0, "cell_m": 16.0, "start_m": 30.0, "rise_m": 60.0, "ridge_m": 120.0, "colour": [0.3, 0.26, 0.21], "gorge_rise_m": 700.0, "bend_m": 170.0, "bend_over_m": 320.0, "water_reach_m": 420.0, "seed": 86},
       "water_level_m": 0.0,
       "terrain": {"base_m": 9.0, "hills_m": 13.0, "ridges_m": 7.0, "rough_m": 0.45, "rim_m": 58.0, "rim_width_m": 90.0, "floor_m": 1.6},
       "river": {"points": [[160, -540], [172, -380], [232, -250], [214, -80], [176, 60], [214, 180], [262, 252]], "width_m": 18.0, "bank_m": 18.0, "depth_m": 2.6},

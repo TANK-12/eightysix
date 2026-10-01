@@ -69,3 +69,91 @@ func test_presets_carry_sharpening_and_ssao_quality() -> void:
 	Settings.set_value("graphics.sharpening", 1.0, false)
 	assert_almost_eq(Engine.get_main_loop().root.fsr_sharpness, 0.0, 0.001)
 	Settings.set_value("graphics.sharpening", before, false)
+
+
+func test_emblem_texture_is_chipped_and_mirrors() -> void:
+	var clean := Emblem.coverage(Emblem.texture("undertaker", false, 0.0).get_image())
+	var worn_tex := Emblem.texture("undertaker", false)
+	var worn := Emblem.coverage(worn_tex.get_image())
+	assert_gt(clean, 0.05, "the emblem draws something")
+	assert_lt(worn, clean * 0.97, "wear chips paint off")
+	assert_gt(worn, clean * 0.5, "but most of it is still there")
+	var img := worn_tex.get_image()
+	var mirrored := Emblem.texture("undertaker", true).get_image()
+	var w := img.get_width()
+	for p: Vector2i in [Vector2i(100, 200), Vector2i(382, 300), Vector2i(256, 140)]:
+		assert_almost_eq(mirrored.get_pixel(w - 1 - p.x, p.y).a, img.get_pixel(p.x, p.y).a, 0.01, "mirror")
+	assert_true(Registry.has_entry("emblems", Settings.item("mech.emblem")["default"]), "default emblem exists")
+
+
+func test_emblem_decals_sit_on_the_logo_sockets_facing_out() -> void:
+	var holder := Node3D.new()
+	Engine.get_main_loop().root.add_child(holder)
+	var sockets: Dictionary = Registry.entry("mechs", "juggernaut_m2")["sockets"]
+	var decals := Emblem.attach(holder, sockets, "undertaker")
+	assert_eq(decals.size(), 2, "both sides")
+	for d: Decal in decals:
+		var s: Dictionary = sockets[d.name.trim_prefix("Emblem_")]
+		var at := Vector3(float(s["at"][0]), float(s["at"][1]), float(s["at"][2]))
+		var out := Vector3(float(s["forward"][0]), float(s["forward"][1]), float(s["forward"][2]))
+		assert_gt(d.transform.basis.y.normalized().dot(out), 0.99, d.name + " projects onto the panel")
+		assert_gt(-d.transform.basis.z.normalized().dot(Vector3.UP), 0.99, d.name + " upright")
+		var b := d.transform.basis
+		assert_gt(b.determinant(), 0.0, d.name + " not turned inside out")
+		var mirrored := b.x.dot(Vector3.FORWARD) < 0.0
+		var picture_right := -b.x if mirrored else b.x
+		assert_gt(picture_right.normalized().dot(Vector3.FORWARD), 0.99, d.name + " faces forward")
+		var flipped := d.texture_albedo == Emblem.texture("undertaker", true)
+		assert_eq(flipped, mirrored, d.name + " picture mirrored only where the box points backward")
+		var box_in := (d.position - at).dot(out) - d.size.y * 0.5
+		assert_lt(box_in, 0.0, d.name + " box starts inside the panel")
+		assert_almost_eq(d.size.x, float(Registry.entry("emblems", "undertaker")["size_m"]), 0.001)
+	assert_eq(Emblem.attach(holder, sockets, "none").size(), 0, "none paints nothing")
+	assert_eq(holder.find_children("Emblem_*", "Decal", false, false).size(), 0, "and clears the old ones")
+	holder.free()
+
+
+func test_foot_dust_grows_with_speed_and_stays_off_hard_ground() -> void:
+	var cfg: Dictionary = Registry.tune("foot_dust", {})
+	var walk := float(cfg["min_speed_m_s"]) - 0.5
+	assert_true(FootDust.plan(walk, "dirt").is_empty(), "no dust at a walk")
+	var trot := FootDust.plan(float(cfg["min_speed_m_s"]) + 1.0, "dirt")
+	var gallop := FootDust.plan(19.5, "dirt")
+	assert_false(trot.is_empty(), "dust once running")
+	assert_gt(float(gallop["size"]), float(trot["size"]), "bigger at a gallop")
+	assert_gt(int(gallop["amount"]), int(trot["amount"]) - 1, "no fewer puffs")
+	assert_true(FootDust.plan(19.5, "metal").is_empty(), "no dust off a steel deck")
+	assert_lt(float(FootDust.plan(19.5, "rock")["colour"].a), float(gallop["colour"].a), "thinner on rock")
+
+
+func test_foot_dust_puffs_land_behind_the_foot_and_are_capped() -> void:
+	var holder := Node3D.new()
+	Engine.get_main_loop().root.add_child(holder)
+	var dust := FootDust.new()
+	dust.level = holder
+	var v := Vector3(0, 0, -15)  # galloping forward
+	var p := dust.puff(Vector3(1, 0, 2), v, "dirt")
+	assert_not_null(p, "a puff at a gallop")
+	var cpu := p as CPUParticles3D
+	assert_gt(cpu.global_transform.basis.y.dot(Vector3.BACK), 0.2, "kicked backward, away from the run")
+	var made := 1
+	for i in 100:
+		if dust.puff(Vector3(1, 0, 2), v, "dirt") != null:
+			made += 1
+	assert_eq(made, int(Registry.tune("foot_dust", {})["max_live"]), "capped")
+	holder.free()
+	dust.free()
+
+
+func test_foot_dust_material_fades_near_the_camera() -> void:
+	var m := FootDust.material()
+	assert_eq(m.distance_fade_mode, BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA, "no blob in the camera's face")
+	assert_true(m.proximity_fade_enabled, "soft where it meets the ground")
+	var img := FootDust.cloud_texture(64).get_image()
+	assert_almost_eq(img.get_pixel(0, 0).a, 0.0, 0.01, "clear at the corner")
+	assert_gt(img.get_pixel(32, 32).a, 0.3, "thick in the middle")
+	var ring: Array[float] = []
+	for i in 16:
+		var ang := TAU * i / 16.0
+		ring.append(img.get_pixel(32 + int(cos(ang) * 18), 32 + int(sin(ang) * 18)).a)
+	assert_gt(ring.max() - ring.min(), 0.1, "ragged edge, not a clean disc")
