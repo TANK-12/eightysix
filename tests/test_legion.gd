@@ -166,3 +166,201 @@ func test_lite_model_past_lod_range_follows_the_pose() -> void:
 	u.set_lod(0.0)
 	assert_eq(full_mesh.visibility_range_end, 0.0, "lod off: full model at every distance")
 	assert_false(u.lite.visible, "and the lite one hidden")
+
+
+## World position of a point that rides leg joint `part` (rest model-space point `p`), as posed now.
+func _posed(u: LegionMech, part: String, p: Vector3) -> Vector3:
+	return u.global_transform * (u._delta_of(part) * p)
+
+
+## Part 4 (Emerson after 010: "their running looks broken", "Legion legs as good as the
+## Juggernaut's"): at each unit's top speed on flat ground the legs keep their shape and carry the
+## body: no leg pulled straight, every knee stays up off the ground, the soles stay on their feet,
+## the body neither pogos (the legs' load swinging far past its weight) nor flies (no leg down).
+func test_legs_keep_their_shape_at_full_speed() -> void:
+	for id: String in UNITS:
+		var u := _spawn(id)
+		await physics_frames(240)
+		var top := float(Registry.entry("enemies", id)["speed_m_s"])
+		var weight := u.mass * 9.81
+		u.face_dir = -u.global_transform.basis.z
+		u.move_goal = u.face_dir * top
+		var frames := 0
+		var straight := 0
+		var knee_low := 0
+		var none_down := 0
+		var light := 0
+		var heavy := 0
+		var worst_tilt := 0.0
+		var ik: Array[float] = []
+		for i in 720:
+			await physics_frames(1)
+			if i < 240:
+				continue
+			frames += 1
+			worst_tilt = maxf(worst_tilt, _tilt_deg(u))
+			if u.planted_count == 0:
+				none_down += 1
+			if u.support_n < weight * 0.3:
+				light += 1
+			if u.support_n > weight * 2.5:
+				heavy += 1
+			for leg: Dictionary in u.legs:
+				var hip := _posed(u, leg["thigh"], leg["p1"])
+				var knee := _posed(u, leg["shin"], leg["p2"])
+				var sole := _posed(u, leg["shin"], leg["sole"])
+				if 180.0 - rad_to_deg((hip - knee).angle_to(sole - knee)) < 8.0:
+					straight += 1
+				if knee.y < sole.y + 0.3:
+					knee_low += 1
+				if i % 10 == 0:
+					ik.append(u.sole_world(leg).distance_to(leg["foot"]))
+		ik.sort()
+		var ik95 := ik[int(ik.size() * 0.95)]
+		var speed := Vector2(u.linear_velocity.x, u.linear_velocity.z).length()
+		var leg_frames := frames * u.legs.size()
+		var note := "%s at %.1f m/s (top %.0f): straight %d / %d leg-frames, knee low %d, no leg down %d / %d frames, load < 0.3 W %d, > 2.5 W %d, tilt %.1f deg, IK p95 %.2f m" % [id, speed, top, straight, leg_frames, knee_low, none_down, frames, light, heavy, worst_tilt, ik95]
+		print("    " + note)
+		assert_gt(speed, top * 0.85, note)
+		assert_lt(float(straight) / leg_frames, 0.01, "legs pulled straight: " + note)
+		assert_eq(knee_low, 0, "knees off the ground: " + note)
+		assert_lt(float(none_down) / frames, 0.03, "a leg down: " + note)
+		assert_lt(float(light + heavy) / frames, 0.05, "no pogo: " + note)
+		assert_lt(worst_tilt, 10.0, "level: " + note)
+		assert_lt(ik95, 0.3, "soles on their feet: " + note)
+		u.free()
+
+
+func _block(size: Vector3, at: Vector3, tilt_deg: float = 0.0) -> StaticBody3D:
+	var b := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	cs.shape = box
+	b.add_child(cs)
+	b.position = at
+	b.rotation.x = -deg_to_rad(tilt_deg)  # the top leans away from a unit coming from +z
+	# Sink it by half its thickness so its top face (not its centre line) meets the ground: no lip.
+	b.position -= b.basis.z * size.z * 0.5
+	tree.root.add_child(b)
+	return b
+
+
+## Part 4 (Emerson after 010: "they walk up and along cliffs", "climb the map's edge wall"): driven
+## straight at a wall twice its hip height, one hip high, and at a 55 deg face, a unit stays on the ground (no
+## foot on top, the body never rises); a 20 deg slope it still walks up.
+func test_will_not_climb_walls_or_cliffs_but_walks_up_hills() -> void:
+	for id: String in UNITS:
+		for case: String in ["wall", "low_wall", "cliff", "hill"]:
+			var u := _spawn(id)
+			var hip_h := float(u.legs[0]["height"])
+			var obstacle: StaticBody3D
+			match case:
+				"wall":
+					obstacle = _block(Vector3(60, hip_h * 2.0, 3), Vector3(0, hip_h, -18))
+				"low_wall":
+					# Hip high, like the small map's ruin walls beside the Löwe's spawn.
+					obstacle = _block(Vector3(60, hip_h, 3), Vector3(0, hip_h * 0.5, -18))
+				"cliff":
+					# A slab tilted 55 deg back, its foot at z = -14.
+					obstacle = _block(Vector3(60, 40, 2), Vector3(0, 40 * 0.5 * sin(deg_to_rad(55.0)), -14 - 20 * cos(deg_to_rad(55.0))), 90.0 - 55.0)
+				"hill":
+					obstacle = _block(Vector3(60, 80, 2), Vector3(0, 80 * 0.5 * sin(deg_to_rad(20.0)), -14 - 40 * cos(deg_to_rad(20.0))), 90.0 - 20.0)
+			await physics_frames(240)
+			var y0 := u.global_position.y
+			u.face_dir = -u.global_transform.basis.z
+			u.move_goal = u.face_dir * 5.0
+			var rise := 0.0
+			var top_foot := 0.0
+			for i in 1200:
+				await physics_frames(1)
+				rise = maxf(rise, u.global_position.y - y0)
+				for leg: Dictionary in u.legs:
+					if bool(leg["down"]) and bool(leg.get("ok", true)):  # feet that carry (not one resting on the face)
+						top_foot = maxf(top_foot, (leg["planted"] as Vector3).y)
+			var note := "%s at a %s: body rose %.2f m, highest foot %.2f m (hip height %.2f)" % [id, case, rise, top_foot, hip_h]
+			print("    " + note)
+			if case == "hill":
+				assert_gt(rise, 3.0, "walks up a 20 deg hill: " + note)
+			else:
+				assert_lt(rise, hip_h * 0.5, "stays down: " + note)
+				assert_lt(top_foot, hip_h * 0.6, "no foot up there: " + note)
+			u.free()
+			obstacle.free()
+
+
+## Rough ground like the small map's (0.5 m bumps on rolling slopes), as one height-map body.
+func _rough_ground() -> StaticBody3D:
+	var b := StaticBody3D.new()
+	var hm := HeightMapShape3D.new()
+	var n := 257
+	hm.map_width = n
+	hm.map_depth = n
+	var noise := FastNoiseLite.new()
+	noise.seed = 86
+	noise.frequency = 0.25
+	var heights := PackedFloat32Array()
+	heights.resize(n * n)
+	for z in n:
+		for x in n:
+			var fx := float(x - n / 2)
+			var fz := float(z - n / 2)
+			heights[z * n + x] = noise.get_noise_2d(fx, fz) * 0.45 + sin(fx * 0.05) * 1.5 + cos(fz * 0.04) * 1.5
+	hm.map_data = heights
+	var cs := CollisionShape3D.new()
+	cs.shape = hm
+	b.add_child(cs)
+	tree.root.add_child(b)
+	return b
+
+
+## Part 4 (Emerson after 010: "their running looks broken"; seen on screen: an Ameise at 8 m/s
+## over the small map's ground with its legs thrown out flat): a slalom at two thirds of top speed
+## over rough ground keeps every leg in its own sector (hip yaw within gait.hip_yaw_max_deg of rest),
+## none pulled straight, the knees up and the soles on their feet.
+func test_legs_keep_their_shape_running_a_slalom_on_rough_ground() -> void:
+	ground.free()
+	ground = _rough_ground()
+	for id: String in UNITS:
+		var u := _spawn(id, Vector3(0, 2.2, 0))
+		await physics_frames(240)
+		var top := float(Registry.entry("enemies", id)["speed_m_s"])
+		var yaw_max := 0.0
+		var straight := 0
+		var knee_low := 0
+		var frames := 0
+		var ik: Array[float] = []
+		var tilts: Array[float] = []
+		for i in 960:
+			var heading := Vector3.FORWARD.rotated(Vector3.UP, sin(i / 120.0 * 1.2) * 0.9)
+			u.face_dir = heading
+			u.move_goal = heading * top * 0.65
+			await physics_frames(1)
+			if i < 120:
+				continue
+			frames += 1
+			tilts.append(_tilt_deg(u))
+			for leg: Dictionary in u.legs:
+				yaw_max = maxf(yaw_max, absf(rad_to_deg(float(u._angle[leg["hip"]]))))
+				var hip := _posed(u, leg["thigh"], leg["p1"])
+				var knee := _posed(u, leg["shin"], leg["p2"])
+				var sole := _posed(u, leg["shin"], leg["sole"])
+				if 180.0 - rad_to_deg((hip - knee).angle_to(sole - knee)) < 8.0:
+					straight += 1
+				if knee.y < sole.y + 0.3:
+					knee_low += 1
+				if i % 10 == 0:
+					ik.append(u.sole_world(leg).distance_to(leg["foot"]))
+		ik.sort()
+		var ik95 := ik[int(ik.size() * 0.95)]
+		tilts.sort()
+		var tilt95 := tilts[int(tilts.size() * 0.95)]
+		var note := "%s slalom at %.1f m/s on rough ground: hip yaw max %.0f deg, straight %d / %d, knee low %d, IK p95 %.2f m, tilt p95 %.1f deg, worst %.1f" % [id, top * 0.65, yaw_max, straight, frames * u.legs.size(), knee_low, ik95, tilt95, tilts[-1]]
+		print("    " + note)
+		assert_lt(yaw_max, float(u.def["gait"].get("hip_yaw_max_deg", 50.0)) + 0.5, note)
+		assert_lt(float(straight) / (frames * u.legs.size()), 0.01, note)
+		assert_eq(knee_low, 0, note)
+		assert_lt(ik95, 0.3, note)
+		assert_lt(tilt95, 15.0, "level over the bumps: " + note)
+		assert_lt(tilts[-1], 30.0, "never close to tipping: " + note)
+		u.free()

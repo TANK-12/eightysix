@@ -7,10 +7,16 @@ extends RigidBody3D
 ## joint are hitboxes that follow the pose (point 1: no capsules). Every planted foot is a spring
 ## and damper from its hip to the ground, so the legs carry the body, and the drive and turn are
 ## forces through the feet capped by their grip (mu x the load they carry): nothing pushes the body
-## that the feet could not. A gait clock swings the legs in two alternating groups (a tripod for
-## six legs, two sets of four for the Löwe's eight); each foot lands where the body will be half a
-## stance later, found by a ray. Feel numbers are enemies.json "gait"; the brain (scripts/ai/) sets
-## move_goal, face_dir and the aim.
+## that the feet could not. Part 4 (Emerson: "walking very broken", "they walk on cliffs"): each
+## leg is an active-suspension actuator (the body's weight shared over the legs that are down, with
+## the same stiffness whatever their number, capped at the leg's load limit), and a foot only lands
+## on a foothold it could stand on: not steeper than gait.max_slope_deg, not above the hip's reach
+## (gait.step_up), found by a ray from hip height so roofs and wall tops are out of reach. A leg with
+## no foothold keeps its old one. A gait clock swings the legs in two alternating groups (a tripod
+## for six legs, two sets of four for the Löwe's eight); the stride grows with speed up to the leg's
+## reach (gait.step_m) and the cadence follows from it; each foot lands where the body will be half a
+## stance later. Feel numbers are enemies.json "gait"; the brain (scripts/ai/) sets move_goal,
+## face_dir and the aim.
 
 signal stepped(leg: String)
 signal hit_taken(key: String, dealt: float, info: Dictionary)
@@ -64,7 +70,8 @@ var _colliders: Dictionary = {}  # damage key -> [CollisionShape3D]
 var _phase := 0.0
 var _k := 0.0
 var _c := 0.0
-var _stride := 3.0
+var _stride := 3.0  # the longest a foot travels under the body in one stance, m
+var _leg_max_n := 0.0  # one leg's load limit, N
 var _weak: Dictionary = {}  # damage key -> weak-point entry from enemies.json "damage.weak"
 var _aim_joints: Dictionary = {}  # kind -> part name (turret_yaw, gun_pitch, launcher_yaw ...)
 var _wreck_s := 0.0
@@ -257,7 +264,7 @@ func _build_legs() -> void:
 	for leg: Dictionary in legs:
 		reach += Vector2((leg["sole"] as Vector3).x - (leg["p0"] as Vector3).x, (leg["sole"] as Vector3).z - (leg["p0"] as Vector3).z).length()
 	reach /= maxf(legs.size(), 1)
-	_stride = float(_g.get("stride_m", reach * 1.2))
+	_stride = float(_g.get("step_m", reach * 0.9))
 
 
 static func _plane(v: Vector3, n: Vector3) -> Vector3:
@@ -388,11 +395,12 @@ func _build_mass() -> void:
 	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
 	center_of_mass = info["com"]
 	inertia = info["inertia"]
-	# Springs: the body bobs at gait.bounce_hz on the half of its legs that stand at a time.
-	var standing := maxf(legs.size() * 0.5, 1.0)
+	# The whole body's stiffness: it bobs at gait.bounce_hz however many legs are down (each planted
+	# leg takes k / n), and one leg can carry gait.leg_max_load body weights at most.
 	var w := TAU * float(_g.get("bounce_hz", 1.4))
-	_k = mass * w * w / standing
-	_c = 2.0 * float(_g.get("damping_ratio", 0.7)) * sqrt(_k * mass / standing)
+	_k = mass * w * w
+	_c = 2.0 * float(_g.get("damping_ratio", 0.7)) * sqrt(_k * mass)
+	_leg_max_n = mass * 9.81 * float(_g.get("leg_max_load", 0.9))
 
 
 # --- each tick ----------------------------------------------------------------------------------
@@ -401,9 +409,11 @@ func _build_mass() -> void:
 func _ready() -> void:
 	for leg: Dictionary in legs:
 		var at := global_transform * (leg["sole"] as Vector3)
-		leg["planted"] = _ground_below(at, at)
+		var hold: Variant = foothold(leg, at, at.y)
+		leg["planted"] = hold if hold != null else _ground_below(at, at)
 		leg["foot"] = leg["planted"]
 		leg["down"] = true
+		leg["ok"] = hold != null
 	_pose()
 
 
@@ -427,18 +437,40 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	planted_count = 0
 	support_n = 0.0
 	var lever := 0.0
+	# Which legs stand on a foothold within reach: each carries its share of the weight plus k / n
+	# and c / n of the body's spring, so the bob and the load stay the same with 2 legs down or 6.
+	var standing: Array = []
 	for leg: Dictionary in legs:
-		if not bool(leg["down"]):
+		if not bool(leg["down"]) or not bool(leg.get("ok", true)):
 			continue
 		var hip_w := xf * (leg["p0"] as Vector3)
+		var reach := float(leg["l1"]) + float(leg["l2"]) + 0.3
+		if hip_w.distance_to(leg["planted"] as Vector3) <= reach:
+			standing.append(leg)
+	var n := maxf(standing.size(), 1.0)
+	var weight := mass * state.total_gravity.length()
+	# Levelling (an attitude sensor in the suspension): each hip aims at the standing feet's mean
+	# height plus its ride height, gait.level of the way from its own foot's, so a bump under one
+	# foot does not tip the body and the body still follows a hill by the rest.
+	# A hip higher or lower than the standing hips' mean (the body rolling or pitching) is pushed
+	# back gait.attitude_gain times as hard as the whole body's bob: the narrow-hipped Ameise needs it.
+	var ground_y := 0.0
+	var hips_y := 0.0
+	for leg: Dictionary in standing:
+		ground_y += (leg["planted"] as Vector3).y / n
+		hips_y += (xf * (leg["p0"] as Vector3)).y / n
+	var level := float(_g.get("level", 0.7))
+	var attitude := float(_g.get("attitude_gain", 2.0))
+	for leg: Dictionary in standing:
+		var hip_w := xf * (leg["p0"] as Vector3)
 		var foot: Vector3 = leg["planted"]
-		var reach := float(leg["l1"]) + float(leg["l2"]) + 0.6
-		if hip_w.distance_to(foot) > reach:
-			continue
 		var rest_h := float(leg["height"]) * float(_g.get("ride", 1.0))
-		var squeeze := rest_h - (hip_w.y - foot.y)
+		var hip_y := hips_y + (hip_w.y - hips_y) * attitude
+		var squeeze := rest_h - (hip_y - lerpf(foot.y, ground_y, level))
+		if squeeze < -rest_h * 0.35:
+			continue  # the foot is far below the hip: the leg hangs at full stretch and carries nothing
 		var hip_v := state.get_velocity_at_local_position(hip_w - xf.origin)
-		var f := clampf(_k * squeeze - _c * hip_v.y, 0.0, _k * rest_h * 1.5)
+		var f := clampf(weight / n + (_k * squeeze - _c * hip_v.y) / n, 0.0, _leg_max_n)
 		if f <= 0.0:
 			continue
 		state.apply_force(Vector3.UP * f, hip_w - xf.origin)
@@ -449,7 +481,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		return
 	lever /= planted_count
 	var mu := float(_g.get("grip", 0.7))
-	var grip := mu * support_n
+	# Walking needs the stepping legs: with fewer than half its legs on footholds (the rest on a
+	# wall or a cliff face) a unit pushes with that share of its grip, so it cannot shove its hull
+	# up a wall on one leg.
+	var grip := mu * support_n * clampf(float(planted_count) / maxf(legs.size() * 0.5, 1.0), 0.0, 1.0)
+	if planted_count < 2:
+		grip = 0.0  # one leg cannot walk
 	var v := state.linear_velocity
 	var goal := move_goal * speed_scale
 	var want := Vector3(goal.x - v.x, 0.0, goal.z - v.z) * mass / maxf(float(_g.get("drive_s", 0.4)), 0.05)
@@ -473,10 +510,13 @@ func _step_gait(dt: float) -> void:
 	var xf := global_transform
 	var v := linear_velocity
 	var vh := Vector3(v.x, 0.0, v.z)
-	var duty := float(_g.get("duty", 0.55))
-	var max_hz := float(_g.get("max_cadence_hz", 4.0))
+	# Walking duty at low speed, running duty from gait.run_m_s; the cadence is the one that keeps
+	# each stance within the leg's reach (stance length = speed x duty / cadence <= step_m).
+	var run := smoothstep(0.0, float(_g.get("run_m_s", 10.0)), vh.length())
+	var duty := lerpf(float(_g.get("duty", 0.6)), float(_g.get("duty_run", 0.5)), run)
+	var max_hz := float(_g.get("max_cadence_hz", 3.0))
 	var spin := absf(angular_velocity.y)
-	var need := (vh.length() + spin * 2.0) / maxf(_stride, 0.1)
+	var need := (vh.length() + spin * 2.0) * duty / maxf(_stride, 0.1)
 	var settle := 0.0
 	for leg: Dictionary in legs:
 		var home := _home(leg, xf, vh, 0.0)
@@ -506,7 +546,16 @@ func _step_gait(dt: float) -> void:
 			var lift := float(_g.get("lift_m", 0.6)) * clampf(vh.length() / 4.0 + 0.4, 0.4, 1.0)
 			leg["foot"] = (leg["from"] as Vector3).lerp(home, s) + Vector3.UP * sin(s * PI) * lift
 			if t >= 1.0 or (window <= 0.0):
-				leg["planted"] = _ground_below(home, home)
+				# Land on the nearest foothold it could stand on along the way back to where it
+				# lifted; none (a cliff face, a wall): it touches down where it was going but
+				# carries nothing and grips nothing there, and tries again next step.
+				var hold: Variant = null
+				for f: float in [1.0, 0.7, 0.4]:
+					hold = foothold(leg, (leg["from"] as Vector3).lerp(home, f), (leg["from"] as Vector3).y)
+					if hold != null:
+						break
+				leg["ok"] = hold != null
+				leg["planted"] = hold if hold != null else _ground_below(home, home)
 				leg["foot"] = leg["planted"]
 				leg["swing_t"] = -1.0
 				leg["down"] = true
@@ -526,21 +575,60 @@ func _leg_alive(leg: Dictionary) -> bool:
 
 
 ## Where a leg's foot belongs `ahead_s` from now: its rest spot under the body, carried along by the
-## body's velocity and spin.
+## body's velocity and spin. Laid out by the heading alone: a body that leans must not place its
+## feet where they keep it leaning.
 func _home(leg: Dictionary, xf: Transform3D, vh: Vector3, ahead_s: float) -> Vector3:
 	var spread := float(_g.get("spread", 1.0))
 	var sole: Vector3 = leg["sole"]
 	var rest := Vector3(sole.x * spread, sole.y, sole.z)
 	var turn := Basis(Vector3.UP, angular_velocity.y * ahead_s)
-	var at := xf.origin + turn * (xf.basis * rest) + vh * ahead_s
+	var fwd := -xf.basis.z
+	var heading := Basis(Vector3.UP, atan2(-fwd.x, -fwd.z))
+	var at := xf.origin + turn * (heading * rest) + vh * ahead_s
 	return Vector3(at.x, (leg["planted"] as Vector3).y, at.z)
+
+
+## Where leg `leg`'s foot could stand near `at` (world), or null: the ground straight down from the
+## hip's height (so nothing above the hip: roofs, wall tops, a cliff's rim), no steeper than
+## gait.max_slope_deg across the foot's footprint, and no higher than gait.step_up x the hip height above `from_y` (where the
+## foot lifted from).
+func foothold(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
+	if not is_inside_tree():
+		return null
+	var hip_w := global_transform * (leg["p0"] as Vector3)
+	var rest_h := float(leg["height"])
+	var top := minf(hip_w.y - rest_h * 0.15, from_y + rest_h * float(_g.get("step_up", 0.5)))
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, hip_w.y, at.z), Vector3(at.x, hip_w.y - rest_h * 3.0, at.z), LAYER_WORLD)
+	q.exclude = [get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(q)
+	if hit.is_empty():
+		return null
+	var p: Vector3 = hit["position"]
+	if p.y > top:
+		return null
+	# The slope across the foot's footprint (gait.foot_m either way), not one small bump's face.
+	var r := float(_g.get("foot_m", 0.8))
+	var h := func(dx: float, dz: float) -> float:
+		# From well above the foot: a face rising beside it counts, even where it overhangs the hip.
+		var y0 := maxf(hip_w.y, p.y + rest_h * 2.0)
+		var qq := PhysicsRayQueryParameters3D.create(Vector3(p.x + dx, y0, p.z + dz), Vector3(p.x + dx, p.y - rest_h * 2.0, p.z + dz), LAYER_WORLD)
+		qq.exclude = [get_rid()]
+		var hh := get_world_3d().direct_space_state.intersect_ray(qq)
+		return (hh["position"] as Vector3).y if not hh.is_empty() else p.y
+	# The steeper side each way, so the toe of a cliff (flat on one side) still reads as the cliff.
+	var gx := maxf(absf(float(h.call(r, 0.0)) - p.y), absf(p.y - float(h.call(-r, 0.0)))) / r
+	var gz := maxf(absf(float(h.call(0.0, r)) - p.y), absf(p.y - float(h.call(0.0, -r)))) / r
+	if Vector2(gx, gz).length() > tan(deg_to_rad(float(_g.get("max_slope_deg", 38.0)))):
+		return null
+	return p
 
 
 func _ground_below(at: Vector3, fallback: Vector3) -> Vector3:
 	if not is_inside_tree():
 		return fallback
 	var space := get_world_3d().direct_space_state
-	var q := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 4.0, at + Vector3.DOWN * 8.0, LAYER_WORLD)
+	var hip_y := global_position.y + 2.0
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, hip_y, at.z), Vector3(at.x, hip_y - 14.0, at.z), LAYER_WORLD)
 	q.exclude = [get_rid()]
 	var hit := space.intersect_ray(q)
 	return hit["position"] if not hit.is_empty() else Vector3(at.x, global_position.y, at.z)

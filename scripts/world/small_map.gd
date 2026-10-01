@@ -23,6 +23,8 @@ var camera: Camera3D
 var hud: CanvasLayer
 var view_camera: Camera3D
 var mission: Mission
+var _watch: Node3D = null  # the Legion unit watch_legion() trails (null: none)
+var _watch_off := Vector3.ZERO
 ## World positions a wire anchor holds on well: outcrop tops, the mast, ruin corners, the bridge.
 var grapple_points: Array[Vector3] = []
 var build_ms := {}
@@ -208,7 +210,32 @@ func probe(part: String, on: bool) -> void:
 
 
 func follow_mech() -> void:
+	_watch = null
 	camera.current = true
+
+
+## Bot hook (lane A4 part 4): a camera that trails Legion unit `index` from `dist_m` off its right
+## flank and `up_m` up, kept on that side in the world (not turning with it), until follow_mech().
+func watch_legion(index: int = 0, dist_m: float = 16.0, up_m: float = 5.0) -> void:
+	if mission == null or mission.units.is_empty():
+		push_warning("small_map: no Legion to watch")
+		return
+	look_at_legion(index, dist_m, up_m)
+	_watch = mission.units[clampi(index, 0, mission.units.size() - 1)] as Node3D
+	_watch_off = view_camera.global_position - _watch.global_position
+
+
+func _process(delta: float) -> void:
+	if _watch == null or view_camera == null:
+		return
+	if not is_instance_valid(_watch):
+		_watch = null
+		return
+	var at := _watch.global_position
+	var eye := view_camera.global_position.lerp(at + _watch_off, 1.0 - exp(-delta * 4.0))
+	eye.y = maxf(eye.y, ground_height(eye.x, eye.z) + 2.0)
+	view_camera.global_position = eye
+	view_camera.look_at(at + Vector3.UP * 1.5, Vector3.UP)
 
 
 func _v3(a: Array) -> Vector3:

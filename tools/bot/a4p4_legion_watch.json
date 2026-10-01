@@ -1,0 +1,761 @@
+{
+ "name": "a4p4_legion_watch",
+ "_about": "Lane A4 part 4: watch each Legion wave up close (a trailing camera on one unit, a shot and a unit report every second): gait at speed, steering, cliffs, falling over. Player damage x0.25 so the run survives. tools/bot_run.sh a4p4_legion_watch --timeout=200",
+ "map": "small_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.enemy_damage",
+   "value": 0.25
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 2.0,
+   "call": "watch_legion",
+   "args": [
+    0,
+    16.0,
+    5.0
+   ]
+  },
+  {
+   "at": 2.8,
+   "shot": "ameise-0-00"
+  },
+  {
+   "at": 2.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-00"
+   ]
+  },
+  {
+   "at": 3.8,
+   "shot": "ameise-0-01"
+  },
+  {
+   "at": 3.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-01"
+   ]
+  },
+  {
+   "at": 4.8,
+   "shot": "ameise-0-02"
+  },
+  {
+   "at": 4.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-02"
+   ]
+  },
+  {
+   "at": 5.8,
+   "shot": "ameise-0-03"
+  },
+  {
+   "at": 5.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-03"
+   ]
+  },
+  {
+   "at": 6.8,
+   "shot": "ameise-0-04"
+  },
+  {
+   "at": 6.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-04"
+   ]
+  },
+  {
+   "at": 7.8,
+   "shot": "ameise-0-05"
+  },
+  {
+   "at": 7.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-05"
+   ]
+  },
+  {
+   "at": 8.8,
+   "shot": "ameise-0-06"
+  },
+  {
+   "at": 8.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-06"
+   ]
+  },
+  {
+   "at": 9.8,
+   "shot": "ameise-0-07"
+  },
+  {
+   "at": 9.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-07"
+   ]
+  },
+  {
+   "at": 10.8,
+   "shot": "ameise-0-08"
+  },
+  {
+   "at": 10.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-08"
+   ]
+  },
+  {
+   "at": 11.8,
+   "shot": "ameise-0-09"
+  },
+  {
+   "at": 11.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-0-09"
+   ]
+  },
+  {
+   "at": 13.0,
+   "call": "watch_legion",
+   "args": [
+    1,
+    16.0,
+    5.0
+   ]
+  },
+  {
+   "at": 13.8,
+   "shot": "ameise-1-00"
+  },
+  {
+   "at": 13.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-00"
+   ]
+  },
+  {
+   "at": 14.8,
+   "shot": "ameise-1-01"
+  },
+  {
+   "at": 14.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-01"
+   ]
+  },
+  {
+   "at": 15.8,
+   "shot": "ameise-1-02"
+  },
+  {
+   "at": 15.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-02"
+   ]
+  },
+  {
+   "at": 16.8,
+   "shot": "ameise-1-03"
+  },
+  {
+   "at": 16.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-03"
+   ]
+  },
+  {
+   "at": 17.8,
+   "shot": "ameise-1-04"
+  },
+  {
+   "at": 17.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-04"
+   ]
+  },
+  {
+   "at": 18.8,
+   "shot": "ameise-1-05"
+  },
+  {
+   "at": 18.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-1-05"
+   ]
+  },
+  {
+   "at": 20.0,
+   "call": "follow_mech"
+  },
+  {
+   "at": 20.2,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 21.0,
+   "call": "watch_legion",
+   "args": [
+    0,
+    16.0,
+    5.0
+   ]
+  },
+  {
+   "at": 21.8,
+   "shot": "ameise-alert-0-00"
+  },
+  {
+   "at": 21.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-00"
+   ]
+  },
+  {
+   "at": 22.8,
+   "shot": "ameise-alert-0-01"
+  },
+  {
+   "at": 22.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-01"
+   ]
+  },
+  {
+   "at": 23.8,
+   "shot": "ameise-alert-0-02"
+  },
+  {
+   "at": 23.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-02"
+   ]
+  },
+  {
+   "at": 24.8,
+   "shot": "ameise-alert-0-03"
+  },
+  {
+   "at": 24.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-03"
+   ]
+  },
+  {
+   "at": 25.8,
+   "shot": "ameise-alert-0-04"
+  },
+  {
+   "at": 25.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-04"
+   ]
+  },
+  {
+   "at": 26.8,
+   "shot": "ameise-alert-0-05"
+  },
+  {
+   "at": 26.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-05"
+   ]
+  },
+  {
+   "at": 27.8,
+   "shot": "ameise-alert-0-06"
+  },
+  {
+   "at": 27.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-06"
+   ]
+  },
+  {
+   "at": 28.8,
+   "shot": "ameise-alert-0-07"
+  },
+  {
+   "at": 28.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-07"
+   ]
+  },
+  {
+   "at": 29.8,
+   "shot": "ameise-alert-0-08"
+  },
+  {
+   "at": 29.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-08"
+   ]
+  },
+  {
+   "at": 30.8,
+   "shot": "ameise-alert-0-09"
+  },
+  {
+   "at": 30.85,
+   "call": "report_legion",
+   "args": [
+    "ameise-alert-0-09"
+   ]
+  },
+  {
+   "at": 32.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 42.0,
+   "call": "watch_legion",
+   "args": [
+    0,
+    20.0,
+    6.0
+   ]
+  },
+  {
+   "at": 42.8,
+   "shot": "grauwolf-0-00"
+  },
+  {
+   "at": 42.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-00"
+   ]
+  },
+  {
+   "at": 43.8,
+   "shot": "grauwolf-0-01"
+  },
+  {
+   "at": 43.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-01"
+   ]
+  },
+  {
+   "at": 44.8,
+   "shot": "grauwolf-0-02"
+  },
+  {
+   "at": 44.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-02"
+   ]
+  },
+  {
+   "at": 45.8,
+   "shot": "grauwolf-0-03"
+  },
+  {
+   "at": 45.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-03"
+   ]
+  },
+  {
+   "at": 46.8,
+   "shot": "grauwolf-0-04"
+  },
+  {
+   "at": 46.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-04"
+   ]
+  },
+  {
+   "at": 47.8,
+   "shot": "grauwolf-0-05"
+  },
+  {
+   "at": 47.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-05"
+   ]
+  },
+  {
+   "at": 48.8,
+   "shot": "grauwolf-0-06"
+  },
+  {
+   "at": 48.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-06"
+   ]
+  },
+  {
+   "at": 49.8,
+   "shot": "grauwolf-0-07"
+  },
+  {
+   "at": 49.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-07"
+   ]
+  },
+  {
+   "at": 50.8,
+   "shot": "grauwolf-0-08"
+  },
+  {
+   "at": 50.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-08"
+   ]
+  },
+  {
+   "at": 51.8,
+   "shot": "grauwolf-0-09"
+  },
+  {
+   "at": 51.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-09"
+   ]
+  },
+  {
+   "at": 52.8,
+   "shot": "grauwolf-0-10"
+  },
+  {
+   "at": 52.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-10"
+   ]
+  },
+  {
+   "at": 53.8,
+   "shot": "grauwolf-0-11"
+  },
+  {
+   "at": 53.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-11"
+   ]
+  },
+  {
+   "at": 54.8,
+   "shot": "grauwolf-0-12"
+  },
+  {
+   "at": 54.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-12"
+   ]
+  },
+  {
+   "at": 55.8,
+   "shot": "grauwolf-0-13"
+  },
+  {
+   "at": 55.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-0-13"
+   ]
+  },
+  {
+   "at": 57.0,
+   "call": "watch_legion",
+   "args": [
+    1,
+    20.0,
+    6.0
+   ]
+  },
+  {
+   "at": 57.8,
+   "shot": "grauwolf-1-00"
+  },
+  {
+   "at": 57.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-00"
+   ]
+  },
+  {
+   "at": 58.8,
+   "shot": "grauwolf-1-01"
+  },
+  {
+   "at": 58.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-01"
+   ]
+  },
+  {
+   "at": 59.8,
+   "shot": "grauwolf-1-02"
+  },
+  {
+   "at": 59.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-02"
+   ]
+  },
+  {
+   "at": 60.8,
+   "shot": "grauwolf-1-03"
+  },
+  {
+   "at": 60.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-03"
+   ]
+  },
+  {
+   "at": 61.8,
+   "shot": "grauwolf-1-04"
+  },
+  {
+   "at": 61.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-04"
+   ]
+  },
+  {
+   "at": 62.8,
+   "shot": "grauwolf-1-05"
+  },
+  {
+   "at": 62.85,
+   "call": "report_legion",
+   "args": [
+    "grauwolf-1-05"
+   ]
+  },
+  {
+   "at": 64.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 76.0,
+   "call": "watch_legion",
+   "args": [
+    0,
+    26.0,
+    8.0
+   ]
+  },
+  {
+   "at": 76.8,
+   "shot": "loewe-0-00"
+  },
+  {
+   "at": 76.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-00"
+   ]
+  },
+  {
+   "at": 77.8,
+   "shot": "loewe-0-01"
+  },
+  {
+   "at": 77.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-01"
+   ]
+  },
+  {
+   "at": 78.8,
+   "shot": "loewe-0-02"
+  },
+  {
+   "at": 78.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-02"
+   ]
+  },
+  {
+   "at": 79.8,
+   "shot": "loewe-0-03"
+  },
+  {
+   "at": 79.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-03"
+   ]
+  },
+  {
+   "at": 80.8,
+   "shot": "loewe-0-04"
+  },
+  {
+   "at": 80.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-04"
+   ]
+  },
+  {
+   "at": 81.8,
+   "shot": "loewe-0-05"
+  },
+  {
+   "at": 81.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-05"
+   ]
+  },
+  {
+   "at": 82.8,
+   "shot": "loewe-0-06"
+  },
+  {
+   "at": 82.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-06"
+   ]
+  },
+  {
+   "at": 83.8,
+   "shot": "loewe-0-07"
+  },
+  {
+   "at": 83.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-07"
+   ]
+  },
+  {
+   "at": 84.8,
+   "shot": "loewe-0-08"
+  },
+  {
+   "at": 84.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-08"
+   ]
+  },
+  {
+   "at": 85.8,
+   "shot": "loewe-0-09"
+  },
+  {
+   "at": 85.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-09"
+   ]
+  },
+  {
+   "at": 86.8,
+   "shot": "loewe-0-10"
+  },
+  {
+   "at": 86.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-10"
+   ]
+  },
+  {
+   "at": 87.8,
+   "shot": "loewe-0-11"
+  },
+  {
+   "at": 87.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-11"
+   ]
+  },
+  {
+   "at": 88.8,
+   "shot": "loewe-0-12"
+  },
+  {
+   "at": 88.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-12"
+   ]
+  },
+  {
+   "at": 89.8,
+   "shot": "loewe-0-13"
+  },
+  {
+   "at": 89.85,
+   "call": "report_legion",
+   "args": [
+    "loewe-0-13"
+   ]
+  },
+  {
+   "at": 91.0,
+   "quit": true
+  }
+ ]
+}

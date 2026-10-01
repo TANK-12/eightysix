@@ -306,3 +306,55 @@ func test_lowe_loads_he_for_a_moving_target() -> void:
 	assert_eq(lb.call("next_round"), "apfsds", "a still target at 300 m: the dart")
 	lb.set("_target_v", Vector3(14, 0, 0))
 	assert_eq(lb.call("next_round"), "he", "a target at 50 km/h: HE")
+
+
+## Part 4 (Emerson after 010: "they climb the map's edge wall and shoot me from on top of it", "they
+## walk on cliffs"): hunting a Juggernaut that stands on a high shelf past the Legion area's edge,
+## a unit reads the face ahead as ground it cannot walk, stops inside the area and stays on the floor.
+func test_a_hunting_unit_stays_inside_its_area_and_off_the_shelf() -> void:
+	_wall(Vector3(0, 6, -90), Vector3(200, 12, 60))  # a shelf 12 m high, its face at z = -60
+	var target := _player(Vector3(0, 15.2, -80))
+	var u := _unit("grauwolf", Vector3(0, 0, 0), Vector3(0, 0, -1))
+	var b := _brain(u)
+	b.area_half_m = 50.0
+	await physics_frames(60)
+	b.hear_of(target.global_position)
+	var fwd := Vector3(0, 0, -1)
+	assert_false(b.walkable_ahead(fwd, 70.0), "the face ahead (and the area's edge) is not walkable")
+	assert_true(b.walkable_ahead(-fwd, 30.0), "the open floor behind is")
+	var top_y := 0.0
+	var far_z := 0.0
+	for i in 150:
+		await physics_frames(12)
+		b.hear_of(target.global_position)
+		top_y = maxf(top_y, u.global_position.y)
+		far_z = minf(far_z, u.global_position.z)
+	print("    grauwolf hunting a target on a 12 m shelf past the area edge (z -50): highest %.2f m, furthest z %.1f, state %s" % [top_y, far_z, b.state])
+	assert_lt(top_y, 4.0, "it stays on the floor")
+	assert_gt(far_z, -50.0, "it stays inside its area")
+
+
+## Part 4 (seen on screen after 010: a Löwe spawned beside a ruin climbed it nose-up): hunting a
+## target behind a hip-high U of ruin walls it walks into, a Löwe stays on the ground and finds its
+## way out and round (it gets closer to the target), not stuck in the U.
+func test_a_lowe_does_not_climb_the_ruin_in_its_way() -> void:
+	var h := 2.8
+	_wall(Vector3(0, h * 0.5, -14), Vector3(16, h, 1.0))  # the back wall of the U
+	_wall(Vector3(-8, h * 0.5, -8), Vector3(1.0, h, 12))
+	_wall(Vector3(8, h * 0.5, -8), Vector3(1.0, h, 12))
+	var target := _player(Vector3(0, 3.2, -700))  # past the Löwe's 500 m hold band, so it walks
+	var u := _unit("lowe", Vector3(0, 0, 4), Vector3(0, 0, -1))
+	var b := _brain(u)
+	await physics_frames(60)
+	var top_y := 0.0
+	var worst_tilt := 0.0
+	for i in 200:
+		await physics_frames(12)
+		b.hear_of(target.global_position)
+		top_y = maxf(top_y, u.global_position.y)
+		worst_tilt = maxf(worst_tilt, rad_to_deg(u.global_transform.basis.y.angle_to(Vector3.UP)))
+	var gained := 704.0 - u.global_position.distance_to(target.global_position)
+	print("    Löwe walking into a hip-high ruin: highest %.2f m, worst tilt %.1f deg, %.0f m closer to the target, ended at %s" % [top_y, worst_tilt, gained, u.global_position.snapped(Vector3.ONE * 0.1)])
+	assert_lt(top_y, 1.0, "it stays on the ground")
+	assert_gt(gained, 25.0, "it gets out and round the ruin")
+	assert_lt(worst_tilt, 20.0, "and level")

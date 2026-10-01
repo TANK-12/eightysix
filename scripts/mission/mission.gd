@@ -143,6 +143,9 @@ func _spawn(enemy_id: String, area: Dictionary, members: Array, index: int) -> L
 	var brain := u.get_node_or_null("Brain") as LegionBrain
 	if brain != null:
 		brain.setup(at, members, index, _rng.randi())
+		var map_id := str(def.get("map", ""))
+		if Registry.has_entry("maps", map_id):
+			brain.area_half_m = float(Registry.entry("maps", map_id).get("legion_area_half_m", INF))
 		members.append(brain)
 	u.destroyed.connect(_on_unit_destroyed.bind(u))
 	level.add_child(u)

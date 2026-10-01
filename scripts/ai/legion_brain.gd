@@ -13,8 +13,11 @@ extends Node
 ## for memory_s. States: patrol (walk a loop round home), alert (go and look where the contact was),
 ## attack (the behaviour's own fight), retreat (back off towards home under retreat_health_fraction).
 ## Units spawned together are a pack and share every contact (the Legion's network). Steering: rays
-## at hip height turn the unit off walls and steep rock, and units keep apart. The figures are the
-## enemies.json "ai" block.
+## at hip height turn the unit off walls, and the ground ahead is probed at foot level (part 4,
+## Emerson: "they walk on cliffs", "they climb the edge wall"): a rise steeper than the legs can grip
+## (gait.max_slope_deg) or a step up past the hip blocks that way. Every goal is kept inside the map's
+## Legion area (maps.json "legion_area_half_m"), so they patrol, hunt and stop inside it. Units keep
+## apart. The figures are the enemies.json "ai" block.
 
 signal state_changed(state: String)
 signal spotted(at: Vector3)
@@ -32,6 +35,8 @@ var last_known := Vector3.ZERO
 var contact_age_s := INF
 var sees := false
 var home := Vector3.ZERO
+## Half the side of the square (centred on the map's origin) the unit may walk in; INF: anywhere.
+var area_half_m := INF
 var pack: Array = []  # LegionBrain: the units it was spawned with (itself included)
 var pack_index := 0
 var state_age_s := 0.0
@@ -44,6 +49,10 @@ var _steer_dir := Vector3.ZERO
 var _goal := Vector3.ZERO
 var _target_v := Vector3.ZERO
 var _shot_i := 0
+var _stuck_s := 0.0
+var _steer_age := 0.0
+var _detour_s := 0.0
+var _detour := Vector3.ZERO
 var _rng := RandomNumberGenerator.new()
 
 
@@ -76,7 +85,7 @@ func _make_route() -> void:
 	var a0 := _rng.randf() * TAU
 	for i in n:
 		var a := a0 + TAU * float(i) / float(n) + _rng.randf_range(-0.4, 0.4)
-		_route.append(home + Vector3(cos(a), 0.0, sin(a)) * r * _rng.randf_range(0.5, 1.0))
+		_route.append(in_area(home + Vector3(cos(a), 0.0, sin(a)) * r * _rng.randf_range(0.5, 1.0)))
 
 
 func _physics_process(delta: float) -> void:
@@ -95,6 +104,8 @@ func _physics_process(delta: float) -> void:
 		_choose_state()
 		_think()
 		update_steering(_goal)
+	if _unstick(delta):
+		return
 	match state:
 		"patrol":
 			_patrol(delta)
@@ -290,6 +301,7 @@ func hold() -> void:
 ## Walk towards `goal` at `speed` (m/s, capped by the unit's top speed), turning off obstacles and
 ## away from other Legion; faces the way it walks unless the behaviour calls face() after.
 func steer_to(goal: Vector3, speed: float) -> void:
+	goal = in_area(goal)
 	_goal = goal
 	var to := _flat(goal - unit.global_position)
 	var dist := to.length()
@@ -297,13 +309,35 @@ func steer_to(goal: Vector3, speed: float) -> void:
 		hold()
 		return
 	var dir := to / dist
-	if _steer_dir.length() > 0.1 and absf(_steer_dir.angle_to(dir)) < PI * 0.6:
-		dir = _steer_dir
+	if _steer_dir.length() > 0.1:
+		dir = _steer_dir  # update_steering's way round (smallest turn off the goal that is clear)
 	dir = (dir + _separation()).normalized()
 	var top := float(unit.def.get("speed_m_s", 10.0))
 	var v := minf(minf(speed, top), dist * 0.8)
 	unit.move_goal = dir * v
 	unit.face_dir = dir
+
+
+## Stuck (asked to walk, barely moving for ai.stuck_s): back away at an angle for ai.detour_s, so
+## a unit does not grind into a wall or the foot of a cliff. True while backing off.
+func _unstick(dt: float) -> bool:
+	if _detour_s > 0.0:
+		_detour_s -= dt
+		unit.move_goal = _detour * float(ai.get("alert_speed_m_s", 6.0)) * 0.6
+		unit.face_dir = -_detour if state == "attack" else _detour
+		return true
+	var asked := _flat(unit.move_goal).length()
+	if asked > 2.0 and _flat(unit.linear_velocity).length() < asked * 0.25:
+		_stuck_s += dt
+	else:
+		_stuck_s = maxf(_stuck_s - dt, 0.0)
+	if _stuck_s > float(ai.get("stuck_s", 1.5)):
+		_stuck_s = 0.0
+		_detour_s = float(ai.get("detour_s", 2.0))
+		var back := -_flat(unit.move_goal).normalized()
+		_detour = back.rotated(Vector3.UP, deg_to_rad(60.0 if _rng.randf() < 0.5 else -60.0))
+		return true
+	return false
 
 
 ## Move along world direction `dir` (flat) at `speed`.
@@ -320,27 +354,89 @@ func face(at: Vector3) -> void:
 ## Once per think: if the way to the goal is blocked by a wall or a steep face, the first clear
 ## heading round it (rays fanned left and right at hip height).
 func update_steering(goal: Vector3) -> void:
-	_steer_dir = Vector3.ZERO
 	var to := _flat(goal - unit.global_position)
 	if to.length() < 2.0:
+		_steer_dir = Vector3.ZERO
 		return
 	var dir := to.normalized()
-	var look := clampf(unit.linear_velocity.length() * 1.5, 8.0, 30.0)
+	var look := clampf(unit.linear_velocity.length() * 1.5, float(ai.get("look_min_m", 20.0)), 30.0)
 	look = minf(look, to.length())
 	var from := unit.global_transform * unit.center_of_mass
+	# A way round, once taken, is kept for ai.steer_hold_s while it stays clear (no dithering in
+	# and out of a dead end it only sees the back of from inside).
+	_steer_age += 1.0 / maxf(float(ai.get("think_hz", 5.0)), 0.5)
+	if _steer_dir.length() > 0.1 and _steer_age < float(ai.get("steer_hold_s", 3.0)):
+		if not _blocked(from, _steer_dir, look) and walkable_ahead(_steer_dir, look):
+			return
+	var was := _steer_dir
+	_steer_dir = Vector3.ZERO
 	var side := 1.0 if pack_index % 2 == 0 else -1.0
 	for deg: float in [0.0, 25.0, -25.0, 50.0, -50.0, 80.0, -80.0, 120.0, -120.0]:
 		var d := dir.rotated(Vector3.UP, deg_to_rad(deg * side))
-		if not _blocked(from, d, look):
+		if not _blocked(from, d, look) and walkable_ahead(d, look):
 			if deg != 0.0:
 				_steer_dir = d
+				if was.length() < 0.1 or absf(was.angle_to(d)) > 0.1:
+					_steer_age = 0.0
 			return
+	# Walled in on every side it looked: back out the way it came rather than shove into it.
+	_steer_dir = -dir
+	_steer_age = 0.0
 
 
 func _blocked(from: Vector3, dir: Vector3, length: float) -> bool:
 	var q := PhysicsRayQueryParameters3D.create(from, from + dir * length, WORLD_MASK)
 	var hit := unit.get_world_3d().direct_space_state.intersect_ray(q)
 	return not hit.is_empty() and (hit["normal"] as Vector3).y < float(ai.get("steep_normal_y", 0.6))
+
+
+## `at` moved inside the Legion area (a margin of the unit's own size inside it).
+func in_area(at: Vector3) -> Vector3:
+	if area_half_m == INF:
+		return at
+	var h := area_half_m - 6.0
+	return Vector3(clampf(at.x, -h, h), at.y, clampf(at.z, -h, h))
+
+
+## Whether the ground along flat `dir` for `length` m past the unit's nose is ground the legs can
+## walk, along three tracks (the middle and each side's feet): probed every ai.probe_step_m with a
+## ray from high above (so a roof or a wall top counts as ground that rises), no rise between two
+## probes steeper than gait.max_slope_deg plus a step of gait.step_up x hip height, and no probe
+## outside the Legion area.
+func walkable_ahead(dir: Vector3, length: float) -> bool:
+	var space := unit.get_world_3d().direct_space_state
+	var g: Dictionary = unit.def.get("gait", {})
+	var step := float(ai.get("probe_step_m", 1.5))
+	var hip_h := 2.0
+	var half_w := 1.0
+	var half_l := 1.0
+	for leg: Dictionary in unit.legs:
+		hip_h = float(leg["height"])
+		half_w = maxf(half_w, absf((leg["sole"] as Vector3).x) * 0.8)
+		half_l = maxf(half_l, absf((leg["sole"] as Vector3).z))
+	var tan_max := tan(deg_to_rad(float(g.get("max_slope_deg", 38.0))))
+	var lift := hip_h * float(g.get("step_up", 0.5))
+	var side := dir.cross(Vector3.UP).normalized()
+	for off: float in [0.0, -half_w, half_w]:
+		var at := unit.global_position + side * off
+		var last := _ground_y(space, at)
+		var d := step
+		while d <= length + half_l + 0.01:
+			var p := at + dir * d
+			if area_half_m != INF and (absf(p.x) > area_half_m or absf(p.z) > area_half_m):
+				return false
+			var y := _ground_y(space, p)
+			if y - last > step * tan_max + lift:
+				return false
+			last = y
+			d += step
+	return true
+
+
+func _ground_y(space: PhysicsDirectSpaceState3D, at: Vector3) -> float:
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, at.y + 80.0, at.z), Vector3(at.x, at.y - 80.0, at.z), WORLD_MASK)
+	var hit := space.intersect_ray(q)
+	return (hit["position"] as Vector3).y if not hit.is_empty() else at.y
 
 
 func _separation() -> Vector3:
