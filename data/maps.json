@@ -125,15 +125,549 @@
       ]
     },
     "big_map": {
-      "label": "Big map",
-      "order": 20,
-      "scene": "res://scenes/levels/big_map.tscn",
-      "status": "planned",
-      "owner_lane": "B5",
-      "size_m": 4000,
-      "description": "Terrain-tech map with working collision, towns and destruction. Built in lane B5.",
-      "spawn": {"position": [0.0, 10.0, 0.0], "heading_deg": 0.0},
-      "tips": []
+     "label": "Sector 86 frontier (big map, about 4 km)",
+     "order": 20,
+     "scene": "res://scenes/levels/big_map.tscn",
+     "status": "alpha",
+     "owner_lane": "B5",
+     "size_m": 4096,
+     "seed": 8604,
+     "description": "Four kilometres of the frontier: a river valley running north to south through a lake, the ruins of Kreuzberg on the western plateau, a village on the east bank, a rail depot in the north-east and a farm in the south-west, linked by roads that ford the river, with a band of old shelling across the north. Streamed ground (lane B5): 1 m tiles with their own colliders near every mech, an 8 m overview beyond.",
+     "spawn": {
+      "position": [
+       -730.0,
+       0.0,
+       1390.0
+      ],
+      "heading_deg": 60.0
+     },
+     "weather": "golden_afternoon",
+     "ambience": "wind_loop",
+     "water_level_m": 0.0,
+     "terrain": {
+      "floor_m": 1.6,
+      "base_m": 24.0,
+      "hills_m": 70.0,
+      "ridges_m": 20.0,
+      "rough_m": 0.45,
+      "rim_m": 170.0,
+      "rim_width_m": 340.0,
+      "feature_scale": 2.2,
+      "valley_m": 380.0,
+      "valley_keep": 0.3,
+      "bed_blur_cells": 3,
+      "mid_m": 26.0,
+      "mid_frequency": 0.0045,
+      "meander_m": 34.0
+     },
+     "stream": {
+      "_about": "BigStream: tiles of 128 m. fine_rings: tiles each way around every mech that get 1 m ground with a collider; mesh_rings: tiles each way around the camera drawn at 1 m (first) and 2 m (second); the rest is the 8 m overview. keep_rings: extra rings kept before a tile is dropped. builds_per_frame: tiles turned into nodes per frame.",
+      "fine_rings": 1,
+      "mesh_rings": [
+       1,
+       2
+      ],
+      "keep_rings": 1,
+      "builds_per_frame": 2
+     },
+     "rivers": [
+      {
+       "id": "ash_river",
+       "width_m": 22.0,
+       "bank_m": 22.0,
+       "depth_m": 3.0,
+       "points": [
+        [
+         -420,
+         -2160
+        ],
+        [
+         -300,
+         -1700
+        ],
+        [
+         -430,
+         -1300
+        ],
+        [
+         -280,
+         -900
+        ],
+        [
+         -120,
+         -560
+        ],
+        [
+         40,
+         -200
+        ],
+        [
+         120,
+         180
+        ],
+        [
+         300,
+         520
+        ],
+        [
+         430,
+         760
+        ],
+        [
+         520,
+         900
+        ],
+        [
+         660,
+         1150
+        ],
+        [
+         600,
+         1500
+        ],
+        [
+         720,
+         1850
+        ],
+        [
+         700,
+         2160
+        ]
+       ]
+      }
+     ],
+     "lakes": [
+      {
+       "id": "mirror_lake",
+       "center": [
+        520,
+        900
+       ],
+       "radius_m": 230.0,
+       "shore_m": 40.0,
+       "depth_m": 7.0
+      }
+     ],
+     "towns": [
+      {
+       "id": "kreuzberg",
+       "label": "Kreuzberg ruins",
+       "center": [
+        -1150,
+        -450
+       ],
+       "size_m": [
+        420,
+        340
+       ],
+       "rot": 12,
+       "blend_m": 70.0,
+       "lift_m": 0.0,
+       "seed": 1,
+       "style": "town",
+       "damage": [
+        0.3,
+        0.8
+       ]
+      },
+      {
+       "id": "brook",
+       "label": "Brook village",
+       "center": [
+        600,
+        160
+       ],
+       "size_m": [
+        300,
+        240
+       ],
+       "rot": -20,
+       "blend_m": 60.0,
+       "lift_m": 0.0,
+       "seed": 2,
+       "style": "village",
+       "damage": [
+        0.1,
+        0.5
+       ]
+      },
+      {
+       "id": "depot",
+       "label": "Rail depot",
+       "center": [
+        1250,
+        -1050
+       ],
+       "size_m": [
+        380,
+        280
+       ],
+       "rot": 30,
+       "blend_m": 70.0,
+       "lift_m": 0.0,
+       "seed": 3,
+       "style": "depot",
+       "damage": [
+        0.2,
+        0.6
+       ]
+      },
+      {
+       "id": "farm",
+       "label": "Farmstead",
+       "center": [
+        -900,
+        1300
+       ],
+       "size_m": [
+        160,
+        140
+       ],
+       "rot": -8,
+       "blend_m": 45.0,
+       "lift_m": 0.0,
+       "seed": 4,
+       "style": "farm",
+       "damage": [
+        0.0,
+        0.4
+       ]
+      }
+     ],
+     "roads": [
+      {
+       "id": "west_road",
+       "width_m": 9.0,
+       "points": [
+        [
+         -1760,
+         -380
+        ],
+        [
+         -1500,
+         -420
+        ],
+        [
+         -1150,
+         -450
+        ],
+        [
+         -760,
+         -330
+        ],
+        [
+         -420,
+         -250
+        ],
+        [
+         -60,
+         -330
+        ],
+        [
+         260,
+         -260
+        ],
+        [
+         480,
+         -40
+        ],
+        [
+         600,
+         160
+        ]
+       ]
+      },
+      {
+       "id": "valley_road",
+       "width_m": 9.0,
+       "points": [
+        [
+         220,
+         -1760
+        ],
+        [
+         260,
+         -1500
+        ],
+        [
+         150,
+         -900
+        ],
+        [
+         300,
+         -300
+        ],
+        [
+         600,
+         160
+        ],
+        [
+         860,
+         560
+        ],
+        [
+         900,
+         900
+        ],
+        [
+         920,
+         1300
+        ],
+        [
+         820,
+         1760
+        ]
+       ]
+      },
+      {
+       "id": "depot_road",
+       "width_m": 8.0,
+       "points": [
+        [
+         600,
+         160
+        ],
+        [
+         880,
+         -380
+        ],
+        [
+         1250,
+         -1050
+        ],
+        [
+         1560,
+         -1420
+        ],
+        [
+         1760,
+         -1560
+        ]
+       ]
+      },
+      {
+       "id": "farm_track",
+       "width_m": 6.0,
+       "points": [
+        [
+         -1150,
+         -450
+        ],
+        [
+         -1120,
+         40
+        ],
+        [
+         -980,
+         700
+        ],
+        [
+         -900,
+         1300
+        ],
+        [
+         -560,
+         1480
+        ],
+        [
+         -120,
+         1560
+        ],
+        [
+         300,
+         1300
+        ],
+        [
+         600,
+         1180
+        ],
+        [
+         920,
+         1300
+        ]
+       ]
+      }
+     ],
+     "crater_fields": [
+      {
+       "center": [
+        0,
+        -1350
+       ],
+       "size_m": [
+        3200,
+        500
+       ],
+       "count": 90,
+       "r_m": [
+        3.0,
+        10.0
+       ],
+       "seed": 86
+      },
+      {
+       "center": [
+        -1150,
+        -450
+       ],
+       "size_m": [
+        500,
+        420
+       ],
+       "count": 20,
+       "r_m": [
+        2.5,
+        7.0
+       ],
+       "seed": 87
+      }
+     ],
+     "backdrop": {
+      "extent_m": 6000.0,
+      "cell_m": 64.0,
+      "start_m": 40.0,
+      "rise_m": 120.0,
+      "ridge_m": 260.0,
+      "colour": [
+       0.3,
+       0.26,
+       0.21
+      ],
+      "seed": 86
+     },
+     "viewpoints": {
+      "overview": {
+       "eye": [
+        -1500,
+        260,
+        1500
+       ],
+       "look": [
+        -300,
+        20,
+        300
+       ]
+      },
+      "spawn": {
+       "eye": [
+        -830,
+        110,
+        1500
+       ],
+       "look": [
+        -700,
+        60,
+        1350
+       ]
+      },
+      "kreuzberg": {
+       "eye": [
+        -860,
+        130,
+        -160
+       ],
+       "look": [
+        -1150,
+        10,
+        -450
+       ]
+      },
+      "brook": {
+       "eye": [
+        860,
+        110,
+        440
+       ],
+       "look": [
+        600,
+        8,
+        160
+       ]
+      },
+      "depot": {
+       "eye": [
+        960,
+        130,
+        -720
+       ],
+       "look": [
+        1250,
+        10,
+        -1050
+       ]
+      },
+      "lake": {
+       "eye": [
+        180,
+        90,
+        1220
+       ],
+       "look": [
+        520,
+        0,
+        900
+       ]
+      },
+      "river_valley": {
+       "eye": [
+        -500,
+        80,
+        -1100
+       ],
+       "look": [
+        -120,
+        0,
+        -560
+       ]
+      },
+      "front_line": {
+       "eye": [
+        -300,
+        90,
+        -1020
+       ],
+       "look": [
+        0,
+        0,
+        -1350
+       ]
+      },
+      "ford": {
+       "eye": [
+        -90,
+        24,
+        -250
+       ],
+       "look": [
+        -12,
+        1,
+        -320
+       ]
+      }
+     },
+     "tips": [
+      "Sector 86 frontier is four kilometres across: the ground near you is built as you go.",
+      "Roads ford the river: the water is shallow where a road crosses."
+     ],
+     "scatter": {
+      "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
+      "grass_per_tile": 5200,
+      "shrub_per_tile": 300,
+      "pebbles_per_tile": 48,
+      "boulders_per_tile": 4,
+      "seed": 0
+     },
+     "outcrops": {
+      "_about": "Rock outcrops spread over the hills at load (kit outcrop): count tried, size range (m), none near roads, towns or water, on ground no steeper than max_slope_deg.",
+      "count": 160,
+      "size_m": [
+       10.0,
+       26.0
+      ],
+      "max_slope_deg": 28.0,
+      "seed": 86
+     },
+     "fog_scale": 0.35
     }
   }
 }

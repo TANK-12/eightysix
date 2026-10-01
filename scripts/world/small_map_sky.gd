@@ -14,6 +14,9 @@ var sun := DirectionalLight3D.new()
 var sky_mat := ShaderMaterial.new()
 var weather_id := ""
 var water_mats: Array[ShaderMaterial] = []  # lane B4: water reflects this weather's sky
+## lane B5: a bigger map thins every fog by this (the weathers' fog is set for a 1 km map; over 4 km
+## it piles up into a brown wall); maps.json "fog_scale", applied with the weather
+var fog_scale := 1.0
 
 
 func _init(parent: Node, weather: String) -> void:
@@ -85,8 +88,8 @@ func apply(id: String) -> void:
 	sky_mat.set_shader_parameter("cloud_shade", _c(w, "cloud_shade"))
 	sky_mat.set_shader_parameter("coverage", float(w.get("cloud_coverage", 0.5)))
 	env.fog_light_color = _c(w, "fog_colour")
-	env.fog_density = float(w.get("fog_density", 0.001))
-	env.volumetric_fog_density = float(w.get("volumetric_density", 0.01))
+	env.fog_density = float(w.get("fog_density", 0.001)) * fog_scale
+	env.volumetric_fog_density = float(w.get("volumetric_density", 0.01)) * fog_scale
 	env.volumetric_fog_albedo = _c(w, "fog_colour").lightened(0.2)
 	env.ambient_light_energy = float(w.get("ambient_energy", 0.85))
 	env.tonemap_exposure = float(w.get("exposure", 1.0))
@@ -97,7 +100,7 @@ func apply(id: String) -> void:
 	# lane B4: sun-lit haze toward the sun, fog that pools in the valley floor, and a film grade
 	env.fog_sun_scatter = float(w.get("sun_scatter", 0.0))
 	env.fog_height = float(w.get("height_fog_top_m", 0.0))
-	env.fog_height_density = float(w.get("height_fog_density", 0.0))
+	env.fog_height_density = float(w.get("height_fog_density", 0.0)) * fog_scale
 	env.fog_sky_affect = float(w.get("fog_sky_affect", 0.35))
 	env.volumetric_fog_anisotropy = float(w.get("volumetric_anisotropy", 0.45))
 	var grade: Dictionary = w.get("grade", {})

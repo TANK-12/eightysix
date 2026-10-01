@@ -1,0 +1,155 @@
+{
+ "name": "b5_big_map",
+ "map": "big_map",
+ "_about": "Lane B5: the big map (Sector 86 frontier). The chase view at the spawn, then every viewpoint (4 s each so the ground streams in around the parked camera), then a 20 s walk with a 12 s frame measure. tools/bot_run.sh b5_big_map [--preset=medium]",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 2.0,
+   "shot": "spawn-chase"
+  },
+  {
+   "at": 2.5,
+   "call": "look_from",
+   "args": [
+    "overview"
+   ]
+  },
+  {
+   "at": 6.5,
+   "shot": "overview"
+  },
+  {
+   "at": 7.0,
+   "call": "look_from",
+   "args": [
+    "spawn"
+   ]
+  },
+  {
+   "at": 11.0,
+   "shot": "spawn"
+  },
+  {
+   "at": 11.5,
+   "call": "look_from",
+   "args": [
+    "kreuzberg"
+   ]
+  },
+  {
+   "at": 15.5,
+   "shot": "kreuzberg"
+  },
+  {
+   "at": 16.0,
+   "call": "look_from",
+   "args": [
+    "brook"
+   ]
+  },
+  {
+   "at": 20.0,
+   "shot": "brook"
+  },
+  {
+   "at": 20.5,
+   "call": "look_from",
+   "args": [
+    "depot"
+   ]
+  },
+  {
+   "at": 24.5,
+   "shot": "depot"
+  },
+  {
+   "at": 25.0,
+   "call": "look_from",
+   "args": [
+    "lake"
+   ]
+  },
+  {
+   "at": 29.0,
+   "shot": "lake"
+  },
+  {
+   "at": 29.5,
+   "call": "look_from",
+   "args": [
+    "river_valley"
+   ]
+  },
+  {
+   "at": 33.5,
+   "shot": "river_valley"
+  },
+  {
+   "at": 34.0,
+   "call": "look_from",
+   "args": [
+    "front_line"
+   ]
+  },
+  {
+   "at": 38.0,
+   "shot": "front_line"
+  },
+  {
+   "at": 38.5,
+   "call": "look_from",
+   "args": [
+    "ford"
+   ]
+  },
+  {
+   "at": 42.5,
+   "shot": "ford"
+  },
+  {
+   "at": 43.0,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 43.5,
+   "sample": "start"
+  },
+  {
+   "at": 43.5,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 20.0
+  },
+  {
+   "at": 47.0,
+   "measure": 12.0,
+   "label": "walk"
+  },
+  {
+   "at": 55.0,
+   "shot": "walking"
+  },
+  {
+   "at": 63.5,
+   "sample": "end"
+  },
+  {
+   "at": 64.0,
+   "shot": "after-walk"
+  },
+  {
+   "at": 64.5,
+   "quit": true
+  }
+ ]
+}

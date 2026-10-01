@@ -8,6 +8,10 @@ render_mode diffuse_lambert, specular_schlick_ggx;
 uniform sampler2D splat : filter_linear, repeat_disable;
 uniform float splat_half = 512.0;
 uniform float splat_n = 1025.0;
+// lane B5: the big map's tiles each carry their own splat (shift = minus the tile's corner) and its
+// far ground one at 8 m (step 8); the small map keeps the defaults
+uniform vec2 splat_shift = vec2(0.0);
+uniform float splat_step = 1.0;
 uniform sampler2D ground_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D ground_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D rock_col : source_color, filter_linear_mipmap, repeat_enable;
@@ -45,7 +49,7 @@ vec3 two_scale(sampler2D t, vec2 uv, float mixv) {
 }
 
 void fragment() {
-	vec4 s = texture(splat, (wp.xz + splat_half + 0.5) / splat_n);
+	vec4 s = texture(splat, ((wp.xz + splat_shift) / splat_step + splat_half + 0.5) / splat_n);
 	float m1 = texture(macro, wp.xz * 0.0021).r;
 	float m2 = texture(macro, wp.xz * 0.017 + 0.3).r;
 	float m3 = texture(macro, wp.xz * 0.11 + 0.5).r;
