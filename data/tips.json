@@ -2,7 +2,7 @@
   "_about": "General loading-screen tips (maps.json can add map-specific ones). One entry each; \"order\" is ignored, tips are picked at random.",
   "entries": {
     "gun_fixed": {"text": "The 57 mm gun is fixed to the chassis. To aim, turn the whole machine."},
-    "skid_turn": {"text": "At speed, Ctrl or L2 breaks the feet's grip into a slide: squeeze lightly to drift, pull fully to skate. The move stick bends the slide's path, the mouse or right stick spins the body, and a shot fired mid-slide kicks you the other way."},
+    "flip": {"text": "Flip: hold crouch (C or circle) as you let go of a charged jump and push the stick the way to spin: forward for a front flip, back for a backflip, sideways for a side flip. In the air, hold crouch to tuck the legs and spin faster; let go to open up before you land."}, "skid_turn": {"text": "At speed, Ctrl or L2 breaks the feet's grip into a slide: squeeze lightly to drift, pull fully to skate. The move stick bends the slide's path, the mouse or right stick spins the body, and a shot fired mid-slide kicks you the other way."},
     "no_air_control": {"text": "In the air only real forces move you: swing the aim and the legs slowly turn the body; fire the main gun to kick yourself the other way; the wire anchor pulls you where it bites."},
     "charge_jump": {"text": "Jump is hold-to-charge. A low crouch also shrinks what the enemy can hit."},
     "settings_deep": {"text": "Dead zones, response curves and rumble strength are all under Settings > Controls."},

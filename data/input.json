@@ -41,7 +41,7 @@
     "jump": {"label": "Jump (hold to charge)", "group": "Movement", "context": ["field"],
       "standard": {"keys": ["key:Space"], "pad": ["joy:cross"]},
       "hardcore": {"keys": ["key:Space"], "pad": ["joy:cross"]}},
-    "crouch": {"label": "Crouch and brace", "group": "Movement", "context": ["field"],
+    "crouch": {"label": "Crouch and brace (jumping: flip and tuck)", "group": "Movement", "context": ["field"],
       "standard": {"keys": ["key:C"], "pad": ["joy:circle"]}},
 
     "fire_main": {"label": "Fire 57 mm gun", "group": "Combat", "context": ["field"], "analog": true,

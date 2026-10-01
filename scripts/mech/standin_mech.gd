@@ -74,7 +74,17 @@ var air_swing := Vector2.ZERO
 var air_tuck := 0.0
 var air_phase := Swing.IDLE
 var leg_momentum := Vector3.ZERO
-var leg_inertia := {"yaw": Vector2.ZERO, "pitch": Vector2.ZERO}
+var leg_inertia := {"yaw": Vector2.ZERO, "pitch": Vector2.ZERO, "roll": Vector2.ZERO}
+## Flips (lane A4, Emerson 2026-10-01 "let me flip in mid air"): how far the legs are tucked in by the
+## pilot holding crouch in the air (0 outstretched, 1 tucked), the body inertia that tuck gives
+## (pitch, yaw, roll about the body axes) and the stance inertia it started from.
+var flip_tuck := 0.0
+## True from a flip's take-off until the feet are down again: the leg swing then only turns the body
+## about its up axis and leaves the pitch and roll spin alone (it would otherwise swing against it).
+var flipping := false
+var last_flip_offset := Vector3.ZERO
+var _body_tuck := 0.0
+var _stance_inertia := Vector3.ZERO
 var _swing_w := Vector2.ZERO
 var _swing_dir := Vector2.ZERO
 
@@ -140,6 +150,7 @@ func _measure_leg_inertia() -> void:
 	var tuck := float(a.get("tuck_scale", 0.55))
 	var yaw := Vector2.ZERO
 	var pitch := Vector2.ZERO
+	var roll := Vector2.ZERO
 	for leg: Dictionary in legs:
 		var m := _leg_mass(leg)
 		var pivot: Vector3 = leg["pivot"]
@@ -147,7 +158,8 @@ func _measure_leg_inertia() -> void:
 		var r := ((leg["sole_stance"] as Vector3) - pivot) * 0.5
 		yaw += Vector2(_rod_inertia(m, h, r, Vector3.UP), _rod_inertia(m, h, r * tuck, Vector3.UP))
 		pitch += Vector2(_rod_inertia(m, h, r, Vector3.RIGHT), _rod_inertia(m, h, r * tuck, Vector3.RIGHT))
-	leg_inertia = {"yaw": yaw, "pitch": pitch}
+		roll += Vector2(_rod_inertia(m, h, r, Vector3.BACK), _rod_inertia(m, h, r * tuck, Vector3.BACK))
+	leg_inertia = {"yaw": yaw, "pitch": pitch, "roll": roll}
 
 
 ## Thigh, shin and foot, plus the parts that swing with the leg about the hip: the coxa (the hip's
@@ -314,13 +326,64 @@ func _release_jump() -> void:
 	var along := _flat(-global_transform.basis.z * _move.y + global_transform.basis.x * _move.x, ground_normal)
 	if leap > 0.0 and _move.length() > 0.1:
 		impulse += along * leap * minf(_move.length(), 1.0)
-	apply_central_impulse(impulse * mass)
+	last_flip_offset = flip_offset(along)
+	flipping = last_flip_offset != Vector3.ZERO
+	apply_impulse(impulse * mass, global_transform.basis * center_of_mass + last_flip_offset)
 	last_launch_speed = speed
 	_no_spring_s = 0.18
 	airborne = true
 	jumped.emit(speed)
 	if is_player:
 		Rumble.play("jump_launch")
+
+
+## Where the launch push passes the centre of mass (world offset), for a flip: holding crouch as a
+## charged jump is let go leans the push onto the feet on one side, so the same impulse leaves the
+## ground off-centre and the body takes off spinning (stick forward = front flip, back = backflip,
+## sideways = side flip; how far you push = how hard). The centre of pressure can move at most to
+## the grounded foot furthest that way (all the push through it), times gameplay.flip_lean. Zero
+## without crouch held or in bench mode.
+func flip_offset(along: Vector3) -> Vector3:
+	if bench_mode() or not Input.is_action_pressed("crouch") or along.length() < 0.1:
+		return Vector3.ZERO
+	var away := -along.normalized()
+	var com := global_transform * center_of_mass
+	var reach := 0.0
+	for leg: Dictionary in legs:
+		if leg["contact"] or leg["sole_contact"]:
+			reach = maxf(reach, ((leg["foot"] as Vector3) - com).dot(away))
+	return away * reach * minf(_move.length(), 1.0) * Settings.get_f("gameplay.flip_lean")
+
+
+## Holding crouch in the air tucks the legs in (released, they open out again over air.tuck_s). The
+## body's inertia follows the legs (the stance inertia less what the tuck takes off, per axis from
+## _measure_leg_inertia) and its spin rises or falls to keep the angular momentum, like a diver.
+func _tuck_body(state: PhysicsDirectBodyState3D, dt: float, wants_tuck: bool) -> void:
+	var a: Dictionary = _t.get("air", {})
+	var rate := 1.0 / maxf(float(a.get("tuck_s", 0.12)), 0.01)
+	flip_tuck = move_toward(flip_tuck, 1.0 if wants_tuck else 0.0, rate * dt)
+	var t := maxf(flip_tuck, air_tuck)
+	if absf(t - _body_tuck) < 0.0001:
+		return
+	if _stance_inertia == Vector3.ZERO:
+		_stance_inertia = inertia
+	var before := tucked_inertia(_body_tuck)
+	var after := tucked_inertia(t)
+	var basis := state.transform.basis.orthonormalized()
+	var w_local := basis.inverse() * state.angular_velocity
+	state.angular_velocity = basis * (w_local * before / after)
+	inertia = after
+	_body_tuck = t
+
+
+## The body's principal inertia (body axes x pitch, y yaw, z roll) with the legs tucked by `t`.
+func tucked_inertia(t: float) -> Vector3:
+	var base := _stance_inertia if _stance_inertia != Vector3.ZERO else inertia
+	var off := Vector3.ZERO
+	for i: int in 3:
+		var pair: Vector2 = leg_inertia[["pitch", "yaw", "roll"][i]]
+		off[i] = (pair.x - pair.y) * t
+	return Vector3(maxf(base.x - off.x, base.x * 0.2), maxf(base.y - off.y, base.y * 0.2), maxf(base.z - off.z, base.z * 0.2))
 
 
 # --- physics -----------------------------------------------------------------------------------
@@ -430,6 +493,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if airborne and _air_s > 0.15:
 			_on_landed(-_fall_speed)
 		airborne = false
+		flipping = false
 		_air_s = 0.0
 		_stuck_s = 0.0
 		_update_slide(v, dt)
@@ -442,6 +506,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if grounded_legs == 0:
 			airborne = true
 		_fall_speed = v.dot(Vector3.UP)
+		_tuck_body(state, dt, airborne and Input.is_action_pressed("crouch"))
 		if airborne and air_control_on():
 			_air_legs(state, dt)
 		else:
@@ -470,6 +535,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_unstick(state, xf.basis, recover)
 	if not airborne:
 		_settle_legs(state, dt)
+		if _body_tuck > 0.0:
+			_tuck_body(state, dt, false)
 	_air_drag(state, v)
 	_keel(state, w)
 	_pitch_aim(dt)
@@ -510,7 +577,7 @@ func _air_legs(state: PhysicsDirectBodyState3D, dt: float) -> void:
 		angle -= TAU
 	var err_axis := err_q.get_axis() if absf(angle) > 0.0001 else Vector3.ZERO
 	var err := err_axis * angle  # body frame: y = yaw still to go, x = pitch still to go
-	var e2 := Vector2(err.y, err.x)
+	var e2 := Vector2(err.y, 0.0 if flipping else err.x)
 	_step_air_swing(e2, a, dt)
 	var tuck := air_tuck
 	var i_yaw: Vector2 = leg_inertia["yaw"]
