@@ -92,6 +92,15 @@ The "Current state" section may be updated in place, but only to keep it true; t
   collapses; `tuning.json` "destruction"); the big map's towns use it. Tests `test_big_map` 7/7,
   `test_destruction` 5/5. Bot runs `b5_big_map` (viewpoint tour + walk + fps) and `b5_destroy` (real HE rounds
   into Kreuzberg: two blocks to 54 % and 47 %, `images/264`). Medium walking 46-54 fps on a shared GPU.
+- **Big map, lane B5 part 2 (2026-10-02).** **Frontier sweep** mission on the big map (`data/missions.json`, maps.json
+  `mission`; `scripts/mission/mission_run.gd` `MissionRun` is the shared start + bot hooks; the small map still has its
+  own copies). **Ash river bridge** on the west road (`scripts/world/big/big_bridges.gd`; a road marked `"bridged"`
+  gets no ford, the river stays deep and its banks steepen; kit `bridge` has `abutment_m`). Grapple points follow
+  broken buildings (`Destructible.sync_anchors`); the small map's buildings and walls are Destructibles. Big-map frame
+  rates on a quiet GPU, walking: Low 105, Medium 64, High 48, Ultra 15 (`~/Forge/docs/library/juggernaut/2026-10-02-eightysix-bigmap-fps.md`).
+  Tests `test_big_bridge` 6/6, `test_big_map` 8/8, `test_destruction` 7/7; full suite 265/265 at the end of the part.
+  Bot runs `b5_bridge`, `b5_mission`, `b5_fps`. Details and what is only reasoned:
+  `~/Forge/sessions/juggernaut-alpha/results/B5.md` part 2.
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
