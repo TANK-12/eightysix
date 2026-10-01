@@ -83,6 +83,15 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `grime_buildup`). A new sortie starts at the finish's own wear; Settings > Gameplay > **Dirt builds up** off washes
   it. Live: +0.23 per km at a gallop (`tools/bot_run.sh b4_grime`, `grime_extra` in each sample; bot samples now
   merge any mech add-on's `bot_sample()`). At the cap the legs read brown and mottled (`images/251`).
+- **Big map, lane B5 part 1 (2026-10-02): Sector 86 frontier, 4 km.** Streamed ground: `scripts/world/big/`
+  (`BigTerrain` height as a pure function of x and z with an 8 m overview at load, `BigStream` 1 m tiles with their
+  own HeightMapShape3D around every mech and the camera made on worker threads, `BigScatter`, `BigTowns` +
+  `data/town_styles.json`), `scripts/world/big_map.gd`, `scenes/levels/big_map.tscn`. River, lake, fords, four
+  towns, outcrops, crater fields. **Destruction:** `scripts/world/destructible.gd` (kit pieces with hit points;
+  the struck piece and those in the ammo's reach break into debris, unsupported floors fall, below 35 % a building
+  collapses; `tuning.json` "destruction"); the big map's towns use it. Tests `test_big_map` 7/7,
+  `test_destruction` 5/5. Bot runs `b5_big_map` (viewpoint tour + walk + fps) and `b5_destroy` (real HE rounds
+  into Kreuzberg: two blocks to 54 % and 47 %, `images/264`). Medium walking 46-54 fps on a shared GPU.
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
