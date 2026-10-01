@@ -1,0 +1,49 @@
+{
+  "name": "a4p5_anchor_arc",
+  "_about": "Lane A4 part 5 (A4-side job 3): the wire anchor's dotted arc on screen, aimed level, up and higher. tools/bot_run.sh a4p5_anchor_arc",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.move_hints",
+      "value": false
+    },
+    {
+      "at": 2.0,
+      "shot": "arc-level"
+    },
+    {
+      "at": 2.5,
+      "press": "aim_up",
+      "strength": 0.6,
+      "for": 0.5
+    },
+    {
+      "at": 3.5,
+      "shot": "arc-aim-up"
+    },
+    {
+      "at": 4.0,
+      "press": "aim_up",
+      "strength": 0.6,
+      "for": 0.6
+    },
+    {
+      "at": 5.0,
+      "shot": "arc-aim-higher"
+    },
+    {
+      "at": 5.5,
+      "quit": true
+    }
+  ]
+}
