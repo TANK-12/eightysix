@@ -144,7 +144,9 @@ func test_running_widens_and_lowers_the_stance() -> void:
 	Settings.set_value("controls.sprint_mode", "hold", false)
 	Input.action_press("move_forward", 1.0)
 	Input.action_press("sprint", 1.0)
-	await physics_frames(300)
+	# At running speed, not while still speeding up: since lane A4 part 3 the drive's lever squats
+	# the body back while it accelerates (tests/test_feel.gd), which hides the run pose's nose-down.
+	await physics_frames(600)
 	assert_almost_eq(mech.get("_run_stance"), 1.0, 0.05, "tuning.juggernaut.run_stance faded fully in over transition_s")
 	var t: Dictionary = mech.call("telemetry")
 	assert_lt(t["pitch_deg"], rest_pitch - 2.0, "nose pitches down while running (run_stance.pitch_deg)")

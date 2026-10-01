@@ -60,6 +60,8 @@ var _run_stance := 0.0
 var _skid_brace := 0.0
 var _leg_scale := 1.0
 var _since_ground := 0.0
+var _on_ground_s := 0.0  # how long it has stood on 2+ legs since the last time in the air
+var _drive_moment := Vector3.ZERO  # the drive's moment about the centre of mass, smoothed (N m)
 var _lift := 0.0
 var _spread := 1.0
 var _stride_half := 0.45  # how far ahead of its rest spot a foot lands, and behind it steps again
@@ -504,6 +506,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var on_ground := grounded_legs >= 2 and _no_spring_s <= 0.0
 	if on_ground:
 		_since_ground = 0.0
+		_on_ground_s += dt
 		if airborne and _air_s > 0.15:
 			_on_landed(-_fall_speed)
 		airborne = false
@@ -517,6 +520,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	else:
 		_air_s += dt
 		_since_ground += dt
+		_on_ground_s = 0.0
 		if grounded_legs == 0:
 			airborne = true
 		_fall_speed = v.dot(Vector3.UP)
@@ -775,7 +779,36 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 		var lat := push - v_dir * push.dot(v_dir)
 		var u := (-v_dir + lat * float(_t.get("skid", {}).get("bend", 1.2))).normalized()
 		acc = acc.lerp(u * minf(skate, speed * 6.0), slide_amount)
+	# The legs push on the ground, so the drive also turns the body the way a push where the loaded
+	# feet meet the ground would (Emerson 2026-10-01: walking and running "feel like an animation,
+	# not physics"): below the centre of mass, speeding up squats the body onto its rear legs,
+	# slowing dips the nose and a turn leans it out, all through the leg springs. drive.at_feet is
+	# the share of that lever the legs do not hold back (0 = the old push with no moment).
+	var at := Vector3.ZERO
+	var loaded := 0
+	for leg: Dictionary in legs:
+		if leg["loaded"]:
+			at += leg["hit"] as Vector3
+			loaded += 1
+	# Touching down, the legs' controllers are busy taking the landing; on fewer than three loaded
+	# legs, or charging a jump (the legs hold the body level for a clean launch), they add nothing.
+	# The share fades in over drive.at_feet_settle_s after landing.
+	var share := float(d.get("at_feet", 0.0)) * clampf(_on_ground_s / maxf(float(d.get("at_feet_settle_s", 0.4)), 0.01), 0.0, 1.0)
+	if grounded_legs < 3 or charging or loaded == 0:
+		share = 0.0
+	var com := state.transform * center_of_mass
+	var moment := Vector3.ZERO
+	if share > 0.0:
+		var drop := (com - at / loaded).dot(n)
+		moment = (-n * drop).cross(acc * mass) * share
+	# Actuators cannot change their torque at once: the moment is smoothed over drive.at_feet_lag_s,
+	# so the steady squat, dip and lean come through but the jolts of grip coming and going over rough
+	# ground do not (unsmoothed, they rocked the body 40 deg/s and the score route's running jump
+	# launched mid-rock and tumbled).
+	var lag := maxf(float(d.get("at_feet_lag_s", 0.25)), 0.01)
+	_drive_moment += (moment - _drive_moment) * minf(state.step / lag, 1.0)
 	state.apply_central_force(acc * mass)
+	state.apply_torque(_drive_moment)
 
 
 ## The feet's mean horizontal reach from the centre of mass (the lever the slide's friction spins on).

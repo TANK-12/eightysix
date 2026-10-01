@@ -137,6 +137,10 @@
     },
     "drive": {
       "_about": "Lane A3 part 4 (Emerson: 'I don't like how slow it is'): gallop ~70 km/h (run_m_s 19.5), walk 9 m/s; acceleration up to accel_m_s2 but never more than the legs' peak drive power (peak_power_w 600 kW, a power pack a 350 kg battery can feed in bursts), so 0-50 km/h takes about 1.3 s.",
+      "at_feet": 0.5,
+      "at_feet_settle_s": 0.4,
+      "at_feet_lag_s": 0.25,
+      "_at_feet_about": "Lane A4 part 3 (Emerson: walking and running feel like an animation): the drive's moment about the centre of mass is the one a push at the loaded feet would make (standin_mech.gd _drive), times at_feet (1 = the real lever, 0 = the old push through the centre of mass with no moment). It is smoothed over at_feet_lag_s (actuators cannot change torque at once: unsmoothed, grip coming and going over rough ground rocked the body 40 deg/s and the score route's running jump tumbled), fades in over at_feet_settle_s after landing, and is off on fewer than 3 loaded legs or while charging a jump. At 0.5 (the legs actively hold back half the moment; 1.0 squatted 3.4 deg but slowed 0-50 to 1.47 s and folded a knee in a sprint-turn-jump test): a gallop start squats 1.3 deg (was 0.0), stopping dips 2.3, a hard turn leans out 0.8 (tests/test_feel.gd); score route 0-50 km/h 1.33 s (was 1.27), air turn 2.9 deg/s, slide 44 m / 180 deg",
       "walk_m_s": 9.0,
       "run_m_s": 19.5,
       "accel_m_s2": 12.0,
