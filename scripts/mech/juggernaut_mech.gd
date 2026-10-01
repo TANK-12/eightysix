@@ -31,8 +31,8 @@ var _gun_rest_rot := Quaternion.IDENTITY
 var _rams: Array = []  # [{"node", "rest", "on", "mount", "aim", "leg"}] (lane A2 part 5)
 var _shine_mats: Array = []  # [{"mat": BaseMaterial3D copy, "metallic": exported, "specular": exported}]
 var _gun_pitch_deg := 0.0
+var parked := false  # gun raised by the park key
 var _gun_idle_deg := 0.0
-var _gun_idle_speed_m_s := 0.5
 var _gun_transition_deg_s := 70.0
 
 
@@ -137,7 +137,6 @@ func _apply_tuning() -> void:
 	_run_lift_m = float(run.get("lift_m", _walk_lift_m))
 	var gun: Dictionary = _t.get("gun", {})
 	_gun_idle_deg = float(gun.get("idle_deg", 0.0))
-	_gun_idle_speed_m_s = float(gun.get("idle_speed_m_s", 0.5))
 	_gun_transition_deg_s = float(gun.get("transition_deg_s", 70.0))
 
 
@@ -226,14 +225,20 @@ func _physics_process(delta: float) -> void:
 	_update_rams()
 
 
-## Idle-rise: raised at rest, level while moving (the plan's one exception to the locked gun).
+## Park: the "park" action (P) raises the gun to its parked angle and pressing it again lowers it.
+## Emerson, 2026-10-01: "park should just be for pressing P, not standing still"; it no longer
+## comes on by itself at rest (the old gameplay.gun_idle_raise option is gone), and moving does
+## not lower it. The gun is otherwise fixed to the body and never tracks anything.
+func toggle_park() -> void:
+	parked = not parked
+
+
 func _update_gun_pitch(delta: float) -> void:
 	if _gun_bone < 0:
 		return
-	# Emerson, 2026-09-30: the gun is fixed to the body. The parked raise is an option
-	# (gameplay.gun_idle_raise, off by default), and the gun never tracks anything.
-	var raise := _gun_idle_deg if Settings.get_b("gameplay.gun_idle_raise") else 0.0
-	var target := raise if linear_velocity.length() < _gun_idle_speed_m_s else 0.0
+	if is_player and not Game.is_paused() and Input.is_action_just_pressed("park"):
+		toggle_park()
+	var target := _gun_idle_deg if parked else 0.0
 	_gun_pitch_deg = move_toward(_gun_pitch_deg, target, _gun_transition_deg_s * delta)
 	_skeleton.set_bone_pose_rotation(_gun_bone, Quaternion(_gun_axis, deg_to_rad(_gun_pitch_deg)) * _gun_rest_rot)
 

@@ -43,6 +43,8 @@
       "hardcore": {"keys": ["key:Space"], "pad": ["joy:cross"]}},
     "crouch": {"label": "Crouch and brace (jumping: flip and tuck)", "group": "Movement", "context": ["field"],
       "standard": {"keys": ["key:C"], "pad": ["joy:circle"]}},
+    "park": {"label": "Park (gun raised / lowered)", "group": "Movement", "context": ["field"],
+      "all": {"keys": ["key:P"], "pad": []}},
 
     "fire_main": {"label": "Fire 57 mm gun", "group": "Combat", "context": ["field"], "analog": true,
       "standard": {"keys": ["mouse:left"], "pad": ["joy:r2"]},
@@ -123,7 +125,7 @@
     "screenshot": {"label": "Screenshot", "group": "System", "context": ["global"],
       "all": {"keys": ["key:F12"], "pad": []}},
     "photo_mode": {"label": "Photo mode", "group": "System", "context": ["field"],
-      "all": {"keys": ["key:P"], "pad": []}},
+      "all": {"keys": ["key:O"], "pad": []}},
 
     "ui_accept": {"label": "Choose", "group": "Menus", "context": ["ui"],
       "all": {"keys": ["key:Enter", "key:Kp Enter", "key:Space"], "pad": ["joy:cross"]}},

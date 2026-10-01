@@ -110,7 +110,6 @@
     },
     "gun": {
       "idle_deg": 40.0,
-      "idle_speed_m_s": 0.5,
       "transition_deg_s": 70.0
     },
     "run_stance": {
@@ -202,8 +201,6 @@
     "impact_push_scale": 1.0,
     "sub_arm_slew_deg_s": 120.0,
     "sub_barrel_m": 0.6,
-    "gun_kick_m": 0.35,
-    "gun_kick_return_s": 0.3,
     "projectile_life_s": 4.0,
     "tracer_len_m": 9.0,
     "gouge_every_s": 0.12

@@ -94,16 +94,27 @@ func test_walks_forward_without_falling() -> void:
 	assert_lt(absf(t["roll_deg"]), 25.0, "did not tip over")
 
 
-func test_gun_rises_when_idle_and_levels_off_when_moving() -> void:
-	Settings.set_value("gameplay.gun_idle_raise", true, false)
+## Emerson 2026-10-01: "park should just be for pressing P, not standing still".
+func test_park_is_the_p_key_not_standing_still() -> void:
 	await physics_frames(400)
 	assert_gt(mech.get("_gun_bone"), -1, "gun_pitch bone found on the real skeleton")
-	assert_lt(mech.linear_velocity.length(), 0.3, "settled before checking the idle gun pose")
-	assert_almost_eq(mech.get("_gun_pitch_deg"), 40.0, 1.0, "raised to tuning.juggernaut.gun.idle_deg at rest")
+	assert_lt(mech.linear_velocity.length(), 0.3, "settled")
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 0.0, 0.5, "standing still does not park the gun")
+	Input.action_press("park")
+	await physics_frames(2)
+	Input.action_release("park")
+	await physics_frames(120)
+	assert_true(bool(mech.get("parked")), "the park key parks it")
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 40.0, 1.0, "gun raised to tuning.juggernaut.gun.idle_deg")
 	Input.action_press("move_forward", 1.0)
 	await physics_frames(180)
 	Input.action_release("move_forward")
-	assert_almost_eq(mech.get("_gun_pitch_deg"), 0.0, 1.0, "levels off while moving")
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 40.0, 1.0, "moving does not unpark it")
+	Input.action_press("park")
+	await physics_frames(2)
+	Input.action_release("park")
+	await physics_frames(120)
+	assert_almost_eq(mech.get("_gun_pitch_deg"), 0.0, 1.0, "the park key again lowers it")
 
 
 func test_running_uses_the_run_step_timing() -> void:
@@ -344,18 +355,18 @@ func test_gun_barrel_points_where_the_pitch_says() -> void:
 	await physics_frames(400)
 	var parked := sk.get_bone_global_pose(bone)
 	var parked_off := rad_to_deg((rest.basis * local).angle_to(parked.basis * local))
-	assert_lt(parked_off, 1.5, "by default the gun stays on its modelled line even parked (fixed to the body; %.1f deg off)" % parked_off)
-	Settings.set_value("gameplay.gun_idle_raise", true, false)
+	assert_lt(parked_off, 1.5, "standing still the gun stays on its modelled line (fixed to the body; %.1f deg off)" % parked_off)
+	mech.call("toggle_park")
 	await physics_frames(120)
 	var idle := sk.get_bone_global_pose(bone)
 	var raised := rad_to_deg((rest.basis * local).angle_to(idle.basis * local))
 	assert_almost_eq(raised, 40.0, 2.0, "barrel raised 40 deg from its modelled line at rest (%.1f)" % raised)
 	assert_gt((idle * local).y, muzzle.y + 1.0, "muzzle well above its level height at rest (%.2f vs %.2f)" % [(idle * local).y, muzzle.y])
-	Input.action_press("move_forward", 1.0)
-	await physics_frames(180)
-	var moving := sk.get_bone_global_pose(bone)
-	var off := rad_to_deg((rest.basis * local).angle_to(moving.basis * local))
-	assert_lt(off, 1.5, "barrel on its modelled line while moving (%.1f deg off)" % off)
+	mech.call("toggle_park")
+	await physics_frames(120)
+	var lowered := sk.get_bone_global_pose(bone)
+	var off := rad_to_deg((rest.basis * local).angle_to(lowered.basis * local))
+	assert_lt(off, 1.5, "unparked, the barrel is back on its modelled line (%.1f deg off)" % off)
 
 
 ## Emerson, 2026-09-30 (later the same day, lane A3): aim up and down by tilting the whole body is

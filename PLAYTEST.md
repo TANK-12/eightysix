@@ -32,13 +32,14 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 | Run (also sideways and backwards) | Shift | L3 |
 | Slide at speed, brake when slow | Ctrl | L2 |
 | Jump (hold to charge) | Space | cross |
-| Crouch and brace (during a charged jump: flip; in the air: tuck) | C | circle |
+| Crouch and brace (during a charged jump: flip, about one turn with the stick fully pushed; in the air: tuck) | C | circle |
 | Fire 57 mm gun | left mouse | R2 |
 | Sub-arm guns | right mouse | R1 |
 | Reload / next ammo type | R / T | square / d-pad right |
 | Wire anchor fire, let go / reel in / pay out | F / G / B | L1 / d-pad up / d-pad down |
 | Third person or cockpit / free look / optics zoom | V / Alt / middle mouse | triangle / R3 / d-pad left |
-| Photo mode (time freezes, orbit camera, F12 saves a picture) | P | (from the pause menu) |
+| Park: gun raised / lowered (only when you press it) | P | (rebind in Settings > Controls) |
+| Photo mode (time freezes, orbit camera, F12 saves a picture) | O | (from the pause menu) |
 | Pause | Esc | options |
 
 ## What to try

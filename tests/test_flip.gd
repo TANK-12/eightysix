@@ -97,3 +97,86 @@ func test_tucking_spins_faster_and_keeps_angular_momentum() -> void:
 	b = mech.global_transform.basis.orthonormalized()
 	var w2 := b.inverse() * mech.angular_velocity
 	assert_lt(absf(w2.x), absf(w1.x), "opening up slows it again")
+
+
+## Lets a launched flip fly to the ground with no input; returns [turns about the spin axis while
+## airborne, the lowest any foot or shin went below the ground (m, positive = under) until it
+## stands again, seconds airborne].
+func _fly_out(axis: int) -> Array:
+	var turned := 0.0
+	var under := 0.0
+	var t := 0.0
+	var left_ground := false
+	var falling := false
+	var landed := false
+	for i in 900:
+		await physics_frames(1)
+		var b := mech.global_transform.basis.orthonormalized()
+		var w := b.inverse() * mech.angular_velocity
+		# In flight until the first touchdown stops the fall (a part-turn lands it on its side,
+		# where it counts as airborne while it is righted).
+		var vy := mech.linear_velocity.y
+		falling = falling or vy < -2.0
+		landed = landed or (falling and vy > -0.5)
+		if bool(mech.get("airborne")) and not landed:
+			turned += absf(w[axis]) / 120.0
+			t += 1.0 / 120.0
+		for leg: Dictionary in mech.get("legs"):
+			for key: String in ["foot_mesh", "lower_mesh"]:
+				var m := leg.get(key) as Node3D
+				if m != null:
+					under = maxf(under, -(m.global_position.y))
+		if bool(mech.get("airborne")):
+			left_ground = true
+		elif left_ground and int(mech.get("grounded_legs")) >= 3:
+			break
+	return [turned / TAU, under, t]
+
+
+## Emerson 2026-10-01: "side flip way way too fast, and still sometimes the feet clip". The same
+## lean made 1.9 turns forwards, 2.3 backwards and 7.7 sideways (roll inertia is a fraction of
+## pitch inertia), and the over-spun landings put feet 0.2-0.4 m into the ground. Now the flight
+## computer aims the push for gameplay.flip_turns over the predicted flight, every way.
+func _flip_turns(dir: String, axis: int, stick: float = 1.0) -> Array:
+	var w := Vector3.ZERO
+	if stick < 1.0:
+		await physics_frames(360)
+		Input.action_press("jump")
+		await physics_frames(110)
+		Input.action_press(dir, stick)
+		Input.action_press("crouch")
+		await physics_frames(40)
+		Input.action_release("jump")
+		await physics_frames(2)
+		Input.action_release("crouch")
+		Input.action_release(dir)
+		await physics_frames(10)
+	else:
+		w = await _launch(dir, true)
+		Input.action_release(dir)
+	var r := await _fly_out(axis)
+	print("    %s at %.0f%% stick: %.2f turns in %.2f s, deepest foot %.2f m under" % [dir, stick * 100.0, r[0], r[2], r[1]])
+	return r
+
+
+func test_front_flip_turns_once_and_lands_on_its_feet() -> void:
+	var r := await _flip_turns("move_forward", 0)
+	assert_between(float(r[0]), 0.8, 1.2, "about one turn (%.2f)" % r[0])
+	assert_lt(float(r[1]), 0.05, "no foot in the ground (%.2f m)" % r[1])
+
+
+func test_backflip_turns_once_and_lands_on_its_feet() -> void:
+	var r := await _flip_turns("move_back", 0)
+	assert_between(float(r[0]), 0.8, 1.2, "about one turn (%.2f)" % r[0])
+	assert_lt(float(r[1]), 0.05, "no foot in the ground (%.2f m)" % r[1])
+
+
+func test_side_flip_turns_once_not_seven_times() -> void:
+	var r := await _flip_turns("strafe_left", 2)
+	assert_between(float(r[0]), 0.8, 1.2, "about one roll (%.2f; was 7.7)" % r[0])
+	assert_lt(float(r[1]), 0.05, "no foot in the ground (%.2f m)" % r[1])
+
+
+func test_half_stick_half_a_flip() -> void:
+	var r := await _flip_turns("strafe_left", 2, 0.5)
+	assert_between(float(r[0]), 0.35, 0.7, "about half a roll (%.2f)" % r[0])

@@ -38,7 +38,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
   directional slide (Settings > Gameplay > Physics > Movement: slide friction, slide turn rate). The belly clears
   flat ground at a gallop and in a crouch. `tools/bot_run.sh score_move` measures all of it on Ashen valley and
   writes `logs/score_move.json` for `tools/scoreboard.py`. Sub-arm 12.7 mm guns on right mouse / R1 (A3 part 5):
-  both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`. **Photo mode** (P, or pause >
+  both arms fire in turn and aim at the crosshair; `tools/bot_run.sh sub_check`. **Photo mode** (O since A4 part 3, was P; or pause >
   Photo mode): time freezes, HUD hides, orbit camera, F12 saves to `~/Pictures/Eighty Six/`
   (`tools/bot_run.sh photo_check`; results/A4.md).
 - **Look and sound (lane B4 part 1, 2026-10-01).** The grain was FSR 1's sharpening (Settings > Graphics >

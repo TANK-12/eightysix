@@ -326,7 +326,7 @@ func _release_jump() -> void:
 	var along := _flat(-global_transform.basis.z * _move.y + global_transform.basis.x * _move.x, ground_normal)
 	if leap > 0.0 and _move.length() > 0.1:
 		impulse += along * leap * minf(_move.length(), 1.0)
-	last_flip_offset = flip_offset(along)
+	last_flip_offset = flip_offset(along, impulse)
 	flipping = last_flip_offset != Vector3.ZERO
 	apply_impulse(impulse * mass, global_transform.basis * center_of_mass + last_flip_offset)
 	last_launch_speed = speed
@@ -340,10 +340,13 @@ func _release_jump() -> void:
 ## Where the launch push passes the centre of mass (world offset), for a flip: holding crouch as a
 ## charged jump is let go leans the push onto the feet on one side, so the same impulse leaves the
 ## ground off-centre and the body takes off spinning (stick forward = front flip, back = backflip,
-## sideways = side flip; how far you push = how hard). The centre of pressure can move at most to
-## the grounded foot furthest that way (all the push through it), times gameplay.flip_lean. Zero
-## without crouch held or in bench mode.
-func flip_offset(along: Vector3) -> Vector3:
+## sideways = side flip). The flight computer picks how far off-centre: far enough that the body
+## turns gameplay.flip_turns over the predicted flight (2 vz / g), times how far the stick is pushed.
+## It can move the push at most to the grounded foot furthest that way (all the push through it),
+## times gameplay.flip_lean. Without that aim, the same lean made 1.9 turns forwards, 2.3 backwards
+## and 7.7 sideways (the body's roll inertia is a fraction of its pitch inertia): Emerson's "side
+## flip way too fast". Zero without crouch held or in bench mode. `launch` is the launch velocity.
+func flip_offset(along: Vector3, launch: Vector3) -> Vector3:
 	if bench_mode() or not Input.is_action_pressed("crouch") or along.length() < 0.1:
 		return Vector3.ZERO
 	var away := -along.normalized()
@@ -352,7 +355,18 @@ func flip_offset(along: Vector3) -> Vector3:
 	for leg: Dictionary in legs:
 		if leg["contact"] or leg["sole_contact"]:
 			reach = maxf(reach, ((leg["foot"] as Vector3) - com).dot(away))
-	return away * reach * minf(_move.length(), 1.0) * Settings.get_f("gameplay.flip_lean")
+	var most := reach * Settings.get_f("gameplay.flip_lean")
+	var g := float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8)) * gravity_scale
+	var flight := 2.0 * maxf(launch.y, 0.5) / maxf(g, 0.1)
+	var spin := TAU * Settings.get_f("gameplay.flip_turns") * minf(_move.length(), 1.0) / flight
+	# Spin per metre of offset: the impulse's moment (r x J) through the inverse inertia about the
+	# axis it turns, worked in body axes (inertia is the principal x pitch, y yaw, z roll).
+	var b := global_transform.basis.orthonormalized()
+	var torque_axis := b.inverse() * away.cross(launch * mass)
+	var per_m := (torque_axis / inertia).length()
+	if per_m <= 0.0:
+		return Vector3.ZERO
+	return away * minf(spin / per_m, most)
 
 
 ## Holding crouch in the air tucks the legs in (released, they open out again over air.tuck_s). The

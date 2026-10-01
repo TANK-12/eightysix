@@ -301,3 +301,23 @@ func test_a_round_knocks_a_loose_steel_plate_away() -> void:
 	assert_gt(plate.angular_velocity.length(), 1.5, "the hit sets it spinning (%.1f rad/s)" % plate.angular_velocity.length())
 	await physics_frames(108)
 	assert_gt(plate.global_position.distance_to(start), 2.5, "and throws it back (%.1f m)" % plate.global_position.distance_to(start))
+
+
+
+## Emerson 2026-10-01: no recoil buffer, no barrel slide; the gun is solid on the frame and the whole
+## kick goes straight into the body, in the same tick.
+func test_the_gun_is_rigid_and_the_whole_kick_lands_at_once() -> void:
+	var combat := _mech(Vector3(0, 40, 0))
+	await physics_frames(30)
+	var sk := mech.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
+	var bone := sk.find_bone("gun_pitch")
+	var rest := sk.get_bone_pose_position(bone)
+	var back := mech.global_transform.basis.z
+	var v0 := mech.linear_velocity.dot(back)
+	combat.fire_main()
+	await physics_frames(1)
+	var kick := mech.linear_velocity.dot(back) - v0
+	assert_almost_eq(kick, combat.last_recoil.length() / mech.mass, 0.05, "all of it in one tick (%.2f m/s)" % kick)
+	for i in 30:
+		await physics_frames(1)
+		assert_true(sk.get_bone_pose_position(bone).is_equal_approx(rest), "the barrel never slides")

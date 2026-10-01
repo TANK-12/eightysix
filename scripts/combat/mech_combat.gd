@@ -33,11 +33,6 @@ var last_recoil := Vector3.ZERO
 var _c: Dictionary = {}
 var _colliders: Dictionary = {}  # damage key -> [CollisionShape3D]
 var _meshes: Dictionary = {}  # damage key -> [MeshInstance3D] (the visible part, hidden when lost)
-var _skeleton: Skeleton3D
-var _gun_bone := -1
-var _gun_rest_pos := Vector3.ZERO
-var _gun_back := Vector3.BACK
-var _kick := 0.0
 var _skid_sparks: Dictionary = {}  # leg name -> CPUParticles3D
 var _skid_live_s: Dictionary = {}  # leg name -> seconds its skid particles stay alive after stopping
 var _gouge_s := 0.0
@@ -73,7 +68,6 @@ func _ready() -> void:
 	climb = MechClimb.new()
 	climb.name = "Climb"
 	add_child(climb)
-	_wire_gun_kick()
 	_build_skid_fx()
 	_tag_mech_layer.call_deferred()
 
@@ -145,20 +139,6 @@ func _index_meshes() -> void:
 		_meshes[key] = found
 
 
-func _wire_gun_kick() -> void:
-	var skels := mech.find_children("*", "Skeleton3D", true, false)
-	if skels.is_empty():
-		return
-	_skeleton = skels[0] as Skeleton3D
-	_gun_bone = _skeleton.find_bone("gun_pitch")
-	if _gun_bone < 0:
-		return
-	_gun_rest_pos = _skeleton.get_bone_rest(_gun_bone).origin
-	var parent := _skeleton.get_bone_parent(_gun_bone)
-	var parent_basis := _skeleton.get_bone_global_rest(parent).basis if parent >= 0 else Basis.IDENTITY
-	_gun_back = (parent_basis.inverse() * Vector3.BACK).normalized()
-
-
 func _build_skid_fx() -> void:
 	for leg: Dictionary in mech.get("legs"):
 		var s := CPUParticles3D.new()
@@ -210,13 +190,6 @@ func _physics_process(delta: float) -> void:
 	_update_skid_fx(delta)
 
 
-func _process(delta: float) -> void:
-	_kick = move_toward(_kick, 0.0, delta / maxf(float(_c.get("gun_kick_return_s", 0.3)), 0.01))
-	if _skeleton != null and _gun_bone >= 0:
-		var k := ease(_kick, 0.4)
-		_skeleton.set_bone_pose_position(_gun_bone, _gun_rest_pos + _gun_back * float(_c.get("gun_kick_m", 0.35)) * k)
-
-
 ## The direction the fixed gun points: the chassis heading, lifted by the parked raise if it is on.
 func gun_direction() -> Vector3:
 	var b := mech.global_transform.basis
@@ -243,11 +216,12 @@ func fire_main() -> bool:
 	last_shot = Projectile.spawn(world, muzzle, dir * float(ammo.get("muzzle_m_s", 1000.0)) + mech.linear_velocity, ammo, mech, scale, skip)
 	last_recoil = -dir * Ballistics.recoil_impulse(gun.def, ammo)
 	# Along the bore line (any point on it gives the same torque about the centre of mass): the bore
-	# sits about a metre above the centre of mass, so the body rocks back on its rear legs.
+	# sits about a metre above the centre of mass, so the body rocks back on its rear legs. The gun is
+	# bolted solid to the frame, no recoil buffer and no barrel slide (Emerson 2026-10-01: "it should
+	# just be straight into the frame and body"), so the whole kick lands in the body in one tick.
 	mech.apply_impulse(last_recoil, muzzle - mech.global_position)
 	if not gun.unlimited:
 		mech.mass = maxf(mech.mass - float(gun.def.get("round_kg", 0.0)), 1.0)
-	_kick = 1.0
 	CombatFx.muzzle(world, muzzle, dir)
 	var eject := xf * _eject_local()
 	var throw := xf.basis.x * randf_range(4.0, 6.0) + xf.basis.y * randf_range(2.5, 4.0) + xf.basis.z * randf_range(0.5, 1.5)
