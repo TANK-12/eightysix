@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Plays Eighty Six, always up to date: rebuilds the game first if its source changed (a few seconds),
-# saves that build as a new version, then runs it. The desktop launcher and the Forge hub both call this.
+# then runs it (numbered versions are only saved by tools/builds.py save). The launcher and the hub call this.
 # Usage: tools/play.sh                  the latest game
 #        tools/play.sh --version NNN    a saved version (or: latest, previous); see tools/builds.py list
 #        tools/play.sh --source         straight from the project folder (godot --path), no build

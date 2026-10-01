@@ -1,14 +1,21 @@
-"""Keeps the playable build of Eighty Six up to date, saves each changed build as a numbered version,
-and packs share zips for friends on Windows, Linux and macOS.
+"""Keeps the playable build of Eighty Six up to date, saves finished work as numbered versions, and
+packs share zips for friends on Windows, Linux and macOS.
 
-    python3 tools/builds.py ensure [--notify]       rebuild the local build if the game changed, save it
-                                                    as a new version if it differs, print its binary
+    python3 tools/builds.py ensure [--notify]       rebuild the local build if the game changed and print
+                                                    its binary (Play runs this; it never saves a version)
+    python3 tools/builds.py save --note "what is in it"
+                                                    save the current game as the next numbered version;
+                                                    refused while the tree has uncommitted changes
     python3 tools/builds.py path <NNN|latest|previous>   print a saved version's binary
     python3 tools/builds.py list [--json]           the saved versions, newest first
     python3 tools/builds.py export <platform> [--debug]  one export into build/<platform>/
     python3 tools/builds.py share [--platforms windows,linux,macos]
                                                     export the current game for each platform and zip
                                                     it into the newest version's share/ folder
+
+Emerson's rule (2026-10-01): one version per finished, committed part, from a clean tree, with a note
+saying what is in it. Versions 007 and 008 were saved by Play from a folder holding another session's
+uncommitted files, so no commit matched them; that is why only "save" numbers a version now.
 
 Platforms and what to watch come from tools/platforms.json. Versions live in
 build/versions/NNN-YYYY-MM-DD_HHMM/ (git-ignored). Nothing here deletes a version.
@@ -215,8 +222,9 @@ def notify(enabled: bool, text: str) -> None:
 def ensure(
     root: Path, platforms: dict, exporter: Exporter, notify_user: bool = False
 ) -> Optional[Path]:
-    """Makes the local build match the game source, saves a version if it changed, and returns the
-    binary to run: the newest version, or the newest older one if the rebuild failed."""
+    """Makes the local build match the game source and returns the binary to run: the local build, or
+    the newest saved version if the rebuild failed. Never saves a version (see save()).
+    """
     local = platforms["local"]
     build = root / "build" / local
     build.mkdir(parents=True, exist_ok=True)
@@ -243,17 +251,45 @@ def ensure(
                 "dirty": dirty,
             }
             state_file.write_text(json.dumps(state, indent=2) + "\n")
-        info, _ = save_version(
-            root,
-            platforms,
-            (
-                datetime.fromisoformat(state["made"])
-                if "made" in state
-                else datetime.now()
-            ),
-            {k: state[k] for k in ("commit", "dirty") if k in state},
+        return binary
+
+
+class Refused(Exception):
+    """A version that would not match the work it claims to be."""
+
+
+def save(
+    root: Path, platforms: dict, exporter: Exporter, note: str
+) -> tuple[dict, bool]:
+    """Saves the current game as the next numbered version, with a note saying what is in it.
+
+    Refused (Refused) while the git tree has uncommitted changes, so a version is always exactly one
+    commit. Returns (version info, created); created is False when the newest version already holds
+    this same game."""
+    if not note.strip():
+        raise Refused("say what is in this version (--note)")
+    commit, dirty = git_state(root)
+    if dirty:
+        raise Refused(
+            "the tree has uncommitted changes (yours or another session's); commit first, "
+            "so the version is exactly commit " + commit + " plus nothing"
         )
-        return version_binary(info, platforms)
+    if (
+        ensure(root, platforms, exporter)
+        != root
+        / "build"
+        / platforms["local"]
+        / platforms["platforms"][platforms["local"]]["file"]
+    ):
+        raise Refused("the build failed; nothing saved")
+    made = datetime.fromisoformat(
+        json.loads((root / "build" / platforms["local"] / "BUILD.json").read_text())[
+            "made"
+        ]
+    )
+    return save_version(
+        root, platforms, made, {"commit": commit, "dirty": False, "note": note.strip()}
+    )
 
 
 def zip_folder(folder: Path, zip_path: Path, readme: str) -> None:
@@ -267,10 +303,24 @@ def zip_folder(folder: Path, zip_path: Path, readme: str) -> None:
 def share(
     root: Path, platforms: dict, wanted: list[str], exporter: Exporter
 ) -> list[Path]:
-    """Zips the current game for each wanted platform into the newest version's share/ folder."""
+    """Zips the current game for each wanted platform into its version's share/ folder. The current
+    game must be a saved version (save() first), so a share zip always matches a version.
+    """
     if ensure(root, platforms, exporter) is None:
         raise SystemExit("share: no build to share")
-    info = versions(root)[0]
+    saved = versions(root)
+    local = platforms["local"]
+    pck = (
+        root
+        / "build"
+        / local
+        / (Path(platforms["platforms"][local]["file"]).stem + ".pck")
+    )
+    if not saved or saved[0].get("pck_sha256") != sha256(pck):
+        raise SystemExit(
+            'share: the current game is not a saved version; run save --note "..." first'
+        )
+    info = saved[0]
     vdir = Path(info["dir"])
     (vdir / "share").mkdir(exist_ok=True)
     made = []
@@ -306,6 +356,8 @@ def main() -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("ensure")
     p.add_argument("--notify", action="store_true")
+    p = sub.add_parser("save")
+    p.add_argument("--note", required=True)
     p = sub.add_parser("path")
     p.add_argument("which")
     p = sub.add_parser("list")
@@ -326,9 +378,22 @@ def main() -> int:
             print(json.dumps(saved, indent=2))
         for v in [] if args.json else saved:
             flag = " (uncommitted changes)" if v.get("dirty") else ""
+            note = f"  {v['note']}" if v.get("note") else ""
             print(
-                f"{v['number']:03d}  {v['made']}  {v.get('commit', '?')}{flag}  share: {len(v['share'])}"
+                f"{v['number']:03d}  {v['made']}  {v.get('commit', '?')}{flag}  share: {len(v['share'])}{note}"
             )
+        return 0
+    if args.cmd == "save":
+        try:
+            info, created = save(ROOT, platforms, godot_export, args.note)
+        except Refused as why:
+            print(f"builds: not saved: {why}", file=sys.stderr)
+            return 3
+        print(
+            f"saved version {info['number']:03d}: {info['note']}"
+            if created
+            else f"version {info['number']:03d} already holds this game; nothing saved"
+        )
         return 0
     if args.cmd == "path":
         binary = pick(ROOT, platforms, args.which)

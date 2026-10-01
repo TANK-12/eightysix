@@ -69,34 +69,57 @@ class Builds(unittest.TestCase):
         assert binary is not None
         return binary
 
+    def save(self, note: str = "a finished part") -> Path:
+        info, _ = builds.save(self.root, PLATFORMS, self.godot, note)
+        return builds.version_binary(info, PLATFORMS)
+
     def bump(self, text: str) -> None:
         path = self.root / "data.json"
         path.write_text(text)
         st = path.stat()
         os.utime(path, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000_000))
 
-    def test_first_run_builds_and_saves_version_one(self) -> None:
+    def test_play_builds_but_never_saves_a_version(self) -> None:
         binary = self.ensure()
         self.assertEqual(self.godot.calls, ["linux"])
-        self.assertTrue(binary.name == "game.x86_64" and binary.is_file())
+        self.assertEqual(binary, self.root / "build" / "linux" / "game.x86_64")
+        self.assertTrue(binary.is_file())
+        self.bump("two")
+        self.ensure()
+        self.assertEqual(builds.versions(self.root), [], "Play numbers nothing")
+
+    def test_save_numbers_a_version_with_its_note_and_commit(self) -> None:
+        self.save("sound and the look pass")
         saved = builds.versions(self.root)
         self.assertEqual([v["number"] for v in saved], [1])
         self.assertEqual(saved[0]["game_version"], "0.1.0-alpha")
         self.assertEqual(saved[0]["commit"], "abc1234")
+        self.assertEqual(saved[0]["note"], "sound and the look pass")
+        self.assertFalse(saved[0]["dirty"])
+
+    def test_save_refuses_uncommitted_changes_and_an_empty_note(self) -> None:
+        builds.git_state = lambda root: ("abc1234", True)
+        with self.assertRaises(builds.Refused):
+            self.save()
+        builds.git_state = lambda root: ("abc1234", False)
+        with self.assertRaises(builds.Refused):
+            self.save("  ")
+        self.assertEqual(builds.versions(self.root), [])
 
     def test_unchanged_source_does_not_rebuild(self) -> None:
-        self.ensure()
+        self.save()
         (self.root / "NOTES.md").write_text("docs never need a rebuild")
         (self.root / "images").mkdir()
         (self.root / "images" / "shot.png").write_bytes(b"png")
         self.ensure()
+        self.save()
         self.assertEqual(self.godot.calls, ["linux"])
         self.assertEqual(len(builds.versions(self.root)), 1)
 
-    def test_change_rebuilds_new_version_keeps_old_and_links_binary(self) -> None:
-        first = self.ensure()
+    def test_change_saves_new_version_keeps_old_and_links_binary(self) -> None:
+        first = self.save()
         self.bump("two")
-        second = self.ensure()
+        second = self.save()
         self.assertEqual(self.godot.calls, ["linux", "linux"])
         numbers = [v["number"] for v in builds.versions(self.root)]
         self.assertEqual(numbers, [2, 1], "newest first, the old one kept")
@@ -109,21 +132,28 @@ class Builds(unittest.TestCase):
         self.assertEqual(builds.pick(self.root, PLATFORMS, "1"), first)
 
     def test_same_pack_after_rebuild_is_not_a_new_version(self) -> None:
-        self.ensure()
+        self.save()
         self.bump("one")
-        self.ensure()
+        self.save()
         self.assertEqual(len(self.godot.calls), 2)
         self.assertEqual(len(builds.versions(self.root)), 1)
 
     def test_failed_rebuild_plays_last_good_version(self) -> None:
-        good = self.ensure()
+        good = self.save()
         self.bump("broken")
         self.godot.fail = True
         self.assertEqual(builds.ensure(self.root, PLATFORMS, self.godot), good)
+        with self.assertRaises(builds.Refused):
+            self.save()
         self.godot.fail = False
         self.assertNotEqual(self.ensure(), good, "tries again next launch")
 
+    def test_share_needs_the_current_game_saved(self) -> None:
+        with self.assertRaises(SystemExit):
+            builds.share(self.root, PLATFORMS, ["linux"], self.godot)
+
     def test_share_zips_every_platform_with_how_to_run(self) -> None:
+        self.save()
         zips = builds.share(
             self.root, PLATFORMS, ["linux", "windows", "macos"], self.godot
         )
@@ -151,7 +181,7 @@ class Builds(unittest.TestCase):
         self.assertEqual(info["number"], 1)
 
     def test_versions_saved_at_made_time(self) -> None:
-        self.ensure()
+        self.save()
         info, created = builds.save_version(
             self.root, PLATFORMS, datetime(2026, 1, 2, 3, 4), {}
         )
