@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -51,6 +51,12 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `tools/audio/review_page.py --serve` (http://127.0.0.1:8687/), then `tools/audio/promote.py`. Mix check:
   `tools/bot_run.sh b4_sound_check` then `tools/audio/sound_check.py` (records the game's own sound). Scoreboard:
   `tools/scoreboard.py`. Detail: `~/Forge/sessions/juggernaut-alpha/results/B4.md`.
+- **Real sounds and music (lane B4 part 2, 2026-10-01).** Settings > Audio > **Sounds**: a pick (which recording)
+  and a level for every sound, from 1,816 downloaded CC0/free sounds (`~/Forge/shared/sound_library/`,
+  `tools/audio/fetch_library.py`; per-sound choices by `tools/audio/pick_choices.py` from `tools/audio/choices.json`
+  into `assets/audio/lib/`). Settings > Audio > **Music**: menu / exploring / combat track, Shuffle or Off, song
+  language, Skip; tracks in `~/Music/86/` (personal use, never in the repo), listed in `data/music.json` by
+  `tools/audio/fetch_music.py`; `Music` autoload. The gun was capped by Godot's 3D `max_db` (+3 dB); lifted.
 - **Look, lane B4 part 2 (2026-10-01).** Undertaker's emblem (headless skeleton with a shovel) on both cockpit
   side panels as a worn decal: `data/emblems.json`, `scripts/look/emblem.gd`, the editable picture
   `assets/textures/emblems/undertaker.svg`, Settings > Gameplay > Juggernaut > Emblem. Dust from each foot at a run
@@ -99,7 +105,7 @@ before fixing them. Full handoff, file map and next steps: `~/Forge/sessions/jug
 What changed:
 - 14 registries in `data/` (mechs, parts with per-joint actuators, weapons, enemies, maps, graphics_presets,
   themes, input with a hidden hardcore scheme, settings, sounds, music, tuning, rumble, tips).
-- Autoloads: Registry, Settings, Controls, UiTheme, Graphics, AudioMix, Rumble, Game, Bot.
+- Autoloads: Registry, Settings, Controls, UiTheme, Graphics, AudioMix, Sfx, Music, Rumble, Game, Bot.
 - Menus drawn from data: main menu, settings (5 sections, 19 pages, key rebinding), pause, loading screen;
   two themes that switch live.
 - A throwaway test range (rocky noise terrain with matching Jolt height-map collision, boulders, slabs) and a

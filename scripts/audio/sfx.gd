@@ -11,6 +11,7 @@ const POOL_3D := 40
 const POOL_2D := 10
 const SPEED_OF_SOUND_M_S := 343.0
 const DELAY_FROM_M := 25.0
+const MAX_DB := 24.0
 const OPEN_CUTOFF_HZ := 9000.0
 const OCCLUDED_CUTOFF_HZ := 900.0
 const OCCLUDED_DB := -8.0
@@ -22,6 +23,8 @@ const ATTENUATION := {
 	"inverse_square": AudioStreamPlayer3D.ATTENUATION_INVERSE_SQUARE_DISTANCE,
 	"logarithmic": AudioStreamPlayer3D.ATTENUATION_LOGARITHMIC,
 }
+
+signal sounded(event: String, bus: String, distance_m: float)  # every take started (Music listens for combat)
 
 var played := 0  # takes started since launch (tests and bot reports)
 var counts := {}  # event -> takes started, saved beside a recording (lane B4 sound checks)
@@ -51,6 +54,7 @@ func _ready() -> void:
 		add_child(p)
 		_pool2.append(p)
 	get_tree().node_added.connect(_on_node_added)
+	Settings.changed.connect(_on_setting_changed)
 
 
 func has(event: String) -> bool:
@@ -66,14 +70,18 @@ func play(event: String, where: Variant = null, volume_db: float = 0.0, pitch: f
 			push_warning("Sfx: no sound '%s' in sounds.json" % event)
 		return null
 	var e := Registry.entry("sounds", event)
-	var stream := _pick(e)
+	var level := mix_db(event)
+	if level <= Settings.SOUND_LEVEL_OFF_DB:
+		return null
+	var stream := _pick(e, event)
 	if stream == null:
 		return null
 	counts[event] = int(counts.get(event, 0)) + 1
 	var jitter := float(e.get("pitch_jitter", 0.0))
-	var p_scale := pitch * (1.0 + randf_range(-jitter, jitter))
-	var vol := float(e.get("volume_db", 0.0)) + volume_db
+	var p_scale := pitch * float(choice_of(event).get("pitch", 1.0)) * (1.0 + randf_range(-jitter, jitter))
+	var vol := float(e.get("volume_db", 0.0)) + level + volume_db
 	var pos: Variant = _position(where)
+	sounded.emit(event, str(e.get("bus", "")), _listener_pos().distance_to(pos) if pos != null else 0.0)
 	if bool(e.get("2d", false)) or pos == null:
 		var p2 := _pool2[_next2]
 		_next2 = (_next2 + 1) % POOL_2D
@@ -96,7 +104,7 @@ func loop(event: String, follow: Node3D = null) -> Node:
 	if not has(event):
 		return null
 	var e := Registry.entry("sounds", event)
-	var stream := _pick(e)
+	var stream := _pick(e, event)
 	if stream == null:
 		return null
 	var player: Node
@@ -104,7 +112,7 @@ func loop(event: String, follow: Node3D = null) -> Node:
 		var p2 := AudioStreamPlayer.new()
 		p2.stream = _looped(stream)
 		p2.bus = _bus_name(str(e.get("bus", "Effects")))
-		p2.volume_db = float(e.get("volume_db", 0.0))
+		p2.volume_db = float(e.get("volume_db", 0.0)) + mix_db(event)
 		(follow if follow != null else self).add_child(p2)
 		p2.play()
 		player = p2
@@ -112,7 +120,7 @@ func loop(event: String, follow: Node3D = null) -> Node:
 		var p3 := AudioStreamPlayer3D.new()
 		_configure_3d(p3, e)
 		p3.stream = _looped(stream)
-		p3.volume_db = float(e.get("volume_db", 0.0))
+		p3.volume_db = float(e.get("volume_db", 0.0)) + mix_db(event)
 		follow.add_child(p3)
 		p3.play()
 		player = p3
@@ -137,7 +145,8 @@ func _play_3d(e: Dictionary, stream: AudioStream, pos: Vector3, vol: float, p_sc
 ## once that many are sounding, so a burst does not pile up into a wash or take every voice.
 func _voice_for(e: Dictionary) -> AudioStreamPlayer3D:
 	var cap := int(e.get("max_voices", 0))
-	var key := str(e.get("files", [""])[0])
+	var files: Array = e.get("files", [])
+	var key := str(files[0]) if not files.is_empty() else str(e.get("label", ""))
 	if cap > 0:
 		var mine: Array = _voices.get(key, [])
 		mine = mine.filter(func(v: AudioStreamPlayer3D) -> bool: return v.playing and v.get_meta("voice_of", "") == key)
@@ -169,6 +178,9 @@ func _configure_3d(p: AudioStreamPlayer3D, e: Dictionary) -> void:
 	p.attenuation_model = ATTENUATION.get(str(e.get("attenuation", "inverse")), AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE)
 	p.attenuation_filter_cutoff_hz = OPEN_CUTOFF_HZ
 	p.attenuation_filter_db = -18.0
+	# Godot caps a 3D player at max_db (+3 dB by default) whatever its volume_db: the 57 mm at
+	# +10 played exactly as loud as at +3, which is why the gun stayed quiet (lane B4 part 2)
+	p.max_db = MAX_DB
 
 
 func _start(p: Node, stream: AudioStream, bus: String, vol: float, p_scale: float) -> void:
@@ -188,8 +200,51 @@ func _bus_name(id: String) -> String:
 	return "Master"
 
 
-func _pick(e: Dictionary) -> AudioStream:
-	var files: Array = e.get("files", [])
+## Emerson's level for `event` from Settings > Audio > Sounds (dB on top of the entry's volume_db;
+## Settings.SOUND_LEVEL_OFF_DB or lower means off). Loops that set their own volume add this too.
+func mix_db(event: String) -> float:
+	var key := "audio.level." + event
+	return Settings.get_f(key) if Settings.has_key(key) else 0.0
+
+
+## The takes that play for `event`: the picked entry of "choices" (Settings audio.pick.<id>, else the
+## entry's "choice"), or the entry's plain "files".
+func files_of(event: String) -> Array:
+	var c := choice_of(event)
+	return c.get("files", []) if not c.is_empty() else Registry.entry("sounds", event).get("files", [])
+
+
+## The picked entry of `event`'s "choices" ({} when it has none). A choice may carry "pitch", a
+## base pitch scale (real footsteps are human sized; a 10 t mech's foot plays them lower).
+func choice_of(event: String) -> Dictionary:
+	var e := Registry.entry("sounds", event)
+	var choices: Array = e.get("choices", [])
+	if choices.is_empty():
+		return {}
+	var key := "audio.pick." + event
+	var want := Settings.get_s(key) if Settings.has_key(key) else str(e.get("choice", ""))
+	for c: Dictionary in choices:
+		if str(c["id"]) == want:
+			return c
+	return choices[0]
+
+
+## Changing a pick or a level in the settings plays the sound once, so the mix is set by ear.
+func _on_setting_changed(key: String, _value: Variant) -> void:
+	for prefix in ["audio.pick.", "audio.level."]:
+		if key.begins_with(prefix):
+			var event := key.trim_prefix(prefix)
+			if not bool(Registry.entry("sounds", event).get("loop", false)):
+				var e := Registry.entry("sounds", event)
+				var stream := _pick(e, event)
+				var level := mix_db(event)
+				if stream != null and level > Settings.SOUND_LEVEL_OFF_DB:
+					_start(_pool2[_next2], stream, str(e.get("bus", "Effects")), float(e.get("volume_db", 0.0)) + level, float(choice_of(event).get("pitch", 1.0)))
+					_next2 = (_next2 + 1) % POOL_2D
+
+
+func _pick(e: Dictionary, event: String = "") -> AudioStream:
+	var files: Array = files_of(event) if event != "" else e.get("files", [])
 	if files.is_empty():
 		return null
 	var path := str(files[randi() % files.size()])
@@ -361,21 +416,37 @@ func _hover(b: BaseButton) -> void:
 		play("ui_hover")
 
 
+## A round landing: heavy shells (sounds.json "shell_hits", by projectile mass) go off with a bang
+## and throw a quieter surface sound under it; small rounds make only the surface sound.
 func _on_impact(info: Dictionary) -> void:
+	var at: Vector3 = info.get("point", Vector3.ZERO)
 	var surface := surface_of(info.get("collider"))
 	var sounds: Dictionary = Registry.file("sounds").get("surfaces", {}).get(surface, {})
-	play(str(sounds.get("impact", "impact_dirt")), info.get("point", Vector3.ZERO))
+	var kg := float(info.get("projectile_kg", 0.0))
+	var bang := ""
+	for rule: Dictionary in Registry.file("sounds").get("shell_hits", {}).get("rules", []):
+		if kg >= float(rule["min_kg"]):
+			bang = str(rule["sound"])
+			break
+	if bang != "":
+		play(bang, at)
+		play(str(sounds.get("impact", "impact_dirt")), at, -8.0)
+	else:
+		play(str(sounds.get("impact", "impact_dirt")), at)
 
 
-## "metal" for anything that moves (mechs, Legion), "rock" for kit pieces (walls, rubble, rocks),
-## "dirt" for the terrain and anything unknown.
+## "metal" for mechs (the "mechs" group or anything that takes hits), "rock" for kit pieces (walls,
+## rubble, rocks) and loose debris, "dirt" for the terrain and anything unknown. Loose debris used
+## to count as metal, so a shell into a broken wall rang like a bell.
 static func surface_of(collider: Variant) -> String:
 	if not (collider is Node) or not is_instance_valid(collider):
 		return "dirt"
 	var n := collider as Node
+	if n.is_in_group("mechs") or n.has_method("take_hit"):
+		return "metal"
 	var moving := n is RigidBody3D or n is CharacterBody3D or n is VehicleBody3D
 	while n != null:
 		if n.has_meta("kit"):
 			return "rock"
 		n = n.get_parent()
-	return "metal" if moving else "dirt"
+	return "rock" if moving else "dirt"

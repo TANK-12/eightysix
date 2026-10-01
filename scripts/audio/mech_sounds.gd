@@ -58,7 +58,7 @@ func _process(delta: float) -> void:
 	var turn := absf(mech.angular_velocity.y)
 	var work := clampf(speed / 18.0 + turn * 0.4, 0.0, 1.0)
 	if _servo != null:
-		_servo.volume_db = lerpf(SERVO_QUIET_DB, SERVO_LOUD_DB, sqrt(work))
+		_servo.volume_db = lerpf(SERVO_QUIET_DB, SERVO_LOUD_DB, sqrt(work)) + Sfx.mix_db("servo_loop")
 		_servo.pitch_scale = 0.85 + work * 0.45
 	# telemetry "slide" is an amount 0-1 (a slight slip while running is normal), "skidding" a flag
 	var slide := 0.0
@@ -67,13 +67,13 @@ func _process(delta: float) -> void:
 		slide = maxf(float(t.get("slide", 0.0)), 1.0 if bool(t.get("skidding", false)) else 0.0)
 	if _skid != null:
 		var on := slide > SLIDE_FROM and speed > 2.0
-		_skid.volume_db = SKID_DB + linear_to_db(clampf(slide * speed / 12.0, 0.05, 1.0)) if on else -80.0
+		_skid.volume_db = SKID_DB + linear_to_db(clampf(slide * speed / 12.0, 0.05, 1.0)) + Sfx.mix_db("skid_loop") if on else -80.0
 	if _reel != null and _anchor != null:
 		# the drum's cable speed (m/s), only while the wire is out: louder and higher the faster it
 		# turns. A drum easing to a stop below REEL_FROM is silent (it hummed at 76 Hz forever).
 		var drum := absf(float(_anchor.get("_rope_speed")))
 		var out := int(_anchor.get("state")) != 0
-		_reel.volume_db = lerpf(-30.0, -14.0, clampf(drum / 6.0, 0.0, 1.0)) if out and drum > REEL_FROM else -80.0
+		_reel.volume_db = lerpf(-30.0, -14.0, clampf(drum / 6.0, 0.0, 1.0)) + Sfx.mix_db("wire_reel_loop") if out and drum > REEL_FROM else -80.0
 		_reel.pitch_scale = 0.8 + clampf(drum / 6.0, 0.0, 1.0) * 0.5
 
 

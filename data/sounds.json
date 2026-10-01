@@ -10,7 +10,8 @@
       "id": "music",
       "name": "Music",
       "label": "Music",
-      "send": "Master"
+      "send": "Master",
+      "default": 0.45
     },
     {
       "id": "effects",
@@ -64,12 +65,93 @@
         "res://assets/audio/sfx/gun_57mm_fire_3.wav"
       ],
       "bus": "weapons",
-      "volume_db": 0.0,
+      "volume_db": 10.0,
       "pitch_jitter": 0.04,
       "unit_size": 40.0,
       "max_distance_m": 2500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "oga_battle-at-sea_cannon_fire_1",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/gun_57mm_fire_1.wav",
+            "res://assets/audio/sfx/gun_57mm_fire_2.wav",
+            "res://assets/audio/sfx/gun_57mm_fire_3.wav"
+          ]
+        },
+        {
+          "id": "mixkit_1700",
+          "label": "gun explosion with long echo (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/1_gun_explosion_with_long_echo.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "oga_war-on-water-sndfx_gun2heavy",
+          "label": "war on water sndfx: gun2Heavy (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/2_war_on_water_sndfx_gun2heavy.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_cannon-fire_cannon_fire_0",
+          "label": "cannon fire: cannon fire 0 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/3_cannon_fire_cannon_fire_0.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_battle-at-sea_cannon_fire_1",
+          "label": "battle at sea: cannon fire 1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/4_battle_at_sea_cannon_fire_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_05",
+          "label": "25 cc0 bang firework sfx: cannon 05 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/5_25_cc0_bang_firework_sfx_cannon_05.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_04",
+          "label": "25 cc0 bang firework sfx: cannon 04 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/6_25_cc0_bang_firework_sfx_cannon_04.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_03",
+          "label": "25 cc0 bang firework sfx: cannon 03 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/7_25_cc0_bang_firework_sfx_cannon_03.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_02",
+          "label": "25 cc0 bang firework sfx: cannon 02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_fire/8_25_cc0_bang_firework_sfx_cannon_02.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "gun_57mm_reload": {
       "label": "57 mm autoloader cycle",
@@ -83,7 +165,87 @@
       "unit_size": 40.0,
       "max_distance_m": 2500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "oga_gun-reload-sounds_shotguncock_0",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/gun_57mm_reload_1.wav",
+            "res://assets/audio/sfx/gun_57mm_reload_2.wav"
+          ]
+        },
+        {
+          "id": "oga_gun-reload-sounds_shotguncock_0",
+          "label": "gun reload sounds: shotguncock 0 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/1_gun_reload_sounds_shotguncock_0.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_subsequent_shells",
+          "label": "shotgun reload sound effects: Subsequent Shells (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/2_shotgun_reload_sound_effects_subsequent.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_shell_in_chamber",
+          "label": "shotgun reload sound effects: Shell in Chamber (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/3_shotgun_reload_sound_effects_shell_in_ch.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_rack",
+          "label": "shotgun reload sound effects: Rack (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/4_shotgun_reload_sound_effects_rack.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_first_shell",
+          "label": "shotgun reload sound effects: First Shell (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/5_shotgun_reload_sound_effects_first_shell.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_5_shell_reload",
+          "label": "shotgun reload sound effects: 5 Shell Reload (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/6_shotgun_reload_sound_effects_5_shell_rel.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_4_shell_reload",
+          "label": "shotgun reload sound effects: 4 Shell Reload (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/7_shotgun_reload_sound_effects_4_shell_rel.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_handgun-reload-sound-effect_reload",
+          "label": "handgun reload sound effect: reload (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/gun_57mm_reload/8_handgun_reload_sound_effect_reload.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "casing_57mm_drop": {
       "label": "57 mm casing hits the ground",
@@ -99,7 +261,97 @@
       "unit_size": 20.0,
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "kenney_impact-sounds_impactMetal_light_004",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/casing_57mm_drop_1.wav",
+            "res://assets/audio/sfx/casing_57mm_drop_2.wav",
+            "res://assets/audio/sfx/casing_57mm_drop_3.wav",
+            "res://assets/audio/sfx/casing_57mm_drop_4.wav"
+          ]
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_004",
+          "label": "impactMetal light 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/1_impactmetal_light_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_003",
+          "label": "impactMetal light 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/2_impactmetal_light_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_002",
+          "label": "impactMetal light 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/3_impactmetal_light_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_001",
+          "label": "impactMetal light 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/4_impactmetal_light_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_000",
+          "label": "impactMetal light 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/5_impactmetal_light_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "oga_75-cc0-breaking-falling-hit-sfx_bfh1_metal_hit_06",
+          "label": "75 cc0 breaking falling hit sfx: bfh1 metal hit 06 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/6_75_cc0_breaking_falling_hit_sfx_bfh1_met.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "oga_75-cc0-breaking-falling-hit-sfx_bfh1_metal_hit_05",
+          "label": "75 cc0 breaking falling hit sfx: bfh1 metal hit 05 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/7_75_cc0_breaking_falling_hit_sfx_bfh1_met.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "oga_75-cc0-breaking-falling-hit-sfx_bfh1_metal_hit_04",
+          "label": "75 cc0 breaking falling hit sfx: bfh1 metal hit 04 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/casing_57mm_drop/8_75_cc0_breaking_falling_hit_sfx_bfh1_met.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "mg_12_7_fire": {
       "label": "12.7 mm sub-arm gun, one shot",
@@ -115,7 +367,96 @@
       "max_distance_m": 2500.0,
       "attenuation": "inverse",
       "delay_by_distance": true,
-      "max_voices": 6
+      "max_voices": 10,
+      "choice": "oga_gunshot-sound-effect_gunshot",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/mg_12_7_fire_1.wav",
+            "res://assets/audio/sfx/mg_12_7_fire_2.wav",
+            "res://assets/audio/sfx/mg_12_7_fire_3.wav"
+          ]
+        },
+        {
+          "id": "oga_gunshot-sound-effect_gunshot",
+          "label": "gunshot sound effect: gunshot (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/1_gunshot_sound_effect_gunshot.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_various-sound-effects-0_snd_gunshot1",
+          "label": "various sound effects 0: snd gunshot1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/2_various_sound_effects_0_snd_gunshot1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_war-on-water-sndfx_gun3machinegun",
+          "label": "war on water sndfx: gun3Machinegun (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/3_war_on_water_sndfx_gun3machinegun.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_war-on-water-sndfx_gun2heavy",
+          "label": "war on water sndfx: gun2Heavy (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/4_war_on_water_sndfx_gun2heavy.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_machine-shutting-down_machinepoweroff",
+          "label": "machine shutting down: MachinePowerOff (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/5_machine_shutting_down_machinepoweroff.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_50-rpg-sound-effects_metalpot3",
+          "label": "50 rpg sound effects: metalPot3 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/6_50_rpg_sound_effects_metalpot3.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_50-rpg-sound-effects_metalpot2",
+          "label": "50 rpg sound effects: metalPot2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/7_50_rpg_sound_effects_metalpot2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "oga_50-rpg-sound-effects_metalpot1",
+          "label": "50 rpg sound effects: metalPot1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/mg_12_7_fire/8_50_rpg_sound_effects_metalpot1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "impact_dirt": {
       "label": "Shell hits dirt",
@@ -130,7 +471,88 @@
       "unit_size": 20.0,
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "oga_metal-impact-sounds_thud3",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/impact_dirt_1.wav",
+            "res://assets/audio/sfx/impact_dirt_2.wav",
+            "res://assets/audio/sfx/impact_dirt_3.wav"
+          ]
+        },
+        {
+          "id": "oga_metal-impact-sounds_thud3",
+          "label": "metal impact sounds: thud3 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/1_metal_impact_sounds_thud3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_metal-impact-sounds_thud2",
+          "label": "metal impact sounds: thud2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/2_metal_impact_sounds_thud2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "mixkit_1686",
+          "label": "underground explosion impact echo (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/3_underground_explosion_impact_echo.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_004",
+          "label": "impactWood heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/4_impactwood_heavy_004.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_003",
+          "label": "impactWood heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/5_impactwood_heavy_003.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_002",
+          "label": "impactWood heavy 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/6_impactwood_heavy_002.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_001",
+          "label": "impactWood heavy 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/7_impactwood_heavy_001.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_000",
+          "label": "impactWood heavy 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_dirt/8_impactwood_heavy_000.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "impact_metal": {
       "label": "Round hits armour",
@@ -145,7 +567,96 @@
       "unit_size": 20.0,
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "kenney_impact-sounds_impactPlate_heavy_004",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/impact_metal_1.wav",
+            "res://assets/audio/sfx/impact_metal_2.wav",
+            "res://assets/audio/sfx/impact_metal_3.wav"
+          ]
+        },
+        {
+          "id": "kenney_impact-sounds_impactPlate_heavy_004",
+          "label": "impactPlate heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/1_impactplate_heavy_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactPlate_heavy_003",
+          "label": "impactPlate heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/2_impactplate_heavy_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactPlate_heavy_002",
+          "label": "impactPlate heavy 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/3_impactplate_heavy_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactPlate_heavy_001",
+          "label": "impactPlate heavy 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/4_impactplate_heavy_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactPlate_heavy_000",
+          "label": "impactPlate heavy 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/5_impactplate_heavy_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_004",
+          "label": "impactMetal heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/6_impactmetal_heavy_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_003",
+          "label": "impactMetal heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/7_impactmetal_heavy_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_002",
+          "label": "impactMetal heavy 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_metal/8_impactmetal_heavy_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.8
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "impact_rock": {
       "label": "Round hits rock or concrete",
@@ -160,7 +671,96 @@
       "unit_size": 20.0,
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "kenney_impact-sounds_footstep_concrete_004",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/impact_rock_1.wav",
+            "res://assets/audio/sfx/impact_rock_2.wav",
+            "res://assets/audio/sfx/impact_rock_3.wav"
+          ]
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_004",
+          "label": "footstep concrete 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/1_footstep_concrete_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_003",
+          "label": "footstep concrete 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/2_footstep_concrete_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_002",
+          "label": "footstep concrete 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/3_footstep_concrete_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_001",
+          "label": "footstep concrete 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/4_footstep_concrete_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_000",
+          "label": "footstep concrete 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/5_footstep_concrete_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "oga_various-sound-effects-0_tap_stone",
+          "label": "various sound effects 0: tap stone (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/6_various_sound_effects_0_tap_stone.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "oga_various-sound-effects-0_snd_birdcrash",
+          "label": "various sound effects 0: snd birdcrash (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/7_various_sound_effects_0_snd_birdcrash.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "oga_various-sound-effects-0_small_rock_impact",
+          "label": "various sound effects 0: small rock impact (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/impact_rock/8_various_sound_effects_0_small_rock_impac.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "foot_dirt": {
       "label": "Juggernaut foot on dirt",
@@ -176,7 +776,97 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "oga_mech-stomp-step-sound_stomp",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/foot_dirt_1.wav",
+            "res://assets/audio/sfx/foot_dirt_2.wav",
+            "res://assets/audio/sfx/foot_dirt_3.wav",
+            "res://assets/audio/sfx/foot_dirt_4.wav"
+          ]
+        },
+        {
+          "id": "oga_mech-stomp-step-sound_stomp",
+          "label": "mech stomp step sound: stomp (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/1_mech_stomp_step_sound_stomp.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_004",
+          "label": "footstep concrete 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/2_footstep_concrete_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_003",
+          "label": "footstep concrete 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/3_footstep_concrete_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_002",
+          "label": "footstep concrete 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/4_footstep_concrete_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_001",
+          "label": "footstep concrete 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/5_footstep_concrete_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_000",
+          "label": "footstep concrete 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/6_footstep_concrete_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "oga_various-sound-effects-0_snd_footsteps1",
+          "label": "various sound effects 0: snd footsteps1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/7_various_sound_effects_0_snd_footsteps1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "oga_80-cc0-creture-sfx-2_stomp_01",
+          "label": "80 cc0 creture sfx 2: stomp 01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/foot_dirt/8_80_cc0_creture_sfx_2_stomp_01.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.55
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "foot_rock": {
       "label": "Juggernaut foot on rock or concrete",
@@ -192,7 +882,97 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "kenney_impact-sounds_impactMetal_heavy_004",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/foot_rock_1.wav",
+            "res://assets/audio/sfx/foot_rock_2.wav",
+            "res://assets/audio/sfx/foot_rock_3.wav",
+            "res://assets/audio/sfx/foot_rock_4.wav"
+          ]
+        },
+        {
+          "id": "oga_mech-stomp-step-sound_stomp",
+          "label": "mech stomp step sound: stomp (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/1_mech_stomp_step_sound_stomp.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_004",
+          "label": "impactMetal heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/2_impactmetal_heavy_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_003",
+          "label": "impactMetal heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/3_impactmetal_heavy_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_002",
+          "label": "impactMetal heavy 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/4_impactmetal_heavy_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_001",
+          "label": "impactMetal heavy 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/5_impactmetal_heavy_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_heavy_000",
+          "label": "impactMetal heavy 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/6_impactmetal_heavy_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_004",
+          "label": "footstep concrete 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/7_footstep_concrete_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_003",
+          "label": "footstep concrete 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/foot_rock/8_footstep_concrete_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "land_heavy": {
       "label": "Juggernaut lands from a jump",
@@ -206,7 +986,95 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "oga_mech-stomp-step-sound_stomp",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/land_heavy_1.wav",
+            "res://assets/audio/sfx/land_heavy_2.wav"
+          ]
+        },
+        {
+          "id": "oga_mech-stomp-step-sound_stomp",
+          "label": "mech stomp step sound: stomp (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/1_mech_stomp_step_sound_stomp.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_004",
+          "label": "impactWood heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/2_impactwood_heavy_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_003",
+          "label": "impactWood heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/3_impactwood_heavy_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_002",
+          "label": "impactWood heavy 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/4_impactwood_heavy_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_001",
+          "label": "impactWood heavy 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/5_impactwood_heavy_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactWood_heavy_000",
+          "label": "impactWood heavy 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/6_impactwood_heavy_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactSoft_heavy_004",
+          "label": "impactSoft heavy 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/7_impactsoft_heavy_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "kenney_impact-sounds_impactSoft_heavy_003",
+          "label": "impactSoft heavy 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/land_heavy/8_impactsoft_heavy_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.6
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "servo_loop": {
       "label": "Leg servos while moving (loop)",
@@ -220,7 +1088,86 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "loop": true
+      "loop": true,
+      "choice": "off",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/servo_loop_1.wav"
+          ]
+        },
+        {
+          "id": "oga_robot-1_robot_0",
+          "label": "robot 1: robot 0 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/1_robot_1_robot_0.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_quick-drill-fix_roboticsqueeze",
+          "label": "quick drill fix: roboticsqueeze (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/2_quick_drill_fix_roboticsqueeze.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_machine-shutting-down_machinepoweroff",
+          "label": "machine shutting down: MachinePowerOff (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/3_machine_shutting_down_machinepoweroff.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_dialog-vocal-samples_robot_4",
+          "label": "dialog vocal samples: robot 4 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/4_dialog_vocal_samples_robot_4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_dialog-vocal-samples_robot_3",
+          "label": "dialog vocal samples: robot 3 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/5_dialog_vocal_samples_robot_3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_dialog-vocal-samples_robot_2",
+          "label": "dialog vocal samples: robot 2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/6_dialog_vocal_samples_robot_2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_dialog-vocal-samples_robot_1",
+          "label": "dialog vocal samples: robot 1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/7_dialog_vocal_samples_robot_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_war-on-water-sndfx_motorboat4",
+          "label": "war on water sndfx: motorboat4 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/servo_loop/8_war_on_water_sndfx_motorboat4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "hydraulic_hiss": {
       "label": "Hydraulic vent (knee rams)",
@@ -235,7 +1182,72 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "synth",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/hydraulic_hiss_1.wav",
+            "res://assets/audio/sfx/hydraulic_hiss_2.wav",
+            "res://assets/audio/sfx/hydraulic_hiss_3.wav"
+          ]
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs1",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/1_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/2_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_100-cc0-sfx-2_sfx100v2_air_03",
+          "label": "100 cc0 sfx 2: sfx100v2 air 03 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/3_100_cc0_sfx_2_sfx100v2_air_03.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_100-cc0-sfx-2_sfx100v2_air_02",
+          "label": "100 cc0 sfx 2: sfx100v2 air 02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/4_100_cc0_sfx_2_sfx100v2_air_02.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_100-cc0-sfx-2_sfx100v2_air_01",
+          "label": "100 cc0 sfx 2: sfx100v2 air 01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/5_100_cc0_sfx_2_sfx100v2_air_01.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_mouserelease1",
+          "label": "mouserelease1 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/6_mouserelease1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "skid_loop": {
       "label": "Feet skidding over gravel (loop)",
@@ -249,7 +1261,86 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "loop": true
+      "loop": true,
+      "choice": "synth",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/skid_loop_1.wav"
+          ]
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood03",
+          "label": "different steps on wood stone leaves gravel and mud: wood03 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/1_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood02",
+          "label": "different steps on wood stone leaves gravel and mud: wood02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/2_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood01",
+          "label": "different steps on wood stone leaves gravel and mud: wood01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/3_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_stone01",
+          "label": "different steps on wood stone leaves gravel and mud: stone01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/4_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_mud02",
+          "label": "different steps on wood stone leaves gravel and mud: mud02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/5_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_leaves02",
+          "label": "different steps on wood stone leaves gravel and mud: leaves02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/6_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_leaves01",
+          "label": "different steps on wood stone leaves gravel and mud: leaves01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/7_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_gravel",
+          "label": "different steps on wood stone leaves gravel and mud: gravel (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/8_different_steps_on_wood_stone_leaves_gra.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "wind_loop": {
       "label": "Wind across the valley (loop)",
@@ -257,10 +1348,89 @@
         "res://assets/audio/sfx/wind_loop_1.wav"
       ],
       "bus": "ambience",
-      "volume_db": -15.0,
+      "volume_db": -22.0,
       "pitch_jitter": 0.0,
       "2d": true,
-      "loop": true
+      "loop": true,
+      "choice": "oga_wind_wind3",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/wind_loop_1.wav"
+          ]
+        },
+        {
+          "id": "oga_wind_wind3",
+          "label": "wind: Wind3 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/1_wind_wind3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind_wind2",
+          "label": "wind: Wind2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/2_wind_wind2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind_wind",
+          "label": "wind: Wind (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/3_wind_wind.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind1_wind5",
+          "label": "wind1: wind5 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/4_wind1_wind5.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind1_wind4",
+          "label": "wind1: wind4 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/5_wind1_wind4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind1_wind3",
+          "label": "wind1: wind3 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/6_wind1_wind3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind1_wind2",
+          "label": "wind1: wind2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/7_wind1_wind2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_wind1_wind1",
+          "label": "wind1: wind1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wind_loop/8_wind1_wind1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "wire_fire": {
       "label": "Wire anchor launched",
@@ -274,7 +1444,87 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "synth",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/wire_fire_1.wav",
+            "res://assets/audio/sfx/wire_fire_2.wav"
+          ]
+        },
+        {
+          "id": "oga_various-sound-effects-0_snd_gunshot1",
+          "label": "various sound effects 0: snd gunshot1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/1_various_sound_effects_0_snd_gunshot1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_shell_in_chamber",
+          "label": "shotgun reload sound effects: Shell in Chamber (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/2_shotgun_reload_sound_effects_shell_in_ch.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_shotgun-reload-sound-effects_rack",
+          "label": "shotgun reload sound effects: Rack (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/3_shotgun_reload_sound_effects_rack.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs1",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/4_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/5_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_platform2",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps platform2 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/6_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_platform",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps platform (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/7_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_chain",
+          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps chain (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/8_platformer_sounds_terminal_interaction_d.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "wire_reel_loop": {
       "label": "Wire winch reeling (loop)",
@@ -302,7 +1552,87 @@
       "unit_size": 20.0,
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "synth",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/wire_anchor_hit_1.wav",
+            "res://assets/audio/sfx/wire_anchor_hit_2.wav"
+          ]
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_004",
+          "label": "impactMetal medium 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/1_impactmetal_medium_004.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_003",
+          "label": "impactMetal medium 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/2_impactmetal_medium_003.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_002",
+          "label": "impactMetal medium 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/3_impactmetal_medium_002.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_001",
+          "label": "impactMetal medium 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/4_impactmetal_medium_001.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_000",
+          "label": "impactMetal medium 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/5_impactmetal_medium_000.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_004",
+          "label": "impactMetal light 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/6_impactmetal_light_004.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_003",
+          "label": "impactMetal light 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/7_impactmetal_light_003.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_002",
+          "label": "impactMetal light 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/8_impactmetal_light_002.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "lowe_fire": {
       "label": "Löwe 120 mm gun, fired (Legion)",
@@ -311,12 +1641,92 @@
         "res://assets/audio/sfx/lowe_fire_2.wav"
       ],
       "bus": "weapons",
-      "volume_db": 0.0,
+      "volume_db": 8.0,
       "pitch_jitter": 0.04,
       "unit_size": 40.0,
       "max_distance_m": 2500.0,
       "attenuation": "inverse",
-      "delay_by_distance": true
+      "delay_by_distance": true,
+      "choice": "oga_25-cc0-bang-firework-sfx_cannon_02",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/lowe_fire_1.wav",
+            "res://assets/audio/sfx/lowe_fire_2.wav"
+          ]
+        },
+        {
+          "id": "oga_cannon-fire_cannon_fire_0",
+          "label": "cannon fire: cannon fire 0 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/1_cannon_fire_cannon_fire_0.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_battle-at-sea_cannon_fire_1",
+          "label": "battle at sea: cannon fire 1 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/2_battle_at_sea_cannon_fire_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_05",
+          "label": "25 cc0 bang firework sfx: cannon 05 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/3_25_cc0_bang_firework_sfx_cannon_05.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_04",
+          "label": "25 cc0 bang firework sfx: cannon 04 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/4_25_cc0_bang_firework_sfx_cannon_04.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_03",
+          "label": "25 cc0 bang firework sfx: cannon 03 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/5_25_cc0_bang_firework_sfx_cannon_03.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_02",
+          "label": "25 cc0 bang firework sfx: cannon 02 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/6_25_cc0_bang_firework_sfx_cannon_02.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_25-cc0-bang-firework-sfx_cannon_01",
+          "label": "25 cc0 bang firework sfx: cannon 01 (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/7_25_cc0_bang_firework_sfx_cannon_01.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "mixkit_2994",
+          "label": "clear firework explosions (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/lowe_fire/8_clear_firework_explosions.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "legion_step_light": {
       "label": "Ameise or Grauwolf foot (Legion)",
@@ -356,7 +1766,86 @@
       "bus": "ui",
       "volume_db": 0.0,
       "pitch_jitter": 0.04,
-      "2d": true
+      "2d": true,
+      "choice": "kenney_ui-audio_switch9",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/ui_click_1.wav"
+          ]
+        },
+        {
+          "id": "kenney_ui-audio_switch9",
+          "label": "switch9 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/1_switch9.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch8",
+          "label": "switch8 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/2_switch8.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch7",
+          "label": "switch7 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/3_switch7.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch6",
+          "label": "switch6 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/4_switch6.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch5",
+          "label": "switch5 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/5_switch5.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch4",
+          "label": "switch4 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/6_switch4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch38",
+          "label": "switch38 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/7_switch38.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch37",
+          "label": "switch37 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_click/8_switch37.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "ui_hover": {
       "label": "Menu hover",
@@ -366,7 +1855,86 @@
       "bus": "ui",
       "volume_db": 0.0,
       "pitch_jitter": 0.04,
-      "2d": true
+      "2d": true,
+      "choice": "kenney_ui-audio_switch9",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/ui_hover_1.wav"
+          ]
+        },
+        {
+          "id": "kenney_ui-audio_switch9",
+          "label": "switch9 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/1_switch9.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch8",
+          "label": "switch8 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/2_switch8.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch7",
+          "label": "switch7 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/3_switch7.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch6",
+          "label": "switch6 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/4_switch6.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch5",
+          "label": "switch5 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/5_switch5.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch4",
+          "label": "switch4 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/6_switch4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch38",
+          "label": "switch38 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/7_switch38.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_ui-audio_switch37",
+          "label": "switch37 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_hover/8_switch37.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "ui_back": {
       "label": "Menu back",
@@ -376,7 +1944,86 @@
       "bus": "ui",
       "volume_db": 0.0,
       "pitch_jitter": 0.04,
-      "2d": true
+      "2d": true,
+      "choice": "kenney_interface-sounds_minimize_009",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/ui_back_1.wav"
+          ]
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_009",
+          "label": "minimize 009 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/1_minimize_009.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_008",
+          "label": "minimize 008 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/2_minimize_008.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_007",
+          "label": "minimize 007 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/3_minimize_007.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_006",
+          "label": "minimize 006 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/4_minimize_006.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_005",
+          "label": "minimize 005 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/5_minimize_005.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_004",
+          "label": "minimize 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/6_minimize_004.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_003",
+          "label": "minimize 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/7_minimize_003.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_minimize_002",
+          "label": "minimize 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_back/8_minimize_002.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "ui_confirm": {
       "label": "Menu confirm",
@@ -386,7 +2033,169 @@
       "bus": "ui",
       "volume_db": 0.0,
       "pitch_jitter": 0.04,
-      "2d": true
+      "2d": true,
+      "choice": "kenney_interface-sounds_confirmation_004",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/ui_confirm_1.wav"
+          ]
+        },
+        {
+          "id": "kenney_interface-sounds_confirmation_004",
+          "label": "confirmation 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/1_confirmation_004.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_confirmation_003",
+          "label": "confirmation 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/2_confirmation_003.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_confirmation_002",
+          "label": "confirmation 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/3_confirmation_002.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_confirmation_001",
+          "label": "confirmation 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/4_confirmation_001.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_select_008",
+          "label": "select 008 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/5_select_008.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_select_007",
+          "label": "select 007 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/6_select_007.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_select_006",
+          "label": "select 006 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/7_select_006.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "kenney_interface-sounds_select_005",
+          "label": "select 005 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/ui_confirm/8_select_005.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
+    },
+    "shell_explode": {
+      "label": "Shell bursts (57 mm and up)",
+      "bus": "impacts",
+      "volume_db": 4.0,
+      "pitch_jitter": 0.05,
+      "unit_size": 30.0,
+      "max_distance_m": 2000.0,
+      "attenuation": "inverse",
+      "delay_by_distance": true,
+      "files": [],
+      "choice": "mixkit_2800",
+      "choices": [
+        {
+          "id": "oga_war-on-water-sndfx_throwgrenade",
+          "label": "war on water sndfx: throwgrenade (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/1_war_on_water_sndfx_throwgrenade.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_war-on-water-sndfx_gun2heavyload",
+          "label": "war on water sndfx: gun2HeavyLoad (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/2_war_on_water_sndfx_gun2heavyload.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "oga_war-on-water-sndfx_gun2heavy",
+          "label": "war on water sndfx: gun2Heavy (Opengameart)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/3_war_on_water_sndfx_gun2heavy.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "mixkit_2806",
+          "label": "bomb drop cold water explosion (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/4_bomb_drop_cold_water_explosion.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "mixkit_2804",
+          "label": "bomb drop impact (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/5_bomb_drop_impact.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "mixkit_2801",
+          "label": "dense bomb impact (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/6_dense_bomb_impact.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "mixkit_2800",
+          "label": "bomb explosion in battle (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/7_bomb_explosion_in_battle.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "mixkit_2782",
+          "label": "epic impact afar explosion (Mixkit)",
+          "files": [
+            "res://assets/audio/lib/shell_explode/8_epic_impact_afar_explosion.ogg"
+          ],
+          "licence": "Mixkit Sound Effects Free License"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     }
   },
   "weapons": {
@@ -447,5 +2256,14 @@
       "predelay_feedback": 0.3,
       "hipass": 0.1
     }
+  },
+  "shell_hits": {
+    "_about": "Lane B4 part 2: what a landing round sounds like by its projectile mass (Projectile 'impacted' info projectile_kg). The first rule whose min_kg it reaches plays its sound with a quieter surface sound under it; lighter rounds play only the surface sound. A 57 mm shell (1.2-2.7 kg) bangs instead of ringing.",
+    "rules": [
+      {
+        "min_kg": 1.0,
+        "sound": "shell_explode"
+      }
+    ]
   }
 }

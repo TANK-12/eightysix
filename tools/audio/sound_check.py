@@ -21,6 +21,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools/bot/b4_sound_check.json"
 STANDING_MAX_DB = -32.0  # rms of the standing second (wind and idle servos only)
 SHOT_OVER_BED_DB = 12.0  # a 57 mm shot's loudest 0.25 s against the median of the run
+TURN_OVER_STANDING_DB = (
+    6.0  # turning in place may not lift the bed more than this (the servo hum)
+)
 HUM_MAX_SHARE = (
     0.25  # no single frequency bin may hold more of the standing energy than this
 )
@@ -66,6 +69,28 @@ def main() -> int:
         ok &= good
         print(
             f"  shot at {t:.1f} s: {peak:.1f} dB, {peak - bed:+.1f} over the median {'ok' if good else 'TOO QUIET'}"
+        )
+    for t in [float(s["at"]) for s in steps if s.get("press") == "fire_sub"]:
+        seg = x[at(t) : at(t + 1.0)]
+        burst = max(db(seg[i : i + win]) for i in range(0, len(seg) - win, win // 4))
+        print(
+            f"  sub-gun burst at {t:.1f} s: {burst:.1f} dB, {burst - bed:+.1f} over the median"
+        )
+    turns = [s for s in steps if s.get("press") == "turn_right"]
+    for t in turns:
+        a = float(t["at"]) + 0.5
+        seg = x[at(a) : at(a + float(t["for"]) - 0.5)]
+        # a hum is a tone in the audible band; below 40 Hz is rumble from the steps
+        tspec = np.abs(np.fft.rfft(seg)) ** 2
+        freqs = np.fft.rfftfreq(len(seg), 1 / sr)
+        tspec = np.where((freqs >= 40) & (freqs <= 2000), tspec, 0.0)
+        share = float(tspec.max() / tspec.sum())
+        rise = db(seg) - bed
+        good = rise <= TURN_OVER_STANDING_DB and share <= HUM_MAX_SHARE
+        ok &= good
+        print(
+            f"  turning in place: {db(seg):.1f} dB, {rise:+.1f} over the median, loudest tone "
+            f"{float(freqs[tspec.argmax()]):.0f} Hz ({share:.0%}) {'ok' if good else 'HUM'}"
         )
     good = db(standing) <= STANDING_MAX_DB
     ok &= good

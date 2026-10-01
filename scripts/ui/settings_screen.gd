@@ -387,6 +387,11 @@ func _run_action(action: String) -> void:
 		Controls.reset_scheme(action.substr(15))
 	elif action == "rumble_test":
 		Rumble.play("fire_main")
+	elif action.contains("."):
+		# "Autoload.method", e.g. "Music.skip": a settings button calls one method of an autoload
+		var node := get_node_or_null("/root/" + action.get_slice(".", 0))
+		if node != null:
+			node.call(action.get_slice(".", 1))
 
 
 # --- key bindings -------------------------------------------------------------------------------

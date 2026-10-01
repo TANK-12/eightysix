@@ -144,6 +144,22 @@
         {"id": "volume", "label": "Volume", "groups": [
           {"label": "Mix", "generate": "audio_buses", "items": []}
         ]},
+        {"id": "sounds", "label": "Sounds", "groups": [
+          {"label": "Guns", "generate": "sound_mix", "bus": "weapons", "items": []},
+          {"label": "Hits and explosions", "generate": "sound_mix", "bus": "impacts", "items": []},
+          {"label": "Mech: steps, servos, hydraulics", "generate": "sound_mix", "bus": "mech", "items": []},
+          {"label": "Wind and ambience", "generate": "sound_mix", "bus": "ambience", "items": []},
+          {"label": "Menus", "generate": "sound_mix", "bus": "ui", "items": []}
+        ]},
+        {"id": "music", "label": "Music", "groups": [
+          {"label": "What plays", "items": [
+            {"key": "audio.music_menu", "label": "Main menu", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track on the menus. Shuffle picks from the tracks marked for menus."},
+            {"key": "audio.music_explore", "label": "Exploring", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track while you walk the map with no Legion near."},
+            {"key": "audio.music_combat", "label": "In combat", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track once you fire or are fired on; it fades back to exploring after a quiet spell."},
+            {"key": "audio.music_language", "label": "Song language", "type": "choice", "options": [["any", "Any"], ["ja", "Japanese"], ["en", "English"]], "default": "any", "help": "For Shuffle: only songs in this language (instrumental score always counts)."},
+            {"key": "audio.music_skip", "label": "Next track", "type": "button", "button_text": "Skip", "action": "Music.skip", "help": "Jump to another track now."}
+          ]}
+        ]},
         {"id": "output", "label": "Output", "groups": [
           {"label": "Output", "items": [
             {"key": "audio.output_device", "label": "Output device", "type": "choice", "options_from": "audio_devices", "default": "Default", "help": "Where the sound goes."},

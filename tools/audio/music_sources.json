@@ -1,0 +1,29 @@
+{
+  "_about": "The 86 tracks fetched from YouTube for personal use (lane B4 part 2). tools/audio/fetch_music.py downloads each into ~/Music/86/ as MP3 at 160 kb/s (YouTube's own audio is about 130-160 kb/s Opus; Godot cannot play Opus or AAC, so one conversion is needed, kept at the source's size, not blown up to 320) and lists it in data/music.json. One line here adds a track. use: where the player may pick it (menu, explore, combat).",
+  "out_dir": "~/Music/86",
+  "tracks": [
+    {"yt": "XmLeApuB2hs", "title": "3-pun 29-byou (opening 1, 1 hour)", "language": "ja", "kind": "opening", "use": ["menu", "explore"]},
+    {"yt": "j8lRTQpb94g", "title": "Kyoukaisen (opening 2, 1 hour)", "language": "ja", "kind": "opening", "use": ["menu", "explore"]},
+    {"yt": "nc0PsGNlMIU", "title": "Avid (ending 1, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
+    {"yt": "oB-tgVhZwZI", "title": "Hands Up to the Sky (ending 2, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
+    {"yt": "Gye1PlAUHDQ", "title": "LilaS (part 2 ending 2, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
+    {"yt": "hi5WUpJu_kk", "title": "Alchemilla (part 2 ending 1)", "language": "ja", "kind": "ending", "use": ["menu"]},
+    {"yt": "Wg7ayxUvb3s", "title": "Kyoukaisen (English cover, mewsic)", "language": "en", "kind": "opening", "use": ["menu", "explore"]},
+    {"yt": "HJGDjlfhJl0", "title": "Avid (English cover, mewsic)", "language": "en", "kind": "ending", "use": ["menu", "explore"]},
+    {"yt": "g1QzToMj8z0", "title": "Hands Up to the Sky (English cover, mewsic)", "language": "en", "kind": "ending", "use": ["menu", "explore"]},
+    {"yt": "A9ToMg-C-HU", "title": "Voices of the Chord (English cover, mewsic)", "language": "en", "kind": "score", "use": ["combat", "explore"]},
+    {"yt": "Cxz-W6rNscM", "title": "Voices of the Chord", "language": "en", "kind": "score", "use": ["combat"]},
+    {"yt": "yq-Taa-wNzg", "title": "EIGHTY-SIX", "language": "none", "kind": "score", "use": ["combat", "menu"]},
+    {"yt": "ahDLQbhgW5Y", "title": "THE ANSWER", "language": "en", "kind": "score", "use": ["combat"]},
+    {"yt": "k4763jBnuaw", "title": "Shin", "language": "none", "kind": "score", "use": ["explore", "menu"]},
+    {"yt": "9apPYmrQ5Y4", "title": "Rei", "language": "none", "kind": "score", "use": ["explore"]},
+    {"yt": "kyQVqQFHlgo", "title": "SPEARHEAD", "language": "none", "kind": "score", "use": ["combat"]},
+    {"yt": "SrcGIVULZQQ", "title": "Trigger or Die", "language": "none", "kind": "score", "use": ["combat"]},
+    {"yt": "hWE7XUytMpQ", "title": "Hear my voice", "language": "none", "kind": "score", "use": ["explore"]},
+    {"yt": "dUKgxdqsAK0", "title": "Two Worlds Apart", "language": "none", "kind": "score", "use": ["explore", "menu"]},
+    {"yt": "RL4vM-ztfzQ", "title": "No Reality", "language": "none", "kind": "score", "use": ["combat"]},
+    {"yt": "L68iG_XbGiE", "title": "Reality", "language": "none", "kind": "score", "use": ["explore"]},
+    {"yt": "i_TfB5RYHP0", "title": "So Tired", "language": "none", "kind": "score", "use": ["explore"]},
+    {"yt": "eogBv9Kajk8", "title": "Original soundtrack preview reel (Aniplex)", "language": "none", "kind": "score", "use": ["explore"]}
+  ]
+}

@@ -1,12 +1,17 @@
 {
  "name": "b4_sound_check",
  "map": "small_map",
- "_about": "Lane B4: records 24 s of the game's own sound (walk, sprint, a 57 mm shot and its casing, reload, a jump and landing, another shot) to sound-check.wav in the run folder. The Dummy driver still mixes, so this works off screen. tools/bot_run.sh b4_sound_check",
+ "_about": "Lane B4: records 24 s of the game's own sound (walk, sprint, a 57 mm shot and its casing, reload, a jump and landing, another shot) to sound-check.wav in the run folder. The Dummy driver still mixes, so this works off screen. tools/bot_run.sh b4_sound_check Part 2: turns in place for 3 s from 24 s (the hum Emerson heard rose with turning) and records to 28 s. Music is muted for the check (it measures the effects mix). A 1 s sub-gun (12.7 mm) burst at 22.5 s.",
  "steps": [
   {
    "at": 0.0,
    "setting": "controls.sprint_mode",
    "value": "hold"
+  },
+  {
+   "at": 0.0,
+   "setting": "audio.music",
+   "value": 0.0
   },
   {
    "at": 0.0,
@@ -57,7 +62,18 @@
    "for": 0.1
   },
   {
-   "at": 25.0,
+   "at": 22.5,
+   "press": "fire_sub",
+   "for": 1.0
+  },
+  {
+   "at": 24.0,
+   "press": "turn_right",
+   "strength": 1.0,
+   "for": 3.0
+  },
+  {
+   "at": 28.0,
    "call": "record_audio",
    "args": [
     false,
@@ -65,11 +81,11 @@
    ]
   },
   {
-   "at": 25.5,
+   "at": 28.5,
    "shot": "end"
   },
   {
-   "at": 26.0,
+   "at": 29.0,
    "quit": true
   }
  ]

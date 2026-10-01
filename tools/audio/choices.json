@@ -1,0 +1,807 @@
+{
+ "_about": "Which downloaded sounds become choices for each game sound (lane B4 part 2). tools/audio/pick_choices.py scores every library.json sound against an entry's rule: +2 per tag in 'tags', +3 per word of 'words' in the title, -10 per word of 'not'; sounds longer than max_s are left out. The best 'count' are cut to max_s, peak-normalised, converted to Ogg in assets/audio/lib/<entry>/ and listed as that sounds.json entry's 'choices', after the synth take ('Made here'). 'default' says which plays until Emerson picks: 'best' (top library match), 'synth' or 'off'. A new entry here (with 'new': {bus, label, ...}) makes a new game sound. 'prefer' (optional): words of the title to make the default when that sound is among the choices. 'pitch' (optional): base pitch for this sound's downloaded choices (below 1 plays lower and longer; for footsteps sized for people). Each choice is levelled to the same average loudness as the synth take it replaces (or the synth take of 'loudness_like', plus 'loudness_db'), peak capped at -1 dBFS, so volume_db keeps its meaning. 'punch': true compresses the take and raises it to a -1 dBFS peak (guns and explosions: more body, as loud as a take can be).",
+ "count": 8,
+ "rules": {
+  "gun_57mm_fire": {
+   "tags": [
+    "gun",
+    "shot",
+    "war",
+    "warfare",
+    "tanks",
+    "explosion",
+    "boom",
+    "cannon",
+    "artillery",
+    "tank",
+    "gunshot",
+    "weapon"
+   ],
+   "words": [
+    "cannon",
+    "fire",
+    "blast",
+    "explosion",
+    "gun",
+    "echo",
+    "heavy",
+    "boom"
+   ],
+   "not": [
+    "laser",
+    "cartoon",
+    "toy",
+    "pistol",
+    "silencer",
+    "reload",
+    "game",
+    "arcade",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "pistol",
+    "magnum",
+    "22",
+    "shotty",
+    "cz",
+    "powder",
+    "hit",
+    "miss",
+    "splash",
+    "wall",
+    "ship",
+    "impact",
+    "stairs",
+    "steps",
+    "bell",
+    "glass",
+    "load"
+   ],
+   "max_s": 4.0,
+   "default": "best",
+   "prefer": "battle at sea: cannon fire",
+   "loudness_db": 4.0,
+   "punch": true
+  },
+  "mg_12_7_fire": {
+   "tags": [
+    "gun",
+    "shot",
+    "war",
+    "warfare",
+    "gunshot",
+    "weapon"
+   ],
+   "words": [
+    "machine",
+    "rifle",
+    "gunshot",
+    "gunshots",
+    "shot",
+    "automatic",
+    "minigun",
+    "heavy",
+    "50"
+   ],
+   "not": [
+    "laser",
+    "cartoon",
+    "toy",
+    "reload",
+    "burst",
+    "game",
+    "arcade",
+    "cannon",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "firework",
+    "steps",
+    "stairs",
+    "footstep",
+    "door",
+    "reload",
+    "22",
+    "pistol",
+    "shotty",
+    "bell",
+    "load",
+    "cloth",
+    "voice",
+    "alert"
+   ],
+   "max_s": 1.2,
+   "default": "best",
+   "prefer": "gunshot sound effect",
+   "pitch": 0.85,
+   "punch": true
+  },
+  "gun_57mm_reload": {
+   "tags": [
+    "gun",
+    "metal",
+    "tools",
+    "rpg-audio",
+    "reload"
+   ],
+   "words": [
+    "reload",
+    "cock",
+    "load",
+    "metal",
+    "mechanism",
+    "latch"
+   ],
+   "not": [
+    "cartoon",
+    "toy",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 3.0,
+   "default": "best"
+  },
+  "casing_57mm_drop": {
+   "tags": [
+    "metal",
+    "drop",
+    "gun",
+    "impact-sounds"
+   ],
+   "words": [
+    "shell",
+    "casing",
+    "metal",
+    "drop",
+    "fall",
+    "metal",
+    "light"
+   ],
+   "not": [
+    "cartoon",
+    "coin",
+    "bell",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 2.0,
+   "default": "best",
+   "pitch": 0.8
+  },
+  "shell_explode": {
+   "new": {
+    "label": "Shell bursts (57 mm and up)",
+    "bus": "impacts",
+    "volume_db": 0.0,
+    "pitch_jitter": 0.05,
+    "unit_size": 30.0,
+    "max_distance_m": 2000.0,
+    "attenuation": "inverse",
+    "delay_by_distance": true
+   },
+   "tags": [
+    "explosion",
+    "bomb",
+    "boom",
+    "war",
+    "warfare",
+    "artillery"
+   ],
+   "words": [
+    "explosion",
+    "blast",
+    "bomb",
+    "impact",
+    "heavy",
+    "grenade",
+    "war",
+    "cannon hit"
+   ],
+   "not": [
+    "cartoon",
+    "toy",
+    "magic",
+    "game",
+    "arcade",
+    "firework",
+    "sci",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser"
+   ],
+   "max_s": 4.5,
+   "default": "best",
+   "prefer": "bomb explosion in battle",
+   "loudness_like": "impact_dirt",
+   "loudness_db": 3.0,
+   "punch": true
+  },
+  "impact_dirt": {
+   "tags": [
+    "impact",
+    "hit",
+    "thud",
+    "explosion",
+    "debris"
+   ],
+   "words": [
+    "dirt",
+    "ground",
+    "impact",
+    "thud",
+    "earth",
+    "debris",
+    "heavy"
+   ],
+   "not": [
+    "cartoon",
+    "punch",
+    "glass",
+    "game",
+    "body",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 2.5,
+   "default": "best",
+   "prefer": "explosive impact from afar"
+  },
+  "impact_rock": {
+   "tags": [
+    "impact",
+    "crash",
+    "rock",
+    "hit",
+    "impact-sounds",
+    "rubble",
+    "debris"
+   ],
+   "words": [
+    "rock",
+    "stone",
+    "concrete",
+    "debris",
+    "crash",
+    "rubble",
+    "collapse",
+    "brick"
+   ],
+   "not": [
+    "cartoon",
+    "punch",
+    "music",
+    "game",
+    "glass",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 3.0,
+   "default": "best",
+   "pitch": 0.75
+  },
+  "impact_metal": {
+   "tags": [
+    "metal",
+    "impact",
+    "hit",
+    "crash",
+    "impact-sounds"
+   ],
+   "words": [
+    "metal",
+    "armor",
+    "armour",
+    "impact",
+    "hit",
+    "heavy",
+    "clang",
+    "steel",
+    "plate"
+   ],
+   "not": [
+    "cartoon",
+    "bell",
+    "ding",
+    "chime",
+    "game",
+    "coin",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 2.0,
+   "default": "best",
+   "prefer": "impactplate heavy",
+   "pitch": 0.8
+  },
+  "foot_dirt": {
+   "tags": [
+    "stomp",
+    "thud",
+    "impact",
+    "impact-sounds",
+    "footstep"
+   ],
+   "words": [
+    "stomp",
+    "heavy",
+    "giant",
+    "thud",
+    "step",
+    "monster",
+    "boom",
+    "footstep",
+    "heavy",
+    "concrete",
+    "mech",
+    "stomp"
+   ],
+   "not": [
+    "cartoon",
+    "door",
+    "game",
+    "punch",
+    "knock",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework",
+    "splash",
+    "fox",
+    "water",
+    "stairs",
+    "bell",
+    "glass"
+   ],
+   "max_s": 1.5,
+   "default": "best",
+   "prefer": "mech stomp",
+   "pitch": 0.55
+  },
+  "foot_rock": {
+   "tags": [
+    "stomp",
+    "thud",
+    "metal",
+    "impact",
+    "impact-sounds",
+    "footstep"
+   ],
+   "words": [
+    "stomp",
+    "heavy",
+    "metal",
+    "step",
+    "robot",
+    "giant",
+    "thud",
+    "footstep",
+    "concrete",
+    "metal",
+    "mech",
+    "stomp"
+   ],
+   "not": [
+    "cartoon",
+    "door",
+    "game",
+    "punch",
+    "knock",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework",
+    "splash",
+    "fox",
+    "water",
+    "stairs",
+    "bell",
+    "glass"
+   ],
+   "max_s": 1.5,
+   "default": "best",
+   "prefer": "impactmetal heavy",
+   "pitch": 0.6
+  },
+  "land_heavy": {
+   "tags": [
+    "thud",
+    "impact",
+    "crash",
+    "stomp",
+    "impact-sounds"
+   ],
+   "words": [
+    "heavy",
+    "land",
+    "fall",
+    "thud",
+    "impact",
+    "drop",
+    "mech",
+    "stomp"
+   ],
+   "not": [
+    "cartoon",
+    "game",
+    "glass",
+    "punch",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework",
+    "splash",
+    "fox",
+    "water",
+    "stairs",
+    "bell",
+    "glass"
+   ],
+   "max_s": 2.5,
+   "default": "best",
+   "prefer": "impactmetal heavy",
+   "pitch": 0.6
+  },
+  "hydraulic_hiss": {
+   "tags": [
+    "robot",
+    "tools",
+    "high-tech",
+    "engine",
+    "sci-fi",
+    "sci-fi-sounds",
+    "hydraulic",
+    "servo",
+    "mech"
+   ],
+   "words": [
+    "hydraulic",
+    "pneumatic",
+    "hiss",
+    "air",
+    "steam",
+    "release",
+    "piston"
+   ],
+   "not": [
+    "cartoon",
+    "snake",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 2.5,
+   "default": "synth"
+  },
+  "servo_loop": {
+   "tags": [
+    "robot",
+    "engine",
+    "high-tech",
+    "sci-fi",
+    "sci-fi-sounds",
+    "servo",
+    "mech"
+   ],
+   "words": [
+    "servo",
+    "robot",
+    "motor",
+    "mechanical",
+    "machine"
+   ],
+   "not": [
+    "cartoon",
+    "voice",
+    "talk",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 6.0,
+   "default": "off"
+  },
+  "skid_loop": {
+   "tags": [
+    "crash",
+    "rock",
+    "drop",
+    "debris"
+   ],
+   "words": [
+    "gravel",
+    "slide",
+    "scrape",
+    "drag",
+    "rocks"
+   ],
+   "not": [
+    "cartoon",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 4.0,
+   "default": "synth"
+  },
+  "wind_loop": {
+   "tags": [
+    "wind",
+    "storm",
+    "desert",
+    "mountain",
+    "ambience"
+   ],
+   "words": [
+    "wind",
+    "breeze",
+    "desert",
+    "storm",
+    "howl"
+   ],
+   "not": [
+    "cartoon",
+    "chimes",
+    "game",
+    "rain",
+    "thunder",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 60.0,
+   "default": "best"
+  },
+  "wire_fire": {
+   "tags": [
+    "whoosh",
+    "swoosh",
+    "gun",
+    "metal"
+   ],
+   "words": [
+    "harpoon",
+    "launch",
+    "whoosh",
+    "cable",
+    "shot",
+    "grapple"
+   ],
+   "not": [
+    "cartoon",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 1.5,
+   "default": "synth"
+  },
+  "wire_anchor_hit": {
+   "tags": [
+    "metal",
+    "impact",
+    "hit",
+    "impact-sounds"
+   ],
+   "words": [
+    "metal",
+    "impact",
+    "hook",
+    "clank",
+    "anchor"
+   ],
+   "not": [
+    "cartoon",
+    "bell",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "laser",
+    "firework"
+   ],
+   "max_s": 1.5,
+   "default": "synth"
+  },
+  "lowe_fire": {
+   "tags": [
+    "tanks",
+    "explosion",
+    "boom",
+    "war",
+    "warfare",
+    "gun",
+    "cannon",
+    "artillery",
+    "tank"
+   ],
+   "words": [
+    "cannon",
+    "fire",
+    "blast",
+    "explosion",
+    "heavy",
+    "boom"
+   ],
+   "not": [
+    "cartoon",
+    "toy",
+    "laser",
+    "game",
+    "bit",
+    "chiptune",
+    "pixel",
+    "alien",
+    "spell",
+    "fantasy",
+    "pistol",
+    "magnum",
+    "22",
+    "hit",
+    "miss",
+    "splash",
+    "ship",
+    "stairs",
+    "steps",
+    "bell",
+    "glass"
+   ],
+   "max_s": 4.5,
+   "default": "best",
+   "prefer": "cannon 02",
+   "punch": true
+  },
+  "ui_click": {
+   "tags": [
+    "interface-sounds",
+    "ui-audio",
+    "click",
+    "interface"
+   ],
+   "words": [
+    "click",
+    "select",
+    "switch"
+   ],
+   "not": [],
+   "max_s": 0.6,
+   "default": "best"
+  },
+  "ui_hover": {
+   "tags": [
+    "interface-sounds",
+    "ui-audio",
+    "interface"
+   ],
+   "words": [
+    "tick",
+    "glass",
+    "scroll",
+    "hover",
+    "switch"
+   ],
+   "not": [],
+   "max_s": 0.4,
+   "default": "best"
+  },
+  "ui_back": {
+   "tags": [
+    "interface-sounds",
+    "ui-audio",
+    "interface"
+   ],
+   "words": [
+    "back",
+    "close",
+    "minimize",
+    "drop",
+    "error"
+   ],
+   "not": [],
+   "max_s": 0.8,
+   "default": "best"
+  },
+  "ui_confirm": {
+   "tags": [
+    "interface-sounds",
+    "ui-audio",
+    "interface"
+   ],
+   "words": [
+    "confirm",
+    "select",
+    "maximize",
+    "open",
+    "confirmation"
+   ],
+   "not": [],
+   "max_s": 1.0,
+   "default": "best"
+  }
+ }
+}

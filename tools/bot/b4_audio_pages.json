@@ -1,0 +1,47 @@
+{
+ "name": "b4_audio_pages",
+ "_about": "Lane B4 part 2: screenshots of Settings > Audio (Volume, Sounds, Music). tools/bot_run.sh b4_audio_pages",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 1.5,
+   "shot": "main-menu"
+  },
+  {
+   "at": 2.0,
+   "call": "open_maps"
+  },
+  {
+   "at": 2.0,
+   "goto": "settings:audio/volume"
+  },
+  {
+   "at": 2.5,
+   "shot": "audio-volume"
+  },
+  {
+   "at": 2.7,
+   "goto": "settings:audio/sounds"
+  },
+  {
+   "at": 3.2,
+   "shot": "audio-sounds"
+  },
+  {
+   "at": 3.4,
+   "goto": "settings:audio/music"
+  },
+  {
+   "at": 3.9,
+   "shot": "audio-music"
+  },
+  {
+   "at": 4.2,
+   "quit": true
+  }
+ ]
+}

@@ -46,6 +46,8 @@ func build_schema() -> void:
 			for group: Dictionary in page.get("groups", []):
 				if str(group.get("generate", "")) == "audio_buses":
 					group["items"] = _audio_bus_items()
+				elif str(group.get("generate", "")) == "sound_mix":
+					group["items"] = _sound_mix_items(str(group.get("bus", "")))
 				for item: Dictionary in group.get("items", []):
 					item["section"] = section["id"]
 					item["page"] = page["id"]
@@ -240,6 +242,50 @@ func reset_all_quietly() -> void:
 	for key: String in _items:
 		if _items[key].has("default"):
 			_values[key] = _items[key]["default"]
+
+
+## Lane B4 part 2: Emerson's own mix. For every sound on `bus` in sounds.json, a choice of which
+## recording plays (when the entry offers "choices") and a level in dB on top of the entry's own;
+## the lowest step silences it. Sfx reads both live (audio.pick.<id>, audio.level.<id>).
+const SOUND_LEVEL_OFF_DB := -40.0
+
+
+func _sound_mix_items(bus: String) -> Array:
+	var out: Array = []
+	for id in Registry.ids("sounds"):
+		var e := Registry.entry("sounds", id)
+		if str(e.get("bus", "")) != bus:
+			continue
+		var label := str(e.get("label", id))
+		var choices: Array = e.get("choices", [])
+		if choices.size() > 1:
+			var options: Array = []
+			for c: Dictionary in choices:
+				options.append([str(c["id"]), str(c.get("label", c["id"]))])
+			out.append(
+				{
+					"key": "audio.pick." + id,
+					"label": label,
+					"type": "choice",
+					"options": options,
+					"default": str(e.get("choice", choices[0]["id"])),
+					"help": "Which recording plays for %s. It plays once when you change it." % label.to_lower(),
+				}
+			)
+		out.append(
+			{
+				"key": "audio.level." + id,
+				"label": "    Level" if choices.size() > 1 else label,
+				"type": "slider",
+				"min": SOUND_LEVEL_OFF_DB,
+				"max": 12.0,
+				"step": 1.0,
+				"format": "db",
+				"default": 0.0,
+				"help": "%s: louder or quieter than the game's mix (0 dB). All the way down turns it off." % label,
+			}
+		)
+	return out
 
 
 func _audio_bus_items() -> Array:
