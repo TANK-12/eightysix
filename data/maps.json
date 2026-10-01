@@ -335,9 +335,13 @@
        ]
       }
      ],
+     "bridges": [
+      {"id": "ash_bridge", "road": "west_road", "kit": "bridge", "label": "Ash river bridge"}
+     ],
      "roads": [
       {
        "id": "west_road",
+       "bridged": true,
        "width_m": 9.0,
        "points": [
         [
@@ -537,6 +541,7 @@
       "seed": 86
      },
      "viewpoints": {
+      "bridge": {"eye": [-70, 14, -262], "look": [-8, 2, -318]},
       "overview": {
        "eye": [
         -1500,

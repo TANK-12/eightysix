@@ -26,6 +26,7 @@ var mission: Mission
 ## World positions a wire anchor holds on well (ruin corners and tops).
 var grapple_points: Array[Vector3] = []
 var places: Array = []  # every placed kit node
+var bridges: Array[Destructible] = []
 var build_ms := {}
 
 
@@ -49,6 +50,7 @@ func _ready() -> void:
 	build_ms["ground"] = Time.get_ticks_msec() - t0
 	t0 = Time.get_ticks_msec()
 	_build_towns()
+	_build_bridges()
 	_build_outcrops()
 	build_ms["places"] = Time.get_ticks_msec() - t0
 	_spawn_mech()
@@ -168,8 +170,32 @@ func _build_towns() -> void:
 			node.rotation.y = deg_to_rad(float(spec["rot"]))
 			node.set_meta("town", spec["town"])
 			holder.add_child(node)
-			grapple_points.append_array(node.anchors())
+			node.sync_anchors(grapple_points)
+			node.broke.connect(node.sync_anchors.bind(grapple_points).unbind(1))
+			node.collapsed.connect(node.sync_anchors.bind(grapple_points))
 			places.append(node)
+
+
+## The map's "bridges" (BigBridges): a kit bridge where a bridged road crosses the river; it breaks
+## under fire like the buildings, and a span shot out stays out.
+func _build_bridges() -> void:
+	var holder := Node3D.new()
+	holder.name = "Bridges"
+	add_child(holder)
+	for spec: Dictionary in entry.get("bridges", []):
+		var lay := BigBridges.layout(terrain, entry, spec)
+		if lay.is_empty():
+			push_warning("big_map: bridge %s: its road does not cross water" % spec.get("id", "?"))
+			continue
+		var node := Destructible.make(str(lay["kit"]), 1, lay["over"], PLACE_RANGE_M)
+		node.position = lay["at"]
+		node.rotation.y = float(lay["yaw"])
+		node.set_meta("bridge", lay["id"])
+		holder.add_child(node)
+		node.sync_anchors(grapple_points)
+		node.broke.connect(node.sync_anchors.bind(grapple_points).unbind(1))
+		bridges.append(node)
+		places.append(node)
 
 
 ## Bot hook: the Juggernaut placed `distance_m` from one of the town's buildings, toward the town's
@@ -190,10 +216,39 @@ func face_building(town: String, index: int = 0, distance_m: float = 30.0) -> vo
 	var at := bp + (c - bp).normalized() * distance_m
 	stream.prime(Vector3(at.x, 0.0, at.y))
 	var d := (bp - at).normalized()
-	mech.global_transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.y)), Vector3(at.x, terrain.height_at(at.x, at.y) + 3.2, at.y))
+	_park_mech(Vector3(at.x, 0.0, at.y), Vector3(d.x, 0.0, d.y))
+	set_meta("target_building", b)
+
+
+## Bot hook: the Juggernaut `distance_m` before the first bridge's start, on the road, facing along
+## it, standing still. For bridge checks with real shells.
+func face_bridge(distance_m: float = 40.0) -> void:
+	if bridges.is_empty():
+		push_warning("big_map: no bridge")
+		return
+	var b := bridges[0]
+	var along := -b.global_transform.basis.x.normalized()  # the bridge runs along its local +X
+	var dir := Vector3(-along.x, 0.0, -along.z).normalized()
+	var at := b.global_position + along * distance_m
+	stream.prime(at)
+	_park_mech(at, dir, -3.0)  # the deck is level with the ground here: the gun looks a little down
+
+
+## The Juggernaut standing still on the ground at (at.x, at.z), facing `dir` (flat). The mech keeps its
+## own aim heading and turns back toward it, so that and the gun's pitch are set too.
+func _park_mech(at: Vector3, dir: Vector3, look_pitch_deg: float = 0.0) -> void:
+	var yaw := atan2(-dir.x, -dir.z)
+	mech.global_transform = Transform3D(Basis(Vector3.UP, yaw), Vector3(at.x, terrain.height_at(at.x, at.z) + 3.2, at.z))
 	mech.linear_velocity = Vector3.ZERO
 	mech.angular_velocity = Vector3.ZERO
-	set_meta("target_building", b)
+	mech.set("_aim_yaw", yaw)
+	mech.set("look_pitch_deg", look_pitch_deg)
+
+
+## Bot hook: how much of the first bridge still stands (into the bot log).
+func report_bridge(label: String) -> void:
+	for b: Destructible in bridges:
+		print("big_map %s: bridge %s integrity %.2f, %d of %d pieces gone, %d anchors listed" % [label, b.get_meta("bridge", "?"), b.integrity(), b.gone.size(), b.pieces.size(), b.listed.size()])
 
 
 ## Bot hook: how much of the building face_building() aimed at still stands (into the bot log).

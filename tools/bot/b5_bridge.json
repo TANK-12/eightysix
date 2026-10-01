@@ -1,0 +1,141 @@
+{
+ "name": "b5_bridge",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: the Ash river bridge on the west road. Looks at it, parks the Juggernaut 30 m before it with the gun looking a little down, fires 7 HE rounds along the road onto the deck, logs the bridge's integrity. A concrete span is not meant to fall to a few rounds (the log stays at 1.00); parapets chip. tools/bot_run.sh b5_bridge",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "look_from",
+   "args": [
+    "bridge"
+   ]
+  },
+  {
+   "at": 4.5,
+   "shot": "bridge-from-west"
+  },
+  {
+   "at": 4.6,
+   "call": "report_bridge",
+   "args": [
+    "before"
+   ]
+  },
+  {
+   "at": 5.0,
+   "call": "face_bridge",
+   "args": [
+    30.0
+   ]
+  },
+  {
+   "at": 5.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 8.0,
+   "shot": "mech-at-bridge"
+  },
+  {
+   "at": 8.1,
+   "sample": "at-bridge"
+  },
+  {
+   "at": 8.2,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 8.6,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 9.2,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 10.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 11.8,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 13.1,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 14.4,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 15.7,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 17.0,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 19.8,
+   "call": "report_bridge",
+   "args": [
+    "after 7 HE"
+   ]
+  },
+  {
+   "at": 19.9,
+   "shot": "mech-after"
+  },
+  {
+   "at": 20.1,
+   "call": "look_from",
+   "args": [
+    "bridge"
+   ]
+  },
+  {
+   "at": 22.8,
+   "shot": "bridge-after"
+  },
+  {
+   "at": 22.9,
+   "call": "report_bridge",
+   "args": [
+    "settled"
+   ]
+  },
+  {
+   "at": 23.3,
+   "quit": true
+  }
+ ]
+}

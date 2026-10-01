@@ -27,6 +27,7 @@ var pieces: Array = []  # every piece from the first build: xf, size, material, 
 var hp := PackedFloat32Array()
 var gone := {}  # piece index -> true
 var is_collapsed := false
+var listed: Array[Vector3] = []  # the anchors this node has put into a level's grapple_points
 var _boxes: Array[AABB] = []  # each piece's box in this node's space
 var _volume := 0.0
 var _base_y := INF  # the bottom of the lowest piece as built: the ground it stands on
@@ -81,6 +82,17 @@ func anchors() -> Array[Vector3]:
 		for p: Vector3 in body.get_meta("anchors", []):
 			out.append(body.global_transform * p)
 	return out
+
+
+## Puts this node's current anchors into a level's `grapple_points`, taking out the ones it listed
+## before (anchors on pieces that have since broken off). Call once after placing, and again on `broke`.
+func sync_anchors(points: Array[Vector3]) -> void:
+	for p: Vector3 in listed:
+		var at := points.find(p)
+		if at >= 0:
+			points.remove_at(at)
+	listed = anchors()
+	points.append_array(listed)
 
 
 ## Projectile hits arrive here (CombatHits.receiver). info: point, dir, damage, ammo (as projectile.gd).
@@ -189,9 +201,9 @@ func _spawn_debris(i: int, velocity: Vector3) -> void:
 	_debris.append(deb)
 	var cap := int(_cfg.get("debris_cap", 160))
 	while _debris.size() > cap:
-		var old: RigidBody3D = _debris.pop_front()
+		var old: Variant = _debris.pop_front()  # may be freed already (level left)
 		if is_instance_valid(old):
-			old.queue_free()
+			(old as RigidBody3D).queue_free()
 
 
 func _rebuild() -> void:

@@ -104,3 +104,27 @@ func test_projectiles_find_the_building() -> void:
 	var d := Destructible.make("ruin_house", 1)
 	holder.add_child(d)
 	assert_eq(CombatHits.receiver(d.body), d, "a shell striking the kit body reaches the Destructible")
+
+
+func test_grapple_points_follow_a_building_as_it_breaks() -> void:
+	var points: Array[Vector3] = []
+	var d := Destructible.make("ruin_house_two", 3, {"damage": 0.0})
+	holder.add_child(d)
+	d.sync_anchors(points)
+	d.broke.connect(d.sync_anchors.bind(points).unbind(1))
+	d.collapsed.connect(d.sync_anchors.bind(points))
+	assert_gt(points.size(), 0, "an intact house lists anchors")
+	var first := points.duplicate()
+	var top: AABB = d._boxes[0]
+	for b: AABB in d._boxes:
+		if b.end.y > top.end.y:
+			top = b
+	d.take_hit({"point": d.to_global(top.get_center()), "dir": Vector3.DOWN, "damage": 50000.0, "ammo": "he"})
+	assert_gt(d.gone.size(), 0, "the top piece broke")
+	if not d.is_collapsed:
+		assert_eq(points.size(), d.anchors().size(), "the list holds only what the house still has")
+		for p: Vector3 in points:
+			assert_true(d.anchors().has(p), "no anchor left hanging where a piece used to be")
+	d.collapse()
+	assert_eq(points.size(), 0, "a collapsed house has no anchors")
+	assert_gt(first.size(), 0, "(it had some before)")

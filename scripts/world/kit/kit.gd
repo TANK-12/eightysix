@@ -518,6 +518,14 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 		var x := k * sl
 		var y := lerpf(h0, h1, x / length) - deck
 		parts.piece(mat, Transform3D(Basis(), Vector3(x, y - drop * 0.5, 0.0)), Vector3(pil, drop, width * 0.8))
+	# lane B5: an abutment block under each end (a bridge set into banks), so the end spans stand on something
+	var abut := float(e.get("abutment_m", 0.0))
+	if abut > 0.0:
+		var abut_drop := drop  # same bottom as the pillars: they all stand on the same ground
+		for end in [0, 1]:
+			var x := 1.0 - abut * 0.5 if end == 0 else length - 1.0 + abut * 0.5
+			var y := (h0 if end == 0 else h1) - deck
+			parts.piece(mat, Transform3D(Basis(), Vector3(x, y - abut_drop * 0.5, 0.0)), Vector3(abut, abut_drop, width * 0.95))
 	parts.anchors.append(Vector3(length * 0.5, h0 + par, width * 0.5))
 
 

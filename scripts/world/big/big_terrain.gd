@@ -14,6 +14,8 @@ const CELL_M := 256  # feature index cells: each lists the features that reach i
 const ROAD_SHOULDER_M := 10.0
 const WATER_REACH := 2.5  # banks reach this many bank widths from the water's edge
 const FORD_DEPTH_M := 0.5  # where a road crosses a river the water is this deep
+const BRIDGE_REACH_M := 26.0  # a bridged road steepens the river's banks this far either side of it
+const BRIDGE_BANK_KEEP := 0.22  # share of the normal bank width left right at a bridged road
 const FORD_REACH_M := 14.0  # the river bed climbs to the ford over this far either side of the road
 
 var entry: Dictionary
@@ -338,8 +340,15 @@ func _eval(x: float, z: float, c: Dictionary, splat: Variant, at: int) -> float:
 				flat_h = float(f["h"])
 	var road := 0.0
 	var road_d := 1.0e6
+	var ford_d := 1.0e6  # distance to the roads that ford the river (a bridged road crosses it dry)
+	var bridge_d := 1.0e6
 	for r: Dictionary in c["roads"]:
-		road_d = minf(road_d, _seg_dist(p, r["a"], r["b"]) - float(r["half_w"]))
+		var rd := _seg_dist(p, r["a"], r["b"]) - float(r["half_w"])
+		road_d = minf(road_d, rd)
+		if r["bridged"]:
+			bridge_d = minf(bridge_d, rd)
+		else:
+			ford_d = minf(ford_d, rd)
 	if road_d < ROAD_SHOULDER_M:
 		# in and near a town the road sits on the town's level ground
 		var bed := lerpf(_bed_at(x, z), flat_h, flat_w)
@@ -350,9 +359,12 @@ func _eval(x: float, z: float, c: Dictionary, splat: Variant, at: int) -> float:
 	for rv: Dictionary in c["rivers"]:
 		var e := _river_edge(pw, rv)
 		var depth := float(rv["depth"])
-		if road_d < FORD_REACH_M:
-			depth = lerpf(FORD_DEPTH_M, depth, smoothstep(0.0, FORD_REACH_M, road_d))
-		h = _carve(h, e, float(rv["bank"]), float(rv["half_w"]), depth)
+		var bank := float(rv["bank"])
+		if ford_d < FORD_REACH_M:
+			depth = lerpf(FORD_DEPTH_M, depth, smoothstep(0.0, FORD_REACH_M, ford_d))
+		if bridge_d < BRIDGE_REACH_M:
+			bank *= lerpf(BRIDGE_BANK_KEEP, 1.0, smoothstep(0.0, BRIDGE_REACH_M, bridge_d))
+		h = _carve(h, e, bank, float(rv["half_w"]), depth)
 		mud = maxf(mud, 1.0 - smoothstep(1.0, 9.0, e))
 	for lk: Dictionary in c["lakes"]:
 		var e := _lake_edge(pw, lk)
@@ -436,9 +448,9 @@ func _read_features() -> void:
 	for road: Dictionary in entry.get("roads", []):
 		var pts := _points(road["points"])
 		for i in pts.size() - 1:
-			var f := {"a": pts[i], "b": pts[i + 1], "half_w": float(road.get("width_m", 8.0)) * 0.5}
+			var f := {"a": pts[i], "b": pts[i + 1], "half_w": float(road.get("width_m", 8.0)) * 0.5, "bridged": bool(road.get("bridged", false))}
 			_roads.append(f)
-			_index("roads", f, _seg_box(pts[i], pts[i + 1]), float(f["half_w"]) + ROAD_SHOULDER_M)
+			_index("roads", f, _seg_box(pts[i], pts[i + 1]), float(f["half_w"]) + maxf(ROAD_SHOULDER_M, BRIDGE_REACH_M if f["bridged"] else 0.0))
 	for rv: Dictionary in entry.get("rivers", []):
 		var pts := _points(rv["points"])
 		for i in pts.size() - 1:

@@ -93,10 +93,13 @@ func test_river_and_lake_hold_water_and_roads_ford_it() -> void:
 				var q := a.lerp(b, k / 400.0)
 				if t.water_edge_at(q.x, q.y) < -6.0:
 					var depth := t.water_level - t.height_at(q.x, q.y)
-					assert_between(depth, 0.0, 0.8, "%s fords at %s, %.2f m deep" % [road["id"], str(q), depth])
-					fords += 1
+					if road.get("bridged", false):
+						assert_gt(depth, 1.5, "%s is bridged at %s: the river stays deep (%.2f m)" % [road["id"], str(q), depth])
+					else:
+						assert_between(depth, 0.0, 0.8, "%s fords at %s, %.2f m deep" % [road["id"], str(q), depth])
+						fords += 1
 					break
-	assert_gt(fords, 1, "roads cross the river at fords")
+	assert_gt(fords, 0, "roads cross the river at fords (the main road has a bridge)")
 
 
 func test_towns_lay_out_buildings_clear_of_roads_and_water() -> void:
