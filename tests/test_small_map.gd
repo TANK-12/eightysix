@@ -271,3 +271,23 @@ func test_backdrop_never_pokes_out_of_the_ground_inside_the_map() -> void:
 				at = v
 	assert_lt(worst, 0.01, "backdrop above the ground inside the map by %.1f m at %s" % [worst, at])
 	holder.free()
+
+
+func test_far_ground_normals_follow_their_own_mesh() -> void:
+	# lane B4 part 3: far chunks (2 m and 4 m steps) took normals from 1 m apart, so the 1 m roughness they cannot
+	# show as shape landed in the shading as a regular comb of stripes down the far cliffs
+	for step: int in [2, 4]:
+		var mesh := _t().chunk_mesh(0, 0, step)  # a rim corner: steep, rough
+		var arr := mesh.surface_get_arrays(0)
+		var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var normals: PackedVector3Array = arr[Mesh.ARRAY_NORMAL]
+		var m := SmallMapTerrain.CHUNK_M / step + 1
+		var worst := 0.0
+		for j in range(1, m - 1):
+			for i in range(1, m - 1):
+				var k := j * m + i
+				var dx := verts[k + 1] - verts[k - 1]
+				var dz := verts[k + m] - verts[k - m]
+				var own := dz.cross(dx).normalized()
+				worst = maxf(worst, rad_to_deg(own.angle_to(normals[k])))
+		assert_lt(worst, 1.0, "step %d: vertex normals match the mesh's own slope (worst %.1f deg)" % [step, worst])

@@ -405,7 +405,7 @@ func chunk_mesh(x0: int, z0: int, step: int) -> ArrayMesh:
 			var zi := mini(z0 + j * step, n - 1)
 			var k := j * m + i
 			verts[k] = Vector3(xi - half, grid[zi * n + xi], zi - half)
-			normals[k] = _grid_normal(xi, zi)
+			normals[k] = _grid_normal(xi, zi, step)
 	var indices := PackedInt32Array()
 	for j in cells:
 		for i in cells:
@@ -426,12 +426,14 @@ func chunk_mesh(x0: int, z0: int, step: int) -> ArrayMesh:
 	return mesh
 
 
-func _grid_normal(xi: int, zi: int) -> Vector3:
-	var hl := grid[zi * n + maxi(xi - 1, 0)]
-	var hr := grid[zi * n + mini(xi + 1, n - 1)]
-	var hd := grid[maxi(zi - 1, 0) * n + xi]
-	var hu := grid[mini(zi + 1, n - 1) * n + xi]
-	return Vector3(hl - hr, 2.0, hd - hu).normalized()
+## The slope over `step` metres each way: a far chunk's normals follow its own coarse surface. Taken
+## 1 m apart, they carried roughness the mesh cannot show, and it came out as a comb of stripes (lane B4).
+func _grid_normal(xi: int, zi: int, step: int = 1) -> Vector3:
+	var hl := grid[zi * n + maxi(xi - step, 0)]
+	var hr := grid[zi * n + mini(xi + step, n - 1)]
+	var hd := grid[maxi(zi - step, 0) * n + xi]
+	var hu := grid[mini(zi + step, n - 1) * n + xi]
+	return Vector3(hl - hr, 2.0 * step, hd - hu).normalized()
 
 
 func _add_skirt(verts: PackedVector3Array, normals: PackedVector3Array, indices: PackedInt32Array, m: int, drop: float) -> void:
