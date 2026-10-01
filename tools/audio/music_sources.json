@@ -1,29 +1,641 @@
 {
-  "_about": "The 86 tracks fetched from YouTube for personal use (lane B4 part 2). tools/audio/fetch_music.py downloads each into ~/Music/86/ as MP3 at 160 kb/s (YouTube's own audio is about 130-160 kb/s Opus; Godot cannot play Opus or AAC, so one conversion is needed, kept at the source's size, not blown up to 320) and lists it in data/music.json. One line here adds a track. use: where the player may pick it (menu, explore, combat).",
-  "out_dir": "~/Music/86",
-  "tracks": [
-    {"yt": "XmLeApuB2hs", "title": "3-pun 29-byou (opening 1, 1 hour)", "language": "ja", "kind": "opening", "use": ["menu", "explore"]},
-    {"yt": "j8lRTQpb94g", "title": "Kyoukaisen (opening 2, 1 hour)", "language": "ja", "kind": "opening", "use": ["menu", "explore"]},
-    {"yt": "nc0PsGNlMIU", "title": "Avid (ending 1, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
-    {"yt": "oB-tgVhZwZI", "title": "Hands Up to the Sky (ending 2, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
-    {"yt": "Gye1PlAUHDQ", "title": "LilaS (part 2 ending 2, 1 hour)", "language": "ja", "kind": "ending", "use": ["menu", "explore"]},
-    {"yt": "hi5WUpJu_kk", "title": "Alchemilla (part 2 ending 1)", "language": "ja", "kind": "ending", "use": ["menu"]},
-    {"yt": "Wg7ayxUvb3s", "title": "Kyoukaisen (English cover, mewsic)", "language": "en", "kind": "opening", "use": ["menu", "explore"]},
-    {"yt": "HJGDjlfhJl0", "title": "Avid (English cover, mewsic)", "language": "en", "kind": "ending", "use": ["menu", "explore"]},
-    {"yt": "g1QzToMj8z0", "title": "Hands Up to the Sky (English cover, mewsic)", "language": "en", "kind": "ending", "use": ["menu", "explore"]},
-    {"yt": "A9ToMg-C-HU", "title": "Voices of the Chord (English cover, mewsic)", "language": "en", "kind": "score", "use": ["combat", "explore"]},
-    {"yt": "Cxz-W6rNscM", "title": "Voices of the Chord", "language": "en", "kind": "score", "use": ["combat"]},
-    {"yt": "yq-Taa-wNzg", "title": "EIGHTY-SIX", "language": "none", "kind": "score", "use": ["combat", "menu"]},
-    {"yt": "ahDLQbhgW5Y", "title": "THE ANSWER", "language": "en", "kind": "score", "use": ["combat"]},
-    {"yt": "k4763jBnuaw", "title": "Shin", "language": "none", "kind": "score", "use": ["explore", "menu"]},
-    {"yt": "9apPYmrQ5Y4", "title": "Rei", "language": "none", "kind": "score", "use": ["explore"]},
-    {"yt": "kyQVqQFHlgo", "title": "SPEARHEAD", "language": "none", "kind": "score", "use": ["combat"]},
-    {"yt": "SrcGIVULZQQ", "title": "Trigger or Die", "language": "none", "kind": "score", "use": ["combat"]},
-    {"yt": "hWE7XUytMpQ", "title": "Hear my voice", "language": "none", "kind": "score", "use": ["explore"]},
-    {"yt": "dUKgxdqsAK0", "title": "Two Worlds Apart", "language": "none", "kind": "score", "use": ["explore", "menu"]},
-    {"yt": "RL4vM-ztfzQ", "title": "No Reality", "language": "none", "kind": "score", "use": ["combat"]},
-    {"yt": "L68iG_XbGiE", "title": "Reality", "language": "none", "kind": "score", "use": ["explore"]},
-    {"yt": "i_TfB5RYHP0", "title": "So Tired", "language": "none", "kind": "score", "use": ["explore"]},
-    {"yt": "eogBv9Kajk8", "title": "Original soundtrack preview reel (Aniplex)", "language": "none", "kind": "score", "use": ["explore"]}
-  ]
+ "_about": "The 86 music for personal use (lane B4 parts 2-3). tools/audio/fetch_music.py downloads each into ~/Music/86/ as MP3 at 160 kb/s (YouTube's own audio is about 130-160 kb/s Opus; Godot cannot play Opus or AAC, so one conversion is needed, kept at the source's size) and rebuilds data/music.json from this list. Sets (Emerson, 2026-10-01: the soundtrack is the standard, played through; one original version of each song; nothing else unless he turns it on): 'ost' is the official soundtrack album in album order ('order'), uploaded track by track by Hiroyuki Sawano's and KOHTA YAMAMOTO's own channels (playlist PL-BqHuy6J1pt1aztCOQQvLifiItgcynvs, its three non-album entries left out); 'song' is each opening and ending once, from the artist's or label's official upload; 'extra' (covers, the preview reel) is hidden unless Settings > Audio > Music > Extra tracks is on. Do not add tracks unless Emerson asks. use: where Shuffle may pick it (menu, explore, combat).",
+ "out_dir": "~/Music/86",
+ "tracks": [
+  {
+   "yt": "ahDLQbhgW5Y",
+   "title": "THE ANSWER",
+   "set": "ost",
+   "order": 1,
+   "language": "en",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "yq-Taa-wNzg",
+   "title": "EIGHTY-SIX",
+   "set": "ost",
+   "order": 2,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "_aAQbUIJQxE",
+   "title": "Region",
+   "set": "ost",
+   "order": 3,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "E5f1_Yl0-jg",
+   "title": "Juggernaut",
+   "set": "ost",
+   "order": 4,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "Cxz-W6rNscM",
+   "title": "Voices of the Chord",
+   "set": "ost",
+   "order": 5,
+   "language": "en",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "v9INs1qqtIE",
+   "title": "Spear",
+   "set": "ost",
+   "order": 6,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "k4763jBnuaw",
+   "title": "Shin",
+   "set": "ost",
+   "order": 7,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "wxLVXSEkXCs",
+   "title": "Six-eighty",
+   "set": "ost",
+   "order": 8,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "u1uEvlwSUlQ",
+   "title": "Two-Side",
+   "set": "ost",
+   "order": 9,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "4M5Uzv0U2a0",
+   "title": "Kurena",
+   "set": "ost",
+   "order": 10,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "9apPYmrQ5Y4",
+   "title": "Rei",
+   "set": "ost",
+   "order": 11,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "aBMR28AdNBc",
+   "title": "Shift One to Zero",
+   "set": "ost",
+   "order": 12,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "yydIbBk5dzQ",
+   "title": "Piano Eightysix-One",
+   "set": "ost",
+   "order": 13,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "0mIRIlg0arw",
+   "title": "Piano Eightysix-Two",
+   "set": "ost",
+   "order": 14,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "2kyv9rgs_rs",
+   "title": "Piano Eightysix-Three",
+   "set": "ost",
+   "order": 15,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "CbsIj3uUNeI",
+   "title": "Piano Eightysix-Four",
+   "set": "ost",
+   "order": 16,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "I2qTtqePUXg",
+   "title": "Cello Piano Eightysix",
+   "set": "ost",
+   "order": 17,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "dUKgxdqsAK0",
+   "title": "Two Worlds Apart",
+   "set": "ost",
+   "order": 18,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "ABrUiI6kh70",
+   "title": "TararaTaTa",
+   "set": "ost",
+   "order": 19,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "S3lsOJyvQT8",
+   "title": "Unzari-Kettari",
+   "set": "ost",
+   "order": 20,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "-3Xy9nkyxbU",
+   "title": "St. Magnolia",
+   "set": "ost",
+   "order": 21,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "Feo72CUUQyI",
+   "title": "Lena & Annette",
+   "set": "ost",
+   "order": 22,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "iVz5Plc8RT4",
+   "title": "BuraraBaBa",
+   "set": "ost",
+   "order": 23,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "xhnmcvFjkGk",
+   "title": "Talk to you",
+   "set": "ost",
+   "order": 24,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "hGZGTpfRHsU",
+   "title": "Underneath the Sky",
+   "set": "ost",
+   "order": 25,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "7XgmQzkCCpo",
+   "title": "The Voice of the dead",
+   "set": "ost",
+   "order": 26,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "YNMAYCwiap0",
+   "title": "LEGION",
+   "set": "ost",
+   "order": 27,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "WEpznaLiPRU",
+   "title": "The nameless tragedy",
+   "set": "ost",
+   "order": 28,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "RL4vM-ztfzQ",
+   "title": "No Reality",
+   "set": "ost",
+   "order": 29,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "rEIMwub0p_U",
+   "title": "The same sky, the same dusk",
+   "set": "ost",
+   "order": 30,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "8M_h-X02jLY",
+   "title": "no distance",
+   "set": "ost",
+   "order": 31,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "SrcGIVULZQQ",
+   "title": "Trigger or Die",
+   "set": "ost",
+   "order": 32,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "kyQVqQFHlgo",
+   "title": "SPEARHEAD",
+   "set": "ost",
+   "order": 33,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "PDtw9guncAQ",
+   "title": "REGINLEIF",
+   "set": "ost",
+   "order": 34,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "zWMDTHA0CnQ",
+   "title": "Alive Today",
+   "set": "ost",
+   "order": 35,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "x56eWRJVOhM",
+   "title": "SLUMDOG PARADISE",
+   "set": "ost",
+   "order": 36,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "U0BJVa9Ro-c",
+   "title": "President me",
+   "set": "ost",
+   "order": 37,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "cLCPtuoMBKk",
+   "title": "The Last Empress",
+   "set": "ost",
+   "order": 38,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "L68iG_XbGiE",
+   "title": "Reality",
+   "set": "ost",
+   "order": 39,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "i_TfB5RYHP0",
+   "title": "So Tired",
+   "set": "ost",
+   "order": 40,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "hWE7XUytMpQ",
+   "title": "Hear my voice",
+   "set": "ost",
+   "order": 41,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "2Ie3kebsqqo",
+   "title": "MORPHO",
+   "set": "ost",
+   "order": 42,
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore",
+    "combat"
+   ]
+  },
+  {
+   "yt": "8lgTi7tqX3k",
+   "title": "3-pun 29-byou (opening 1, Hitorie)",
+   "set": "song",
+   "order": 100,
+   "language": "ja",
+   "kind": "opening",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "gB3gUq5A1W0",
+   "title": "Kyoukaisen (opening 2, amazarashi)",
+   "set": "song",
+   "order": 101,
+   "language": "ja",
+   "kind": "opening",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "hSzyI3u5DFo",
+   "title": "Avid (ending 1, SawanoHiroyuki[nZk]:mizuki)",
+   "set": "song",
+   "order": 102,
+   "language": "ja",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "fqYFkPeYqoI",
+   "title": "Hands Up to the Sky (ending 2, SawanoHiroyuki[nZk]:Laco)",
+   "set": "song",
+   "order": 103,
+   "language": "en",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "hi5WUpJu_kk",
+   "title": "Alchemilla (part 2 ending 1)",
+   "set": "song",
+   "order": 104,
+   "language": "ja",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "O69-EazZZd4",
+   "title": "LilaS (part 2 ending 2, SawanoHiroyuki[nZk]:Honoka Takahashi)",
+   "set": "song",
+   "order": 105,
+   "language": "ja",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ]
+  },
+  {
+   "yt": "Wg7ayxUvb3s",
+   "title": "Kyoukaisen (English cover, mewsic)",
+   "language": "en",
+   "kind": "opening",
+   "use": [
+    "menu",
+    "explore"
+   ],
+   "set": "extra",
+   "order": 248
+  },
+  {
+   "yt": "HJGDjlfhJl0",
+   "title": "Avid (English cover, mewsic)",
+   "language": "en",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ],
+   "set": "extra",
+   "order": 249
+  },
+  {
+   "yt": "g1QzToMj8z0",
+   "title": "Hands Up to the Sky (English cover, mewsic)",
+   "language": "en",
+   "kind": "ending",
+   "use": [
+    "menu",
+    "explore"
+   ],
+   "set": "extra",
+   "order": 250
+  },
+  {
+   "yt": "A9ToMg-C-HU",
+   "title": "Voices of the Chord (English cover, mewsic)",
+   "language": "en",
+   "kind": "score",
+   "use": [
+    "combat",
+    "explore"
+   ],
+   "set": "extra",
+   "order": 251
+  },
+  {
+   "yt": "eogBv9Kajk8",
+   "title": "Original soundtrack preview reel (Aniplex)",
+   "language": "none",
+   "kind": "score",
+   "use": [
+    "explore"
+   ],
+   "set": "extra",
+   "order": 252
+  }
+ ]
 }

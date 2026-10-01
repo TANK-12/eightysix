@@ -3,7 +3,7 @@
 
 Files land in ~/Forge/shared/sound_library/<source>/ and library.json beside them lists each one
 (id, title, tags, licence, path, seconds). Already downloaded files are skipped, so a rerun only
-fetches what is new. Run: tools/audio/fetch_library.py [--only mixkit|kenney]
+fetches what is new. Run: tools/audio/fetch_library.py [--only mixkit|kenney|opengameart|bigsoundbank]
 """
 
 import argparse
@@ -278,9 +278,50 @@ def fetch_kenney(spec: dict, root: Path, entries: dict) -> None:
         print(f"kenney {pack}: done")
 
 
+def fetch_bigsoundbank(spec: dict, root: Path, entries: dict) -> None:
+    """Each search result's page must carry the CC0 line; its Ogg file is downloaded as is."""
+    out = root / "bigsoundbank"
+    out.mkdir(parents=True, exist_ok=True)
+    for q in spec["queries"]:
+        html = get(spec["search"].format(q=urllib.parse.quote(q))).decode(
+            "utf-8", "replace"
+        )
+        for href in sorted(set(re.findall(r"href='(/[a-z0-9-]+-s(\d+)\.html)'", html))):
+            sound_id = f"bigsoundbank_{href[1]}"
+            target = out / f"{href[1]}.ogg"
+            if sound_id in entries and target.exists():
+                if q not in entries[sound_id]["tags"]:
+                    entries[sound_id]["tags"].append(q)
+                continue
+            page = get(spec["page"].format(href=href[0])).decode("utf-8", "replace")
+            if "CC0 (public domain)" not in page:
+                print(f"bigsoundbank {href[0]}: not CC0, skipped")
+                continue
+            title = re.search(r"<title>(.*?) —", page)
+            name = unescape(title.group(1)) if title else href[0]
+            if re.search(spec.get("skip_title", "^$"), name.lower()):
+                continue  # search noise (music boxes, cameras, cars...), see library_sources.json
+            if not target.exists():
+                target.write_bytes(get(spec["file"].format(id=href[1])))
+            entries[sound_id] = {
+                "title": name,
+                "source": "bigsoundbank",
+                "licence": spec["licence"],
+                "tags": [q],
+                "path": str(target),
+                "seconds": probe_seconds(target),
+            }
+            if entries[sound_id]["seconds"] > spec.get("max_s", 1e9):
+                target.unlink()  # a long ambience recording: too big for the disk it would earn
+                del entries[sound_id]
+        print(f"bigsoundbank {q}: done")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--only", choices=["mixkit", "kenney", "opengameart", "index"])
+    ap.add_argument(
+        "--only", choices=["mixkit", "kenney", "opengameart", "bigsoundbank", "index"]
+    )
     args = ap.parse_args()
     spec = json.loads((HERE / "library_sources.json").read_text())
     root = Path(spec["library_dir"]).expanduser()
@@ -293,6 +334,8 @@ def main() -> None:
         index_mixkit_files(spec["mixkit"], root, entries)
     if args.only in (None, "opengameart"):
         fetch_opengameart(spec["opengameart"], root, entries)
+    if args.only in (None, "bigsoundbank"):
+        fetch_bigsoundbank(spec["bigsoundbank"], root, entries)
     if args.only in (None, "mixkit"):
         fetch_mixkit(spec["mixkit"], root, entries)
     if index.exists():  # another run may have added entries meanwhile: keep them

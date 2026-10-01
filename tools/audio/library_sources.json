@@ -1,5 +1,5 @@
 {
-  "_about": "Where the downloaded sound library comes from (lane B4 part 2). tools/audio/fetch_library.py reads this, downloads into ~/Forge/shared/sound_library/<source>/ and writes library.json there (one entry per file: id, title, tags, licence, path, seconds). Adding a source or a category is one line here. Licences: Kenney packs and OpenGameArt items (searched with the CC0 filter, and each page checked for CC0) are CC0; Mixkit sound effects are under the Mixkit Sound Effects Free License (use in games, no attribution, but not redistributed as loose files).",
+  "_about": "Where the downloaded sound library comes from (lane B4 part 2). tools/audio/fetch_library.py reads this, downloads into ~/Forge/shared/sound_library/<source>/ and writes library.json there (one entry per file: id, title, tags, licence, path, seconds). Adding a source or a category is one line here. Licences: Kenney packs and OpenGameArt items (searched with the CC0 filter, and each page checked for CC0) are CC0; BigSoundBank items (each page checked for its CC0 line) are CC0; Mixkit sound effects are under the Mixkit Sound Effects Free License (use in games, no attribution, but not redistributed as loose files).",
   "library_dir": "~/Forge/shared/sound_library",
   "mixkit": {
     "licence": "Mixkit Sound Effects Free License",
@@ -89,5 +89,51 @@
       "heavy weapon",
       "war"
     ]
+  },
+  "bigsoundbank": {
+    "licence": "CC0",
+    "search": "https://bigsoundbank.com/search?q={q}",
+    "page": "https://bigsoundbank.com{href}",
+    "file": "https://bigsoundbank.com/UPLOAD/ogg/{id}.ogg",
+    "queries": [
+      "hydraulic",
+      "hydraulic press",
+      "pneumatic",
+      "compressed air",
+      "piston",
+      "excavator",
+      "crane",
+      "jack",
+      "winch",
+      "chain hoist",
+      "cable",
+      "chain",
+      "rope",
+      "ratchet",
+      "crank",
+      "skid",
+      "scrape",
+      "metal scrape",
+      "drag",
+      "friction",
+      "gravel",
+      "rubble",
+      "landslide",
+      "servo",
+      "electric motor",
+      "motor",
+      "robot",
+      "forklift",
+      "garage door",
+      "tank",
+      "cannon",
+      "steel",
+      "metal impact",
+      "anvil",
+      "thunder",
+      "wind"
+    ],
+    "skip_title": "music box|paparazzi|slr camera|autofocus|flute|amplifier|handcuff|trumpet|notification|chain ?saw|rubbing hands|coat rubbed|shower|muffler|cobra|aston|scooter|motorcycle|mower|brushcutter|beer compressor|refrigeration|defrost|blow on|cars \\(interior|dion-bouton|campaign at night|rapeseed|cornfield|peat bogs|countryside|forest: on the edge",
+    "max_s": 240
   }
 }

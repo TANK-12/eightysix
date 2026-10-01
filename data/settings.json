@@ -153,10 +153,11 @@
         ]},
         {"id": "music", "label": "Music", "groups": [
           {"label": "What plays", "items": [
-            {"key": "audio.music_menu", "label": "Main menu", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track on the menus. Shuffle picks from the tracks marked for menus."},
-            {"key": "audio.music_explore", "label": "Exploring", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track while you walk the map with no Legion near."},
-            {"key": "audio.music_combat", "label": "In combat", "type": "choice", "options_from": "music", "extra_options": [["shuffle", "Shuffle"], ["off", "Off"]], "default": "shuffle", "help": "The track once you fire or are fired on; it fades back to exploring after a quiet spell."},
+            {"key": "audio.music_menu", "label": "Main menu", "type": "choice", "options_from": "music", "extra_options": [["ost", "Soundtrack, in order"], ["shuffle", "Shuffle"], ["off", "Off"]], "default": "ost", "help": "The music on the menus. Soundtrack plays the 86 soundtrack album through in order, carrying on where it left off; Shuffle picks from the tracks marked for menus; or pick one track."},
+            {"key": "audio.music_explore", "label": "Exploring", "type": "choice", "options_from": "music", "extra_options": [["ost", "Soundtrack, in order"], ["shuffle", "Shuffle"], ["off", "Off"]], "default": "ost", "help": "The music while you walk the map with no Legion near. Soundtrack plays the album through in order."},
+            {"key": "audio.music_combat", "label": "In combat", "type": "choice", "options_from": "music", "extra_options": [["ost", "Soundtrack, in order"], ["shuffle", "Shuffle"], ["off", "Off"]], "default": "ost", "help": "The music once you fire or are fired on; it fades back to exploring after a quiet spell. With Soundtrack in both, the album just carries on."},
             {"key": "audio.music_language", "label": "Song language", "type": "choice", "options": [["any", "Any"], ["ja", "Japanese"], ["en", "English"]], "default": "any", "help": "For Shuffle: only songs in this language (instrumental score always counts)."},
+            {"key": "audio.music_extras", "label": "Extra tracks", "type": "toggle", "default": false, "help": "Also offer the English covers and the soundtrack preview reel. Off: only the soundtrack and one original version of each opening and ending."},
             {"key": "audio.music_skip", "label": "Next track", "type": "button", "button_text": "Skip", "action": "Music.skip", "help": "Jump to another track now."}
           ]}
         ]},

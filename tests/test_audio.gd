@@ -213,3 +213,52 @@ func test_a_placed_sound_is_not_capped_below_its_level() -> void:
 	assert_true(p != null)
 	assert_gt(p.max_db, p.volume_db, "the player's ceiling is above the gun's level")
 	cam.free()
+
+
+func test_the_soundtrack_is_the_default_and_plays_through_in_order() -> void:
+	for ctx: String in ["menu", "explore", "combat"]:
+		assert_eq(Settings.item(Music.SETTING[ctx]).get("default"), "ost", ctx + " defaults to the soundtrack")
+	var tracks := Music.album()
+	assert_gt(float(tracks.size()), 30.0, "the album is on disk")
+	var last := -1.0
+	for id in tracks:
+		var e := Registry.entry("music", id)
+		assert_eq(str(e.get("set")), "ost", id)
+		assert_gt(float(e.get("order")), last, id + " in album order")
+		last = float(e.get("order"))
+	assert_eq(Music.album_next(tracks[0]), tracks[1], "the next track follows")
+	assert_eq(Music.album_next(tracks[tracks.size() - 1]), tracks[0], "and the album wraps round")
+	for ctx: String in ["menu", "explore", "combat"]:
+		Settings.set_value(Music.SETTING[ctx], "ost", false)
+	Music.context = "menu"
+	Music.play(tracks[3])
+	assert_eq(Music.album_next(""), tracks[4], "a fresh start carries on from the saved place")
+	Music.set_context("explore")
+	assert_eq(Music.track, tracks[3], "the soundtrack keeps playing into the field")
+	Music._on_sounded("gun_57mm_fire", "weapons", 10.0)
+	assert_eq(Music.context, "combat")
+	assert_eq(Music.track, tracks[3], "and into combat")
+	Music._on_finished(Music._players[Music._live])
+	assert_eq(Music.track, tracks[4], "when a track ends the next one plays")
+	Music.play("")
+
+
+func test_extra_tracks_are_hidden_until_turned_on() -> void:
+	var extras := PackedStringArray()
+	for id in Registry.ids("music"):
+		if str(Registry.entry("music", id).get("set")) == "extra":
+			extras.append(id)
+	assert_gt(float(extras.size()), 0.0, "covers and the preview reel are listed as extras")
+	Settings.set_value("audio.music_extras", false, false)
+	var offered := Settings.options_for("audio.music_menu").map(func(o: Array) -> String: return str(o[0]))
+	for id in extras:
+		assert_false(id in offered, id + " hidden")
+		assert_false(id in Music.candidates("explore"), id + " never shuffled in")
+	Settings.set_value("audio.music_extras", true, false)
+	offered = Settings.options_for("audio.music_menu").map(func(o: Array) -> String: return str(o[0]))
+	assert_true(extras[0] in offered, "offered once Extra tracks is on")
+	Settings.set_value("audio.music_menu", extras[0], false)
+	assert_eq(Music._want("menu"), extras[0], "and it can be picked")
+	Settings.set_value("audio.music_extras", false, false)
+	assert_eq(Music._want("menu"), "ost", "switched off again, a picked extra falls back to the soundtrack")
+	Settings.set_value("audio.music_menu", "ost", false)

@@ -1,0 +1,257 @@
+{
+ "name": "b4_grain_ultra",
+ "map": "small_map",
+ "_about": "Lane B4 part 3: Emerson's own settings are Ultra with a 300 m draw distance. Start view held still; each noisy effect switched off one at a time, two shots 0.05 s apart (spatial and frame-to-frame noise) and a frame measure each; plus one shot turned toward the low sun. tools/bot_run.sh b4_grain_ultra --preset=ultra",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 0.5,
+   "setting": "graphics.draw_distance",
+   "value": 300
+  },
+  {
+   "at": 3.0,
+   "press": "turn_left",
+   "strength": 1.0,
+   "for": 2.4
+  },
+  {
+   "at": 8.0,
+   "shot": "sunward"
+  },
+  {
+   "at": 8.3,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 11.8,
+   "shot": "base-a"
+  },
+  {
+   "at": 11.85,
+   "shot": "base-b"
+  },
+  {
+   "at": 11.9,
+   "measure": 1.2,
+   "label": "base"
+  },
+  {
+   "at": 13.5,
+   "setting": "graphics.sdfgi",
+   "value": false
+  },
+  {
+   "at": 15.3,
+   "shot": "sdfgi-off-a"
+  },
+  {
+   "at": 15.35,
+   "shot": "sdfgi-off-b"
+  },
+  {
+   "at": 15.4,
+   "measure": 1.2,
+   "label": "sdfgi-off"
+  },
+  {
+   "at": 16.7,
+   "setting": "graphics.sdfgi",
+   "value": true
+  },
+  {
+   "at": 17.0,
+   "setting": "graphics.ssil",
+   "value": false
+  },
+  {
+   "at": 18.8,
+   "shot": "ssil-off-a"
+  },
+  {
+   "at": 18.85,
+   "shot": "ssil-off-b"
+  },
+  {
+   "at": 18.9,
+   "measure": 1.2,
+   "label": "ssil-off"
+  },
+  {
+   "at": 20.2,
+   "setting": "graphics.ssil",
+   "value": true
+  },
+  {
+   "at": 20.5,
+   "setting": "graphics.ssr",
+   "value": false
+  },
+  {
+   "at": 22.3,
+   "shot": "ssr-off-a"
+  },
+  {
+   "at": 22.35,
+   "shot": "ssr-off-b"
+  },
+  {
+   "at": 22.4,
+   "measure": 1.2,
+   "label": "ssr-off"
+  },
+  {
+   "at": 23.7,
+   "setting": "graphics.ssr",
+   "value": true
+  },
+  {
+   "at": 24.0,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 25.8,
+   "shot": "ssao-off-a"
+  },
+  {
+   "at": 25.85,
+   "shot": "ssao-off-b"
+  },
+  {
+   "at": 25.9,
+   "measure": 1.2,
+   "label": "ssao-off"
+  },
+  {
+   "at": 27.2,
+   "setting": "graphics.ssao",
+   "value": true
+  },
+  {
+   "at": 27.5,
+   "setting": "graphics.volumetric_fog",
+   "value": false
+  },
+  {
+   "at": 29.3,
+   "shot": "volfog-off-a"
+  },
+  {
+   "at": 29.35,
+   "shot": "volfog-off-b"
+  },
+  {
+   "at": 29.4,
+   "measure": 1.2,
+   "label": "volfog-off"
+  },
+  {
+   "at": 30.7,
+   "setting": "graphics.volumetric_fog",
+   "value": true
+  },
+  {
+   "at": 31.0,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 32.8,
+   "shot": "taa-to-fxaa-a"
+  },
+  {
+   "at": 32.85,
+   "shot": "taa-to-fxaa-b"
+  },
+  {
+   "at": 32.9,
+   "measure": 1.2,
+   "label": "taa-to-fxaa"
+  },
+  {
+   "at": 34.2,
+   "setting": "graphics.screen_aa",
+   "value": "taa"
+  },
+  {
+   "at": 34.5,
+   "setting": "graphics.msaa",
+   "value": "off"
+  },
+  {
+   "at": 36.3,
+   "shot": "msaa-off-a"
+  },
+  {
+   "at": 36.35,
+   "shot": "msaa-off-b"
+  },
+  {
+   "at": 36.4,
+   "measure": 1.2,
+   "label": "msaa-off"
+  },
+  {
+   "at": 37.7,
+   "setting": "graphics.msaa",
+   "value": "2x"
+  },
+  {
+   "at": 38.0,
+   "setting": "graphics.glow",
+   "value": false
+  },
+  {
+   "at": 39.8,
+   "shot": "glow-off-a"
+  },
+  {
+   "at": 39.85,
+   "shot": "glow-off-b"
+  },
+  {
+   "at": 39.9,
+   "measure": 1.2,
+   "label": "glow-off"
+  },
+  {
+   "at": 41.2,
+   "setting": "graphics.glow",
+   "value": true
+  },
+  {
+   "at": 41.5,
+   "setting": "graphics.shadow_filter",
+   "value": 2
+  },
+  {
+   "at": 43.3,
+   "shot": "shadowfilter-2-a"
+  },
+  {
+   "at": 43.35,
+   "shot": "shadowfilter-2-b"
+  },
+  {
+   "at": 43.4,
+   "measure": 1.2,
+   "label": "shadowfilter-2"
+  },
+  {
+   "at": 44.7,
+   "setting": "graphics.shadow_filter",
+   "value": 4
+  },
+  {
+   "at": 45.5,
+   "quit": true
+  }
+ ]
+}

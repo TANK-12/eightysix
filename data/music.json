@@ -1,168 +1,19 @@
 {
   "_about": "Music registry, one entry per track (lane B4 fills it). Files live outside the game in ~/Music/86/ (personal use only, never shipped or shared), so \"path\" is an absolute path and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"~/Music/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}.",
   "entries": {
-    "3_pun_29_byou_opening_1_1_hour": {
-      "title": "3-pun 29-byou (opening 1, 1 hour)",
-      "label": "3-pun 29-byou (opening 1, 1 hour)",
-      "path": "~/Music/86/3_pun_29_byou_opening_1_1_hour.mp3",
-      "language": "ja",
-      "kind": "opening",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/XmLeApuB2hs"
-    },
-    "kyoukaisen_opening_2_1_hour": {
-      "title": "Kyoukaisen (opening 2, 1 hour)",
-      "label": "Kyoukaisen (opening 2, 1 hour)",
-      "path": "~/Music/86/kyoukaisen_opening_2_1_hour.mp3",
-      "language": "ja",
-      "kind": "opening",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/j8lRTQpb94g"
-    },
-    "avid_ending_1_1_hour": {
-      "title": "Avid (ending 1, 1 hour)",
-      "label": "Avid (ending 1, 1 hour)",
-      "path": "~/Music/86/avid_ending_1_1_hour.mp3",
-      "language": "ja",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/nc0PsGNlMIU"
-    },
-    "hands_up_to_the_sky_ending_2_1_hour": {
-      "title": "Hands Up to the Sky (ending 2, 1 hour)",
-      "label": "Hands Up to the Sky (ending 2, 1 hour)",
-      "path": "~/Music/86/hands_up_to_the_sky_ending_2_1_hour.mp3",
-      "language": "ja",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/oB-tgVhZwZI"
-    },
-    "lilas_part_2_ending_2_1_hour": {
-      "title": "LilaS (part 2 ending 2, 1 hour)",
-      "label": "LilaS (part 2 ending 2, 1 hour)",
-      "path": "~/Music/86/lilas_part_2_ending_2_1_hour.mp3",
-      "language": "ja",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/Gye1PlAUHDQ"
-    },
-    "alchemilla_part_2_ending_1": {
-      "title": "Alchemilla (part 2 ending 1)",
-      "label": "Alchemilla (part 2 ending 1)",
-      "path": "~/Music/86/alchemilla_part_2_ending_1.mp3",
-      "language": "ja",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu"
-      ],
-      "source": "https://youtu.be/hi5WUpJu_kk"
-    },
-    "kyoukaisen_english_cover_mewsic": {
-      "title": "Kyoukaisen (English cover, mewsic)",
-      "label": "Kyoukaisen (English cover, mewsic)",
-      "path": "~/Music/86/kyoukaisen_english_cover_mewsic.mp3",
-      "language": "en",
-      "kind": "opening",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/Wg7ayxUvb3s"
-    },
-    "avid_english_cover_mewsic": {
-      "title": "Avid (English cover, mewsic)",
-      "label": "Avid (English cover, mewsic)",
-      "path": "~/Music/86/avid_english_cover_mewsic.mp3",
-      "language": "en",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/HJGDjlfhJl0"
-    },
-    "hands_up_to_the_sky_english_cover_mewsic": {
-      "title": "Hands Up to the Sky (English cover, mewsic)",
-      "label": "Hands Up to the Sky (English cover, mewsic)",
-      "path": "~/Music/86/hands_up_to_the_sky_english_cover_mewsic.mp3",
-      "language": "en",
-      "kind": "ending",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "menu",
-        "explore"
-      ],
-      "source": "https://youtu.be/g1QzToMj8z0"
-    },
-    "voices_of_the_chord_english_cover_mewsic": {
-      "title": "Voices of the Chord (English cover, mewsic)",
-      "label": "Voices of the Chord (English cover, mewsic)",
-      "path": "~/Music/86/voices_of_the_chord_english_cover_mewsic.mp3",
+    "the_answer": {
+      "title": "THE ANSWER",
+      "label": "THE ANSWER",
+      "path": "~/Music/86/the_answer.mp3",
       "language": "en",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 1,
       "use": [
-        "combat",
+        "menu",
         "explore"
       ],
-      "source": "https://youtu.be/A9ToMg-C-HU"
-    },
-    "voices_of_the_chord": {
-      "title": "Voices of the Chord",
-      "label": "Voices of the Chord",
-      "path": "~/Music/86/voices_of_the_chord.mp3",
-      "language": "en",
-      "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "combat"
-      ],
-      "source": "https://youtu.be/Cxz-W6rNscM"
+      "source": "https://youtu.be/ahDLQbhgW5Y"
     },
     "eighty_six": {
       "title": "EIGHTY-SIX",
@@ -170,28 +21,69 @@
       "path": "~/Music/86/eighty_six.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 2,
       "use": [
-        "combat",
-        "menu"
+        "explore",
+        "combat"
       ],
       "source": "https://youtu.be/yq-Taa-wNzg"
     },
-    "the_answer": {
-      "title": "THE ANSWER",
-      "label": "THE ANSWER",
-      "path": "~/Music/86/the_answer.mp3",
-      "language": "en",
+    "region": {
+      "title": "Region",
+      "label": "Region",
+      "path": "~/Music/86/region.mp3",
+      "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 3,
       "use": [
+        "explore",
         "combat"
       ],
-      "source": "https://youtu.be/ahDLQbhgW5Y"
+      "source": "https://youtu.be/_aAQbUIJQxE"
+    },
+    "juggernaut": {
+      "title": "Juggernaut",
+      "label": "Juggernaut",
+      "path": "~/Music/86/juggernaut.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 4,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/E5f1_Yl0-jg"
+    },
+    "voices_of_the_chord": {
+      "title": "Voices of the Chord",
+      "label": "Voices of the Chord",
+      "path": "~/Music/86/voices_of_the_chord.mp3",
+      "language": "en",
+      "kind": "score",
+      "set": "ost",
+      "order": 5,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/Cxz-W6rNscM"
+    },
+    "spear": {
+      "title": "Spear",
+      "label": "Spear",
+      "path": "~/Music/86/spear.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 6,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/v9INs1qqtIE"
     },
     "shin": {
       "title": "Shin",
@@ -199,56 +91,153 @@
       "path": "~/Music/86/shin.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 7,
       "use": [
-        "explore",
-        "menu"
+        "menu",
+        "explore"
       ],
       "source": "https://youtu.be/k4763jBnuaw"
     },
-    "spearhead": {
-      "title": "SPEARHEAD",
-      "label": "SPEARHEAD",
-      "path": "~/Music/86/spearhead.mp3",
+    "six_eighty": {
+      "title": "Six-eighty",
+      "label": "Six-eighty",
+      "path": "~/Music/86/six_eighty.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 8,
       "use": [
+        "explore",
         "combat"
       ],
-      "source": "https://youtu.be/kyQVqQFHlgo"
+      "source": "https://youtu.be/wxLVXSEkXCs"
     },
-    "trigger_or_die": {
-      "title": "Trigger or Die",
-      "label": "Trigger or Die",
-      "path": "~/Music/86/trigger_or_die.mp3",
+    "two_side": {
+      "title": "Two-Side",
+      "label": "Two-Side",
+      "path": "~/Music/86/two_side.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 9,
       "use": [
+        "explore",
         "combat"
       ],
-      "source": "https://youtu.be/SrcGIVULZQQ"
+      "source": "https://youtu.be/u1uEvlwSUlQ"
     },
-    "hear_my_voice": {
-      "title": "Hear my voice",
-      "label": "Hear my voice",
-      "path": "~/Music/86/hear_my_voice.mp3",
+    "kurena": {
+      "title": "Kurena",
+      "label": "Kurena",
+      "path": "~/Music/86/kurena.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 10,
       "use": [
+        "menu",
         "explore"
       ],
-      "source": "https://youtu.be/hWE7XUytMpQ"
+      "source": "https://youtu.be/4M5Uzv0U2a0"
+    },
+    "rei": {
+      "title": "Rei",
+      "label": "Rei",
+      "path": "~/Music/86/rei.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 11,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/9apPYmrQ5Y4"
+    },
+    "shift_one_to_zero": {
+      "title": "Shift One to Zero",
+      "label": "Shift One to Zero",
+      "path": "~/Music/86/shift_one_to_zero.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 12,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/aBMR28AdNBc"
+    },
+    "piano_eightysix_one": {
+      "title": "Piano Eightysix-One",
+      "label": "Piano Eightysix-One",
+      "path": "~/Music/86/piano_eightysix_one.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 13,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/yydIbBk5dzQ"
+    },
+    "piano_eightysix_two": {
+      "title": "Piano Eightysix-Two",
+      "label": "Piano Eightysix-Two",
+      "path": "~/Music/86/piano_eightysix_two.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 14,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/0mIRIlg0arw"
+    },
+    "piano_eightysix_three": {
+      "title": "Piano Eightysix-Three",
+      "label": "Piano Eightysix-Three",
+      "path": "~/Music/86/piano_eightysix_three.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 15,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/2kyv9rgs_rs"
+    },
+    "piano_eightysix_four": {
+      "title": "Piano Eightysix-Four",
+      "label": "Piano Eightysix-Four",
+      "path": "~/Music/86/piano_eightysix_four.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 16,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/CbsIj3uUNeI"
+    },
+    "cello_piano_eightysix": {
+      "title": "Cello Piano Eightysix",
+      "label": "Cello Piano Eightysix",
+      "path": "~/Music/86/cello_piano_eightysix.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 17,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/I2qTtqePUXg"
     },
     "two_worlds_apart": {
       "title": "Two Worlds Apart",
@@ -256,14 +245,153 @@
       "path": "~/Music/86/two_worlds_apart.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 18,
       "use": [
-        "explore",
-        "menu"
+        "menu",
+        "explore"
       ],
       "source": "https://youtu.be/dUKgxdqsAK0"
+    },
+    "tararatata": {
+      "title": "TararaTaTa",
+      "label": "TararaTaTa",
+      "path": "~/Music/86/tararatata.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 19,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/ABrUiI6kh70"
+    },
+    "unzari_kettari": {
+      "title": "Unzari-Kettari",
+      "label": "Unzari-Kettari",
+      "path": "~/Music/86/unzari_kettari.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 20,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/S3lsOJyvQT8"
+    },
+    "st_magnolia": {
+      "title": "St. Magnolia",
+      "label": "St. Magnolia",
+      "path": "~/Music/86/st_magnolia.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 21,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/-3Xy9nkyxbU"
+    },
+    "lena_annette": {
+      "title": "Lena & Annette",
+      "label": "Lena & Annette",
+      "path": "~/Music/86/lena_annette.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 22,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/Feo72CUUQyI"
+    },
+    "burarababa": {
+      "title": "BuraraBaBa",
+      "label": "BuraraBaBa",
+      "path": "~/Music/86/burarababa.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 23,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/iVz5Plc8RT4"
+    },
+    "talk_to_you": {
+      "title": "Talk to you",
+      "label": "Talk to you",
+      "path": "~/Music/86/talk_to_you.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 24,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/xhnmcvFjkGk"
+    },
+    "underneath_the_sky": {
+      "title": "Underneath the Sky",
+      "label": "Underneath the Sky",
+      "path": "~/Music/86/underneath_the_sky.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 25,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/hGZGTpfRHsU"
+    },
+    "the_voice_of_the_dead": {
+      "title": "The Voice of the dead",
+      "label": "The Voice of the dead",
+      "path": "~/Music/86/the_voice_of_the_dead.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 26,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/7XgmQzkCCpo"
+    },
+    "legion": {
+      "title": "LEGION",
+      "label": "LEGION",
+      "path": "~/Music/86/legion.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 27,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/YNMAYCwiap0"
+    },
+    "the_nameless_tragedy": {
+      "title": "The nameless tragedy",
+      "label": "The nameless tragedy",
+      "path": "~/Music/86/the_nameless_tragedy.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 28,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/WEpznaLiPRU"
     },
     "no_reality": {
       "title": "No Reality",
@@ -271,13 +399,139 @@
       "path": "~/Music/86/no_reality.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 29,
       "use": [
-        "combat"
+        "menu",
+        "explore"
       ],
       "source": "https://youtu.be/RL4vM-ztfzQ"
+    },
+    "the_same_sky_the_same_dusk": {
+      "title": "The same sky, the same dusk",
+      "label": "The same sky, the same dusk",
+      "path": "~/Music/86/the_same_sky_the_same_dusk.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 30,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/rEIMwub0p_U"
+    },
+    "no_distance": {
+      "title": "no distance",
+      "label": "no distance",
+      "path": "~/Music/86/no_distance.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 31,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/8M_h-X02jLY"
+    },
+    "trigger_or_die": {
+      "title": "Trigger or Die",
+      "label": "Trigger or Die",
+      "path": "~/Music/86/trigger_or_die.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 32,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/SrcGIVULZQQ"
+    },
+    "spearhead": {
+      "title": "SPEARHEAD",
+      "label": "SPEARHEAD",
+      "path": "~/Music/86/spearhead.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 33,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/kyQVqQFHlgo"
+    },
+    "reginleif": {
+      "title": "REGINLEIF",
+      "label": "REGINLEIF",
+      "path": "~/Music/86/reginleif.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 34,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/PDtw9guncAQ"
+    },
+    "alive_today": {
+      "title": "Alive Today",
+      "label": "Alive Today",
+      "path": "~/Music/86/alive_today.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 35,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/zWMDTHA0CnQ"
+    },
+    "slumdog_paradise": {
+      "title": "SLUMDOG PARADISE",
+      "label": "SLUMDOG PARADISE",
+      "path": "~/Music/86/slumdog_paradise.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 36,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/x56eWRJVOhM"
+    },
+    "president_me": {
+      "title": "President me",
+      "label": "President me",
+      "path": "~/Music/86/president_me.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 37,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/U0BJVa9Ro-c"
+    },
+    "the_last_empress": {
+      "title": "The Last Empress",
+      "label": "The Last Empress",
+      "path": "~/Music/86/the_last_empress.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 38,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/cLCPtuoMBKk"
     },
     "reality": {
       "title": "Reality",
@@ -285,10 +539,10 @@
       "path": "~/Music/86/reality.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 39,
       "use": [
+        "menu",
         "explore"
       ],
       "source": "https://youtu.be/L68iG_XbGiE"
@@ -299,13 +553,185 @@
       "path": "~/Music/86/so_tired.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "ost",
+      "order": 40,
       "use": [
+        "menu",
         "explore"
       ],
       "source": "https://youtu.be/i_TfB5RYHP0"
+    },
+    "hear_my_voice": {
+      "title": "Hear my voice",
+      "label": "Hear my voice",
+      "path": "~/Music/86/hear_my_voice.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 41,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/hWE7XUytMpQ"
+    },
+    "morpho": {
+      "title": "MORPHO",
+      "label": "MORPHO",
+      "path": "~/Music/86/morpho.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "ost",
+      "order": 42,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://youtu.be/2Ie3kebsqqo"
+    },
+    "3_pun_29_byou_opening_1_hitorie": {
+      "title": "3-pun 29-byou (opening 1, Hitorie)",
+      "label": "3-pun 29-byou (opening 1, Hitorie)",
+      "path": "~/Music/86/3_pun_29_byou_opening_1_hitorie.mp3",
+      "language": "ja",
+      "kind": "opening",
+      "set": "song",
+      "order": 100,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/8lgTi7tqX3k"
+    },
+    "kyoukaisen_opening_2_amazarashi": {
+      "title": "Kyoukaisen (opening 2, amazarashi)",
+      "label": "Kyoukaisen (opening 2, amazarashi)",
+      "path": "~/Music/86/kyoukaisen_opening_2_amazarashi.mp3",
+      "language": "ja",
+      "kind": "opening",
+      "set": "song",
+      "order": 101,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/gB3gUq5A1W0"
+    },
+    "avid_ending_1_sawanohiroyuki_nzk_mizuki": {
+      "title": "Avid (ending 1, SawanoHiroyuki[nZk]:mizuki)",
+      "label": "Avid (ending 1, SawanoHiroyuki[nZk]:mizuki)",
+      "path": "~/Music/86/avid_ending_1_sawanohiroyuki_nzk_mizuki.mp3",
+      "language": "ja",
+      "kind": "ending",
+      "set": "song",
+      "order": 102,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/hSzyI3u5DFo"
+    },
+    "hands_up_to_the_sky_ending_2_sawanohiroyuki_nzk_laco": {
+      "title": "Hands Up to the Sky (ending 2, SawanoHiroyuki[nZk]:Laco)",
+      "label": "Hands Up to the Sky (ending 2, SawanoHiroyuki[nZk]:Laco)",
+      "path": "~/Music/86/hands_up_to_the_sky_ending_2_sawanohiroyuki_nzk_laco.mp3",
+      "language": "en",
+      "kind": "ending",
+      "set": "song",
+      "order": 103,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/fqYFkPeYqoI"
+    },
+    "alchemilla_part_2_ending_1": {
+      "title": "Alchemilla (part 2 ending 1)",
+      "label": "Alchemilla (part 2 ending 1)",
+      "path": "~/Music/86/alchemilla_part_2_ending_1.mp3",
+      "language": "ja",
+      "kind": "ending",
+      "set": "song",
+      "order": 104,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/hi5WUpJu_kk"
+    },
+    "lilas_part_2_ending_2_sawanohiroyuki_nzk_honoka_takahashi": {
+      "title": "LilaS (part 2 ending 2, SawanoHiroyuki[nZk]:Honoka Takahashi)",
+      "label": "LilaS (part 2 ending 2, SawanoHiroyuki[nZk]:Honoka Takahashi)",
+      "path": "~/Music/86/lilas_part_2_ending_2_sawanohiroyuki_nzk_honoka_takahashi.mp3",
+      "language": "ja",
+      "kind": "ending",
+      "set": "song",
+      "order": 105,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/O69-EazZZd4"
+    },
+    "kyoukaisen_english_cover_mewsic": {
+      "title": "Kyoukaisen (English cover, mewsic)",
+      "label": "Kyoukaisen (English cover, mewsic)",
+      "path": "~/Music/86/kyoukaisen_english_cover_mewsic.mp3",
+      "language": "en",
+      "kind": "opening",
+      "set": "extra",
+      "order": 248,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/Wg7ayxUvb3s",
+      "show_if": "audio.music_extras"
+    },
+    "avid_english_cover_mewsic": {
+      "title": "Avid (English cover, mewsic)",
+      "label": "Avid (English cover, mewsic)",
+      "path": "~/Music/86/avid_english_cover_mewsic.mp3",
+      "language": "en",
+      "kind": "ending",
+      "set": "extra",
+      "order": 249,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/HJGDjlfhJl0",
+      "show_if": "audio.music_extras"
+    },
+    "hands_up_to_the_sky_english_cover_mewsic": {
+      "title": "Hands Up to the Sky (English cover, mewsic)",
+      "label": "Hands Up to the Sky (English cover, mewsic)",
+      "path": "~/Music/86/hands_up_to_the_sky_english_cover_mewsic.mp3",
+      "language": "en",
+      "kind": "ending",
+      "set": "extra",
+      "order": 250,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://youtu.be/g1QzToMj8z0",
+      "show_if": "audio.music_extras"
+    },
+    "voices_of_the_chord_english_cover_mewsic": {
+      "title": "Voices of the Chord (English cover, mewsic)",
+      "label": "Voices of the Chord (English cover, mewsic)",
+      "path": "~/Music/86/voices_of_the_chord_english_cover_mewsic.mp3",
+      "language": "en",
+      "kind": "score",
+      "set": "extra",
+      "order": 251,
+      "use": [
+        "combat",
+        "explore"
+      ],
+      "source": "https://youtu.be/A9ToMg-C-HU",
+      "show_if": "audio.music_extras"
     },
     "original_soundtrack_preview_reel_aniplex": {
       "title": "Original soundtrack preview reel (Aniplex)",
@@ -313,27 +739,13 @@
       "path": "~/Music/86/original_soundtrack_preview_reel_aniplex.mp3",
       "language": "none",
       "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
+      "set": "extra",
+      "order": 252,
       "use": [
         "explore"
       ],
-      "source": "https://youtu.be/eogBv9Kajk8"
-    },
-    "rei": {
-      "title": "Rei",
-      "label": "Rei",
-      "path": "~/Music/86/rei.mp3",
-      "language": "none",
-      "kind": "score",
-      "loop": true,
-      "loop_start_s": 0,
-      "loop_end_s": null,
-      "use": [
-        "explore"
-      ],
-      "source": "https://youtu.be/9apPYmrQ5Y4"
+      "source": "https://youtu.be/eogBv9Kajk8",
+      "show_if": "audio.music_extras"
     }
   }
 }

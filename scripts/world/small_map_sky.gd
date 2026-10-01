@@ -45,8 +45,8 @@ func _init(parent: Node, weather: String) -> void:
 	env.volumetric_fog_anisotropy = 0.45
 	env.ssao_radius = 1.8
 	env.ssao_intensity = 1.8
-	env.glow_intensity = 0.5
-	env.glow_bloom = 0.05
+	env.glow_bloom = 0.0
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
 	env.sdfgi_use_occlusion = true
 	env.sdfgi_cascades = 4
 	world_env.environment = env
@@ -91,6 +91,9 @@ func apply(id: String) -> void:
 	env.ambient_light_energy = float(w.get("ambient_energy", 0.85))
 	env.tonemap_exposure = float(w.get("exposure", 1.0))
 	env.tonemap_white = float(w.get("white", 1.0))
+	# lane B4 part 3: only light above the threshold blooms (the sun disc, muzzle flashes, fire)
+	env.glow_intensity = float(w.get("glow_intensity", 0.3))
+	env.glow_hdr_threshold = float(w.get("glow_threshold", 1.4))
 	# lane B4: sun-lit haze toward the sun, fog that pools in the valley floor, and a film grade
 	env.fog_sun_scatter = float(w.get("sun_scatter", 0.0))
 	env.fog_height = float(w.get("height_fog_top_m", 0.0))

@@ -1,12 +1,12 @@
 {
-  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd).",
+  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd). glow_intensity and glow_threshold (lane B4 part 3): how much light above the threshold blooms; Emerson found the sun far too bloomy at 0.5 with everything blooming.",
   "entries": {
     "golden_afternoon": {
       "label": "Golden afternoon",
       "order": 0,
-      "sun_elevation_deg": 16.0,
+      "sun_elevation_deg": 26.0,
       "sun_azimuth_deg": 295.0,
-      "sun_energy": 2.4,
+      "sun_energy": 1.6,
       "sun_colour": [
         1.0,
         0.84,
@@ -44,15 +44,15 @@
         0.52
       ],
       "fog_density": 0.0004,
-      "volumetric_density": 0.0022,
+      "volumetric_density": 0.0012,
       "ambient_energy": 0.6,
       "exposure": 1.0,
-      "white": 1.2,
-      "sun_scatter": 0.35,
+      "white": 1.0,
+      "sun_scatter": 0.08,
       "height_fog_top_m": 12.0,
-      "height_fog_density": 0.012,
+      "height_fog_density": 0.006,
       "fog_sky_affect": 0.2,
-      "volumetric_anisotropy": 0.65,
+      "volumetric_anisotropy": 0.3,
       "grade": {
         "contrast": 1.08,
         "saturation": 0.95,
@@ -67,7 +67,9 @@
           -0.012
         ],
         "strength": 1.0
-      }
+      },
+      "glow_intensity": 0.3,
+      "glow_threshold": 1.4
     },
     "overcast_morning": {
       "label": "Overcast morning",
@@ -130,7 +132,9 @@
         ]
       },
       "height_fog_top_m": 14.0,
-      "height_fog_density": 0.01
+      "height_fog_density": 0.01,
+      "glow_intensity": 0.25,
+      "glow_threshold": 1.4
     },
     "clear_noon": {
       "label": "Clear noon",
@@ -191,7 +195,9 @@
           0.008,
           -0.012
         ]
-      }
+      },
+      "glow_intensity": 0.25,
+      "glow_threshold": 1.5
     },
     "dusk_haze": {
       "label": "Dusk haze",
@@ -255,7 +261,9 @@
       },
       "sun_scatter": 0.45,
       "height_fog_top_m": 10.0,
-      "height_fog_density": 0.015
+      "height_fog_density": 0.015,
+      "glow_intensity": 0.35,
+      "glow_threshold": 1.2
     },
     "storm_grey": {
       "label": "Storm grey",
@@ -316,7 +324,9 @@
           0.004,
           0.01
         ]
-      }
+      },
+      "glow_intensity": 0.2,
+      "glow_threshold": 1.4
     }
   }
 }

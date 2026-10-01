@@ -1183,7 +1183,7 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "choice": "synth",
+      "choice": "bigsoundbank_1491",
       "choices": [
         {
           "id": "synth",
@@ -1195,10 +1195,42 @@
           ]
         },
         {
+          "id": "bigsoundbank_1491",
+          "label": "Pneumatic cylinder, small #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/1_pneumatic_cylinder_small_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1492",
+          "label": "Pneumatic cylinder, small #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/2_pneumatic_cylinder_small_2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1493",
+          "label": "Pneumatic cylinder, small #3 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/3_pneumatic_cylinder_small_3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1490",
+          "label": "Pneumatic brake released (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/hydraulic_hiss/4_pneumatic_brake_released.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
           "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs1",
           "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs1 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/hydraulic_hiss/1_platformer_sounds_terminal_interaction_d.ogg"
+            "res://assets/audio/lib/hydraulic_hiss/5_platformer_sounds_terminal_interaction_d.ogg"
           ],
           "licence": "CC0"
         },
@@ -1206,7 +1238,7 @@
           "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs",
           "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs (Opengameart)",
           "files": [
-            "res://assets/audio/lib/hydraulic_hiss/2_platformer_sounds_terminal_interaction_d.ogg"
+            "res://assets/audio/lib/hydraulic_hiss/6_platformer_sounds_terminal_interaction_d.ogg"
           ],
           "licence": "CC0"
         },
@@ -1214,7 +1246,7 @@
           "id": "oga_100-cc0-sfx-2_sfx100v2_air_03",
           "label": "100 cc0 sfx 2: sfx100v2 air 03 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/hydraulic_hiss/3_100_cc0_sfx_2_sfx100v2_air_03.ogg"
+            "res://assets/audio/lib/hydraulic_hiss/7_100_cc0_sfx_2_sfx100v2_air_03.ogg"
           ],
           "licence": "CC0"
         },
@@ -1222,23 +1254,7 @@
           "id": "oga_100-cc0-sfx-2_sfx100v2_air_02",
           "label": "100 cc0 sfx 2: sfx100v2 air 02 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/hydraulic_hiss/4_100_cc0_sfx_2_sfx100v2_air_02.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_100-cc0-sfx-2_sfx100v2_air_01",
-          "label": "100 cc0 sfx 2: sfx100v2 air 01 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/hydraulic_hiss/5_100_cc0_sfx_2_sfx100v2_air_01.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "kenney_ui-audio_mouserelease1",
-          "label": "mouserelease1 (Kenney)",
-          "files": [
-            "res://assets/audio/lib/hydraulic_hiss/6_mouserelease1.ogg"
+            "res://assets/audio/lib/hydraulic_hiss/8_100_cc0_sfx_2_sfx100v2_air_02.ogg"
           ],
           "licence": "CC0"
         },
@@ -1262,7 +1278,7 @@
       "attenuation": "inverse",
       "delay_by_distance": false,
       "loop": true,
-      "choice": "synth",
+      "choice": "bigsoundbank_1284",
       "choices": [
         {
           "id": "synth",
@@ -1272,68 +1288,76 @@
           ]
         },
         {
+          "id": "bigsoundbank_1284",
+          "label": "Bike on gravel (MTB) #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/1_bike_on_gravel_mtb_1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "bigsoundbank_1022",
+          "label": "Fall of Stone (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/2_fall_of_stone.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "bigsoundbank_1285",
+          "label": "Bike on gravel (MTB) #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/3_bike_on_gravel_mtb_2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
+          "id": "bigsoundbank_0085",
+          "label": "Step on gravels (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/skid_loop/4_step_on_gravels.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.75
+        },
+        {
           "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood03",
           "label": "different steps on wood stone leaves gravel and mud: wood03 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/skid_loop/1_different_steps_on_wood_stone_leaves_gra.ogg"
+            "res://assets/audio/lib/skid_loop/5_different_steps_on_wood_stone_leaves_gra.ogg"
           ],
-          "licence": "CC0"
+          "licence": "CC0",
+          "pitch": 0.75
         },
         {
           "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood02",
           "label": "different steps on wood stone leaves gravel and mud: wood02 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/skid_loop/2_different_steps_on_wood_stone_leaves_gra.ogg"
+            "res://assets/audio/lib/skid_loop/6_different_steps_on_wood_stone_leaves_gra.ogg"
           ],
-          "licence": "CC0"
+          "licence": "CC0",
+          "pitch": 0.75
         },
         {
           "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_wood01",
           "label": "different steps on wood stone leaves gravel and mud: wood01 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/skid_loop/3_different_steps_on_wood_stone_leaves_gra.ogg"
+            "res://assets/audio/lib/skid_loop/7_different_steps_on_wood_stone_leaves_gra.ogg"
           ],
-          "licence": "CC0"
+          "licence": "CC0",
+          "pitch": 0.75
         },
         {
           "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_stone01",
           "label": "different steps on wood stone leaves gravel and mud: stone01 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/skid_loop/4_different_steps_on_wood_stone_leaves_gra.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_mud02",
-          "label": "different steps on wood stone leaves gravel and mud: mud02 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/skid_loop/5_different_steps_on_wood_stone_leaves_gra.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_leaves02",
-          "label": "different steps on wood stone leaves gravel and mud: leaves02 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/skid_loop/6_different_steps_on_wood_stone_leaves_gra.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_leaves01",
-          "label": "different steps on wood stone leaves gravel and mud: leaves01 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/skid_loop/7_different_steps_on_wood_stone_leaves_gra.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_different-steps-on-wood-stone-leaves-gravel-and-mud_gravel",
-          "label": "different steps on wood stone leaves gravel and mud: gravel (Opengameart)",
-          "files": [
             "res://assets/audio/lib/skid_loop/8_different_steps_on_wood_stone_leaves_gra.ogg"
           ],
-          "licence": "CC0"
+          "licence": "CC0",
+          "pitch": 0.75
         },
         {
           "id": "off",
@@ -1445,7 +1469,7 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "choice": "synth",
+      "choice": "bigsoundbank_1490",
       "choices": [
         {
           "id": "synth",
@@ -1456,10 +1480,42 @@
           ]
         },
         {
+          "id": "bigsoundbank_1490",
+          "label": "Pneumatic brake released (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/1_pneumatic_brake_released.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1795",
+          "label": "Whoosh #3 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/2_whoosh_3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1796",
+          "label": "Whoosh #4 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/3_whoosh_4.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1818",
+          "label": "Sliding rope #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_fire/4_sliding_rope_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
           "id": "oga_various-sound-effects-0_snd_gunshot1",
           "label": "various sound effects 0: snd gunshot1 (Opengameart)",
           "files": [
-            "res://assets/audio/lib/wire_fire/1_various_sound_effects_0_snd_gunshot1.ogg"
+            "res://assets/audio/lib/wire_fire/5_various_sound_effects_0_snd_gunshot1.ogg"
           ],
           "licence": "CC0"
         },
@@ -1467,7 +1523,7 @@
           "id": "oga_shotgun-reload-sound-effects_shell_in_chamber",
           "label": "shotgun reload sound effects: Shell in Chamber (Opengameart)",
           "files": [
-            "res://assets/audio/lib/wire_fire/2_shotgun_reload_sound_effects_shell_in_ch.ogg"
+            "res://assets/audio/lib/wire_fire/6_shotgun_reload_sound_effects_shell_in_ch.ogg"
           ],
           "licence": "CC0"
         },
@@ -1475,45 +1531,13 @@
           "id": "oga_shotgun-reload-sound-effects_rack",
           "label": "shotgun reload sound effects: Rack (Opengameart)",
           "files": [
-            "res://assets/audio/lib/wire_fire/3_shotgun_reload_sound_effects_rack.ogg"
+            "res://assets/audio/lib/wire_fire/7_shotgun_reload_sound_effects_rack.ogg"
           ],
           "licence": "CC0"
         },
         {
           "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs1",
           "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs1 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/wire_fire/4_platformer_sounds_terminal_interaction_d.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_stairs",
-          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps stairs (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/wire_fire/5_platformer_sounds_terminal_interaction_d.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_platform2",
-          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps platform2 (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/wire_fire/6_platformer_sounds_terminal_interaction_d.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_platform",
-          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps platform (Opengameart)",
-          "files": [
-            "res://assets/audio/lib/wire_fire/7_platformer_sounds_terminal_interaction_d.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "oga_platformer-sounds-terminal-interaction-door-shots-bang-and-footsteps_steps_chain",
-          "label": "platformer sounds terminal interaction door shots bang and footsteps: steps chain (Opengameart)",
           "files": [
             "res://assets/audio/lib/wire_fire/8_platformer_sounds_terminal_interaction_d.ogg"
           ],
@@ -1538,7 +1562,62 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "loop": true
+      "loop": true,
+      "choice": "bigsoundbank_0708",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/wire_reel_loop_1.wav"
+          ]
+        },
+        {
+          "id": "bigsoundbank_0708",
+          "label": "Little electric winch (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_reel_loop/1_little_electric_winch.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1824",
+          "label": "Ratchet tensioner (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_reel_loop/2_ratchet_tensioner.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1435",
+          "label": "Fishing reel, fast (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_reel_loop/3_fishing_reel_fast.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1134",
+          "label": "Manual chain hoist, downhill (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_reel_loop/4_manual_chain_hoist_downhill.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_0901",
+          "label": "Manual winch #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_reel_loop/5_manual_winch_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "wire_anchor_hit": {
       "label": "Wire anchor bites",
@@ -1553,7 +1632,7 @@
       "max_distance_m": 1500.0,
       "attenuation": "inverse",
       "delay_by_distance": true,
-      "choice": "synth",
+      "choice": "bigsoundbank_1771",
       "choices": [
         {
           "id": "synth",
@@ -1564,10 +1643,42 @@
           ]
         },
         {
+          "id": "bigsoundbank_1771",
+          "label": "Falling sheet steel bar #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/1_falling_sheet_steel_bar_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1772",
+          "label": "Falling sheet steel bar #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/2_falling_sheet_steel_bar_2.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_1773",
+          "label": "Falling sheet steel bar #3 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/3_falling_sheet_steel_bar_3.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
+          "id": "bigsoundbank_3589",
+          "label": "Anvil #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/wire_anchor_hit/4_anvil_1.ogg"
+          ],
+          "licence": "CC0"
+        },
+        {
           "id": "kenney_impact-sounds_impactMetal_medium_004",
           "label": "impactMetal medium 004 (Kenney)",
           "files": [
-            "res://assets/audio/lib/wire_anchor_hit/1_impactmetal_medium_004.ogg"
+            "res://assets/audio/lib/wire_anchor_hit/5_impactmetal_medium_004.ogg"
           ],
           "licence": "CC0"
         },
@@ -1575,7 +1686,7 @@
           "id": "kenney_impact-sounds_impactMetal_medium_003",
           "label": "impactMetal medium 003 (Kenney)",
           "files": [
-            "res://assets/audio/lib/wire_anchor_hit/2_impactmetal_medium_003.ogg"
+            "res://assets/audio/lib/wire_anchor_hit/6_impactmetal_medium_003.ogg"
           ],
           "licence": "CC0"
         },
@@ -1583,7 +1694,7 @@
           "id": "kenney_impact-sounds_impactMetal_medium_002",
           "label": "impactMetal medium 002 (Kenney)",
           "files": [
-            "res://assets/audio/lib/wire_anchor_hit/3_impactmetal_medium_002.ogg"
+            "res://assets/audio/lib/wire_anchor_hit/7_impactmetal_medium_002.ogg"
           ],
           "licence": "CC0"
         },
@@ -1591,39 +1702,7 @@
           "id": "kenney_impact-sounds_impactMetal_medium_001",
           "label": "impactMetal medium 001 (Kenney)",
           "files": [
-            "res://assets/audio/lib/wire_anchor_hit/4_impactmetal_medium_001.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "kenney_impact-sounds_impactMetal_medium_000",
-          "label": "impactMetal medium 000 (Kenney)",
-          "files": [
-            "res://assets/audio/lib/wire_anchor_hit/5_impactmetal_medium_000.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "kenney_impact-sounds_impactMetal_light_004",
-          "label": "impactMetal light 004 (Kenney)",
-          "files": [
-            "res://assets/audio/lib/wire_anchor_hit/6_impactmetal_light_004.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "kenney_impact-sounds_impactMetal_light_003",
-          "label": "impactMetal light 003 (Kenney)",
-          "files": [
-            "res://assets/audio/lib/wire_anchor_hit/7_impactmetal_light_003.ogg"
-          ],
-          "licence": "CC0"
-        },
-        {
-          "id": "kenney_impact-sounds_impactMetal_light_002",
-          "label": "impactMetal light 002 (Kenney)",
-          "files": [
-            "res://assets/audio/lib/wire_anchor_hit/8_impactmetal_light_002.ogg"
+            "res://assets/audio/lib/wire_anchor_hit/8_impactmetal_medium_001.ogg"
           ],
           "licence": "CC0"
         },
@@ -1742,7 +1821,97 @@
       "unit_size": 8.0,
       "max_distance_m": 400.0,
       "attenuation": "inverse",
-      "delay_by_distance": false
+      "delay_by_distance": false,
+      "choice": "kenney_impact-sounds_impactMetal_light_000",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/legion_step_light_1.wav",
+            "res://assets/audio/sfx/legion_step_light_2.wav",
+            "res://assets/audio/sfx/legion_step_light_3.wav",
+            "res://assets/audio/sfx/legion_step_light_4.wav"
+          ]
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_000",
+          "label": "impactMetal light 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/1_impactmetal_light_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_light_001",
+          "label": "impactMetal light 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/2_impactmetal_light_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "bigsoundbank_1772",
+          "label": "Falling sheet steel bar #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/3_falling_sheet_steel_bar_2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_footstep_concrete_000",
+          "label": "footstep concrete 000 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/4_footstep_concrete_000.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_004",
+          "label": "impactMetal medium 004 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/5_impactmetal_medium_004.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_003",
+          "label": "impactMetal medium 003 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/6_impactmetal_medium_003.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_002",
+          "label": "impactMetal medium 002 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/7_impactmetal_medium_002.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "kenney_impact-sounds_impactMetal_medium_001",
+          "label": "impactMetal medium 001 (Kenney)",
+          "files": [
+            "res://assets/audio/lib/legion_step_light/8_impactmetal_medium_001.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.85
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "legion_servo_loop": {
       "label": "Legion machine whine (loop)",
@@ -1756,7 +1925,94 @@
       "max_distance_m": 400.0,
       "attenuation": "inverse",
       "delay_by_distance": false,
-      "loop": true
+      "loop": true,
+      "choice": "bigsoundbank_1623",
+      "choices": [
+        {
+          "id": "synth",
+          "label": "Made here (synth)",
+          "files": [
+            "res://assets/audio/sfx/legion_servo_loop_1.wav"
+          ]
+        },
+        {
+          "id": "bigsoundbank_1623",
+          "label": "Robot vacuum (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/1_robot_vacuum.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_3545",
+          "label": "Drone #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/2_drone_1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_2147",
+          "label": "Excavator, engine (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/3_excavator_engine.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_3092",
+          "label": "Beer compressor #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/4_beer_compressor_2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_2942",
+          "label": "Servomotor 4, 180° #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/5_servomotor_4_180_2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_2941",
+          "label": "Servomotor 4, 180° #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/6_servomotor_4_180_1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_2940",
+          "label": "Servomotor 4, 90° #2 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/7_servomotor_4_90_2.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "bigsoundbank_2939",
+          "label": "Servomotor 4, 90° #1 (Bigsoundbank)",
+          "files": [
+            "res://assets/audio/lib/legion_servo_loop/8_servomotor_4_90_1.ogg"
+          ],
+          "licence": "CC0",
+          "pitch": 0.7
+        },
+        {
+          "id": "off",
+          "label": "Off",
+          "files": []
+        }
+      ]
     },
     "ui_click": {
       "label": "Menu click",

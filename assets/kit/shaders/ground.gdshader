@@ -24,6 +24,13 @@ uniform vec3 road_tint : source_color = vec3(0.78, 0.74, 0.68);
 uniform vec3 mud_tint : source_color = vec3(0.42, 0.38, 0.32);
 uniform vec3 rock_tint : source_color = vec3(0.86, 0.84, 0.8);
 uniform float water_level = 0.0;
+// lane B4 part 3: the pebble detail read as grain, worst under a low sun and in motion. Near the camera
+// it keeps this share of its contrast, falling to detail_far by detail_fade_m; the normal map likewise.
+uniform float detail_near = 0.75;
+uniform float detail_far = 0.35;
+uniform float detail_fade_m = 45.0;
+uniform float relief_near = 0.7;
+uniform float relief_far = 0.25;
 
 varying vec3 wp;
 varying vec3 wn;
@@ -44,6 +51,9 @@ void fragment() {
 	float m3 = texture(macro, wp.xz * 0.11 + 0.5).r;
 	vec2 guv = wp.xz * ground_scale;
 	vec3 g = two_scale(ground_col, guv, 0.35 + 0.3 * m2);
+	float far = smoothstep(4.0, detail_fade_m, length(wp - CAMERA_POSITION_WORLD));
+	vec3 g_mean = textureLod(ground_col, guv * 0.29 + vec2(0.37, 0.71), 6.0).rgb;
+	g = g_mean + (g - g_mean) * mix(detail_near, detail_far, far);
 	float green = smoothstep(0.32, 0.68, m1 + (m2 - 0.5) * 0.35);
 	vec3 col = g * mix(dry_tint, grass_tint, green) * 1.25;
 	vec3 nrm = texture(ground_nrm, guv).rgb;
@@ -106,5 +116,5 @@ void fragment() {
 	ALBEDO = col;
 	ROUGHNESS = mix(rough, 0.9, rockiness);
 	NORMAL_MAP = nrm;
-	NORMAL_MAP_DEPTH = mix(1.0, 1.6, rockiness);
+	NORMAL_MAP_DEPTH = mix(mix(relief_near, relief_far, far), 1.6, rockiness);
 }

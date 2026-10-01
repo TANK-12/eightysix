@@ -1,5 +1,5 @@
 {
- "_about": "Which downloaded sounds become choices for each game sound (lane B4 part 2). tools/audio/pick_choices.py scores every library.json sound against an entry's rule: +2 per tag in 'tags', +3 per word of 'words' in the title, -10 per word of 'not'; sounds longer than max_s are left out. The best 'count' are cut to max_s, peak-normalised, converted to Ogg in assets/audio/lib/<entry>/ and listed as that sounds.json entry's 'choices', after the synth take ('Made here'). 'default' says which plays until Emerson picks: 'best' (top library match), 'synth' or 'off'. A new entry here (with 'new': {bus, label, ...}) makes a new game sound. 'prefer' (optional): words of the title to make the default when that sound is among the choices. 'pitch' (optional): base pitch for this sound's downloaded choices (below 1 plays lower and longer; for footsteps sized for people). Each choice is levelled to the same average loudness as the synth take it replaces (or the synth take of 'loudness_like', plus 'loudness_db'), peak capped at -1 dBFS, so volume_db keeps its meaning. 'punch': true compresses the take and raises it to a -1 dBFS peak (guns and explosions: more body, as loud as a take can be).",
+ "_about": "Which downloaded sounds become choices for each game sound (lane B4 part 2). tools/audio/pick_choices.py scores every library.json sound against an entry's rule: +2 per tag in 'tags', +3 per word of 'words' in the title, -10 per word of 'not'; sounds longer than max_s are left out. The best 'count' are cut to max_s, peak-normalised, converted to Ogg in assets/audio/lib/<entry>/ and listed as that sounds.json entry's 'choices', after the synth take ('Made here'). 'default' says which plays until Emerson picks: 'best' (top library match), 'synth' or 'off'. A new entry here (with 'new': {bus, label, ...}) makes a new game sound. 'prefer' (optional): words of the title to make the default when that sound is among the choices. 'pitch' (optional): base pitch for this sound's downloaded choices (below 1 plays lower and longer; for footsteps sized for people). Each choice is levelled to the same average loudness as the synth take it replaces (or the synth take of 'loudness_like', plus 'loudness_db'), peak capped at -1 dBFS, so volume_db keeps its meaning. 'punch': true compresses the take and raises it to a -1 dBFS peak (guns and explosions: more body, as loud as a take can be). 'pick' (lane B4 part 3): hand-chosen library ids listed first, any length, cut from 'from_s'; the first is the default when no 'prefer' matches. Loop entries are cut as seamless loops (the next 0.4 s folded over the start), not faded out.",
  "count": 8,
  "rules": {
   "gun_57mm_fire": {
@@ -530,7 +530,21 @@
     "firework"
    ],
    "max_s": 2.5,
-   "default": "synth"
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_1491"
+    },
+    {
+     "id": "bigsoundbank_1492"
+    },
+    {
+     "id": "bigsoundbank_1493"
+    },
+    {
+     "id": "bigsoundbank_1490"
+    }
+   ]
   },
   "servo_loop": {
    "tags": [
@@ -593,7 +607,25 @@
     "firework"
    ],
    "max_s": 4.0,
-   "default": "synth"
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_1284",
+     "from_s": 2.0
+    },
+    {
+     "id": "bigsoundbank_1022",
+     "from_s": 1.0
+    },
+    {
+     "id": "bigsoundbank_1285",
+     "from_s": 2.0
+    },
+    {
+     "id": "bigsoundbank_0085"
+    }
+   ],
+   "pitch": 0.75
   },
   "wind_loop": {
    "tags": [
@@ -656,7 +688,21 @@
     "firework"
    ],
    "max_s": 1.5,
-   "default": "synth"
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_1490"
+    },
+    {
+     "id": "bigsoundbank_1795"
+    },
+    {
+     "id": "bigsoundbank_1796"
+    },
+    {
+     "id": "bigsoundbank_1818"
+    }
+   ]
   },
   "wire_anchor_hit": {
    "tags": [
@@ -686,7 +732,21 @@
     "firework"
    ],
    "max_s": 1.5,
-   "default": "synth"
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_1771"
+    },
+    {
+     "id": "bigsoundbank_1772"
+    },
+    {
+     "id": "bigsoundbank_1773"
+    },
+    {
+     "id": "bigsoundbank_3589"
+    }
+   ]
   },
   "lowe_fire": {
    "tags": [
@@ -802,6 +862,126 @@
    "not": [],
    "max_s": 1.0,
    "default": "best"
+  },
+  "wire_reel_loop": {
+   "tags": [
+    "winch",
+    "ratchet",
+    "motor"
+   ],
+   "words": [
+    "winch",
+    "reel",
+    "ratchet",
+    "hoist",
+    "tensioner"
+   ],
+   "not": [
+    "music",
+    "cartoon",
+    "game",
+    "bit"
+   ],
+   "max_s": 4.0,
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_0708",
+     "from_s": 4.0
+    },
+    {
+     "id": "bigsoundbank_1824",
+     "from_s": 1.0
+    },
+    {
+     "id": "bigsoundbank_1435",
+     "from_s": 1.0
+    },
+    {
+     "id": "bigsoundbank_1134",
+     "from_s": 2.0
+    }
+   ]
+  },
+  "legion_step_light": {
+   "tags": [
+    "impact-sounds",
+    "metal"
+   ],
+   "words": [
+    "metal",
+    "step",
+    "clank",
+    "steel"
+   ],
+   "not": [
+    "cartoon",
+    "game",
+    "bit",
+    "bell",
+    "glass",
+    "door"
+   ],
+   "max_s": 1.0,
+   "default": "best",
+   "pick": [
+    {
+     "id": "kenney_impact-sounds_impactMetal_light_000"
+    },
+    {
+     "id": "kenney_impact-sounds_impactMetal_light_001"
+    },
+    {
+     "id": "bigsoundbank_1772"
+    },
+    {
+     "id": "kenney_impact-sounds_footstep_concrete_000"
+    }
+   ],
+   "pitch": 0.85
+  },
+  "legion_servo_loop": {
+   "tags": [
+    "robot",
+    "motor",
+    "electric motor"
+   ],
+   "words": [
+    "servo",
+    "motor",
+    "robot",
+    "drone",
+    "whine"
+   ],
+   "not": [
+    "voice",
+    "cartoon",
+    "game",
+    "bit",
+    "notification",
+    "music"
+   ],
+   "max_s": 4.0,
+   "default": "best",
+   "pick": [
+    {
+     "id": "bigsoundbank_1623",
+     "from_s": 5.0
+    },
+    {
+     "id": "bigsoundbank_3545",
+     "from_s": 2.0
+    },
+    {
+     "id": "bigsoundbank_2147",
+     "from_s": 3.0
+    },
+    {
+     "id": "bigsoundbank_3092",
+     "from_s": 3.0
+    }
+   ],
+   "pitch": 0.7
   }
  }
 }

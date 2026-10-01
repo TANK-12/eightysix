@@ -29,6 +29,7 @@ var _focused_key := ""
 var _capture: Control = null
 var _capture_info: Dictionary = {}
 var _capture_left := 0.0
+var _click_back: Dictionary = {}  # setting key -> the last left click on that selector was on its "‹" half
 
 
 func _ready() -> void:
@@ -281,7 +282,7 @@ func _make_control(it: Dictionary) -> Control:
 		"choice":
 			var sel := Button.new()
 			sel.theme_type_variation = "SelectorButton"
-			sel.pressed.connect(_cycle.bind(key, 1))
+			sel.pressed.connect(_on_selector_pressed.bind(key))
 			sel.gui_input.connect(_selector_input.bind(key))
 			return sel
 		"button":
@@ -369,6 +370,13 @@ func _cycle(key: String, direction: int) -> void:
 	Settings.set_value(key, options[index][0])
 
 
+## Cross, Enter or a click: forward, or back when the click landed on the "‹" half.
+func _on_selector_pressed(key: String) -> void:
+	var back := bool(_click_back.get(key, false))
+	_click_back.erase(key)
+	_cycle(key, -1 if back else 1)
+
+
 func _selector_input(event: InputEvent, key: String) -> void:
 	if event.is_action_pressed("ui_left"):
 		_cycle(key, -1)
@@ -377,9 +385,15 @@ func _selector_input(event: InputEvent, key: String) -> void:
 		_cycle(key, 1)
 		accept_event()
 	elif event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
-		if (event as InputEventMouseButton).button_index == MOUSE_BUTTON_RIGHT:
+		var mb := event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_RIGHT:
 			_cycle(key, -1)
 			accept_event()
+		elif mb.button_index == MOUSE_BUTTON_LEFT:
+			# lane B4 part 3: the button reads "‹ value ›"; a click on its left half goes back (Emerson:
+			# "the arrows just go one way"). The press that follows steps in the remembered direction.
+			var control := _rows.get(key, {}).get("control") as Control
+			_click_back[key] = control != null and mb.position.x < control.size.x * 0.5
 
 
 func _run_action(action: String) -> void:

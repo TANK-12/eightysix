@@ -32,7 +32,8 @@ void sky() {
 	if (LIGHT0_ENABLED) {
 		sd = max(dot(d, LIGHT0_DIRECTION), 0.0);
 		vec3 sun = LIGHT0_COLOR * LIGHT0_ENERGY;
-		col += sun * (smoothstep(0.99975, 0.9999, sd) * 18.0 + pow(sd, 90.0) * 0.35 + pow(sd, 7.0) * 0.1);
+		// lane B4 part 3: disc 18 -> 6, halo and wide glow about a third (Emerson: far too bright and bloomy)
+		col += sun * (smoothstep(0.99975, 0.9999, sd) * 6.0 + pow(sd, 90.0) * 0.12 + pow(sd, 7.0) * 0.035);
 	}
 	if (quality > 0 && up > 0.0) {
 		vec2 p = d.xz / (up + 0.1);

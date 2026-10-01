@@ -1,8 +1,10 @@
 extends Node
 ## The music player (lane B4 part 2). Plays tracks from data/music.json (files in ~/Music/86/, kept
 ## outside the game) on the Music bus: one for the menus, one while exploring, one in combat, each
-## picked in Settings > Audio > Music (a track, Shuffle or Off). Combat starts when a gun or a hit
-## sounds near the listener and ends after COMBAT_HOLD_S of quiet. Changes crossfade over FADE_S.
+## picked in Settings > Audio > Music (Soundtrack, a track, Shuffle or Off). Combat starts when a gun or a
+## hit sounds near the listener and ends after COMBAT_HOLD_S of quiet. Changes crossfade over FADE_S.
+## Soundtrack (the default, lane B4 part 3) plays the music.json "ost" set through in album order and
+## carries on where it left off, across contexts and across launches (position_file).
 
 const FADE_S := 2.5
 const COMBAT_HOLD_S := 25.0
@@ -10,6 +12,7 @@ const COMBAT_NEAR_M := 400.0
 const SETTING := {"menu": "audio.music_menu", "explore": "audio.music_explore", "combat": "audio.music_combat"}
 
 var context := "menu"
+var position_file := "user://music.cfg"  # where Soundtrack remembers its place (tests point it elsewhere)
 var track := ""  # music.json id now playing, "" for none
 var _players: Array[AudioStreamPlayer] = []
 var _live := 0
@@ -39,7 +42,7 @@ func candidates(ctx: String) -> PackedStringArray:
 	var out := PackedStringArray()
 	for id in Registry.ids("music"):
 		var e := Registry.entry("music", id)
-		if not ctx in e.get("use", []):
+		if not ctx in e.get("use", []) or not _shown(e):
 			continue
 		if lang != "any" and str(e.get("language", "none")) not in [lang, "none"]:
 			continue
@@ -53,11 +56,46 @@ func path_of(id: String) -> String:
 	return OS.get_environment("HOME") + p.substr(1) if p.begins_with("~") else p
 
 
-## The track `ctx` wants now: the chosen one, a shuffled one, or "" for silence.
+## The soundtrack album in order: the "ost" set by "order", missing files left out.
+func album() -> PackedStringArray:
+	var out := PackedStringArray()
+	for id in Registry.ids("music"):
+		if str(Registry.entry("music", id).get("set", "")) == "ost" and FileAccess.file_exists(path_of(id)):
+			out.append(id)
+	return out
+
+
+## The album track after `id` (wrapping round); after the saved place when `id` is not on the album.
+func album_next(id: String) -> String:
+	var tracks := album()
+	if tracks.is_empty():
+		return ""
+	var at := tracks.find(id)
+	if at < 0:
+		var cfg := ConfigFile.new()
+		cfg.load(position_file)
+		at = tracks.find(str(cfg.get_value("ost", "last", "")))
+	return tracks[(at + 1) % tracks.size()]
+
+
+func _want(ctx: String) -> String:
+	var want := Settings.get_s(SETTING[ctx]) if Settings.has_key(SETTING[ctx]) else "ost"
+	if want not in ["ost", "shuffle", "off"] and (not Registry.has_entry("music", want) or not _shown(Registry.entry("music", want))):
+		return "ost"  # a hidden extra (or a track no longer listed) falls back to the soundtrack
+	return want
+
+
+func _shown(e: Dictionary) -> bool:
+	return not e.has("show_if") or Settings.get_b(str(e["show_if"]))
+
+
+## The track `ctx` wants now: the next soundtrack track, the chosen one, a shuffled one, or "" for silence.
 func choose(ctx: String) -> String:
-	var want := Settings.get_s(SETTING[ctx]) if Settings.has_key(SETTING[ctx]) else "shuffle"
+	var want := _want(ctx)
 	if want == "off":
 		return ""
+	if want == "ost":
+		return album_next(track)
 	if want != "shuffle" and FileAccess.file_exists(path_of(want)):
 		return want
 	var pool := candidates(ctx)
@@ -71,8 +109,10 @@ func choose(ctx: String) -> String:
 func set_context(ctx: String) -> void:
 	if ctx == context and track != "":
 		return
+	var carry_on := _want(ctx) == "ost" and track in album()
 	context = ctx
-	play(choose(ctx))
+	if not carry_on:  # the soundtrack just keeps playing from menu to field to combat
+		play(choose(ctx))
 
 
 func skip() -> void:
@@ -82,6 +122,10 @@ func skip() -> void:
 ## Crossfades to `id` ("" fades to silence).
 func play(id: String) -> void:
 	track = id
+	if id != "" and str(Registry.entry("music", id).get("set", "")) == "ost":
+		var cfg := ConfigFile.new()
+		cfg.set_value("ost", "last", id)
+		cfg.save(position_file)
 	var next := _players[1 - _live]
 	next.stop()
 	if id != "":
@@ -142,5 +186,6 @@ func _on_scene_changed() -> void:
 
 
 func _on_setting_changed(key: String, _value: Variant) -> void:
-	if key == SETTING.get(context, "") or key == "audio.music_language":
-		play(choose(context))
+	if key == SETTING.get(context, "") or key in ["audio.music_language", "audio.music_extras"]:
+		if not (_want(context) == "ost" and track in album()):
+			play(choose(context))

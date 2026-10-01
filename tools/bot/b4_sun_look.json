@@ -1,0 +1,86 @@
+{
+ "name": "b4_sun_look",
+ "map": "small_map",
+ "_about": "Lane B4 part 3: Emerson's sun and grain notes. The chase camera turned toward the low sun (standing, then walking: two shots 0.2 s apart), then the start, town and lake viewpoints (start twice 0.3 s apart for frame-to-frame noise). tools/bot_run.sh b4_sun_look --preset=ultra (his own settings are Ultra with a 300 m draw distance); --preset=medium for the common case.",
+ "steps": [
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 0.5,
+   "setting": "graphics.draw_distance",
+   "value": 300
+  },
+  {
+   "at": 2.0,
+   "press": "turn_right",
+   "strength": 1.0,
+   "for": 2.8
+  },
+  {
+   "at": 7.5,
+   "shot": "sun-chase"
+  },
+  {
+   "at": 6.7,
+   "press": "move_forward",
+   "strength": 0.6,
+   "for": 3.0
+  },
+  {
+   "at": 8.5,
+   "shot": "sun-walk-a"
+  },
+  {
+   "at": 8.7,
+   "shot": "sun-walk-b"
+  },
+  {
+   "at": 10.5,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 12.5,
+   "shot": "start-a"
+  },
+  {
+   "at": 12.8,
+   "shot": "start-b"
+  },
+  {
+   "at": 13.0,
+   "measure": 2.0,
+   "label": "start"
+  },
+  {
+   "at": 15.2,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 17.0,
+   "shot": "town"
+  },
+  {
+   "at": 17.2,
+   "call": "look_from",
+   "args": [
+    "lake"
+   ]
+  },
+  {
+   "at": 19.0,
+   "shot": "lake"
+  },
+  {
+   "at": 19.5,
+   "quit": true
+  }
+ ]
+}

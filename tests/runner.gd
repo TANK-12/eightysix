@@ -7,6 +7,11 @@ const TEST_DIR := "res://tests"
 
 
 func _ready() -> void:
+	# lane B4 part 3: a test run must never write Emerson's own settings, key bindings or soundtrack place
+	# (a full run on 2026-10-01 overwrote his settings.cfg). Everything a test saves goes to test_* files.
+	Settings.save_path = "user://test_settings.cfg"
+	Controls.save_path = "user://test_bindings.cfg"
+	Music.position_file = "user://test_music.cfg"
 	await get_tree().process_frame
 	var filter := ""
 	for arg in OS.get_cmdline_user_args():

@@ -166,7 +166,11 @@ func options_for(key: String) -> Array:
 				out.append([device, device])
 		var registry_name:
 			for id in Registry.ids(registry_name):
-				out.append([id, str(Registry.entry(registry_name, id).get("label", id))])
+				var e := Registry.entry(registry_name, id)
+				# an entry with "show_if": "<setting key>" is offered only while that setting is on
+				if e.has("show_if") and not get_b(str(e["show_if"])):
+					continue
+				out.append([id, str(e.get("label", id))])
 	for extra: Array in it.get("extra_options", []):
 		out.append(extra)
 	return out
