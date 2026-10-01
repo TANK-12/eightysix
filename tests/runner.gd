@@ -24,6 +24,7 @@ func _ready() -> void:
 		var script: GDScript = load(TEST_DIR.path_join(file))
 		if script == null or not script.can_instantiate():
 			results.append({"name": file, "ok": false, "message": "does not compile"})
+			print("  FAIL  ", file, "  does not compile")
 			failed += 1
 			continue
 		var methods: Array = []
@@ -33,14 +34,17 @@ func _ready() -> void:
 				methods.append(n)
 		if methods.is_empty():
 			continue
+		var before := _state()
 		var suite: RefCounted = script.new()
 		suite.set("tree", get_tree())
 		await suite.call("before_all")
 		for n: String in methods:
 			suite.set("failures", PackedStringArray())
+			var at_start := get_tree().root.get_children()
 			await suite.call("before_each")
 			await suite.call(n)
 			await suite.call("after_each")
+			await _sweep(at_start)
 			var fails: PackedStringArray = suite.get("failures")
 			var ok := fails.is_empty()
 			var name := "%s:%s" % [file, n]
@@ -52,6 +56,9 @@ func _ready() -> void:
 				failed += 1
 				print("  FAIL  ", name, "  ", "; ".join(fails))
 		await suite.call("after_all")
+		var left := _left_behind(before, _state())
+		if not left.is_empty():
+			print("  LEFT  ", file, " left behind: ", "; ".join(left))
 	var seconds := (Time.get_ticks_msec() - started) / 1000.0
 	print("\n%d passed, %d failed in %.1f s" % [passed, failed, seconds])
 	if filter == "":
@@ -68,3 +75,48 @@ func _ready() -> void:
 			f.store_string(JSON.stringify(report, "  "))
 			f.close()
 	get_tree().quit(0 if failed == 0 else 1)
+
+
+## Frees what a test left under the root (shells, casings, debris, decals, particles) and lets go
+## of the input actions it left held, so the next test starts on the same empty world. Before
+## this, a sleeping debris body left at the origin sat where the next test built its mech and made
+## test_grapple's ledge climb and test_legion fail only in the full run.
+func _sweep(at_start: Array[Node]) -> void:
+	for n: Node in get_tree().root.get_children():
+		if n not in at_start and n != self:
+			n.queue_free()
+	for a: StringName in InputMap.get_actions():
+		if Input.is_action_pressed(a):
+			Input.action_release(a)
+	await get_tree().process_frame
+
+
+## What one test file can leave for the next: nodes under the root, input actions still held,
+## a changed time scale or physics rate. A test that passes alone and fails in the full run is
+## usually reading one of these.
+func _state() -> Dictionary:
+	var nodes := PackedStringArray()
+	for n: Node in get_tree().root.get_children():
+		nodes.append("%s (%s)" % [n.name, n.get_class()])
+	var held := PackedStringArray()
+	for a: StringName in InputMap.get_actions():
+		if not str(a).begins_with("ui_") and Input.is_action_pressed(a):
+			held.append(str(a))
+	return {
+		"nodes": nodes,
+		"held": held,
+		"time_scale": Engine.time_scale,
+		"tps": Engine.physics_ticks_per_second,
+	}
+
+
+func _left_behind(before: Dictionary, after: Dictionary) -> PackedStringArray:
+	var out := PackedStringArray()
+	for key: String in ["nodes", "held"]:
+		for item: String in after[key]:
+			if item not in before[key]:
+				out.append("%s %s" % ["node" if key == "nodes" else "held action", item])
+	for key: String in ["time_scale", "tps"]:
+		if after[key] != before[key]:
+			out.append("%s %s -> %s" % [key, before[key], after[key]])
+	return out

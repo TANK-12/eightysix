@@ -412,3 +412,8 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
 `builds.py` follow his rule (one version per committed part, `save --note`; `tools/tests` 16/16). Details:
 `~/Forge/sessions/juggernaut-alpha/results/B4.md`.
 
+
+- 2026-10-01, A4 side jobs (Haru, ejb-ca): `tests/runner.gd` frees what each test leaves under the root and
+  releases held input after every test, and prints `LEFT` per file that leaks (sleeping debris at the origin made
+  `test_grapple` ledge climb and `test_legion` fail only in the full run); compile failures now print. Full suite
+  192 passed. Details: `~/Forge/sessions/juggernaut-alpha/results/A4-side.md`.
