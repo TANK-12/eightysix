@@ -1,0 +1,126 @@
+{
+ "name": "b5_destroy",
+ "map": "big_map",
+ "_about": "Lane B5: destruction with real shells. The Juggernaut parked 30 m from the Kreuzberg building with the most pieces (face_building), HE selected, 8 rounds fired; the building's integrity logged before and after (report_target, godot.log). tools/bot_run.sh b5_destroy",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    0,
+    30.0
+   ]
+  },
+  {
+   "at": 4.0,
+   "shot": "target-before"
+  },
+  {
+   "at": 4.1,
+   "call": "report_target",
+   "args": [
+    "before"
+   ]
+  },
+  {
+   "at": 4.2,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 4.6,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 5.0,
+   "sample": "ammo"
+  },
+  {
+   "at": 5.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 6.8,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 8.1,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 8.8,
+   "shot": "under-fire"
+  },
+  {
+   "at": 9.4,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 10.700000000000001,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 12.000000000000002,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 13.300000000000002,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 14.600000000000003,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 16.400000000000006,
+   "call": "report_target",
+   "args": [
+    "after 8 HE"
+   ]
+  },
+  {
+   "at": 18.900000000000006,
+   "shot": "target-after"
+  },
+  {
+   "at": 19.100000000000005,
+   "call": "report_target",
+   "args": [
+    "settled"
+   ]
+  },
+  {
+   "at": 19.400000000000006,
+   "quit": true
+  }
+ ]
+}

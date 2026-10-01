@@ -85,6 +85,9 @@ static func build(id: String, seed_value: int = 0, overrides: Dictionary = {}) -
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash([id, seed_value])
 	var parts := Parts.new()
+	# lane B5: pieces broken off by damage (Destructible) are skipped by index; the builder still
+	# runs every step (and every random draw) in the same order, so the rest come out the same
+	parts.gone = e.get("gone", {})
 	match str(e.get("builder", "")):
 		"rock":
 			_rock(parts, e, rng)
@@ -131,6 +134,8 @@ static func build(id: String, seed_value: int = 0, overrides: Dictionary = {}) -
 			var cs := CollisionShape3D.new()
 			cs.shape = s[0]
 			cs.transform = s[1]
+			if s.size() > 2:
+				cs.set_meta("piece", s[2])
 			body.add_child(cs)
 		root = body
 	root.name = id.to_pascal_case()
@@ -147,6 +152,30 @@ static func build(id: String, seed_value: int = 0, overrides: Dictionary = {}) -
 	return root
 
 
+## One loose piece of debris: a box body the size and material of kit piece `p`, at world
+## transform `at`, added under `parent`.
+static func debris(parent: Node, at: Transform3D, p: Dictionary) -> RigidBody3D:
+	var size: Vector3 = p["size"]
+	var body := RigidBody3D.new()
+	body.collision_layer = LAYER_DEBRIS
+	body.collision_mask = LAYER_WORLD | LAYER_DEBRIS
+	body.mass = maxf(size.x * size.y * size.z * PIECE_DENSITY, 5.0)
+	var mi := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	mi.mesh = box
+	mi.material_override = material(str(p["material"]))
+	body.add_child(mi)
+	var cs := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	cs.shape = shape
+	body.add_child(cs)
+	parent.add_child(body)
+	body.global_transform = at
+	return body
+
+
 ## Turn a breakable kit piece into loose debris: one RigidBody3D per piece, added where the piece
 ## stood, pushed away from `from` by `impulse` (N s). The original node is freed. Returns the debris.
 static func break_apart(node: Node3D, from: Vector3 = Vector3.ZERO, impulse: float = 0.0) -> Array[RigidBody3D]:
@@ -156,24 +185,9 @@ static func break_apart(node: Node3D, from: Vector3 = Vector3.ZERO, impulse: flo
 	var parent := node.get_parent()
 	var xf := node.global_transform
 	for p: Dictionary in node.get_meta("pieces"):
-		var size: Vector3 = p["size"]
-		var body := RigidBody3D.new()
-		body.collision_layer = LAYER_DEBRIS
-		body.collision_mask = LAYER_WORLD | LAYER_DEBRIS
-		body.mass = maxf(size.x * size.y * size.z * PIECE_DENSITY, 5.0)
-		var mi := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = size
-		mi.mesh = box
-		mi.material_override = material(str(p["material"]))
-		body.add_child(mi)
-		var cs := CollisionShape3D.new()
-		var shape := BoxShape3D.new()
-		shape.size = size
-		cs.shape = shape
-		body.add_child(cs)
-		parent.add_child(body)
-		body.global_transform = xf * (p["xf"] as Transform3D)
+		if p.get("gone", false):
+			continue
+		var body := debris(parent, xf * (p["xf"] as Transform3D), p)
 		if impulse > 0.0:
 			var away := (body.global_position - from).normalized()
 			body.apply_central_impulse(away * impulse / maxf(float(out.size()) * 0.1 + 1.0, 1.0))
@@ -582,6 +596,8 @@ class Parts:
 	var no_normals: Array[String] = []
 	var shapes: Array = []
 	var pieces: Array = []
+	var gone := {}  # piece index -> true: broken off (lane B5), not drawn or collided
+	var next_piece := 0
 	var hull := PackedVector3Array()
 	var anchors: Array[Vector3] = []
 
@@ -602,11 +618,16 @@ class Parts:
 
 	## A breakable box: drawn, collided and listed for break_apart.
 	func piece(mat: String, xf: Transform3D, size: Vector3) -> void:
+		var idx := next_piece
+		next_piece += 1
+		var lost := gone.has(idx) or gone.has(str(idx))
+		pieces.append({"xf": xf, "size": size, "material": mat, "index": idx, "gone": lost})
+		if lost:
+			return
 		box(mat, xf, size)
 		var shape := BoxShape3D.new()
 		shape.size = size
-		shapes.append([shape, xf])
-		pieces.append({"xf": xf, "size": size, "material": mat})
+		shapes.append([shape, xf, idx])
 
 	## An anchor on top of the highest surviving piece within `radius` (horizontally) of `near`,
 	## at that piece's centre, so damage never leaves an anchor hanging in the air.
@@ -614,6 +635,8 @@ class Parts:
 		var best := Vector3.ZERO
 		var best_top := -INF
 		for p: Dictionary in pieces:
+			if p.get("gone", false):
+				continue
 			var xf: Transform3D = p["xf"]
 			if Vector2(xf.origin.x - near.x, xf.origin.z - near.z).length() > radius:
 				continue

@@ -150,7 +150,8 @@ func _build_water() -> void:
 	add_child(mi)
 
 
-## Every town's buildings and extras (BigTowns), standing on the town's level ground.
+## Every town's buildings and extras (BigTowns), standing on the town's level ground; walls and
+## buildings are Destructibles (they break under fire).
 func _build_towns() -> void:
 	var holder := Node3D.new()
 	holder.name = "Towns"
@@ -162,16 +163,49 @@ func _build_towns() -> void:
 				over["damage"] = float(spec["damage"])
 			var x := float(spec["at"][0])
 			var z := float(spec["at"][1])
-			var node := Kit.build(str(spec["kit"]), int(spec["seed"]), over)
+			var node := Destructible.make(str(spec["kit"]), int(spec["seed"]), over, PLACE_RANGE_M)
 			node.position = Vector3(x, terrain.overview_height(x, z) - 0.15, z)
 			node.rotation.y = deg_to_rad(float(spec["rot"]))
 			node.set_meta("town", spec["town"])
 			holder.add_child(node)
-			for gi: Node in node.find_children("*", "GeometryInstance3D", true, false):
-				(gi as GeometryInstance3D).visibility_range_end = PLACE_RANGE_M
-			for p: Vector3 in node.get_meta("anchors", []):
-				grapple_points.append(node.transform * p)
+			grapple_points.append_array(node.anchors())
 			places.append(node)
+
+
+## Bot hook: the Juggernaut placed `distance_m` from one of the town's buildings, toward the town's
+## middle (on its level ground), facing it, standing still. index 0 is the building with the most
+## pieces, 1 the next and so on. For destruction checks with real shells.
+func face_building(town: String, index: int = 0, distance_m: float = 30.0) -> void:
+	var list := places.filter(func(n: Node) -> bool: return n is Destructible and str(n.get_meta("town", "")) == town and (n as Destructible).pieces.size() > 0)
+	if list.is_empty():
+		push_warning("big_map: no building in %s" % town)
+		return
+	list.sort_custom(func(a: Destructible, b: Destructible) -> bool: return a.pieces.size() > b.pieces.size())
+	var b := list[clampi(index, 0, list.size() - 1)] as Node3D
+	var c := Vector2.ZERO
+	for t: Dictionary in entry.get("towns", []):
+		if str(t["id"]) == town:
+			c = Vector2(float(t["center"][0]), float(t["center"][1]))
+	var bp := Vector2(b.global_position.x, b.global_position.z)
+	var at := bp + (c - bp).normalized() * distance_m
+	stream.prime(Vector3(at.x, 0.0, at.y))
+	var d := (bp - at).normalized()
+	mech.global_transform = Transform3D(Basis(Vector3.UP, atan2(-d.x, -d.y)), Vector3(at.x, terrain.height_at(at.x, at.y) + 3.2, at.y))
+	mech.linear_velocity = Vector3.ZERO
+	mech.angular_velocity = Vector3.ZERO
+	set_meta("target_building", b)
+
+
+## Bot hook: how much of the building face_building() aimed at still stands (into the bot log).
+func report_target(label: String) -> void:
+	var b: Variant = get_meta("target_building", null)
+	if b is Destructible:
+		var d := b as Destructible
+		print("big_map %s: target %s integrity %.2f, %d of %d pieces gone, collapsed %s" % [label, d.kit_id, d.integrity(), d.gone.size(), d.pieces.size(), str(d.is_collapsed)])
+	for n: Node in places:
+		var hit := n as Destructible
+		if hit != null and hit != b and (hit.integrity() < 1.0 or hit.is_collapsed):
+			print("big_map %s: also hit %s at %s, integrity %.2f, collapsed %s" % [label, hit.kit_id, str(hit.global_position.round()), hit.integrity(), str(hit.is_collapsed)])
 
 
 ## Rock outcrops over the hills (the entry's "outcrops" block): climbable, grapple points on top.
