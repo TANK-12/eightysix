@@ -77,6 +77,12 @@ The "Current state" section may be updated in place, but only to keep it true; t
   `music.json` set "ost", carries on across contexts and launches, `user://music.cfg`); one original of each OP/ED
   (set "song"); covers and the preview reel only with **Extra tracks** on (`show_if`). Selectors: the left half of
   "‹ value ›" steps back. Tests never write Emerson's settings (`tests/runner.gd`).
+- **Dirt builds up, lane B4 part 4 (2026-10-02).** `scripts/look/grime_buildup.gd` (`GrimeBuildup`, on every
+  Juggernaut beside FootDust) adds dirt on top of the finish's grime from ground covered (dirt far more than rock,
+  none on steel, more at a run), hard landings and skids; dust also mattes the paint (`tuning.json`
+  `grime_buildup`). A new sortie starts at the finish's own wear; Settings > Gameplay > **Dirt builds up** off washes
+  it. Live: +0.23 per km at a gallop (`tools/bot_run.sh b4_grime`, `grime_extra` in each sample; bot samples now
+  merge any mech add-on's `bot_sample()`). At the cap the legs read brown and mottled (`images/251`).
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
