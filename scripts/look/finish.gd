@@ -30,7 +30,9 @@ static func apply_to(mats: Array, finish_id: String) -> Dictionary:
 		mat.albedo_color = Color(float(a[0]), float(a[1]), float(a[2]))
 		mat.metallic = float(f.get("metallic", mat.metallic))
 		mat.roughness = float(f.get("roughness", mat.roughness))
-		_set_grime(mat, float(f.get("grime", 0.0)))
+		mat.set_meta("finish_grime", float(f.get("grime", 0.0)))
+		mat.set_meta("finish_roughness", mat.roughness)
+		_apply_grime(mat)
 		changed[mat] = mat.metallic
 	return changed
 
@@ -41,6 +43,25 @@ static func _base_name(n: String) -> String:
 		if n.begins_with(key):
 			return key
 	return n
+
+
+## Dirt picked up on top of the finish over a sortie (GrimeBuildup); kept across finish switches.
+static func set_extra(mat: StandardMaterial3D, extra: float, roughness_gain: float) -> void:
+	mat.set_meta("grime_extra", maxf(extra, 0.0))
+	mat.set_meta("grime_roughness_gain", roughness_gain)
+	_apply_grime(mat)
+
+
+## How dirty a finished material is now: the finish's own grime plus any sortie dirt, 0-1.
+static func grime_of(mat: StandardMaterial3D) -> float:
+	return clampf(float(mat.get_meta("finish_grime", 0.0)) + float(mat.get_meta("grime_extra", 0.0)), 0.0, 1.0)
+
+
+static func _apply_grime(mat: StandardMaterial3D) -> void:
+	var extra := float(mat.get_meta("grime_extra", 0.0))
+	var rough := float(mat.get_meta("finish_roughness", mat.roughness))
+	mat.roughness = clampf(rough + extra * float(mat.get_meta("grime_roughness_gain", 0.0)), 0.0, 1.0)
+	_set_grime(mat, grime_of(mat))
 
 
 static func _set_grime(mat: StandardMaterial3D, amount: float) -> void:

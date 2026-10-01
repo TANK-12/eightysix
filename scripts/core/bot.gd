@@ -221,6 +221,10 @@ func _sample(label: String) -> void:
 		_errors.append("no player mech to sample at %s" % label)
 		return
 	var t: Dictionary = mech.call("telemetry")
+	# a mech's add-ons (GrimeBuildup and the like) can add their own figures to the sample
+	for c: Node in mech.get_children():
+		if c.has_method("bot_sample"):
+			t.merge(c.call("bot_sample"))
 	t["label"] = label
 	t["t"] = snappedf(_clock, 0.01)
 	(report["samples"] as Array).append(t)

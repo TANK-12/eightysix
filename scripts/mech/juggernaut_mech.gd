@@ -61,6 +61,7 @@ func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, 
 	_wire_shine(skin)
 	Emblem.attach(self, def.get("sockets", {}), Settings.get_s("mech.emblem"))
 	FootDust.attach(self)
+	GrimeBuildup.attach(self)
 	_wire_real_legs(skin)
 	_wire_rams(skin)
 	Settings.changed.connect(_on_setting_changed)

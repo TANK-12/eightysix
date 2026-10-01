@@ -157,3 +157,76 @@ func test_foot_dust_material_fades_near_the_camera() -> void:
 		var ang := TAU * i / 16.0
 		ring.append(img.get_pixel(32 + int(cos(ang) * 18), 32 + int(sin(ang) * 18)).a)
 	assert_gt(ring.max() - ring.min(), 0.1, "ragged edge, not a clean disc")
+
+
+func _paint_and_frame() -> Array:
+	var paint := StandardMaterial3D.new()
+	paint.resource_name = "JG2_paint"
+	var frame := StandardMaterial3D.new()
+	frame.resource_name = "JG2_frame_001"
+	Finish.apply_to([paint, frame], "undertaker_field")
+	return [paint, frame]
+
+
+func test_grime_builds_with_running_on_dirt_more_than_rock_and_none_on_steel() -> void:
+	var dirt := GrimeBuildup.gain(1000.0, "dirt", 15.0)
+	var rock := GrimeBuildup.gain(1000.0, "rock", 15.0)
+	assert_gt(dirt, 0.05, "a kilometre run on dirt shows")
+	assert_lt(rock, dirt * 0.6, "rock throws less dirt")
+	assert_almost_eq(GrimeBuildup.gain(1000.0, "metal", 15.0), 0.0, 0.0001, "a steel deck adds none")
+	assert_gt(GrimeBuildup.gain(1000.0, "dirt", 18.0), GrimeBuildup.gain(1000.0, "dirt", 4.0), "running throws more than walking")
+	assert_gt(GrimeBuildup.landing_gain(12.0), GrimeBuildup.landing_gain(3.0), "a hard landing splashes more than a soft one")
+	assert_gt(GrimeBuildup.skid_gain(2.0, "dirt"), 0.0, "a skid on dirt sprays the legs")
+
+
+func test_grime_buildup_dirties_the_finish_and_mattes_it_capped() -> void:
+	var mats := _paint_and_frame()
+	var paint: StandardMaterial3D = mats[0]
+	var clean_tex := paint.detail_albedo
+	var clean_rough := paint.roughness
+	var g := GrimeBuildup.new()
+	g.mats = mats
+	g.add(0.3)
+	assert_ne(paint.detail_albedo, clean_tex, "a dirtier grime layer")
+	assert_gt(paint.roughness, clean_rough, "dust is matte")
+	g.add(50.0)
+	var cap := float(Registry.tune("grime_buildup", {})["max_extra"])
+	assert_almost_eq(g.extra, cap, 0.0001, "capped")
+	assert_eq(paint.detail_albedo, Finish.grime_texture(Finish.GRIME_STEPS), "the heaviest grime at most")
+	g.free()
+
+
+func test_switching_finish_keeps_the_dirt_and_clearing_returns_the_finish() -> void:
+	var mats := _paint_and_frame()
+	var paint: StandardMaterial3D = mats[0]
+	var g := GrimeBuildup.new()
+	g.mats = mats
+	g.add(0.4)
+	Finish.apply_to(mats, "fresh_paint")
+	assert_true(paint.detail_enabled, "fresh paint still carries the sortie's dirt")
+	assert_gt(Finish.grime_of(paint), 0.4, "fresh paint's own 0.1 plus the dirt")
+	g.reset()
+	assert_almost_eq(Finish.grime_of(paint), 0.1, 0.0001, "back to the finish's own wear")
+	assert_almost_eq(paint.roughness, float(Registry.entry("finishes", "fresh_paint")["materials"]["JG2_paint"]["roughness"]), 0.0001)
+	g.free()
+
+
+func test_the_juggernaut_gets_dirty_running_and_the_setting_washes_it() -> void:
+	var mech := MechBuilder.build("juggernaut_m2")
+	Engine.get_main_loop().root.add_child(mech)
+	var g := mech.get_node_or_null("GrimeBuildup") as GrimeBuildup
+	assert_not_null(g, "every Juggernaut carries its grime")
+	assert_gt(g.mats.size(), 0, "found the finish's materials")
+	var paint: StandardMaterial3D
+	for m: StandardMaterial3D in g.mats:
+		if m.resource_name.begins_with("JG2_paint"):
+			paint = m
+	var before := Finish.grime_of(paint)
+	g.travel(800.0, "dirt", 16.0)
+	assert_gt(Finish.grime_of(paint), before + 0.05, "dirtier after a run")
+	Settings.set_value("mech.grime_buildup", false, false)
+	assert_almost_eq(Finish.grime_of(paint), before, 0.0001, "off: the finish's own wear")
+	g.travel(800.0, "dirt", 16.0)
+	assert_almost_eq(Finish.grime_of(paint), before, 0.0001, "off: no build-up")
+	Settings.reset_all_quietly()
+	mech.free()

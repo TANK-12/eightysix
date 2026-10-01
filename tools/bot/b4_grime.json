@@ -1,0 +1,168 @@
+{
+  "name": "b4_grime",
+  "_about": "Lane B4 part 4: dirt building up over a sortie. A ~1.7 km gallop on the valley's dirt (out, turn on the spot, back, turn, out again; telemetry with grime_extra every 6 s), then one frozen photo-mode frame shot twice: dirty, then washed by switching Dirt builds up off (same camera, same light). tools/bot_run.sh b4_grime. (A 70 s circling gallop flipped the mech, images/247; reported to track A.)",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "controls.sprint_mode",
+      "value": "hold"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 2.0,
+      "sample": "t0"
+    },
+    {
+      "at": 2.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 2.0,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 8.0,
+      "sample": "leg0-6"
+    },
+    {
+      "at": 14.0,
+      "sample": "leg0-12"
+    },
+    {
+      "at": 20.0,
+      "sample": "leg0-18"
+    },
+    {
+      "at": 26.0,
+      "sample": "leg0-24"
+    },
+    {
+      "at": 32.0,
+      "sample": "leg0-30"
+    },
+    {
+      "at": 35.0,
+      "press": "turn_right",
+      "strength": 1.0,
+      "for": 5.0
+    },
+    {
+      "at": 41.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 41.0,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 47.0,
+      "sample": "leg1-6"
+    },
+    {
+      "at": 53.0,
+      "sample": "leg1-12"
+    },
+    {
+      "at": 59.0,
+      "sample": "leg1-18"
+    },
+    {
+      "at": 65.0,
+      "sample": "leg1-24"
+    },
+    {
+      "at": 71.0,
+      "sample": "leg1-30"
+    },
+    {
+      "at": 74.0,
+      "press": "turn_right",
+      "strength": 1.0,
+      "for": 5.0
+    },
+    {
+      "at": 80.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 80.0,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 30.0
+    },
+    {
+      "at": 86.0,
+      "sample": "leg2-6"
+    },
+    {
+      "at": 92.0,
+      "sample": "leg2-12"
+    },
+    {
+      "at": 98.0,
+      "sample": "leg2-18"
+    },
+    {
+      "at": 104.0,
+      "sample": "leg2-24"
+    },
+    {
+      "at": 110.0,
+      "sample": "leg2-30"
+    },
+    {
+      "at": 113.0,
+      "sample": "end"
+    },
+    {
+      "at": 114.0,
+      "goto": "photo"
+    },
+    {
+      "at": 114.2,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 0.8
+    },
+    {
+      "at": 115.5,
+      "shot": "grime-dirty"
+    },
+    {
+      "at": 115.7,
+      "setting": "mech.grime_buildup",
+      "value": false
+    },
+    {
+      "at": 116.2,
+      "shot": "grime-washed"
+    },
+    {
+      "at": 116.4,
+      "goto": "game"
+    },
+    {
+      "at": 116.8,
+      "quit": true
+    }
+  ]
+}

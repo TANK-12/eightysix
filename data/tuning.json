@@ -240,6 +240,17 @@
     "foot_clear_m": 0.25,
     "max_s": 4.0
   },
+  "grime_buildup": {
+    "_about": "Dust and mud building up on the Juggernaut over a sortie (lane B4, scripts/look/grime_buildup.gd), added on top of the finish's own grime (finishes.json). per_km: grime per kilometre covered on each ground (sounds.json surface names), times speed_factor, which blends [at the first, at the second] of speed_m_s. landing: a landing harder than from_m_s adds up to max (at full_m_s). skid_per_s: grime per second of skidding on each ground. max_extra: the most a sortie adds (grime is 0 clean to 1 filthy). roughness_gain: how much matter the paint gets at max_extra (dust is matte). weights: how much each export material catches (the frame and legs more, bare steel less). A new sortie starts clean of it; Settings > Gameplay > Dirt builds up turns it off.",
+    "per_km": {"dirt": 0.16, "rock": 0.05, "metal": 0.0},
+    "speed_m_s": [4.0, 18.0],
+    "speed_factor": [0.5, 1.4],
+    "landing": {"from_m_s": 4.0, "full_m_s": 12.0, "max": 0.03},
+    "skid_per_s": {"dirt": 0.012, "rock": 0.004, "metal": 0.0},
+    "max_extra": 0.45,
+    "roughness_gain": 0.35,
+    "weights": {"JG2_paint": 1.0, "JG2_metal": 0.8, "JG2_frame": 1.2, "JG2_steel": 0.9}
+  },
   "foot_dust": {
     "_about": "Dust thrown by each planted foot at a run (lane B4, scripts/look/foot_dust.gd). Pairs are [at min_speed_m_s, at full_speed_m_s] and blend between. surfaces: how much dust each ground gives (sounds.json surface names; metal is a steel deck or a mech, none). kick_back: how far back against the run the puff leans (0 straight up). camera_fade_m: a puff is clear nearer the camera than the first and full beyond the second. soft_ground_m: how softly it meets the ground. max_live: puffs alive at once, for frame rate.",
     "min_speed_m_s": 6.0,
