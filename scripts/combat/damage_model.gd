@@ -16,7 +16,7 @@ signal part_restored(key: String)
 signal destroyed
 
 const DETACHABLE := ["armour"]
-const CRITICAL := ["cockpit"]
+const CRITICAL := ["cockpit", "core"]
 
 var parts: Dictionary = {}  # key -> {"part", "kind", "label", "max", "hp", "armour_mm", "lost", "leg", "at"}
 var legs: Dictionary = {}  # leg name -> [keys]
@@ -63,6 +63,22 @@ func _add(key: String, part_id: String, leg_name: String, at: Variant) -> void:
 		"leg": leg_name,
 		"at": Vector3(float(a[0]), float(a[1]), float(a[2])),
 		"size": _size_of(p),
+	}
+
+
+## Adds one part straight from figures (the Legion's damage zones have no parts.json entries).
+func add_part(key: String, label: String, kind: String, hp: float, armour_mm: float, leg_name: String = "") -> void:
+	parts[key] = {
+		"part": key,
+		"kind": kind,
+		"label": label,
+		"max": hp,
+		"hp": hp,
+		"armour_mm": armour_mm,
+		"lost": false,
+		"leg": leg_name,
+		"at": Vector3.ZERO,
+		"size": Vector3.ZERO,
 	}
 
 

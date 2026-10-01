@@ -1,0 +1,43 @@
+{
+  "name": "legion",
+  "source": "/home/ejb/Models/legion/export/game",
+  "synced": "2026-10-01T15:50:35",
+  "files": {
+    "ameise.glb": {
+      "bytes": 2514312,
+      "sha256": "a0beb7edfd7f5d5e7bfbc4abee7bc4c8a0017029508a23ba77d1a050863e322e"
+    },
+    "ameise.json": {
+      "bytes": 52957,
+      "sha256": "e610bb97107d517118ed6d5707ddb7896f0d2dde52f83d17e609afa8a5c11153"
+    },
+    "ameise_lite.glb": {
+      "bytes": 1362724,
+      "sha256": "c557980e8f8427141c2f1d95c6aa06ee7a69f510eb58ae692736ddef11612c9d"
+    },
+    "grauwolf.glb": {
+      "bytes": 2563520,
+      "sha256": "c34408ac2d1c9403b3f6d3d2ed87935e3e87ed4cc073dd32c6d740612f98fd6c"
+    },
+    "grauwolf.json": {
+      "bytes": 69983,
+      "sha256": "67723901f39db041a2a325813f393b6362ea9ce7db8cf54c3630e1174a312e61"
+    },
+    "grauwolf_lite.glb": {
+      "bytes": 1382760,
+      "sha256": "cdce66153e7afc7bdbffe3c7725f105bb4a8339ecde19e9e8eb14f6ba573379d"
+    },
+    "lowe.glb": {
+      "bytes": 3042552,
+      "sha256": "0b8912adc9673185d66663ada857388a66049c2fa8fe80df3fec5601f6525816"
+    },
+    "lowe.json": {
+      "bytes": 117454,
+      "sha256": "9a9af22f7daa20c363fac1207d5d7664556f8166ddb9d9551b12a6b8c326d093"
+    },
+    "lowe_lite.glb": {
+      "bytes": 1459904,
+      "sha256": "0a8ec09015f918368cea2cbadb99b14a5dc3fb90684b7dcd903ad34cb827e3f1"
+    }
+  }
+}
