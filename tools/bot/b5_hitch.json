@@ -1,0 +1,51 @@
+{
+ "name": "b5_hitch",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: is the first-10-seconds hitching shaders or tile builds? Walk 10 s from the spawn (first-time shaders and new tiles), then park 700 m away and walk 10 s over tiles never built (shaders warm). tools/bot_run.sh b5_hitch",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 5.0,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 11.0
+  },
+  {
+   "at": 5.5,
+   "measure": 10.0,
+   "label": "walk_first"
+  },
+  {
+   "at": 17.0,
+   "call": "park_at",
+   "args": [
+    -300.0,
+    1000.0,
+    90.0
+   ]
+  },
+  {
+   "at": 20.0,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 11.0
+  },
+  {
+   "at": 20.5,
+   "measure": 10.0,
+   "label": "walk_second_new_tiles"
+  },
+  {
+   "at": 31.5,
+   "quit": true
+  }
+ ]
+}

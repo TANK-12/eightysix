@@ -282,6 +282,13 @@ func blast_bridge_bearing(index: int = 3, rounds: int = 3) -> void:
 		b.take_hit({"point": at, "dir": Vector3.UP, "damage": 1100.0, "ammo": "he"})
 
 
+## Bot hook: the Juggernaut standing still at (x, z) facing `heading_deg` (compass: 0 north, 90 east).
+func park_at(x: float, z: float, heading_deg: float = 0.0) -> void:
+	stream.prime(Vector3(x, 0.0, z))
+	var h := deg_to_rad(heading_deg)
+	_park_mech(Vector3(x, 0.0, z), Vector3(sin(h), 0.0, -cos(h)))
+
+
 ## Bot hook: how much of the first bridge still stands (into the bot log).
 func report_bridge(label: String) -> void:
 	for b: Destructible in bridges:
