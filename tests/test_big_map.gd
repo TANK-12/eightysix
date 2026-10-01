@@ -205,3 +205,29 @@ func test_bodies_dropped_where_tiles_meet_never_fall_through() -> void:
 		balls[i].free()
 	anchor.free()
 	s.free()
+
+
+func test_the_frontier_sweep_mission_spawns_on_open_dry_ground() -> void:
+	var t := _t()
+	var e: Dictionary = Registry.entry("maps", "big_map")
+	var name := Mission.for_map("big_map")
+	assert_eq(name, "frontier_sweep", "the map's own mission")
+	var m: Dictionary = Registry.entry("missions", name)
+	assert_eq(str(m["map"]), "big_map")
+	var half := float(e["legion_area_half_m"])
+	for id: String in m["areas"]:
+		var a: Dictionary = m["areas"][id]
+		var c := Vector2(float(a["at"][0]), float(a["at"][1]))
+		var r := float(a["radius_m"])
+		assert_lt(maxf(absf(c.x) + r, absf(c.y) + r), half, "%s is inside the Legion's area" % id)
+		var worst_slope := 1.0
+		for k in 12:
+			var q := c + Vector2.from_angle(k * TAU / 12.0) * r * 0.8
+			assert_gt(t.height_at(q.x, q.y), t.water_level + 0.6, "%s: dry at %s" % [id, str(q.round())])
+			worst_slope = minf(worst_slope, t.normal_at(q.x, q.y).y)
+		print("    mission area %s: centre %.1f m, worst slope normal.y %.2f" % [id, t.height_at(c.x, c.y), worst_slope])
+		assert_gt(worst_slope, 0.78, "%s is not on a cliff" % id)
+	for w: Dictionary in m["waves"]:
+		for g: Dictionary in w["groups"]:
+			assert_true(m["areas"].has(str(g["area"])), "wave group area %s exists" % g["area"])
+			assert_true(Registry.has_entry("enemies", str(g["enemy"])), "enemy %s exists" % g["enemy"])

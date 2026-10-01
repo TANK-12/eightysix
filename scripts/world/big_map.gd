@@ -63,7 +63,11 @@ func _ready() -> void:
 	hud.call("watch", mech)
 	if not Bot.active and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# a real game (started through Game.start_map, not a bot run or a test) plays the map's mission
+	var playing := Game.pending_map == MAP_ID and not Bot.active
 	Game.register_level(self)
+	if playing:
+		start_mission()
 
 
 func _exit_tree() -> void:
@@ -71,13 +75,26 @@ func _exit_tree() -> void:
 		sky.disconnect_settings()
 
 
-## The map's own mission, if it has one (none yet: free roam). Bot runs call it.
+## The map's own mission (data/missions.json, maps.json "mission"), with its objective HUD. A real game
+## starts it (Game.start_map); bot runs call it as {"call": "start_mission"}.
 func start_mission(mission_id: String = "") -> void:
-	if mission_id == "":
-		mission_id = Mission.for_map(MAP_ID)
-	if mission_id == "" or mission != null:
-		return
-	mission = Mission.start_in(self, mission_id)
+	if mission == null:
+		mission = MissionRun.start(self, MAP_ID, mission_id)
+
+
+## Bot hooks: the Legion's state into the report, a camera beside a unit, the current wave destroyed.
+func report_legion(label: String) -> void:
+	MissionRun.report(mission, label)
+
+
+func look_at_legion(index: int = 0, side_m: float = 22.0, up_m: float = 7.0) -> void:
+	_ensure_view_camera()
+	MissionRun.look_at(mission, view_camera, index, side_m, up_m, ground_height)
+
+
+func clear_wave() -> void:
+	if mission != null:
+		mission.clear_wave()
 
 
 func ground_height(x: float, z: float) -> float:
@@ -100,18 +117,22 @@ func look_from(viewpoint: String) -> void:
 	if v.is_empty():
 		push_warning("big_map: no viewpoint '%s'" % viewpoint)
 		return
-	if view_camera == null:
-		view_camera = Camera3D.new()
-		view_camera.fov = 62.0
-		view_camera.far = 6000.0
-		view_camera.add_to_group("game_camera")
-		add_child(view_camera)
+	_ensure_view_camera()
 	var eye := _v3(v["eye"])
 	var look := _v3(v["look"])
 	eye.y = maxf(eye.y, terrain.overview_height(eye.x, eye.z) + 2.0)
 	view_camera.global_position = eye
 	view_camera.look_at(look, Vector3.UP)
 	view_camera.current = true
+
+
+func _ensure_view_camera() -> void:
+	if view_camera == null:
+		view_camera = Camera3D.new()
+		view_camera.fov = 62.0
+		view_camera.far = 6000.0
+		view_camera.add_to_group("game_camera")
+		add_child(view_camera)
 
 
 func follow_mech() -> void:

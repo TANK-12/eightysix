@@ -673,7 +673,9 @@
       "max_slope_deg": 28.0,
       "seed": 86
      },
-     "fog_scale": 0.35
+     "fog_scale": 0.35,
+     "mission": "frontier_sweep",
+     "legion_area_half_m": 1950.0
     }
   }
 }
