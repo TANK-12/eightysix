@@ -73,12 +73,27 @@ func _ready() -> void:
 
 
 ## Puts every mesh of the mech (the skinned model loads in setup, so after the tree settles) on
-## CombatFx.MECH_LAYER only.
+## CombatFx.MECH_LAYER, except where the mech's "cockpit_show" lists parts (lane A4 part 5, Emerson's note 6):
+## then everything not listed goes on CombatFx.COCKPIT_SHELL_LAYER, which the first-person camera leaves
+## out, since it sits inside the pod and saw only the back of the hull around the pilot (a layer test is
+## "shares any layer with the camera's mask", so a part cannot be on both).
 func _tag_mech_layer() -> void:
+	var show: Array = (mech.get("def") as Dictionary).get("cockpit_show", [])
 	for node: Node in mech.find_children("*", "GeometryInstance3D", true, false):
 		if node is Decal or node.get_parent() == self:
 			continue
-		(node as VisualInstance3D).layers = CombatFx.MECH_LAYER
+		var shell := not show.is_empty() and not _under_any(node, show)
+		(node as VisualInstance3D).layers = CombatFx.COCKPIT_SHELL_LAYER if shell else CombatFx.MECH_LAYER
+
+
+## Whether `node` or any node above it up to the mech is named in `names`.
+func _under_any(node: Node, names: Array) -> bool:
+	var n := node
+	while n != null and n != mech:
+		if names.has(str(n.name)):
+			return true
+		n = n.get_parent()
+	return false
 
 
 func _socket(name: String, fallback: Vector3) -> Vector3:
@@ -368,7 +383,7 @@ func take_hit(info: Dictionary) -> Dictionary:
 		var normal: Vector3 = info.get("normal", Vector3.UP)
 		var mark := CombatFx.decal(mech, point, normal, 0.9 if bool(r["penetrated"]) else 0.55)
 		mark.modulate = Color(1, 1, 1, 0.95)
-		mark.cull_mask = CombatFx.MECH_LAYER
+		mark.cull_mask = CombatFx.MECH_LAYERS
 	if mech.get("is_player"):
 		Rumble.play("hit_heavy" if float(r["dealt"]) >= 400.0 else "hit_light")
 	hit_taken.emit(key, float(r["dealt"]), info)

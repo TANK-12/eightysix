@@ -10,6 +10,11 @@ const MAX_DEBRIS := 16
 ## Render layer 20 holds every mech's meshes: ground decals skip it (so a gouge never paints the feet
 ## standing in it) and hull scorch marks use only it.
 const MECH_LAYER := 1 << 19
+## The parts of a Juggernaut that the pilot's own first-person view leaves out (its hull, legs and canopy: see
+## MechCombat._tag_mech_layer) sit on this layer instead of MECH_LAYER, and the cockpit camera's mask skips it.
+const COCKPIT_SHELL_LAYER := 1 << 9
+## Every layer a mech's meshes can be on: what hull scorch marks use, and ground decals leave alone.
+const MECH_LAYERS := MECH_LAYER | COCKPIT_SHELL_LAYER
 
 static var _decals: Array = []
 static var _casings: Array = []
@@ -243,7 +248,7 @@ static func decal(parent: Node, pos: Vector3, normal: Vector3, size: float, goug
 	d.upper_fade = 0.3
 	d.lower_fade = 0.3
 	d.albedo_mix = 1.0
-	d.cull_mask = 0xFFFFF & ~MECH_LAYER
+	d.cull_mask = 0xFFFFF & ~MECH_LAYERS
 	parent.add_child(d)
 	var up := normal.normalized()
 	var x := along - up * along.dot(up)

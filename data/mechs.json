@@ -995,7 +995,12 @@
         1.40989,
         0.0
       ],
-      "mass_source": "/home/ejb/Models/juggernaut/model2/realistic_mass/realistic_mass.json (mk2_m37_shin_tube.blend via measure_blend.py; reasoned estimates, not sourced): 5423 kg combat loaded"
+      "mass_source": "/home/ejb/Models/juggernaut/model2/realistic_mass/realistic_mass.json (mk2_m37_shin_tube.blend via measure_blend.py; reasoned estimates, not sourced): 5423 kg combat loaded",
+      "cockpit_show": [
+        "JG2_barrel",
+        "JG2_subarm_L",
+        "JG2_subarm_R"
+      ]
     },
     "juggernaut_m2_blades": {
       "inherits": "juggernaut_m2",

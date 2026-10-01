@@ -113,6 +113,18 @@ func test_cockpit_or_two_legs_destroy() -> void:
 	assert_true(d2.is_destroyed, "the cockpit")
 
 
+## Emerson's 010 playtest (NOTES.md): one HEAT rocket (1100) or one blade (1400) on the cockpit killed him in
+## wave 2 at 1000 health. The cockpit parts now hold 2000: a single hit of either is survived, two are not.
+func test_one_rocket_or_blade_on_the_cockpit_is_survived_two_are_not() -> void:
+	for key: String in ["jg2_canopy", "jg2_pod_tub"]:
+		for hit: Array in [["rocket", 1100.0, 200.0], ["blade", 1400.0, 250.0]]:
+			var d := DamageModel.new(Registry.entry("mechs", "juggernaut_m2"), Registry.tune("damage", {}))
+			d.hit(key, float(hit[1]), float(hit[2]))
+			assert_false(d.is_destroyed, "one %s on %s is survived" % [hit[0], key])
+			d.hit(key, float(hit[1]), float(hit[2]))
+			assert_true(d.is_destroyed, "a second %s on %s is not" % [hit[0], key])
+
+
 func test_repairs_when_damage_is_not_permanent() -> void:
 	var d := DamageModel.new(Registry.entry("mechs", "juggernaut_m2"), Registry.tune("damage", {}))
 	d.hit("jg2_sidepanel_r", 5000.0, 999.0)
@@ -136,9 +148,9 @@ func test_mech_meshes_sit_on_the_mech_layer() -> void:
 	for mi: MeshInstance3D in meshes:
 		if mi.get_parent() == combat:
 			continue
-		assert_eq(mi.layers, CombatFx.MECH_LAYER, "%s is on the mech layer, so ground gouges skip it" % mi.name)
+		assert_true(mi.layers == CombatFx.MECH_LAYER or mi.layers == CombatFx.COCKPIT_SHELL_LAYER, "%s is on a mech layer, so ground gouges skip it" % mi.name)
 	var ground_mark := CombatFx.decal(tree.root, Vector3.ZERO, Vector3.UP, 0.7, true)
-	assert_eq(ground_mark.cull_mask & CombatFx.MECH_LAYER, 0, "a ground gouge does not paint the mech")
+	assert_eq(ground_mark.cull_mask & CombatFx.MECH_LAYERS, 0, "a ground gouge does not paint the mech")
 	ground_mark.free()
 
 

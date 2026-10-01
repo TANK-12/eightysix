@@ -82,19 +82,19 @@ static func rest_segments(geom: Dictionary) -> Dictionary:
 
 ## A leg's segment frames for an IK end point (body frame): upper and lower rolled into the leg's
 ## bend plane, and the foot frame at the end, tilted by `tilt`. `scale` lengthens thigh and shin.
-static func pose_segments(geom: Dictionary, end: Vector3, tilt: Basis, scale: float = 1.0) -> Dictionary:
+static func pose_segments(geom: Dictionary, end: Vector3, tilt: Basis, scale: float = 1.0, swivel: float = 0.0) -> Dictionary:
 	var pivot: Vector3 = geom["pivot"]
 	var upper := float(geom["upper_len"]) * scale
 	var lower := float(geom["lower_len"]) * scale
 	var reach := LegIK.reachable(pivot, end, upper, lower)
-	var knee := LegIK.knee(pivot, reach, upper, lower, geom["pole"])
+	var pole := LegIK.swivelled(pivot, reach, geom["pole"], swivel)
+	var knee := LegIK.knee(pivot, reach, upper, lower, pole)
 	var line := (reach - pivot).normalized()
 	var bend := (knee - pivot) - line * (knee - pivot).dot(line)
 	# A straight leg's knee sits on the hip-ankle line, so its bend is zero and the segments' roll
 	# fell back to world up (the thigh and shin meshes twisted apart at the knee): keep the roll from
 	# the knee's pole instead.
 	if bend.length() < 0.05:
-		var pole: Vector3 = geom["pole"]
 		bend = pole - line * pole.dot(line)
 	return {
 		"knee": knee,

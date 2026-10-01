@@ -67,6 +67,7 @@ func _process(delta: float) -> void:
 	_shake_t += delta
 	var jitter := Vector3(_noise.get_noise_2d(_shake_t * 60.0, 0.0), _noise.get_noise_2d(0.0, _shake_t * 60.0), 0.0) * _shake * 0.35
 
+	cull_mask = 0xFFFFF & ~CombatFx.COCKPIT_SHELL_LAYER if view == "cockpit" else 0xFFFFF
 	if view == "cockpit":
 		var eye: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])
 		fov = Settings.get_f("gameplay.fov_cockpit")

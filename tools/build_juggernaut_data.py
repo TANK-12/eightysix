@@ -25,7 +25,16 @@ MODEL_JSON = ROOT / "assets" / "models" / "juggernaut" / "juggernaut_mk2.json"
 PARTS_JSON = ROOT / "data" / "parts.json"
 SOURCES_JSON = ROOT / "tools" / "model_sources.json"
 MECHS_JSON = ROOT / "data" / "mechs.json"
-
+# What the first-person camera draws of the mech (the pilot sits inside the pod): the gun barrel, whose line is
+# the 57 mm's bore, and the sub-arms with their guns. Everything else is left out of that view.
+# The cockpit parts end the sortie when one is lost, so they take two heavy hits: a Grauwolf HEAT rocket does 1100
+# and its blade 1400, which one-shot a pilot at 1000 (Emerson's 010 playtest, NOTES.md; he could not pass wave 2).
+COCKPIT_HEALTH = 2000
+COCKPIT_SHOW = (
+    "JG2_barrel",
+    "JG2_subarm_L",
+    "JG2_subarm_R",
+)
 LEGS = ["FR", "FL", "RR", "RL"]
 CHAIN_JOINTS = ["hip_yaw", "hip_pitch", "knee", "ankle"]
 
@@ -212,7 +221,7 @@ def main() -> int:
             "kind": p["class"],
             "label": "Juggernaut Model 2: %s" % name,
             "mass_kg": round(p["mass_kg"], 2),
-            "health": 1000,
+            "health": COCKPIT_HEALTH if p["class"] == "cockpit" else 1000,
             "armour_mm": 6 if p["class"] == "armour" else 0,
             "collider": _hull_collider(p, size),
             "look": {"color": _colour_for(p["class"]), "mesh": "box"},
@@ -258,6 +267,7 @@ def main() -> int:
     entry["legs"] = leg_defs
     entry["stance"] = stance
     entry["cameras"] = cameras
+    entry["cockpit_show"] = list(COCKPIT_SHOW)
     entry["sockets"] = sockets_out
     entry["model_origin"] = [round(v, 5) for v in origin]
     entry["origin"] = (

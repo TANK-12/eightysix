@@ -1178,7 +1178,7 @@
       "kind": "cockpit",
       "label": "Juggernaut Model 2: canopy",
       "mass_kg": 151.3,
-      "health": 1000,
+      "health": 2000,
       "armour_mm": 0,
       "collider": {
         "shape": "hulls",
@@ -1658,7 +1658,7 @@
       "kind": "cockpit",
       "label": "Juggernaut Model 2: pod_tub",
       "mass_kg": 295.7,
-      "health": 1000,
+      "health": 2000,
       "armour_mm": 0,
       "collider": {
         "shape": "hulls",

@@ -1,0 +1,78 @@
+{
+  "name": "a4p5_hud",
+  "_about": "Lane A4 part 5 note 7: the new status HUD standing, at a gallop, turning, charging a jump, in the air and in the cockpit view. tools/bot_run.sh a4p5_hud",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "controls.sprint_mode",
+      "value": "hold"
+    },
+    {
+      "at": 0.7,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 2.5,
+      "shot": "hud-stand"
+    },
+    {
+      "at": 3.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 9.0
+    },
+    {
+      "at": 3.0,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 9.0
+    },
+    {
+      "at": 7.0,
+      "shot": "hud-gallop"
+    },
+    {
+      "at": 9.0,
+      "press": "turn_right",
+      "strength": 0.7,
+      "for": 1.5
+    },
+    {
+      "at": 10.2,
+      "shot": "hud-turn"
+    },
+    {
+      "at": 12.5,
+      "press": "jump",
+      "strength": 1.0,
+      "for": 0.7
+    },
+    {
+      "at": 13.0,
+      "shot": "hud-charge"
+    },
+    {
+      "at": 14.4,
+      "shot": "hud-air"
+    },
+    {
+      "at": 18.0,
+      "setting": "gameplay.default_view",
+      "value": "cockpit"
+    },
+    {
+      "at": 18.5,
+      "shot": "hud-cockpit"
+    },
+    {
+      "at": 19.0,
+      "quit": true
+    }
+  ]
+}

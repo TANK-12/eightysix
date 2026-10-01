@@ -1,0 +1,121 @@
+{
+  "name": "a4p5_cockpit",
+  "_about": "Lane A4 part 5 note 6: the first-person (cockpit) view standing, walking, running, turning, firing, in the air and aiming up. tools/bot_run.sh a4p5_cockpit",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "controls.sprint_mode",
+      "value": "hold"
+    },
+    {
+      "at": 0.7,
+      "setting": "gameplay.default_view",
+      "value": "cockpit"
+    },
+    {
+      "at": 2.5,
+      "shot": "cockpit-stand"
+    },
+    {
+      "at": 3.0,
+      "sample": "stand"
+    },
+    {
+      "at": 3.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 3.0
+    },
+    {
+      "at": 5.0,
+      "shot": "cockpit-walk"
+    },
+    {
+      "at": 6.5,
+      "press": "sprint",
+      "strength": 1.0,
+      "for": 4.0
+    },
+    {
+      "at": 6.6,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 4.0
+    },
+    {
+      "at": 9.0,
+      "shot": "cockpit-run"
+    },
+    {
+      "at": 9.5,
+      "sample": "run"
+    },
+    {
+      "at": 11.2,
+      "press": "turn_right",
+      "strength": 0.6,
+      "for": 1.5
+    },
+    {
+      "at": 12.0,
+      "shot": "cockpit-turn"
+    },
+    {
+      "at": 13.0,
+      "press": "fire_main",
+      "strength": 1.0,
+      "for": 0.4
+    },
+    {
+      "at": 13.1,
+      "shot": "cockpit-fire"
+    },
+    {
+      "at": 14.5,
+      "press": "jump",
+      "strength": 1.0,
+      "for": 1.2
+    },
+    {
+      "at": 16.0,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 2.0
+    },
+    {
+      "at": 16.2,
+      "shot": "cockpit-jump-a"
+    },
+    {
+      "at": 17.0,
+      "shot": "cockpit-jump-b"
+    },
+    {
+      "at": 18.0,
+      "shot": "cockpit-jump-c"
+    },
+    {
+      "at": 20.0,
+      "shot": "cockpit-land"
+    },
+    {
+      "at": 21.0,
+      "press": "aim_up",
+      "strength": 0.8,
+      "for": 1.0
+    },
+    {
+      "at": 22.2,
+      "shot": "cockpit-aim-up"
+    },
+    {
+      "at": 23.0,
+      "quit": true
+    }
+  ]
+}

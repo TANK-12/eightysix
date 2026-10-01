@@ -62,8 +62,9 @@ func _draw() -> void:
 
 
 func _panel(rect: Rect2) -> void:
-	draw_rect(rect, UiTheme.color("panel"))
+	draw_rect(rect, Color(UiTheme.color("panel"), 0.82))
 	draw_rect(rect, UiTheme.color("line"), false, 1.0)
+	draw_rect(Rect2(rect.position, Vector2(3.0, rect.size.y)), UiTheme.color("accent"))
 
 
 func _draw_ammo() -> void:

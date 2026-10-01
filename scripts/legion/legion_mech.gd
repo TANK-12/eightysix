@@ -872,7 +872,7 @@ func take_hit(info: Dictionary) -> Dictionary:
 		var dir: Vector3 = info.get("dir", Vector3.ZERO)
 		apply_impulse(dir * float(info.get("projectile_kg", 1.0)) * float(info.get("speed", 0.0)), point - global_position)
 		var mark := CombatFx.decal(self, point, info.get("normal", Vector3.UP), 0.8 if bool(r["penetrated"]) else 0.45)
-		mark.cull_mask = CombatFx.MECH_LAYER
+		mark.cull_mask = CombatFx.MECH_LAYERS
 	hit_taken.emit(key, float(r["dealt"]), info)
 	return r
 

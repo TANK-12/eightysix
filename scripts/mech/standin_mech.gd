@@ -49,6 +49,8 @@ var _fall_speed := 0.0
 var _jump_was_held := false
 var _move := Vector2.ZERO
 var _aim := Vector2.ZERO
+var _aim_deflection := 0.0  # the aim stick's up-down deflection, -1 to 1 (before the speed setting)
+var _mouse_pitch := 0.0  # the pitch the mouse has set in the "angle" aim mode (the stick adds its deflection)
 var _mouse := Vector2.ZERO
 var _brake := 0.0
 var _bench_speed_cap := INF
@@ -274,6 +276,7 @@ func _read_input(dt: float) -> void:
 	_aim = Controls.stick("aim") * Settings.get_f("controls.aim_speed")
 	if Settings.get_b("controls.aim_invert_y"):
 		_aim.y = -_aim.y
+	_aim_deflection = clampf(_aim.y / maxf(Settings.get_f("controls.aim_speed"), 0.01), -1.0, 1.0)
 	var steer := Settings.get_s("controls.mouse_mode") == "steer" and not Input.is_action_pressed("free_look")
 	_mouse = Controls.take_mouse_delta() if steer else Vector2.ZERO
 	_brake = Controls.trigger("brake")
@@ -475,7 +478,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for leg: Dictionary in legs:
 		var out_w := xf.basis.x * signf((leg["hip"] as Vector3).x) * splay
 		var cast_w := xf * (leg["spring_at"] as Vector3) + out_w
-		_cast_sole(leg, space, xf, _within_reach(leg, xf, out_w + lead + (gather_front if leg["front"] else gather_rear)), margin)
+		var shift := _within_reach(leg, xf, out_w + lead + (gather_front if leg["front"] else gather_rear))
+		_cast_sole(leg, space, xf, _keep_apart_shift(leg, xf, shift), margin)
 		var rest := float(leg["rest_len"]) - crouch_drop - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
@@ -919,12 +923,31 @@ func _unstick(state: PhysicsDirectBodyState3D, basis: Basis, recover: float) -> 
 ## on, and eases back level when it is off.
 func _pitch_aim(dt: float) -> void:
 	var a: Dictionary = Registry.tune("aim", {})
-	look_pitch_deg += _aim.y * float(a.get("look_rate_deg_s", 60.0)) * dt - _mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
-	look_pitch_deg = clampf(look_pitch_deg, float(a.get("look_min_deg", -25.0)), float(a.get("look_max_deg", 75.0)))
+	var look_min := float(a.get("look_min_deg", -25.0))
+	var look_max := float(a.get("look_max_deg", 75.0))
+	var tilt_min := float(a.get("pitch_min_deg", -8.0))
+	var tilt_max := float(a.get("pitch_max_deg", 18.0))
+	var mouse_deg := -_mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
+	if Settings.get_s("gameplay.aim_mode") == "angle":
+		# Analog first: the stick's deflection is the angle (full up is the top of the range, half is half,
+		# letting go springs back level), the mouse still moves the aim in steps and the stick adds to it.
+		# The body tilts to its own, shorter range in proportion; the aim line (camera, wire) gets the long one.
+		_mouse_pitch = clampf(_mouse_pitch + mouse_deg, look_min, look_max)
+		var s := _aim_deflection
+		var follow := 1.0 - exp(-float(a.get("angle_follow_per_s", 10.0)) * dt)
+		look_pitch_deg = lerpf(look_pitch_deg, clampf(_mouse_pitch + s * (look_max if s > 0.0 else -look_min), look_min, look_max), follow)
+		if not Settings.get_b("gameplay.aim_tilt"):
+			aim_pitch_deg = move_toward(aim_pitch_deg, 0.0, 40.0 * dt)
+			return
+		aim_pitch_deg = lerpf(aim_pitch_deg, clampf(_mouse_pitch + s * (tilt_max if s > 0.0 else -tilt_min), tilt_min, tilt_max), follow)
+		return
+	_mouse_pitch = look_pitch_deg
+	look_pitch_deg += _aim.y * float(a.get("look_rate_deg_s", 60.0)) * dt + mouse_deg
+	look_pitch_deg = clampf(look_pitch_deg, look_min, look_max)
 	if not Settings.get_b("gameplay.aim_tilt"):
 		aim_pitch_deg = move_toward(aim_pitch_deg, 0.0, 40.0 * dt)
 		return
-	aim_pitch_deg = clampf(look_pitch_deg, float(a.get("pitch_min_deg", -8.0)), float(a.get("pitch_max_deg", 18.0)))
+	aim_pitch_deg = clampf(look_pitch_deg, tilt_min, tilt_max)
 
 
 ## The look direction in the world: the body's heading, pitched by look_pitch_deg.
@@ -978,7 +1001,7 @@ func _physics_process(delta: float) -> void:
 		else:
 			# Nothing under the foot: the leg hangs in its rest pose (fronts forward, rears back,
 			# not tucked in: ANALYSIS.md's airborne legs), swung and tucked by _air_legs.
-			target_world = xf * _air_foot(leg)
+			target_world = xf * _keep_apart(leg, xf, _air_foot(leg))
 		var t := float(leg["step_t"])
 		if t >= 0.0:
 			t += delta / _swing_now
@@ -989,7 +1012,7 @@ func _physics_process(delta: float) -> void:
 			var from: Vector3 = xf * (leg["step_from_local"] as Vector3)
 			var to: Vector3 = leg["step_to"] if not on_ground else target_world
 			var foot := from.lerp(to, minf(t, 1.0)) + xf.basis.y * sin(minf(t, 1.0) * PI) * float(leg["step_lift"])
-			leg["foot"] = _clear_of_hip(leg, xf, foot)
+			leg["foot"] = xf * _keep_apart(leg, xf, xf.affine_inverse() * _clear_of_hip(leg, xf, foot))
 			if t >= 1.0:
 				leg["step_t"] = -1.0
 				leg["planted"] = to
@@ -1024,7 +1047,13 @@ func _physics_process(delta: float) -> void:
 		# The foot pivots about its sole on the ground; the IK chain ends at its ankle above that.
 		var planted := float(leg["step_t"]) < 0.0 and on_ground
 		var tilt := Basis(Quaternion(Vector3.UP, _foot_up(leg, xf, planted, max_tilt, delta)))
-		var pose := MechBuilder.pose_segments(leg, to_local(leg["foot"]) + tilt * (leg["end_offset"] as Vector3), tilt, _leg_scale)
+		leg["end_local"] = to_local(leg["foot"]) + tilt * (leg["end_offset"] as Vector3)
+		leg["tilt"] = tilt
+	# Second pass: with every foot placed, swivel each knee about its hip-ankle line clear of the other legs.
+	for leg: Dictionary in legs:
+		var tilt: Basis = leg["tilt"]
+		var end: Vector3 = leg["end_local"]
+		var pose := MechBuilder.pose_segments(leg, end, tilt, _leg_scale, _knee_swivel(leg, end, delta))
 		leg["knee_local"] = pose["knee"]
 		leg["ankle_local"] = pose["end"]
 		var upper_xf: Transform3D = pose["upper"]
@@ -1089,7 +1118,7 @@ func _within_reach(leg: Dictionary, xf: Transform3D, shift_w: Vector3) -> Vector
 
 ## A planted foot about to pull its leg straight (the ankle past feet.overreach of the leg's reach
 ## from the hip pivot), or drifted in under the hip (closer than feet.min_reach, horizontally), steps
-## now, even out of turn (lane A3 part 5, item 4): after a sprinting turn the body keeps yawing while
+## now, even out of turn (lane A3 part 5, item 4; and, lane A4 part 5, one that has drifted too close to another leg's foot or past its hip, see _keep_apart): after a sprinting turn the body keeps yawing while
 ## its momentum carries it sideways, and a foot drifting sideways runs out of reach (or under the body)
 ## long before it is a stride's length from its target.
 func _overreaching(leg: Dictionary, xf: Transform3D) -> bool:
@@ -1097,7 +1126,8 @@ func _overreaching(leg: Dictionary, xf: Transform3D) -> bool:
 	var ankle := xf.affine_inverse() * (leg["planted"] as Vector3) + (leg["end_offset"] as Vector3)
 	var d := ankle - (leg["pivot"] as Vector3)
 	var fdef: Dictionary = _t.get("feet", {})
-	return d.length() > reach * float(fdef.get("overreach", 0.93)) or Vector2(d.x, d.z).length() < reach * float(fdef.get("min_reach", 0.0))
+	var apart_at := xf.affine_inverse() * (leg["planted"] as Vector3)
+	return d.length() > reach * float(fdef.get("overreach", 0.93)) or Vector2(d.x, d.z).length() < reach * float(fdef.get("min_reach", 0.0)) or _keep_apart(leg, xf, apart_at).distance_to(apart_at) > 0.05
 
 
 ## A swinging foot kept at least feet.min_reach of the leg's reach from its hip, horizontally: a swing
@@ -1118,6 +1148,91 @@ func _clear_of_hip(leg: Dictionary, xf: Transform3D, foot_w: Vector3) -> Vector3
 	var dy := local.y - pivot.y
 	var max_dy := sqrt(maxf(reach * reach - min_r * min_r, 0.0))
 	return xf * Vector3(pivot.x + pushed.x, pivot.y + clampf(dy, -max_dy, max_dy), pivot.z + pushed.y)
+
+
+## How far (rad) leg `leg`'s knee is swivelled about its hip-ankle line this tick, eased towards the
+## smallest swivel that keeps its bones feet.swivel_clear_m from every other leg's (or, failing that, the
+## clearest one in +-feet.swivel_max_deg). The legs fold up and out like a spider's; in a tuck, a yawed
+## air swing or a gallop's gathered stride two knees end up in the same place (lane A4 part 5, note 8).
+func _knee_swivel(leg: Dictionary, end: Vector3, delta: float) -> float:
+	var fdef: Dictionary = _t.get("feet", {})
+	var clear := float(fdef.get("swivel_clear_m", 0.0))
+	if clear <= 0.0:
+		return 0.0
+	var upper := float(leg["upper_len"]) * _leg_scale
+	var lower := float(leg["lower_len"]) * _leg_scale
+	var pivot: Vector3 = leg["pivot"]
+	var reach := LegIK.reachable(pivot, end, upper, lower)
+	var limit := deg_to_rad(float(fdef.get("swivel_max_deg", 55.0)))
+	var steps := int(fdef.get("swivel_steps", 3))
+	var best := 0.0
+	var best_gap := -INF
+	for i in range(0, 2 * steps + 1):
+		var a := 0.0 if i == 0 else limit * ceili(i / 2.0) / steps * (1.0 if i % 2 == 1 else -1.0)
+		var knee := LegIK.knee(pivot, reach, upper, lower, LegIK.swivelled(pivot, reach, leg["pole"], a))
+		var gap := _clearance(leg, pivot, knee, reach)
+		if gap >= clear:
+			best = a
+			best_gap = gap
+			break
+		if gap > best_gap + 0.02:
+			best = a
+			best_gap = gap
+	var now := float(leg.get("swivel", 0.0))
+	now = move_toward(now, best, float(fdef.get("swivel_rate", 8.0)) * delta)
+	leg["swivel"] = now
+	return now
+
+
+## The closest any bone of leg `leg`, were it posed with this hip, knee and ankle, comes to another leg's.
+func _clearance(leg: Dictionary, pivot: Vector3, knee: Vector3, ankle: Vector3) -> float:
+	var d := INF
+	for other: Dictionary in legs:
+		if other == leg or not other.has("knee_local"):
+			continue
+		var op: Vector3 = other["pivot"]
+		var ok: Vector3 = other["knee_local"]
+		var oe: Vector3 = other["ankle_local"]
+		d = minf(d, minf(minf(LegIK.segment_distance(pivot, knee, op, ok), LegIK.segment_distance(pivot, knee, ok, oe)), minf(LegIK.segment_distance(knee, ankle, op, ok), LegIK.segment_distance(knee, ankle, ok, oe))))
+	return d
+
+
+## `at` (a foot's spot in the body frame) moved the least it takes to keep the feet.apart_m between this
+## leg's foot and every other leg's foot (where it is, and where it is going while it steps), in the
+## order the hips are in: a rear foot stays behind the front foot on its side, a right foot to the right of
+## the left ones. Two feet in the wrong order mean the legs cross (lane A4 part 5, Emerson's note 8: at a
+## gallop a rear foot gathered forward past a front foot gathered back, and the bones passed through
+## each other; the same in version 009, found by tests/test_leg_gap.gd). 0 turns it off.
+func _keep_apart(leg: Dictionary, xf: Transform3D, at: Vector3) -> Vector3:
+	var gap := float(_t.get("feet", {}).get("apart_m", 0.0))
+	if gap <= 0.0:
+		return at
+	var inv := xf.affine_inverse()
+	var hip: Vector3 = leg["hip"]
+	var past := float(_t.get("feet", {}).get("hip_pass_m", 1000.0))
+	for other: Dictionary in legs:
+		if other == leg:
+			continue
+		var refs: Array = [other["foot"]]
+		if float(other["step_t"]) >= 0.0:
+			refs.append(other["step_to"])
+		var oh: Vector3 = other["hip"]
+		if signf(oh.x) == signf(hip.x):
+			at.z = minf(at.z, oh.z + past) if hip.z < oh.z else maxf(at.z, oh.z - past)
+		for ref_w: Vector3 in refs:
+			var ref := inv * ref_w
+			if signf(oh.x) == signf(hip.x):
+				at.z = minf(at.z, ref.z - gap) if hip.z < oh.z else maxf(at.z, ref.z + gap)
+			else:
+				at.x = maxf(at.x, ref.x + gap) if hip.x > oh.x else minf(at.x, ref.x - gap)
+	return at
+
+
+## The same for a foot target given as a shift from its stance spot (world frame).
+func _keep_apart_shift(leg: Dictionary, xf: Transform3D, shift_w: Vector3) -> Vector3:
+	var sole: Vector3 = leg["sole_stance"]
+	var at := sole + xf.basis.inverse() * shift_w
+	return xf.basis * (_keep_apart(leg, xf, at) - sole)
 
 
 func _partner_stepping(name: String) -> bool:

@@ -1,0 +1,71 @@
+{
+ "name": "b5_fps",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: frame rates on the big map. 8 s standing (nothing new to build), two 10 s walks (tiles streaming in), 8 s in front of Kreuzberg's buildings. Run per preset: tools/bot_run.sh b5_fps --preset=medium. Compare still vs walk_a/walk_b worst frames: a first-time cost (shader or tile) shows in walk_a and less in walk_b.",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 6.0,
+   "measure": 8.0,
+   "label": "still"
+  },
+  {
+   "at": 15.0,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 24.0
+  },
+  {
+   "at": 15.5,
+   "sample": "start"
+  },
+  {
+   "at": 16.0,
+   "measure": 10.0,
+   "label": "walk_a"
+  },
+  {
+   "at": 27.0,
+   "measure": 10.0,
+   "label": "walk_b"
+  },
+  {
+   "at": 38.0,
+   "sample": "end"
+  },
+  {
+   "at": 38.5,
+   "shot": "walking"
+  },
+  {
+   "at": 40.0,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    0,
+    40.0
+   ]
+  },
+  {
+   "at": 44.0,
+   "measure": 8.0,
+   "label": "town"
+  },
+  {
+   "at": 53.0,
+   "shot": "town"
+  },
+  {
+   "at": 54.0,
+   "quit": true
+  }
+ ]
+}

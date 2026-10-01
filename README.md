@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 259 passed, 1 failed (2026-10-02, A4 part 5 (Kaede, relay-16); the 1 is `test_scripts` reporting `scripts/world/big_map.gd` not compiling, uncommitted B5 work in progress by another session, not part 5). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -514,3 +514,21 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   the arms). Verified: test_combat 15/15, bot `a4p4_aim` (images/265).
 - Suite 229/229. Not done yet (part 5): aiming modes, cockpit view, the new HUD, the Juggernaut's legs crossing.
 
+### 2026-10-02 · lane A4 · Kaede (relay-16) · part 5: legs crossing, cockpit view, HUD, aim modes, cockpit health
+- **The Juggernaut's legs crossing** (note 8): measured with `tests/test_leg_gap.gd` (closest approach of any two legs'
+  bones): a gallop put same-side legs 0.002 m apart, a front flip 0.009 m, in this tree and in version 009 (so not a 010
+  regression). Fixed by keeping feet in hip order (`_keep_apart`, `data/tuning.json` `juggernaut.feet.apart_m` /
+  `hip_pass_m`) and swivelling the knees clear (`_knee_swivel`, `swivel_*`): every scenario now >= 0.597 m (gallop
+  0.849, front flip 0.601). Verified: 17 tests in test_leg_gap, test_juggernaut's straight-leg check, bot jg_check
+  (images/290) and b4_grime (images/292, ends upright after 114 s of galloping and turning).
+- **Cockpit view** (note 6): it was a dark tunnel (the eye is inside the canopy). The first-person camera now draws only
+  the barrel and sub-arms (`mechs.json` `cockpit_show`, render layers in `CombatFx`). Verified: test_cockpit 3/3,
+  bot `a4p5_cockpit` (images/267 before, 282 after).
+- **HUD** (note 7): one status block (speed, gait, speed bar, leg pips, attitude ball, jump charge ring), corner
+  brackets, heading chip. Verified on screen: bot `a4p5_hud` (images/289), before images/265.
+- **Aiming modes** (note 3): Settings > Gameplay > Physics > Aiming, "Stick sets the rate" / "Stick sets the angle".
+  Verified: test_aim_modes 4/4. Not tried with a real pad.
+- **Cockpit health** 1000 -> 2000 (NOTES.md; applied without asking): one rocket or blade no longer ends the sortie.
+  Verified: test_damage (new test); not played through wave 2.
+- Details and numbers: ~/Forge/sessions/juggernaut-alpha/results/A4.md "Part 5". Not done: Legion sounds (track B),
+  Hangar and main-menu Juggernaut, move hints.

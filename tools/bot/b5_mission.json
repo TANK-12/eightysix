@@ -1,0 +1,141 @@
+{
+ "name": "b5_mission",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: the 'Frontier sweep' mission on the big map. Starts it, looks at the Ameise scouts, then clears each wave with clear_wave to see the Grauwolf pack and the Lowe spawn on the streamed ground and walk (report_legion logs each unit's position and legs). tools/bot_run.sh b5_mission",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 1.6,
+   "call": "report_legion",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 2.0,
+   "shot": "mission-start"
+  },
+  {
+   "at": 2.2,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    30.0,
+    9.0
+   ]
+  },
+  {
+   "at": 5.0,
+   "shot": "wave1-scout"
+  },
+  {
+   "at": 5.2,
+   "call": "report_legion",
+   "args": [
+    "t5"
+   ]
+  },
+  {
+   "at": 5.5,
+   "call": "follow_mech"
+  },
+  {
+   "at": 6.0,
+   "measure": 10.0,
+   "label": "legion_far"
+  },
+  {
+   "at": 17.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 19.0,
+   "call": "report_legion",
+   "args": [
+    "wave2"
+   ]
+  },
+  {
+   "at": 19.5,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    40.0,
+    12.0
+   ]
+  },
+  {
+   "at": 23.0,
+   "shot": "wave2-pack"
+  },
+  {
+   "at": 23.2,
+   "call": "report_legion",
+   "args": [
+    "wave2_t4"
+   ]
+  },
+  {
+   "at": 24.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 26.0,
+   "call": "report_legion",
+   "args": [
+    "wave3"
+   ]
+  },
+  {
+   "at": 33.5,
+   "call": "report_legion",
+   "args": [
+    "wave3"
+   ]
+  },
+  {
+   "at": 34.0,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    45.0,
+    14.0
+   ]
+  },
+  {
+   "at": 37.5,
+   "shot": "wave3-lowe"
+  },
+  {
+   "at": 37.7,
+   "call": "report_legion",
+   "args": [
+    "wave3_t4"
+   ]
+  },
+  {
+   "at": 38.5,
+   "call": "follow_mech"
+  },
+  {
+   "at": 39.0,
+   "sample": "end"
+  },
+  {
+   "at": 39.5,
+   "quit": true
+  }
+ ]
+}

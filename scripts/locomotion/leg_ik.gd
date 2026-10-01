@@ -36,3 +36,34 @@ static func segment(a: Vector3, b: Vector3, up_hint: Vector3 = Vector3.ZERO) -> 
 	if absf(dir.normalized().dot(up)) >= 0.98:
 		up = Vector3.UP if absf(dir.normalized().dot(Vector3.UP)) < 0.98 else Vector3.FORWARD
 	return Transform3D(Basis.looking_at(dir, up), (a + b) * 0.5)
+
+
+## `pole` turned by `angle` about the hip-to-foot line: the knee then bends towards that, so the leg's
+## fold swivels like an elbow while hip and foot stay put.
+static func swivelled(hip: Vector3, foot: Vector3, pole: Vector3, angle: float) -> Vector3:
+	var axis := foot - hip
+	if angle == 0.0 or axis.length() < 0.0001:
+		return pole
+	return pole.rotated(axis.normalized(), angle)
+
+
+## The closest two line segments (a1 to b1, a2 to b2) come to each other.
+static func segment_distance(a1: Vector3, b1: Vector3, a2: Vector3, b2: Vector3) -> float:
+	var d1 := b1 - a1
+	var d2 := b2 - a2
+	var r := a1 - a2
+	var len1 := d1.dot(d1)
+	var len2 := d2.dot(d2)
+	var f := d2.dot(r)
+	var c := d1.dot(r)
+	var b := d1.dot(d2)
+	var denom := len1 * len2 - b * b
+	var s := clampf((b * f - c * len2) / denom, 0.0, 1.0) if denom > 1e-9 else 0.0
+	var t := (b * s + f) / len2
+	if t < 0.0:
+		t = 0.0
+		s = clampf(-c / len1, 0.0, 1.0)
+	elif t > 1.0:
+		t = 1.0
+		s = clampf((b - c) / len1, 0.0, 1.0)
+	return (a1 + d1 * s).distance_to(a2 + d2 * t)
