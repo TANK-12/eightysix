@@ -133,7 +133,7 @@
      "owner_lane": "B5",
      "size_m": 4096,
      "seed": 8604,
-     "description": "Four kilometres of the frontier: a river valley running north to south through a lake, the ruins of Kreuzberg on the western plateau, a village on the east bank, a rail depot in the north-east and a farm in the south-west, linked by roads that ford the river, with a band of old shelling across the north. Streamed ground (lane B5): 1 m tiles with their own colliders near every mech, an 8 m overview beyond.",
+     "description": "Four kilometres of the frontier: a river valley running north to south through a lake, the ruins of Kreuzberg on the western plateau, a village on the east bank, a rail depot in the north-east and a farm in the south-west, linked by roads (the west road crosses the river on the Ash bridge, the farm track at a ford), with a band of old shelling across the north. The Frontier sweep mission plays here: Legion scouts, a Grauwolf pack and a Löwe in the south. Streamed ground (lane B5): 1 m tiles with their own colliders near every mech, an 8 m overview beyond.",
      "spawn": {
       "position": [
        -730.0,
@@ -653,7 +653,9 @@
      },
      "tips": [
       "Sector 86 frontier is four kilometres across: the ground near you is built as you go.",
-      "Roads ford the river: the water is shallow where a road crosses."
+      "The west road crosses the river on the Ash bridge; the farm track fords it where the water is shallow.",
+        "Buildings and walls break under fire, and a house that comes down takes its wire anchors with it.",
+        "The Frontier sweep starts in the south: the Legion scouts are about 500 m north-east of where you land."
      ],
      "scatter": {
       "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
