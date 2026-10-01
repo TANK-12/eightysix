@@ -69,6 +69,14 @@ The "Current state" section may be updated in place, but only to keep it true; t
   (`maps.json` backdrop `bend_m`, `water_reach_m`); the slab that hung across it was far-hill vertices skipping the
   edge height, fixed. **Versions:** Play (`tools/play.sh`, `builds.py ensure`) never numbers a version now; save one
   with `python3 tools/builds.py save --note "what is in it"`, refused while git shows uncommitted changes.
+- **Look and sound, lane B4 part 3 (2026-10-01, Emerson's notes).** Sun calmer (golden_afternoon 1.6 energy at
+  26 deg, haze toward it cut, sky disc 18 -> 6, glow per weather above a threshold: `weather.json` `glow_intensity`,
+  `glow_threshold`); ground pebble detail and relief fade with distance (`ground.gdshader` `detail_*`, `relief_*`):
+  the grain. No synth sounds by default (BigSoundBank CC0 recordings; `choices.json` `pick`, `pick_choices.py
+  --only`, seamless loop cuts). Music: Settings > Audio > Music defaults to **Soundtrack, in order** (the OST album,
+  `music.json` set "ost", carries on across contexts and launches, `user://music.cfg`); one original of each OP/ED
+  (set "song"); covers and the preview reel only with **Extra tracks** on (`show_if`). Selectors: the left half of
+  "‹ value ›" steps back. Tests never write Emerson's settings (`tests/runner.gd`).
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
@@ -454,3 +462,17 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   hunt; the test's target now has armour no rocket gets through. **Verified** 8 of 8 runs, bearings -140/81/138 every time.
 - Löwe ranging test: it scored where a round came down, so a round skimming over the mech scored 284 m. Now scored by
   the round's closest pass. **Verified** 6 of 6 runs (1.5-2.4 m). Full suite 194 passed, 0 failed.
+
+### 2026-10-01 · lane B4 · Tetsu (ejb-21) · part 3: Emerson's notes on sun, grain, synth sounds, music, arrows
+- Facing the sun (Medium): top third of the frame 160 -> 108 brightness, no white-out (`images/215` vs `216`).
+  Grain was the ground's pebble detail (the probe on his Ultra settings, `images/212`, ruled out SDFGI, SSIL, SSR,
+  SSAO, fog, MSAA, glow, shadow filter: at most 12 % each); fine-detail noise now 31-38 % lower on four views.
+  Cost none: 88.2 vs 88.5 fps back to back (`images/218`, `219`).
+- The seven sounds still on synth now default to recordings; every default is a recording. Music: 42-track OST in
+  album order is the default; one original of each opening and ending; the 1-hour loops gone (to the trash,
+  ~/Music/86 486 -> 257 MB); covers and preview reel behind Extra tracks.
+- Selector arrows step both ways. A full test run had overwritten Emerson's own settings.cfg (restored from a read
+  at 20:19); the runner now sends every test save to `user://test_*.cfg` (his file's checksum unchanged across a run).
+- Tests: full suite 201 passed, 0 failed; `python3 -m unittest discover -s tools/audio` 11 passed. Commit fbf945c.
+  Details: `~/Forge/sessions/juggernaut-alpha/results/B4.md` "Part 3".
+
