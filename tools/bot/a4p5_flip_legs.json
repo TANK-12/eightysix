@@ -1,0 +1,67 @@
+{
+  "name": "a4p5_flip_legs",
+  "_about": "Lane A4 part 5: a front flip in third person, to look at the legs (the tuck and the knee swivel) after the leg-crossing fix. tools/bot_run.sh a4p5_flip_legs",
+  "map": "small_map",
+  "steps": [
+    {
+      "at": 0.5,
+      "wait": "level"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.default_view",
+      "value": "third"
+    },
+    {
+      "at": 0.6,
+      "setting": "gameplay.move_hints",
+      "value": false
+    },
+    {
+      "at": 2.5,
+      "press": "jump",
+      "strength": 1.0,
+      "for": 1.9
+    },
+    {
+      "at": 3.8,
+      "press": "move_forward",
+      "strength": 1.0,
+      "for": 1.5
+    },
+    {
+      "at": 3.8,
+      "press": "crouch",
+      "strength": 1.0,
+      "for": 1.2
+    },
+    {
+      "at": 4.7,
+      "shot": "flip-a"
+    },
+    {
+      "at": 5.0,
+      "shot": "flip-b"
+    },
+    {
+      "at": 5.3,
+      "shot": "flip-c"
+    },
+    {
+      "at": 5.6,
+      "shot": "flip-d"
+    },
+    {
+      "at": 6.0,
+      "shot": "flip-e"
+    },
+    {
+      "at": 6.6,
+      "shot": "flip-landed"
+    },
+    {
+      "at": 7.0,
+      "quit": true
+    }
+  ]
+}

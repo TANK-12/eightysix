@@ -71,3 +71,16 @@ func test_ground_decals_and_scorch_marks_treat_the_shell_like_the_rest_of_the_me
 		assert_eq(mi.layers & ground_mark.cull_mask, 0, "%s is not painted by a ground gouge" % mi.name)
 		assert_ne(mi.layers & CombatFx.MECH_LAYERS, 0, "%s takes hull scorch marks" % mi.name)
 	ground_mark.free()
+
+
+func test_the_cockpit_view_still_draws_other_mechs() -> void:
+	var unit := LegionMech.build("grauwolf")
+	tree.root.add_child(unit)
+	await physics_frames(5)
+	cam.set("view", "cockpit")
+	cam.call("_process", 0.0)
+	var meshes := unit.find_children("*", "MeshInstance3D", true, false)
+	assert_gt(meshes.size(), 5, "the Legion unit has meshes")
+	for mi: MeshInstance3D in meshes:
+		assert_ne(mi.layers & cam.cull_mask, 0, "%s of an enemy is drawn from the cockpit" % mi.name)
+	unit.free()
