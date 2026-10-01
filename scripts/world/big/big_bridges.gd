@@ -68,6 +68,7 @@ static func layout(terrain: BigTerrain, entry: Dictionary, spec: Dictionary) -> 
 		"broken_spans": [],
 		"pillar_drop_m": deck - low + 2.0,
 		"abutment_m": 3.0,
+		"bearing_m": 0.35,
 		"width_m": float(road.get("width_m", 9.0)) + 1.5,
 	}
 	over["span_m"] = length / maxf(1.0, roundf(length / float(kit.get("span_m", 7.0))))

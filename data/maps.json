@@ -542,6 +542,7 @@
      },
      "viewpoints": {
       "bridge": {"eye": [-70, 14, -262], "look": [-8, 2, -318]},
+      "bridge_side": {"eye": [-6, 24, -268], "look": [0, 9, -318]},
       "overview": {
        "eye": [
         -1500,

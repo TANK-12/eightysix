@@ -133,7 +133,10 @@ func _break(indices: Array[int], dir: Vector3, throw_m_s: float) -> void:
 			count += 1
 	for i in _unsupported():
 		gone[i] = true
-		_spawn_debris(i, Vector3.ZERO)
+		if int(pieces[i].get("needs", 1)) > 1:
+			_spawn_slab(i)
+		else:
+			_spawn_debris(i, Vector3.ZERO)
 		count += 1
 	if integrity() < float(_cfg.get("collapse_below", 0.35)):
 		collapse()
@@ -166,7 +169,8 @@ func collapse() -> void:
 
 
 ## Indices of standing pieces that nothing holds up any more (bottom up: a piece is held when its
-## bottom is on the ground or rests on a held piece whose box it overlaps from above).
+## bottom is on the ground or rests on enough held pieces (its "needs", usually 1) whose boxes it overlaps
+## from above).
 func _unsupported() -> Array[int]:
 	var order: Array[int] = []
 	for p: Dictionary in pieces:
@@ -179,11 +183,15 @@ func _unsupported() -> Array[int]:
 		var b := _boxes[i]
 		var ok := b.position.y <= _base_y + GROUND_EPS
 		if not ok:
+			var need := int(pieces[i].get("needs", 1))
+			var holding := 0
 			for j: int in held:
 				var u := _boxes[j]
 				if absf(u.end.y - b.position.y) <= TOUCH_EPS and u.end.y <= b.end.y and _overlap_xz(u, b):
-					ok = true
-					break
+					holding += 1
+					if holding >= need:
+						ok = true
+						break
 		if ok:
 			held[i] = true
 		else:
@@ -191,9 +199,23 @@ func _unsupported() -> Array[int]:
 	return out
 
 
-func _spawn_debris(i: int, velocity: Vector3) -> void:
+## A heavy slab that lost a support (a bridge span): it tips over its long side as it comes down, so it slides
+## off the pier caps it would otherwise only drop onto, one way or the other by index.
+func _spawn_slab(i: int) -> void:
+	var side := 1.0 if i % 2 == 0 else -1.0
+	var xf: Transform3D = (pieces[i]["xf"] as Transform3D)
+	var out := global_transform.basis * xf.basis.z * side
+	var deb := _spawn_debris(i, out * float(_cfg.get("slab_slide_m_s", 2.5)))
+	if deb != null:
+		deb.angular_velocity = (global_transform.basis * xf.basis.x) * side * float(_cfg.get("slab_tip_rad_s", 0.9))
+		var slick := PhysicsMaterial.new()  # it slides on the pier cap (crushed bearing, concrete dust)
+		slick.friction = float(_cfg.get("slab_friction", 0.08))
+		deb.physics_material_override = slick
+
+
+func _spawn_debris(i: int, velocity: Vector3) -> RigidBody3D:
 	if not is_inside_tree():
-		return
+		return null
 	var p: Dictionary = pieces[i]
 	var deb := Kit.debris(get_parent(), global_transform * (p["xf"] as Transform3D), p)
 	deb.linear_velocity = velocity + Vector3(randf_range(-0.5, 0.5), randf_range(0.0, 0.8), randf_range(-0.5, 0.5))
@@ -204,6 +226,7 @@ func _spawn_debris(i: int, velocity: Vector3) -> void:
 		var old: Variant = _debris.pop_front()  # may be freed already (level left)
 		if is_instance_valid(old):
 			(old as RigidBody3D).queue_free()
+	return deb
 
 
 func _rebuild() -> void:

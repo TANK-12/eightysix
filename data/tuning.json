@@ -249,7 +249,7 @@
     "max_s": 4.0
   },
   "destruction": {
-    "_about": "Walls and buildings that break (lane B5, scripts/world/destructible.gd). hp_per_m3: hit points of a kit piece per cubic metre of its material. ammo: per ammo id, radius_m is how far from the struck piece others take damage (falling off to nothing at that distance) and scale multiplies the round's damage against masonry (penetrators punch a hole, high explosive breaks wide). collapse_below: a building with less than this share of its volume standing comes down. throw_m_s: how fast a broken piece leaves along the shot. debris_cap: loose pieces kept at once (the oldest go).",
+    "_about": "Walls and buildings that break (lane B5, scripts/world/destructible.gd). hp_per_m3: hit points of a kit piece per cubic metre of its material. ammo: per ammo id, radius_m is how far from the struck piece others take damage (falling off to nothing at that distance) and scale multiplies the round's damage against masonry (penetrators punch a hole, high explosive breaks wide). collapse_below: a building with less than this share of its volume standing comes down. throw_m_s: how fast a broken piece leaves along the shot. debris_cap: loose pieces kept at once (the oldest go). slab_slide_m_s, slab_tip_rad_s and slab_friction: a bridge span that loses a bearing slides sideways and tips over its long side so it comes off the pier caps.",
     "hp_per_m3": {"brick": 700.0, "concrete": 1100.0, "steel_rust": 2500.0, "_default": 900.0},
     "ammo": {
       "apfsds": {"radius_m": 0.5, "scale": 0.5},
@@ -261,7 +261,10 @@
     },
     "collapse_below": 0.35,
     "throw_m_s": 6.0,
-    "debris_cap": 160
+    "debris_cap": 160,
+  "slab_slide_m_s": 3.5,
+  "slab_tip_rad_s": 1.0,
+  "slab_friction": 0.08
   },
   "grime_buildup": {
     "_about": "Dust and mud building up on the Juggernaut over a sortie (lane B4, scripts/look/grime_buildup.gd), added on top of the finish's own grime (finishes.json). per_km: grime per kilometre covered on each ground (sounds.json surface names), times speed_factor, which blends [at the first, at the second] of speed_m_s. landing: a landing harder than from_m_s adds up to max (at full_m_s). skid_per_s: grime per second of skidding on each ground. max_extra: the most a sortie adds (grime is 0 clean to 1 filthy). roughness_gain: how much matter the paint gets at max_extra (dust is matte). weights: how much each export material catches (the frame and legs more, bare steel less). A new sortie starts clean of it; Settings > Gameplay > Dirt builds up turns it off.",

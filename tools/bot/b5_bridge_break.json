@@ -1,0 +1,72 @@
+{
+ "name": "b5_bridge_break",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: what losing a steel bearing does to the Ash river bridge. A scripted hit (not a fired shell): three HE hits on the fourth bearing from the west end, then screenshots as the two spans it carried fall. tools/bot_run.sh b5_bridge_break",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "look_from",
+   "args": [
+    "bridge_side"
+   ]
+  },
+  {
+   "at": 3.5,
+   "shot": "before"
+  },
+  {
+   "at": 3.6,
+   "call": "report_bridge",
+   "args": [
+    "before"
+   ]
+  },
+  {
+   "at": 4.0,
+   "call": "blast_bridge_bearing",
+   "args": [
+    3,
+    3
+   ]
+  },
+  {
+   "at": 4.2,
+   "call": "report_bridge",
+   "args": [
+    "after blast"
+   ]
+  },
+  {
+   "at": 5.4,
+   "shot": "falling"
+  },
+  {
+   "at": 6.5,
+   "shot": "falling2"
+  },
+  {
+   "at": 9.0,
+   "shot": "after"
+  },
+  {
+   "at": 9.1,
+   "call": "report_bridge",
+   "args": [
+    "settled"
+   ]
+  },
+  {
+   "at": 9.5,
+   "quit": true
+  }
+ ]
+}

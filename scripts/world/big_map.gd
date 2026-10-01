@@ -266,6 +266,22 @@ func _park_mech(at: Vector3, dir: Vector3, look_pitch_deg: float = 0.0) -> void:
 	mech.set("look_pitch_deg", look_pitch_deg)
 
 
+## Bot hook (a scripted hit, not a fired shell): `rounds` high-explosive hits on the `index`-th steel
+## bearing of the first bridge, counted from its west end. Shows what losing a bearing does.
+func blast_bridge_bearing(index: int = 3, rounds: int = 3) -> void:
+	if bridges.is_empty():
+		return
+	var b := bridges[0]
+	var bearings: Array[int] = []
+	for p: Dictionary in b.pieces:
+		if str(p["material"]) == "steel_rust":
+			bearings.append(int(p["index"]))
+	bearings.sort_custom(func(x: int, y: int) -> bool: return b._boxes[x].position.x < b._boxes[y].position.x)
+	var at := b.to_global(b._boxes[bearings[clampi(index, 0, bearings.size() - 1)]].get_center())
+	for i in rounds:
+		b.take_hit({"point": at, "dir": Vector3.UP, "damage": 1100.0, "ammo": "he"})
+
+
 ## Bot hook: how much of the first bridge still stands (into the bot log).
 func report_bridge(label: String) -> void:
 	for b: Destructible in bridges:

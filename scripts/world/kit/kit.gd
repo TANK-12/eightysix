@@ -491,6 +491,9 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 	var par := float(e.get("parapet_m", 0.9))
 	var pil := float(e.get("pillar_m", 1.4))
 	var drop := float(e.get("pillar_drop_m", 14.0))
+	# lane B5 part 2: steel bearings between each pillar and the deck. They are the bridge's weak points: a
+	# span rests on two (needs 2) and comes down when one is shot out; concrete itself stands up to guns
+	var bearing := float(e.get("bearing_m", 0.0))
 	var mat := str(e.get("material", "concrete"))
 	var broken: Array = e.get("broken_spans", [])
 	var count := maxi(1, int(roundf(length / span)))
@@ -511,13 +514,15 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 				parts.piece(mat, Transform3D(fall, at), Vector3(sl * 0.96, deck, width))
 			continue
 		var b := Basis(Vector3.BACK, tilt)
-		parts.piece(mat, Transform3D(b, mid), Vector3(sl * 1.005, deck, width))
+		parts.piece(mat, Transform3D(b, mid), Vector3(sl * 1.005, deck, width), 2 if bearing > 0.0 else 1)
 		for side in [-1.0, 1.0]:
 			parts.piece(mat, Transform3D(b, mid + Vector3(0.0, deck * 0.5 + par * 0.5, side * (width * 0.5 - 0.15))), Vector3(sl * 0.98, par, 0.3))
 	for k in range(1, count):
 		var x := k * sl
 		var y := lerpf(h0, h1, x / length) - deck
-		parts.piece(mat, Transform3D(Basis(), Vector3(x, y - drop * 0.5, 0.0)), Vector3(pil, drop, width * 0.8))
+		parts.piece(mat, Transform3D(Basis(), Vector3(x, y - bearing - drop * 0.5, 0.0)), Vector3(pil, drop, width * 0.8))
+		if bearing > 0.0:
+			parts.piece("steel_rust", Transform3D(Basis(), Vector3(x, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6))
 	# lane B5: an abutment block under each end (a bridge set into banks), so the end spans stand on something
 	var abut := float(e.get("abutment_m", 0.0))
 	if abut > 0.0:
@@ -525,7 +530,10 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 		for end in [0, 1]:
 			var x := 1.0 - abut * 0.5 if end == 0 else length - 1.0 + abut * 0.5
 			var y := (h0 if end == 0 else h1) - deck
-			parts.piece(mat, Transform3D(Basis(), Vector3(x, y - abut_drop * 0.5, 0.0)), Vector3(abut, abut_drop, width * 0.95))
+			parts.piece(mat, Transform3D(Basis(), Vector3(x, y - bearing - abut_drop * 0.5, 0.0)), Vector3(abut, abut_drop, width * 0.95))
+			if bearing > 0.0:
+				var bx := 0.6 if end == 0 else length - 0.6  # under the end span, on the abutment
+				parts.piece("steel_rust", Transform3D(Basis(), Vector3(bx, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6))
 	parts.anchors.append(Vector3(length * 0.5, h0 + par, width * 0.5))
 
 
@@ -625,11 +633,13 @@ class Parts:
 		counts[mat] = int(counts.get(mat, 0)) + k
 
 	## A breakable box: drawn, collided and listed for break_apart.
-	func piece(mat: String, xf: Transform3D, size: Vector3) -> void:
+	## needs: how many standing pieces must hold it up from below (Destructible's support check; 2 for
+	## a bridge span that rests on a bearing at each end).
+	func piece(mat: String, xf: Transform3D, size: Vector3, needs: int = 1) -> void:
 		var idx := next_piece
 		next_piece += 1
 		var lost := gone.has(idx) or gone.has(str(idx))
-		pieces.append({"xf": xf, "size": size, "material": mat, "index": idx, "gone": lost})
+		pieces.append({"xf": xf, "size": size, "material": mat, "index": idx, "gone": lost, "needs": needs})
 		if lost:
 			return
 		box(mat, xf, size)

@@ -1,7 +1,7 @@
 {
  "name": "b5_bridge",
  "map": "big_map",
- "_about": "Lane B5 part 2: the Ash river bridge on the west road. Looks at it, parks the Juggernaut 30 m before it with the gun looking a little down, fires 7 HE rounds along the road onto the deck, logs the bridge's integrity. A concrete span is not meant to fall to a few rounds (the log stays at 1.00); parapets chip. tools/bot_run.sh b5_bridge",
+ "_about": "Lane B5 part 2: the Ash river bridge on the west road. Looks at it, parks the Juggernaut 30 m before it with the gun looking a little down, fires 7 HE rounds along the road onto the deck, logs the bridge's integrity. The steel bearings under the deck are the weak points: HE near a pier breaks one and the two spans it carried come down; the concrete itself does not. tools/bot_run.sh b5_bridge",
  "steps": [
   {
    "at": 0.5,

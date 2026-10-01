@@ -125,3 +125,67 @@ func test_a_span_that_goes_takes_its_parapets_with_it() -> void:
 	assert_gt(on_it, 1, "the span carries parapets (%d)" % on_it)
 	d._break([deck] as Array[int], Vector3.ZERO, 0.0)
 	assert_gt(d.gone.size(), on_it, "the span and what stood on it are gone (%d pieces)" % d.gone.size())
+
+
+func _bearings(d: Destructible) -> Array[int]:
+	var out: Array[int] = []
+	for p: Dictionary in d.pieces:
+		if str(p["material"]) == "steel_rust":
+			out.append(int(p["index"]))
+	return out
+
+
+func _span_with_bearings(d: Destructible) -> Dictionary:
+	# a deck span (needs 2) and the two bearings under it
+	for p: Dictionary in d.pieces:
+		if int(p.get("needs", 1)) == 2:
+			var i := int(p["index"])
+			var under: Array[int] = []
+			for b in _bearings(d):
+				var u := d._boxes[b]
+				if absf(u.end.y - d._boxes[i].position.y) <= Destructible.TOUCH_EPS and Destructible._overlap_xz(u, d._boxes[i]):
+					under.append(b)
+			if under.size() == 2:
+				return {"span": i, "bearings": under}
+	return {}
+
+
+func test_a_span_needs_both_bearings_so_one_shot_out_drops_the_two_it_carried() -> void:
+	var lay := _lay()
+	var d := Destructible.make(str(lay["kit"]), 1, lay["over"])
+	holder.add_child(d)
+	assert_gt(_bearings(d).size(), 4, "steel bearings under the deck")
+	var s := _span_with_bearings(d)
+	assert_false(s.is_empty(), "a span rests on two bearings")
+	var bs: Array = s["bearings"]
+	var before := d.pieces.size() - d.gone.size()
+	d._break([bs[0]] as Array[int], Vector3.ZERO, 0.0)
+	assert_true(d.gone.has(int(bs[0])), "the bearing is gone")
+	assert_true(d.gone.has(int(s["span"])), "the span lost one of its two bearings and fell")
+	var spans_gone := 0
+	for p: Dictionary in d.pieces:
+		if int(p.get("needs", 1)) == 2 and d.gone.has(int(p["index"])):
+			spans_gone += 1
+	assert_eq(spans_gone, 2, "a bearing carries two spans (one each side) and both come down")
+	assert_false(d.is_collapsed, "the rest of the bridge stands")
+	assert_true(d._unsupported().is_empty(), "nothing else is left hanging")
+	var slabs := 0
+	for deb: Variant in Destructible._debris:
+		if is_instance_valid(deb) and (deb as RigidBody3D).physics_material_override != null and (deb as RigidBody3D).get_parent() == holder:
+			slabs += 1
+			assert_gt((deb as RigidBody3D).linear_velocity.length(), 2.0, "a falling slab is sent sliding")
+	assert_eq(slabs, 2, "the two spans came down as slick slabs that slide off the pier caps")
+	print("    bridge: one bearing out took %d pieces of %d" % [before - (d.pieces.size() - d.gone.size()), before])
+
+
+func test_two_he_rounds_at_a_bearing_break_it() -> void:
+	var lay := _lay()
+	var d := Destructible.make(str(lay["kit"]), 1, lay["over"])
+	holder.add_child(d)
+	var b := _bearings(d)[2]
+	var rounds := 0
+	while not d.gone.has(b) and rounds < 6:
+		d.take_hit({"point": d.to_global(d._boxes[b].get_center()), "dir": Vector3.UP, "damage": 1100.0, "ammo": "he"})
+		rounds += 1
+	print("    bridge: a bearing breaks after %d HE rounds" % rounds)
+	assert_between(float(rounds), 1.0, 3.0, "a few rounds at the weak point, not one and not many")
