@@ -204,6 +204,7 @@
     "_about": "Lane A3 part 4 (Emerson: real physics only): the recoil game/air scales (x6, x24) and the recoil_point_share are gone; recoil is Ballistics.recoil_impulse along the bore line. impact_push_scale is 1: a hit pushes with the projectile's own momentum.",
     "impact_push_scale": 1.0,
     "sub_arm_slew_deg_s": 120.0,
+    "sub_play_deg": 4.0,
     "sub_barrel_m": 0.6,
     "projectile_life_s": 4.0,
     "tracer_len_m": 9.0,

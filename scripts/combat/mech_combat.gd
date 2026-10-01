@@ -198,6 +198,50 @@ func gun_direction() -> Vector3:
 	return dir.rotated(b.x, deg_to_rad(pitch)).normalized()
 
 
+## Where a round fired now would land: its flight (drop and drag of the loaded round) from the
+## muzzle along `dir`, cast in 0.1 s legs, out to `max_m`. {point, range_m, hit} (hit false: it flies
+## past max_m, point is where it is then).
+func impact(muzzle: Vector3, dir: Vector3, ammo: Dictionary, max_m: float = 2500.0) -> Dictionary:
+	var space := mech.get_world_3d().direct_space_state
+	var pos := muzzle
+	var vel := dir * float(ammo.get("muzzle_m_s", 1000.0))
+	var drag := float(ammo.get("drag_per_s", 0.0))
+	var skip: Array[RID] = [mech.get_rid()]
+	var hitboxes := mech.get_node_or_null("LegHitboxes") as CollisionObject3D
+	if hitboxes != null:
+		skip.append(hitboxes.get_rid())
+	for i in 40:
+		var s := Ballistics.step(pos, vel, 0.1, 9.81, drag)
+		var q := PhysicsRayQueryParameters3D.create(pos, s[0], 1 | 2)
+		q.exclude = skip
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			return {"point": hit["position"], "range_m": muzzle.distance_to(hit["position"]), "hit": true}
+		pos = s[0]
+		vel = s[1]
+		if muzzle.distance_to(pos) > max_m:
+			break
+	return {"point": pos, "range_m": muzzle.distance_to(pos), "hit": false}
+
+
+## The 57 mm's impact point now (the HUD's main gun mark).
+func main_impact() -> Dictionary:
+	if gun == null:
+		return {}
+	var ammo: Dictionary = (gun.def.get("ammo", {}) as Dictionary).get(gun.loaded_ammo, {})
+	return impact(mech.global_transform * muzzle_local(), gun_direction(), ammo)
+
+
+## The sub-arm guns' impact point (between the two arms' lines), for their small mark.
+func sub_impact() -> Dictionary:
+	if sub_guns == null:
+		return {}
+	var ammo: Dictionary = (sub_guns.def.get("ammo", {}) as Dictionary).get(sub_guns.loaded_ammo, {})
+	var xf := mech.global_transform
+	var from := (xf * sub_muzzle_local(0) + xf * sub_muzzle_local(1)) * 0.5
+	return impact(from, (sub_direction(0) + sub_direction(1)).normalized(), ammo, float(sub_guns.def.get("range_m", 1500.0)))
+
+
 func fire_main() -> bool:
 	if gun == null or damage.is_destroyed:
 		return false
@@ -242,16 +286,26 @@ func sub_muzzle_local(side: int) -> Vector3:
 	return _socket("subarm_L" if side == 0 else "subarm_R", fallback) + Vector3(0.0, 0.0, -float(_c.get("sub_barrel_m", 0.6)))
 
 
-## Each arm turns toward the crosshair (the wire anchor's aim point) inside the sub-arms' reach, no
-## faster than combat.sub_arm_slew_deg_s: the arms aim, so the body doesn't have to.
+## Where the sub-arm guns point (setting gameplay.sub_guns_aim, part 4 from Emerson's notes after 010):
+## "fixed" straight ahead on the body like the 57 mm (his original ask, the default); "play" each mount
+## swings up to combat.sub_play_deg toward the crosshair (the wire anchor's aim point); "arms" the
+## sub-arms swing the guns onto it inside their reach. No faster than combat.sub_arm_slew_deg_s.
+## Only the 12.7 mm guns ever move: the 57 mm is fixed to the body.
 func _slew_sub_arms(delta: float) -> void:
 	var xf := mech.global_transform
 	var step := deg_to_rad(float(_c.get("sub_arm_slew_deg_s", 120.0))) * delta
+	var mode := Settings.get_s("gameplay.sub_guns_aim")
 	for side in 2:
 		var from := xf * sub_muzzle_local(side)
 		var want := -xf.basis.z
-		if anchor != null:
-			want = anchor.arm_limit((anchor.aim_point(from, float(sub_guns.def.get("range_m", 1500.0))) - from).normalized(), xf.basis)
+		if anchor != null and mode != "fixed":
+			var aim := (anchor.aim_point(from, float(sub_guns.def.get("range_m", 1500.0))) - from).normalized()
+			if mode == "arms":
+				want = anchor.arm_limit(aim, xf.basis)
+			else:
+				var play := deg_to_rad(float(_c.get("sub_play_deg", 4.0)))
+				var off := want.angle_to(aim)
+				want = aim if off <= play else want.slerp(aim, play / off).normalized()
 		var local := (xf.basis.inverse() * want).normalized()
 		var have := _sub_dir[side]
 		var angle := have.angle_to(local)

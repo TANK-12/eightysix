@@ -1,0 +1,19 @@
+{
+  "name": "a4p4_aim",
+  "_about": "Lane A4 part 4 (Emerson: can't tell where the 57 mm aims): the 57 mm's mark (ring, '57' and the range where its round lands) and the sub-guns' small cross on the small map, with the aim pushed up so the crosshair and the body part ways: sub-guns fixed (default), a little play, aimed by the arms. tools/bot_run.sh a4p4_aim",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 3.0, "shot": "at-rest"},
+    {"at": 3.2, "press": "aim_up", "strength": 1.0, "for": 0.6},
+    {"at": 4.5, "shot": "aim-up-fixed"},
+    {"at": 4.6, "setting": "gameplay.sub_guns_aim", "value": "play"},
+    {"at": 6.0, "shot": "aim-up-play"},
+    {"at": 6.1, "setting": "gameplay.sub_guns_aim", "value": "arms"},
+    {"at": 7.5, "shot": "aim-up-arms"},
+    {"at": 7.6, "press": "fire_main", "strength": 1.0, "for": 0.1},
+    {"at": 8.3, "shot": "after-shot"},
+    {"at": 9.0, "quit": true}
+  ]
+}

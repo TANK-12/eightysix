@@ -240,6 +240,7 @@ func test_sub_arm_guns_fire_in_turn_with_real_recoil() -> void:
 
 func test_sub_arms_swing_to_the_crosshair_not_the_body() -> void:
 	_ground()
+	Settings.set_value("gameplay.sub_guns_aim", "arms", false)
 	var combat := _mech(Vector3(0, 3, 0))
 	await physics_frames(240)
 	var body_fwd := -mech.global_transform.basis.z
@@ -321,3 +322,60 @@ func test_the_gun_is_rigid_and_the_whole_kick_lands_at_once() -> void:
 	for i in 30:
 		await physics_frames(1)
 		assert_true(sk.get_bone_pose_position(bone).is_equal_approx(rest), "the barrel never slides")
+
+
+## Part 4 (Emerson after 010: the sub-arm guns were "put on the arms instead of fixed to the body as he
+## wanted"; "a little bit of movement with the guns" welcome, "no movement of the big gun"): by default
+## both 12.7 mm guns point straight down the body's heading whatever the crosshair does; "play" lets
+## each mount swing at most combat.sub_play_deg toward it; the 57 mm stays on the body's heading in
+## every mode.
+func test_sub_guns_fixed_by_default_a_little_play_as_an_option_and_the_57mm_never_moves() -> void:
+	_ground()
+	var combat := _mech(Vector3(0, 3, 0))
+	await physics_frames(240)
+	var play := float(Registry.tune("combat", {}).get("sub_play_deg", 4.0))
+	var out := {}
+	for mode: String in ["fixed", "play", "arms"]:
+		Settings.set_value("gameplay.sub_guns_aim", mode, false)
+		mech.set("look_pitch_deg", 30.0)
+		await physics_frames(180)
+		var fwd := -mech.global_transform.basis.z
+		out[mode] = rad_to_deg(combat.sub_direction(0).angle_to(fwd))
+		var gun_off := rad_to_deg(combat.gun_direction().angle_to(fwd))
+		assert_lt(gun_off, 0.01, "%s: the 57 mm points down the body's heading (%.3f deg off)" % [mode, gun_off])
+		mech.set("look_pitch_deg", 0.0)
+		await physics_frames(120)
+	print("    sub-gun off the body's heading with the crosshair 30 deg up: fixed %.2f, play %.2f, arms %.1f deg" % [out["fixed"], out["play"], out["arms"]])
+	assert_lt(float(out["fixed"]), 0.5, "fixed: straight down the body")
+	assert_between(float(out["play"]), play * 0.5, play + 0.3, "play: a few degrees toward the aim")
+	assert_gt(float(out["arms"]), 10.0, "arms: the arms aim")
+
+
+## Part 4 (Emerson: "can't tell where the 57 mm is aiming"): the 57 mm's mark is where its round
+## lands. A wall 120 m down the bore: the solver lands on the wall at 120 m, a little under the bore
+## line by the round's drop; with nothing in the way it reports a far miss, not a false hit.
+func test_the_57mm_mark_is_where_its_round_lands() -> void:
+	_ground()
+	var combat := _mech(Vector3(0, 3, 0))
+	await physics_frames(240)
+	var muzzle := mech.global_transform * combat.muzzle_local()
+	var dir := combat.gun_direction()
+	var flat := Vector3(dir.x, 0.0, dir.z).normalized()
+	var wall := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(40, 40, 1)
+	cs.shape = box
+	wall.add_child(cs)
+	tree.root.add_child(wall)
+	wall.global_position = muzzle + flat * 120.5
+	wall.look_at(muzzle, Vector3.UP)
+	extras.append(wall)
+	await physics_frames(2)
+	var hit := combat.main_impact()
+	var bore_at := muzzle + dir * float(hit["range_m"])
+	var under := bore_at.y - (hit["point"] as Vector3).y
+	print("    57 mm mark on a wall 120 m out: range %.1f m, %.3f m under the bore line" % [hit["range_m"], under])
+	assert_true(bool(hit["hit"]), "it lands on the wall")
+	assert_almost_eq(float(hit["range_m"]), 120.0, 1.5, "at the wall's range")
+	assert_between(under, 0.0, 0.2, "a little under the bore line (the drop over 120 m)")
