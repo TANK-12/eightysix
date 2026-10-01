@@ -279,7 +279,7 @@ func _read_input(dt: float) -> void:
 		running = Input.is_action_pressed("sprint")
 	elif Input.is_action_just_pressed("sprint"):
 		running = not running
-	if Settings.get_s("controls.sprint_mode") == "toggle" and _move.y < 0.2:
+	if Settings.get_s("controls.sprint_mode") == "toggle" and _move.length() < 0.2:
 		running = false
 	if Settings.get_s("controls.crouch_mode") == "hold":
 		_crouch_toggled = Input.is_action_pressed("crouch")
@@ -727,8 +727,8 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	var fwd := _flat(-state.transform.basis.z, n)
 	var right := _flat(state.transform.basis.x, n)
 	var top := float(d.get("run_m_s", 12.0)) if running else float(d.get("walk_m_s", 7.0))
-	var back := float(d.get("reverse_m_s", 5.0))
-	var side := float(d.get("strafe_m_s", 5.0))
+	var back := float(d.get("run_back_m_s", 5.0)) if running else float(d.get("reverse_m_s", 5.0))
+	var side := float(d.get("run_side_m_s", 5.0)) if running else float(d.get("strafe_m_s", 5.0))
 	top *= speed_scale
 	back *= speed_scale
 	side *= speed_scale
@@ -737,6 +737,7 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 		back = minf(back, _bench_speed_cap)
 		side = minf(side, _bench_speed_cap)
 	var target := fwd * (_move.y * (top if _move.y >= 0.0 else back)) + right * (_move.x * side)
+	target = target.limit_length(maxf(top if _move.y >= 0.0 else back, side))
 	var planar := v - n * v.dot(n)
 	var speed := planar.length()
 	var dv := target - planar

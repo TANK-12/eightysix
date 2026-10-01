@@ -671,3 +671,49 @@ func _bend_dir(leg: Dictionary) -> Vector3:
 	var line := (ankle - pivot).normalized()
 	var off := (knee - pivot) - line * (knee - pivot).dot(line)
 	return off.normalized()
+
+
+## Lane A4 (Emerson 2026-10-01: "make it so that sprint works pretty well side to side and
+## backwards"): sprinting with the stick sideways or back gallops at about run_side_m_s / run_back_m_s
+## with the legs whole (none pulled straight past reach, none folding the wrong way) and the body level.
+func test_sprint_sideways_and_backwards() -> void:
+	Settings.set_value("controls.sprint_mode", "hold", false)
+	var d: Dictionary = Registry.tune("juggernaut", {})["drive"]
+	for dir: Array in [["strafe_right", float(d["run_side_m_s"])], ["move_back", float(d["run_back_m_s"])]]:
+		mech.linear_velocity = Vector3.ZERO
+		await physics_frames(240)
+		var rest_bend := {}
+		for leg: Dictionary in mech.get("legs"):
+			rest_bend[leg["name"]] = _bend_dir(leg)
+		Input.action_press(str(dir[0]), 1.0)
+		Input.action_press("sprint", 1.0)
+		var top := 0.0
+		var stretched := 0
+		var folded := 0
+		var frames := 0
+		var worst_tilt := 0.0
+		for i in 600:
+			await physics_frames(1)
+			top = maxf(top, Vector2(mech.linear_velocity.x, mech.linear_velocity.z).length())
+			if i < 240:
+				continue
+			frames += 1
+			for leg: Dictionary in mech.get("legs"):
+				var reach := float(leg["upper_len"]) + float(leg["lower_len"])
+				var ankle: Vector3 = mech.to_local(leg["foot"]) + (leg["end_offset"] as Vector3)
+				if (leg["pivot"] as Vector3).distance_to(ankle) > reach * 0.995:
+					stretched += 1
+				if _bend_dir(leg).dot(rest_bend[leg["name"]]) < 0.0:
+					folded += 1
+			worst_tilt = maxf(worst_tilt, rad_to_deg(mech.global_transform.basis.y.angle_to(Vector3.UP)))
+		Input.action_release(str(dir[0]))
+		Input.action_release("sprint")
+		var want := float(dir[1])
+		print("    %s sprint: top %.1f m/s (%.0f km/h), %d straight leg-frames of %d, worst tilt %.1f deg" % [dir[0], top, top * 3.6, stretched, frames * 4, worst_tilt])
+		assert_gt(top, want * 0.85, "%s sprint reaches %.1f of %.1f m/s" % [dir[0], top, want])
+		assert_lt(float(stretched) / maxf(frames * 4, 1), 0.02, "%s: legs pulled straight in %d leg-frames" % [dir[0], stretched])
+		assert_eq(folded, 0, "%s: no knee folds the wrong way" % dir[0])
+		assert_lt(worst_tilt, 14.0, "%s: body stays up (worst tilt %.1f deg)" % [dir[0], worst_tilt])
+		# Brake to a stop before the next direction.
+		for i in 360:
+			await physics_frames(1)

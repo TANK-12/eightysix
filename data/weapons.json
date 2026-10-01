@@ -16,7 +16,8 @@
       "ammo": {
         "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "propellant_kg": 1.6, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02},
         "heat": {"label": "HEAT", "projectile_kg": 2.7, "propellant_kg": 1.2, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08},
-        "he": {"label": "HE", "projectile_kg": 2.7, "propellant_kg": 1.1, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "drag_per_s": 0.1}
+        "he": {"label": "HE", "projectile_kg": 2.7, "propellant_kg": 1.1, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "drag_per_s": 0.1},
+        "heavy": {"label": "Heavy AP (overcharged)", "projectile_kg": 4.0, "propellant_kg": 2.4, "muzzle_m_s": 1100.0, "damage": 1510, "penetration_mm": 140, "drag_per_s": 0.03, "_about": "Lane A4, Emerson 2026-10-01: a round with more kick and more damage. More recoil can only come from more momentum out of the muzzle: a 4 kg full-calibre tungsten shot on a 2.4 kg overcharge (a longer, hotter case that would wear the barrel faster; wear not modelled yet). 2.4 MJ at the muzzle against the APFSDS 1.4 MJ, so damage 1510 (the same 625 a megajoule); a fat slug at 1100 m/s goes through less armour than the long rod (140 mm). Recoil about 8,400 N s against 5,600: the 5.6 t mech kicks back about 1.5 m/s."}
       },
       "recoil_impulse_ns": 5600.0,
       "gas_speed_factor": 1.5,
@@ -50,15 +51,17 @@
       "slot": "sub",
       "mount": "fixed_forward",
       "range_m": 80.0,
-      "anchor_speed_m_s": 120.0,
-      "reel_in_m_s": 8.0,
-      "pay_out_m_s": 12.0,
+      "anchor_speed_m_s": 140.0,
+      "dart_kg": 8.0,
+      "line_kg_per_m": 0.22,
+      "reel_in_m_s": 14.0,
+      "pay_out_m_s": 14.0,
       "lower_m_s": 4.0,
-      "winch_accel_m_s2": 3.0,
-      "max_tension_n": 120000.0,
-      "winch_power_w": 120000.0,
-      "cable_break_n": 170000.0,
-      "cable": "16 mm steel wire rope (breaks at about 170 kN); max_tension_n is the winch's stall pull; winch_power_w caps the reel-in speed under load (lane A3 part 4, no game scale)"
+      "winch_accel_m_s2": 4.0,
+      "max_tension_n": 240000.0,
+      "winch_power_w": 300000.0,
+      "cable_break_n": 330000.0,
+      "cable": "20 mm Dyneema (UHMWPE) rope: about 330 kN breaking load at 0.22 kg/m (steel this strong weighs about 1.6 kg/m, too heavy for the dart to carry far). The 8 kg dart leaves at anchor_speed_m_s, falls under gravity and slows as it pulls line off the drum. max_tension_n is the winch's stall pull; winch_power_w the most it draws from the power pack while reeling (the pack feeds the legs 600 kW in bursts). Lane A4, Emerson 2026-10-01: gravity, better aiming, a stronger tug (was 16 mm steel, 120 kN stall, 120 kW)."
     },
     "hf_blade": {
       "label": "High-frequency blade",

@@ -188,6 +188,34 @@ func test_recoil_is_the_real_impulse_and_all_of_it_moves_the_body_in_the_air() -
 	assert_gt(pitch, 0.0, "the bore line sits above the centre of mass: the nose kicks up")
 
 
+## Lane A4 (Emerson 2026-10-01: "more gun recoil, a shell type with more recoil, and damage"): the
+## overcharged heavy shot puts more momentum out of the muzzle (4 kg x 1100 + 2.4 kg gas x 1.5 x 1100
+## = 8,360 N s against the APFSDS 5,580) and carries more energy (2.4 MJ, damage 1510).
+func test_heavy_round_kicks_harder_and_hits_harder() -> void:
+	var combat := _mech(Vector3(0, 40, 0))
+	await physics_frames(30)
+	var gun: Dictionary = Registry.entry("weapons", "gun_57mm")
+	var heavy: Dictionary = gun["ammo"]["heavy"]
+	var apfsds: Dictionary = gun["ammo"]["apfsds"]
+	assert_almost_eq(Ballistics.recoil_impulse(gun, heavy), 8360.0, 1.0)
+	var energy := 0.5 * float(heavy["projectile_kg"]) * pow(float(heavy["muzzle_m_s"]), 2.0)
+	var energy_ap := 0.5 * float(apfsds["projectile_kg"]) * pow(float(apfsds["muzzle_m_s"]), 2.0)
+	assert_almost_eq(float(heavy["damage"]) / energy, float(apfsds["damage"]) / energy_ap, 0.00001, "damage per joule as the APFSDS")
+	while combat.gun.selected_ammo != "heavy":
+		combat.gun.select_next_ammo()
+	for i in 700:
+		combat.gun.tick(1.0 / 120.0)
+	assert_eq(combat.gun.loaded_ammo, "heavy", "loaded after the swap")
+	var back := mech.global_transform.basis.z
+	var v0 := mech.linear_velocity.dot(back)
+	var mass := mech.mass
+	assert_true(combat.fire_main())
+	await physics_frames(1)
+	var kick := mech.linear_velocity.dot(back) - v0
+	assert_almost_eq(kick, 8360.0 / mass, 0.06, "in the air a heavy shot kicks %.2f m/s" % kick)
+	assert_gt(kick, 1.4, "about half as hard again as the APFSDS (1.0 m/s)")
+
+
 func test_sub_arm_guns_fire_in_turn_with_real_recoil() -> void:
 	# Lane A3 part 5 (Emerson: "add the sub guns"): the pair of 12.7 mm guns on the sub-arms.
 	var combat := _mech(Vector3(0, 40, 0))

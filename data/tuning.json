@@ -141,7 +141,12 @@
       "walk_m_s": 9.0,
       "run_m_s": 19.5,
       "accel_m_s2": 12.0,
-      "peak_power_w": 600000.0
+      "peak_power_w": 600000.0,
+      "reverse_m_s": 7.0,
+      "strafe_m_s": 7.0,
+      "run_back_m_s": 13.5,
+      "run_side_m_s": 14.5,
+      "_sprint_about": "Lane A4 (Emerson 2026-10-01: sprint should work well side to side and backwards): the legs splay to all four corners, so the gallop works in any direction; sideways the stride is shorter (the hips swing less across than along) and backwards the rear legs lead, so about 75% and 70% of the forward gallop."
     },
     "jump": {
       "_about": "Lane A2 part 5, Emerson: the game-mode jump should be way better and more game-like (bench mode stays the physics test). Higher launch, a forward leap along the stick scaled by charge (the heavier fall went in lane A3 part 4: gravity only in flight), and a short grace time after leaving the ground so a jump released mid-stride still fires.",

@@ -105,7 +105,8 @@ func test_reel_in_lifts_the_mech_no_faster_than_the_winch_power() -> void:
 		peak = maxf(peak, mech.global_position.y)
 	assert_lt(combat.anchor.rope_len, len0 - 6.0, "reeled in (%.1f m)" % (len0 - combat.anchor.rope_len))
 	assert_gt(loaded_s, 1.0, "under load for a while (%.1f s)" % loaded_s)
-	assert_lt(work / maxf(loaded_s, 0.01), 120000.0 * 1.02, "under load the winch works at its 120 kW at most (%.0f kW)" % (work / maxf(loaded_s, 0.01) / 1000.0))
+	var kw := float(combat.anchor.def["winch_power_w"])
+	assert_lt(work / maxf(loaded_s, 0.01), kw * 1.02, "under load the winch works at its %.0f kW at most (%.0f kW)" % [kw / 1000.0, work / maxf(loaded_s, 0.01) / 1000.0])
 	assert_gt(peak - start.y, 3.0, "hauled up off the ground (%.1f m)" % (peak - start.y))
 	assert_lt(mech.global_position.z, start.z - 3.0, "and towards the anchor")
 	combat.anchor.fire()
@@ -191,6 +192,48 @@ func test_no_climb_on_a_walkable_slope_or_a_wall_too_tall() -> void:
 class FakeLevel:
 	extends Node
 	var grapple_points: Array[Vector3] = []
+
+
+## Lane A4 (Emerson 2026-10-01: "make the grapple have gravity and better aiming"): the dart falls and
+## slows as it pulls its line (v = v0 m / (m + lambda s)); fire control lifts the launch so the arc
+## still lands on the crosshair; the arc it shows is the path it flies.
+func test_dart_falls_and_fire_control_lands_it_on_the_crosshair() -> void:
+	await physics_frames(240)
+	var a := combat.anchor
+	var space := mech.get_world_3d().direct_space_state
+	var from: Vector3 = mech.global_transform * Vector3(0, 2, -2)
+	var skip: Array[RID] = [mech.get_rid()]
+	var flat := a.fly(space, from, Vector3.FORWARD * a.launch_speed(), 60.0, skip)
+	var arc: PackedVector3Array = flat["arc"]
+	var end := arc[arc.size() - 1]
+	assert_lt(end.y, from.y - 2.0, "aimed level, 60 m of line later it has dropped (%.1f m)" % (from.y - end.y))
+	var m := float(a.def["dart_kg"])
+	var lam := float(a.def["line_kg_per_m"])
+	var step := WireAnchor.dart_step(from, Vector3.FORWARD * 140.0, 40.0, 1.0 / 120.0, m, lam, 0.0)
+	var slow := 140.0 - (step[1] as Vector3).length()
+	assert_almost_eq(slow, lam * 140.0 * 140.0 / (m + lam * 40.0) / 120.0, 0.01, "line drag: lambda v^2 / (m + lambda s)")
+	# A grapple slab 55 m out and 14 m up: the crosshair on it, the dart bites within a metre of it.
+	_block(Vector3(0, 16, -58), Vector3(12, 4, 2), 1 | 64)
+	await physics_frames(2)
+	var spot := Vector3(0, 16, -57)
+	_aim_at(spot)
+	await physics_frames(30)
+	_aim_at(spot)
+	await physics_frames(1)
+	var p := a.preview()
+	assert_eq(str(p["state"]), "ok", "the arc reaches the slab")
+	assert_lt((p["point"] as Vector3).distance_to(spot), 1.2, "and lands on the crosshair (%.2f m off)" % (p["point"] as Vector3).distance_to(spot))
+	var dir: Vector3 = p["dir"]
+	var straight := (spot - (mech.global_transform * a._mid_socket())).normalized()
+	assert_gt(asin(dir.y) - asin(straight.y), 0.005, "fire control aims a little above the line to allow for the drop")
+	print("    anchor: level shot drops %.1f m over 60 m of line; aim lifted %.2f deg; preview %.2f m off the crosshair" % [from.y - end.y, rad_to_deg(asin(dir.y) - asin(straight.y)), (p["point"] as Vector3).distance_to(spot)])
+	assert_true(a.fire())
+	for i in 120:
+		await physics_frames(1)
+		if a.state != WireAnchor.State.FLYING:
+			break
+	assert_eq(a.state, WireAnchor.State.ATTACHED, "the real flight bites where the preview said")
+	assert_lt(a.anchor_point.distance_to(p["point"]), 1.5, "%.2f m from the preview" % a.anchor_point.distance_to(p["point"]))
 
 
 func test_aim_assist_nudges_toward_a_marked_point_near_the_aim() -> void:
