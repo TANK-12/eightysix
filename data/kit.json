@@ -109,6 +109,11 @@
       "label": "Rubble pile", "kind": "debris", "builder": "rubble", "material": "concrete",
       "size_m": [3.0, 6.0], "chunks": 7, "collision": "convex", "climb": true, "grapple": false, "order": 72
     },
+    "wreck_truck": {
+      "label": "Burnt-out truck", "kind": "debris", "builder": "wreck", "material": "steel_rust",
+      "length_m": 5.8, "width_m": 2.2, "wheel_m": 0.9, "collision": "boxes", "climb": true, "grapple": true,
+      "break": true, "order": 73
+    },
     "crater": {
       "label": "Shell crater", "kind": "terrain", "builder": "crater",
       "radius_m": [3.0, 9.0], "depth_ratio": 0.32, "rim_ratio": 0.12, "scorch": 0.8, "order": 80,

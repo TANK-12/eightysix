@@ -289,6 +289,25 @@ func park_at(x: float, z: float, heading_deg: float = 0.0) -> void:
 	_park_mech(Vector3(x, 0.0, z), Vector3(sin(h), 0.0, -cos(h)))
 
 
+## Bot hook: a camera beside the `index`-th placed kit piece of `kit_id` (any town), looking at it.
+func look_at_place(kit_id: String, index: int = 0, side_m: float = 9.0, up_m: float = 3.5) -> void:
+	var found: Array[Destructible] = []
+	for n: Node in places:
+		if n is Destructible and (n as Destructible).kit_id == kit_id:
+			found.append(n)
+	if found.is_empty():
+		push_warning("big_map: no %s placed" % kit_id)
+		return
+	var at := found[clampi(index, 0, found.size() - 1)].global_position
+	stream.prime(at)
+	_ensure_view_camera()
+	var eye := at + Vector3(side_m, up_m, side_m * 0.6)
+	eye.y = maxf(eye.y, terrain.overview_height(eye.x, eye.z) + 2.0)
+	view_camera.global_position = eye
+	view_camera.look_at(at + Vector3.UP * 1.2, Vector3.UP)
+	view_camera.current = true
+
+
 ## Bot hook: how much of the first bridge still stands (into the bot log).
 func report_bridge(label: String) -> void:
 	for b: Destructible in bridges:

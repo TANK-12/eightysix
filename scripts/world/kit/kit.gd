@@ -107,6 +107,8 @@ static func build(id: String, seed_value: int = 0, overrides: Dictionary = {}) -
 			_mast(parts, e)
 		"hedgehog":
 			_hedgehog(parts, e)
+		"wreck":
+			_wreck(parts, e, rng)
 		"rubble":
 			_rubble(parts, e, rng)
 		_:
@@ -578,6 +580,26 @@ static func _hedgehog(parts: Parts, e: Dictionary) -> void:
 	for axis in [Vector3.RIGHT, Vector3.UP, Vector3.BACK]:
 		var d: Vector3 = tilt * axis * s * 0.6
 		parts.beam(mat, centre - d, centre + d, beam, true)
+
+
+## A burnt-out truck: chassis, cab, an open load bed on some, four wheels. All breakable pieces; the whole
+## wreck rolls a little to one side (a collapsed axle) and sits at a random heading. Lane B5 part 2.
+static func _wreck(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
+	var mat := str(e.get("material", "steel_rust"))
+	var length := float(e.get("length_m", 5.8))
+	var width := float(e.get("width_m", 2.2))
+	var wheel := float(e.get("wheel_m", 0.9))
+	var roll := Basis(Vector3.RIGHT, rng.randf_range(-0.1, 0.1))
+	var chassis_y := wheel * 0.85
+	for sx: float in [-0.3, 0.32]:
+		for sz: float in [-1.0, 1.0]:
+			parts.piece(mat, Transform3D(Basis(), Vector3(length * sx, wheel * 0.5, sz * width * 0.5)), Vector3(wheel, wheel, 0.4))
+	parts.piece(mat, Transform3D(roll, Vector3(0.0, chassis_y + 0.18, 0.0)), Vector3(length, 0.36, width * 0.9))
+	var top := chassis_y + 0.36
+	parts.piece(mat, Transform3D(roll, Vector3(length * 0.32, top + 0.7, 0.0)), Vector3(length * 0.28, 1.4, width))
+	if rng.randf() < 0.7:
+		parts.piece(mat, Transform3D(roll, Vector3(-length * 0.18, top + 0.45, 0.0)), Vector3(length * 0.5, 0.9, width))
+	parts.anchors.append(Vector3(length * 0.32, top + 1.4, 0.0))
 
 
 ## A mound of concrete chunks, one convex collider for the whole pile.

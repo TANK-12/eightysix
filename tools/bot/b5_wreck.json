@@ -1,0 +1,48 @@
+{
+ "name": "b5_wreck",
+ "map": "big_map",
+ "_about": "Lane B5 part 2: the burnt-out truck extras in the towns, two close looks. tools/bot_run.sh b5_wreck",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "look_at_place",
+   "args": [
+    "wreck_truck",
+    0,
+    9.0,
+    3.5
+   ]
+  },
+  {
+   "at": 4.5,
+   "shot": "wreck-a"
+  },
+  {
+   "at": 4.6,
+   "call": "look_at_place",
+   "args": [
+    "wreck_truck",
+    1,
+    10.0,
+    4.0
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "wreck-b"
+  },
+  {
+   "at": 8.5,
+   "quit": true
+  }
+ ]
+}

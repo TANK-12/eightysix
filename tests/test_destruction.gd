@@ -152,3 +152,15 @@ func test_small_map_buildings_break_and_take_their_grapple_points_with_them() ->
 	assert_lt(points.size(), before, "its grapple points left the map's list (%d -> %d)" % [before, points.size()])
 	level.free()
 	Game.level = null
+
+
+func test_a_burnt_out_truck_stands_and_comes_apart_under_fire() -> void:
+	var d := Destructible.make("wreck_truck", 4)
+	holder.add_child(d)
+	assert_gt(d.pieces.size(), 5, "wheels, chassis, cab (%d pieces)" % d.pieces.size())
+	assert_true(d._unsupported().is_empty(), "everything on it is held up as built")
+	var shots := 0
+	while d.integrity() > 0.5 and shots < 12:
+		d.take_hit({"point": d.to_global(Vector3(0.0, 1.2, 0.0)), "dir": Vector3.RIGHT, "damage": 1500.0, "ammo": "he"})
+		shots += 1
+	assert_lt(d.integrity(), 0.6, "a few HE rounds wreck the wreck (%d)" % shots)
