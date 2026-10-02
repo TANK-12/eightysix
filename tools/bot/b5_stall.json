@@ -1,0 +1,90 @@
+{
+ "name": "b5_stall",
+ "map": "big_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 22.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 120,
+   "call": "report_legion",
+   "args": [
+    "t120"
+   ]
+  },
+  {
+   "at": 150,
+   "call": "report_legion",
+   "args": [
+    "t150"
+   ]
+  },
+  {
+   "at": 170,
+   "call": "report_legion",
+   "args": [
+    "t170"
+   ]
+  },
+  {
+   "at": 190,
+   "call": "report_legion",
+   "args": [
+    "t190"
+   ]
+  },
+  {
+   "at": 171,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    30.0,
+    10.0
+   ]
+  },
+  {
+   "at": 173,
+   "shot": "u0"
+  },
+  {
+   "at": 174,
+   "call": "look_at_legion",
+   "args": [
+    1,
+    30.0,
+    10.0
+   ]
+  },
+  {
+   "at": 176,
+   "shot": "u1"
+  },
+  {
+   "at": 191,
+   "quit": true
+  }
+ ],
+ "_about": "Lane B5 part 3 debug: the Frontier sweep's last wave stalls far from the Juggernaut (units stop with speed 0 and 0-1 feet planted). Clears waves 1-3, reports every unit's tilt, planted feet, goal and state at t120-190 and takes two shots of units 0 and 1 (look_at_legion). tools/bot_run.sh b5_stall"
+}

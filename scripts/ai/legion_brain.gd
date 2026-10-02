@@ -24,6 +24,10 @@ signal spotted(at: Vector3)
 
 const STATES := ["patrol", "alert", "attack", "retreat"]
 const WORLD_MASK := 1
+const NAV_MIN_M := 70.0  # nearer than this a goal is walked at directly
+const NAV_REPLAN_S := 8.0
+const NAV_PASSED_M := 22.0  # a waypoint this close is behind it
+const NAV_LOOKAHEAD := 2  # steer to the waypoint this many ahead of the next one
 
 var unit: LegionMech
 var ai: Dictionary = {}
@@ -58,6 +62,13 @@ var _route_wait := 0.0
 var _think_left := 0.0
 var _steer_dir := Vector3.ZERO
 var _goal := Vector3.ZERO
+## The map's path-finding (a level's `nav`, set by the mission). A far goal is reached by its waypoints: the unit
+## steers to one about 30 m along the path, and asks again when the goal moves or every NAV_REPLAN_S.
+var nav: LegionNav
+var _path := PackedVector3Array()
+var _path_i := 0
+var _path_goal := Vector3.INF
+var _path_at_ms := 0
 var _target_v := Vector3.ZERO
 var _shot_i := 0
 var _stuck_s := 0.0
@@ -337,7 +348,7 @@ func hold() -> void:
 ## Walk towards `goal` at `speed` (m/s, capped by the unit's top speed), turning off obstacles and
 ## away from other Legion; faces the way it walks unless the behaviour calls face() after.
 func steer_to(goal: Vector3, speed: float) -> void:
-	goal = in_area(goal)
+	goal = _nav_goal(in_area(goal))
 	_goal = goal
 	var to := _flat(goal - unit.global_position)
 	var dist := to.length()
@@ -352,6 +363,31 @@ func steer_to(goal: Vector3, speed: float) -> void:
 	var v := minf(minf(speed, top), dist * 0.8)
 	unit.move_goal = dir * v
 	unit.face_dir = dir
+
+
+## `goal` itself when it is near, there is no nav, or the unit walks a fixed route (a column has its own stops);
+## else the waypoint a little way along the path to it, or `goal` when there is no path (straight at it, as before).
+func _nav_goal(goal: Vector3) -> Vector3:
+	var here := unit.global_position
+	if nav == null or not _fixed_route.is_empty() or _flat(goal - here).length() < NAV_MIN_M:
+		_path = PackedVector3Array()
+		return goal
+	var now := Time.get_ticks_msec()
+	if _path.is_empty() or _flat(goal - _path_goal).length() > 40.0 or now - _path_at_ms > int(NAV_REPLAN_S * 1000.0):
+		_path = nav.path(here, goal)
+		_path_i = 0
+		_path_goal = goal
+		_path_at_ms = now
+	if _path.is_empty():
+		return goal
+	var closest := _path_i
+	for k in range(_path_i, mini(_path_i + 6, _path.size())):
+		if _flat(_path[k] - here).length() < _flat(_path[closest] - here).length():
+			closest = k
+	_path_i = closest
+	while _path_i < _path.size() - 1 and _flat(_path[_path_i] - here).length() < NAV_PASSED_M:
+		_path_i += 1
+	return _path[mini(_path_i + NAV_LOOKAHEAD, _path.size() - 1)]
 
 
 ## Stuck (asked to walk, barely moving for ai.stuck_s): back away at an angle for ai.detour_s, so

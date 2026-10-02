@@ -27,6 +27,8 @@ var mission: Mission
 var grapple_points: Array[Vector3] = []
 var places: Array = []  # every placed kit node
 var bridges: Array[Destructible] = []
+## The Legion's path-finding grid (missions hand it to the units' brains): bridges are corridors that close when a span goes.
+var nav: LegionNav
 var build_ms := {}
 
 
@@ -52,6 +54,7 @@ func _ready() -> void:
 	_build_towns()
 	_build_bridges()
 	_build_outcrops()
+	_build_nav()
 	build_ms["places"] = Time.get_ticks_msec() - t0
 	_spawn_mech()
 	camera = Camera3D.new()
@@ -212,6 +215,8 @@ func _build_bridges() -> void:
 		node.position = lay["at"]
 		node.rotation.y = float(lay["yaw"])
 		node.set_meta("bridge", lay["id"])
+		node.set_meta("bridge_from", lay["from"])
+		node.set_meta("bridge_to", lay["to"])
 		holder.add_child(node)
 		node.sync_anchors(grapple_points)
 		node.broke.connect(node.sync_anchors.bind(grapple_points).unbind(1))
@@ -239,6 +244,20 @@ func face_building(town: String, index: int = 0, distance_m: float = 30.0) -> vo
 	var d := (bp - at).normalized()
 	_park_mech(Vector3(at.x, 0.0, at.y), Vector3(d.x, 0.0, d.y))
 	set_meta("target_building", b)
+
+
+## The Legion's grid over the map's Legion area, with every bridge a corridor that is open while its spans stand.
+func _build_nav() -> void:
+	nav = LegionNav.build(terrain, float(entry.get("legion_area_half_m", terrain.half - 100.0)))
+	for b: Destructible in bridges:
+		var id := str(b.get_meta("bridge", ""))
+		nav.add_corridor(id, b.get_meta("bridge_from"), b.get_meta("bridge_to"))
+		b.broke.connect(_sync_bridge_nav.bind(b).unbind(1))
+		b.collapsed.connect(_sync_bridge_nav.bind(b))
+
+
+func _sync_bridge_nav(b: Destructible) -> void:
+	nav.set_corridor_open(str(b.get_meta("bridge", "")), b.spans_standing())
 
 
 ## Bot hook: the Juggernaut `distance_m` before the first bridge's start, on the road, facing along

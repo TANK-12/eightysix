@@ -78,6 +78,17 @@ func integrity() -> float:
 	return left / _volume
 
 
+## Whether every span (a piece that needs two supports under it, like a bridge deck) is still up: a bridge
+## that can be walked over.
+func spans_standing() -> bool:
+	if is_collapsed:
+		return false
+	for p: Dictionary in pieces:
+		if int(p.get("needs", 1)) > 1 and gone.has(int(p["index"])):
+			return false
+	return true
+
+
 ## World positions of the weak parts still standing (steel bearings): what the combat HUD marks.
 func weak_points() -> Array[Vector3]:
 	var out: Array[Vector3] = []

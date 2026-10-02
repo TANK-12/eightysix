@@ -206,8 +206,11 @@ func _spawn(enemy_id: String, area: Dictionary, members: Array, index: int, rout
 	if brain != null:
 		brain.setup(at, members, index, _rng.randi(), route)
 		var terrain: Variant = level.get("terrain")
-		if terrain != null and terrain is Object and "water_level" in (terrain as Object):
+		if not route.is_empty() and terrain != null and terrain is Object and "water_level" in (terrain as Object):
+			# only a routed column keeps out of deep water: the AI has no path-finding, so a hunter that refused
+			# water would stop at the first river instead of wading it to the Juggernaut
 			brain.water_y = float((terrain as Object).get("water_level"))
+		brain.nav = level.get("nav") as LegionNav
 		brain.route_once = bool(group.get("once", false))
 		brain.march_trigger_m = float(group.get("trigger_m", 0.0))
 		var map_id := str(def.get("map", ""))

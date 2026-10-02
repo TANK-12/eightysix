@@ -379,3 +379,18 @@ func test_a_long_fall_hurts_a_unit_and_a_small_one_does_not() -> void:
 	var v := _spawn("grauwolf", Vector3(0, 1.5, 0))
 	await physics_frames(240)
 	assert_almost_eq(v.health_fraction(), 1.0, 0.001, "a short drop costs nothing")
+
+
+## Lane B5 part 3: on the big map's hills the Legion tumbled and lay on their backs for good (finale run: tilt
+## 114-174 degrees, no feet planted, speed 0, for minutes). The player's Juggernaut has an upright keel; now so do
+## they: past gait.keep_deg of lean from the ground a righting torque grows with the lean (and, once nearly still,
+## rights a unit that is lying over).
+func test_a_unit_lying_on_its_side_or_back_rights_itself() -> void:
+	for id: String in UNITS:
+		var u := _spawn(id, Vector3(0, 3.0, 0))
+		u.rotation = Vector3(deg_to_rad(120.0), 0.0, 0.0)  # well past on its side
+		await physics_frames(1200)  # 10 s
+		var tilt := _tilt_deg(u)
+		print("    %s started 120 degrees over: %.0f degrees after 10 s, %d feet planted" % [id, tilt, u.planted_count])
+		assert_lt(tilt, 25.0, id + " is upright again")
+		u.free()

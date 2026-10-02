@@ -102,6 +102,24 @@ The "Current state" section may be updated in place, but only to keep it true; t
   Tests `test_big_bridge` 8/8, `test_big_map` 9/9, `test_mission` 6/6, `test_destruction` 7/7; full suite 272/272 at the end of the part. A burnt-out truck (`wreck_truck`) sits in the towns' empty lots. Missions: an alerted wave can have `track_s` (told where the player is every 4 s) so the Legion cross the 4 km map.
   Bot runs `b5_bridge`, `b5_mission`, `b5_fps`. Details and what is only reasoned:
   `~/Forge/sessions/juggernaut-alpha/results/B5.md` part 2.
+- **Big map, lane B5 part 3 (2026-10-02, Relay 20).** The Ash bridge's steel bearings are **marked on the HUD**
+  (orange diamonds within 250 m, `Destructible.weak_points`/`weak_marks`, kit piece flag `weak`). **Bridge mission
+  beat:** wave 3 of the Frontier sweep is a column of three Grauwolf that waits on the west road until the
+  Juggernaut is within 450 m, then crosses the bridge in formation ignoring it (mission group keys `route`,
+  `once`, `trigger_m`; `LegionBrain` route and `_holds_formation`); drop the bridge under them (HE on a bearing)
+  and they fall into the river and take **fall damage** (`LegionMech._track_fall`, enemies.json `fall`). The
+  Legion's steering refuses drops it cannot take and (routed columns only) water deeper than 0.6 m. **Objective
+  guide:** the objective box shows the nearest Legion's distance and compass bearing and the heading tape a
+  diamond (`Mission.guide()`, setting `gameplay.objective_guide`). Rim mountains have sharp crests
+  (`rim_crag_m`). Town props: a better burnt-out truck and new `rail_car`, `power_pole`, `crate_stack`,
+  `sandbag_wall` kit pieces in the towns' lots; steel materials less metallic. The wire bites 55-62 degree slopes
+  live (`b5_wire_slopes`). **Legion path-finding** (`scripts/ai/legion_nav.gd`, a 16 m A* grid; bridges are corridors that
+  close when a span falls) and an **upright keel** for the Legion (they were rolling onto their backs on the hills);
+  the Frontier sweep's last wave still stalls far from the player, not diagnosed (results/B5.md part 3 item 11). Interior relief measured: 94 % of the ground under 30 degrees. Bot runs `b5_weak`,
+  `b5_wire_slopes`, `b5_rim`, `b5_bridge_column`, `b5_bridge_drop`, `b5_guide`, `b5_props`, `b5_finale_walk`.
+  Tests: `test_mission` 11, `test_ai` 25, `test_legion` 11, `test_big_bridge` 9, `test_destruction` 10, `test_nav` 5;
+  full suite 288 passed, 0 failed (headless). Details, what was tried and what is only reasoned:
+  `~/Forge/sessions/juggernaut-alpha/results/B5.md` part 3.
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.

@@ -501,6 +501,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		planted_count += 1
 		support_n += f
 		lever += Vector2(hip_w.x - xf.origin.x, hip_w.z - xf.origin.z).length()
+	_keel(state)
 	if planted_count == 0:
 		return
 	lever /= planted_count
@@ -528,6 +529,36 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var torque := iy * (w_goal - state.angular_velocity.y) / maxf(float(_g.get("turn_s", 0.25)), 0.05)
 	torque = clampf(torque, -grip * lever, grip * lever)
 	state.apply_torque(Vector3.UP * torque)
+
+
+## Upright keel (lane B5 part 3; the Juggernaut has one in game mode): past gait.keep_deg of lean from the ground
+## under it (world up with under two feet down) a righting torque grows with the lean, capped, and the tilting spin
+## is damped. None in flight (nothing to push against), so a falling unit tumbles as it fell. Without it the Legion
+## rolled on the big map's hills and lay on their backs for minutes.
+func _keel(state: PhysicsDirectBodyState3D) -> void:
+	var keep := deg_to_rad(float(_g.get("keep_deg", 40.0)))
+	var v := state.linear_velocity
+	var up := state.transform.basis.y
+	var target := Vector3.UP
+	if planted_count >= 2:
+		var from := state.transform.origin + Vector3.UP * 0.5
+		var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 12.0, 1)
+		var hit := state.get_space_state().intersect_ray(q)
+		if not hit.is_empty():
+			target = hit["normal"]
+	elif v.length() > 3.0 or absf(v.y) > 2.0:
+		return
+	var lean := up.angle_to(target)
+	if lean <= keep:
+		return
+	var axis := up.cross(target)
+	if axis.length() < 0.0001:
+		axis = state.transform.basis.z  # exactly upside down: roll about the nose
+	var push := float(_g.get("keep_stiffness", 20.0)) * minf((lean - keep) / keep, 3.0)
+	var w := state.angular_velocity
+	var spin := w - up * w.dot(up)
+	var accel := axis.normalized() * push - spin * float(_g.get("keep_damping", 4.0))
+	state.apply_torque(accel * inertia.x)
 
 
 func _step_gait(dt: float) -> void:
@@ -970,4 +1001,7 @@ func telemetry() -> Dictionary:
 		"support_t": snappedf(support_n / 9810.0, 0.01),
 		"hull": snappedf(damage.fraction("hull"), 0.01),
 		"dead": dead,
+		"tilt_deg": snappedf(rad_to_deg(global_transform.basis.y.angle_to(Vector3.UP)), 0.1),
+		"sleeping": sleeping,
+		"move_goal": snappedf(move_goal.length(), 0.1),
 	}

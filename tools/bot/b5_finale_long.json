@@ -1,0 +1,134 @@
+{
+ "name": "b5_finale_long",
+ "map": "big_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 22.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 60,
+   "call": "report_legion",
+   "args": [
+    "t60"
+   ]
+  },
+  {
+   "at": 80,
+   "call": "report_legion",
+   "args": [
+    "t80"
+   ]
+  },
+  {
+   "at": 100,
+   "call": "report_legion",
+   "args": [
+    "t100"
+   ]
+  },
+  {
+   "at": 120,
+   "call": "report_legion",
+   "args": [
+    "t120"
+   ]
+  },
+  {
+   "at": 140,
+   "call": "report_legion",
+   "args": [
+    "t140"
+   ]
+  },
+  {
+   "at": 160,
+   "call": "report_legion",
+   "args": [
+    "t160"
+   ]
+  },
+  {
+   "at": 180,
+   "call": "report_legion",
+   "args": [
+    "t180"
+   ]
+  },
+  {
+   "at": 200,
+   "call": "report_legion",
+   "args": [
+    "t200"
+   ]
+  },
+  {
+   "at": 220,
+   "call": "report_legion",
+   "args": [
+    "t220"
+   ]
+  },
+  {
+   "at": 240,
+   "call": "report_legion",
+   "args": [
+    "t240"
+   ]
+  },
+  {
+   "at": 260,
+   "call": "report_legion",
+   "args": [
+    "t260"
+   ]
+  },
+  {
+   "at": 280,
+   "call": "report_legion",
+   "args": [
+    "t280"
+   ]
+  },
+  {
+   "at": 300,
+   "call": "report_legion",
+   "args": [
+    "t300"
+   ]
+  },
+  {
+   "at": 320,
+   "call": "report_legion",
+   "args": [
+    "t320"
+   ]
+  },
+  {
+   "at": 330,
+   "quit": true
+  }
+ ],
+ "_about": "Lane B5 part 3: the Frontier sweep's last wave over 5 minutes, Juggernaut standing at the spawn: distance to the player, speed, planted feet and tilt of every unit every 20 s. Still stalls (see results/B5.md part 3 item 11). tools/bot_run.sh b5_finale_long --timeout=420"
+}
