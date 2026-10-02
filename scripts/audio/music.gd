@@ -1,6 +1,6 @@
 extends Node
-## The music player (lane B4 part 2). Plays tracks from data/music.json (files in ~/Music/86/, kept
-## outside the game) on the Music bus: one for the menus, one while exploring, one in combat, each
+## The music player (lane B4 part 2). Plays tracks from data/music.json (files in assets/audio/86/,
+## git-ignored and skipped by Godot's import and export) on the Music bus: one for the menus, one while exploring, one in combat, each
 ## picked in Settings > Audio > Music (Soundtrack, a track, Shuffle or Off). Combat starts when a gun or a
 ## hit sounds near the listener and ends after COMBAT_HOLD_S of quiet. Changes crossfade over FADE_S.
 ## Soundtrack (the default, lane B4 part 3) plays the music.json "ost" set through in album order and
@@ -51,9 +51,23 @@ func candidates(ctx: String) -> PackedStringArray:
 	return out
 
 
+## The track's file on disk. A relative path is looked for in the project folder (a run from the editor or
+## the project), then beside an exported game, then in ~/Games/eightysix (an exported version run from build/).
 func path_of(id: String) -> String:
 	var p := str(Registry.entry("music", id).get("path", ""))
-	return OS.get_environment("HOME") + p.substr(1) if p.begins_with("~") else p
+	if p.begins_with("~"):
+		return OS.get_environment("HOME") + p.substr(1)
+	if p.is_absolute_path() or p.is_empty():
+		return p
+	var tries := [
+		ProjectSettings.globalize_path("res://" + p),
+		OS.get_executable_path().get_base_dir().path_join(p),
+		OS.get_environment("HOME").path_join("Games/eightysix").path_join(p),
+	]
+	for t: String in tries:
+		if FileAccess.file_exists(t):
+			return t
+	return tries[0]
 
 
 ## The soundtrack album in order: the "ost" set by "order", missing files left out.

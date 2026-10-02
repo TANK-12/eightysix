@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download the 86 music in music_sources.json into ~/Music/86/ and rebuild data/music.json from it.
+"""Download the 86 music in music_sources.json into assets/audio/86/ (out_dir, relative to the project) and rebuild data/music.json from it.
 
 Personal use only: the files stay outside the repo and are never shipped or shared. Tracks already
 on disk are skipped; a track dropped from the list leaves the registry (its file is reported, not
@@ -12,12 +12,13 @@ import subprocess
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-MUSIC_JSON = HERE.parent.parent / "data" / "music.json"
+ROOT = HERE.parent.parent
+MUSIC_JSON = ROOT / "data" / "music.json"
 
 
 def main() -> None:
     spec = json.loads((HERE / "music_sources.json").read_text())
-    out = Path(spec["out_dir"]).expanduser()
+    out = ROOT / Path(spec["out_dir"]).expanduser()
     out.mkdir(parents=True, exist_ok=True)
     registry = json.loads(MUSIC_JSON.read_text())
     registry["entries"] = {}
@@ -42,7 +43,9 @@ def main() -> None:
         registry["entries"][key] = {
             "title": track["title"],
             "label": track["title"],
-            "path": "~/" + str(path.relative_to(Path.home())),
+            "path": (
+                str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+            ),
             "language": track["language"],
             "kind": track["kind"],
             "set": track.get("set", "ost"),

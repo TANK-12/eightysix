@@ -1,6 +1,6 @@
 {
  "_about": "The 86 music for personal use (lane B4 parts 2-3). tools/audio/fetch_music.py downloads each into ~/Music/86/ as MP3 at 160 kb/s (YouTube's own audio is about 130-160 kb/s Opus; Godot cannot play Opus or AAC, so one conversion is needed, kept at the source's size) and rebuilds data/music.json from this list. Sets (Emerson, 2026-10-01: the soundtrack is the standard, played through; one original version of each song; nothing else unless he turns it on): 'ost' is the official soundtrack album in album order ('order'), uploaded track by track by Hiroyuki Sawano's and KOHTA YAMAMOTO's own channels (playlist PL-BqHuy6J1pt1aztCOQQvLifiItgcynvs, its three non-album entries left out); 'song' is each opening and ending once, from the artist's or label's official upload; 'extra' (covers, the preview reel) is hidden unless Settings > Audio > Music > Extra tracks is on. Do not add tracks unless Emerson asks. use: where Shuffle may pick it (menu, explore, combat).",
- "out_dir": "~/Music/86",
+ "out_dir": "assets/audio/86",
  "tracks": [
   {
    "yt": "ahDLQbhgW5Y",

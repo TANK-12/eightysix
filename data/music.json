@@ -1,10 +1,10 @@
 {
-  "_about": "Music registry, one entry per track (lane B4 fills it). Files live outside the game in ~/Music/86/ (personal use only, never shipped or shared), so \"path\" is an absolute path and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"~/Music/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}.",
+  "_about": "Music registry, one entry per track (lane B4 fills it). Files live in assets/audio/86/ (personal use only: git-ignored, and its .gdignore keeps Godot from importing or exporting them), so \"path\" is relative to the project folder (an absolute or ~ path also works) and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"assets/audio/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}.",
   "entries": {
     "the_answer": {
       "title": "THE ANSWER",
       "label": "THE ANSWER",
-      "path": "~/Music/86/the_answer.mp3",
+      "path": "assets/audio/86/the_answer.mp3",
       "language": "en",
       "kind": "score",
       "set": "ost",
@@ -18,7 +18,7 @@
     "eighty_six": {
       "title": "EIGHTY-SIX",
       "label": "EIGHTY-SIX",
-      "path": "~/Music/86/eighty_six.mp3",
+      "path": "assets/audio/86/eighty_six.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -32,7 +32,7 @@
     "region": {
       "title": "Region",
       "label": "Region",
-      "path": "~/Music/86/region.mp3",
+      "path": "assets/audio/86/region.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -46,7 +46,7 @@
     "juggernaut": {
       "title": "Juggernaut",
       "label": "Juggernaut",
-      "path": "~/Music/86/juggernaut.mp3",
+      "path": "assets/audio/86/juggernaut.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -60,7 +60,7 @@
     "voices_of_the_chord": {
       "title": "Voices of the Chord",
       "label": "Voices of the Chord",
-      "path": "~/Music/86/voices_of_the_chord.mp3",
+      "path": "assets/audio/86/voices_of_the_chord.mp3",
       "language": "en",
       "kind": "score",
       "set": "ost",
@@ -74,7 +74,7 @@
     "spear": {
       "title": "Spear",
       "label": "Spear",
-      "path": "~/Music/86/spear.mp3",
+      "path": "assets/audio/86/spear.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -88,7 +88,7 @@
     "shin": {
       "title": "Shin",
       "label": "Shin",
-      "path": "~/Music/86/shin.mp3",
+      "path": "assets/audio/86/shin.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -102,7 +102,7 @@
     "six_eighty": {
       "title": "Six-eighty",
       "label": "Six-eighty",
-      "path": "~/Music/86/six_eighty.mp3",
+      "path": "assets/audio/86/six_eighty.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -116,7 +116,7 @@
     "two_side": {
       "title": "Two-Side",
       "label": "Two-Side",
-      "path": "~/Music/86/two_side.mp3",
+      "path": "assets/audio/86/two_side.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -130,7 +130,7 @@
     "kurena": {
       "title": "Kurena",
       "label": "Kurena",
-      "path": "~/Music/86/kurena.mp3",
+      "path": "assets/audio/86/kurena.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -144,7 +144,7 @@
     "rei": {
       "title": "Rei",
       "label": "Rei",
-      "path": "~/Music/86/rei.mp3",
+      "path": "assets/audio/86/rei.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -158,7 +158,7 @@
     "shift_one_to_zero": {
       "title": "Shift One to Zero",
       "label": "Shift One to Zero",
-      "path": "~/Music/86/shift_one_to_zero.mp3",
+      "path": "assets/audio/86/shift_one_to_zero.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -172,7 +172,7 @@
     "piano_eightysix_one": {
       "title": "Piano Eightysix-One",
       "label": "Piano Eightysix-One",
-      "path": "~/Music/86/piano_eightysix_one.mp3",
+      "path": "assets/audio/86/piano_eightysix_one.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -186,7 +186,7 @@
     "piano_eightysix_two": {
       "title": "Piano Eightysix-Two",
       "label": "Piano Eightysix-Two",
-      "path": "~/Music/86/piano_eightysix_two.mp3",
+      "path": "assets/audio/86/piano_eightysix_two.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -200,7 +200,7 @@
     "piano_eightysix_three": {
       "title": "Piano Eightysix-Three",
       "label": "Piano Eightysix-Three",
-      "path": "~/Music/86/piano_eightysix_three.mp3",
+      "path": "assets/audio/86/piano_eightysix_three.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -214,7 +214,7 @@
     "piano_eightysix_four": {
       "title": "Piano Eightysix-Four",
       "label": "Piano Eightysix-Four",
-      "path": "~/Music/86/piano_eightysix_four.mp3",
+      "path": "assets/audio/86/piano_eightysix_four.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -228,7 +228,7 @@
     "cello_piano_eightysix": {
       "title": "Cello Piano Eightysix",
       "label": "Cello Piano Eightysix",
-      "path": "~/Music/86/cello_piano_eightysix.mp3",
+      "path": "assets/audio/86/cello_piano_eightysix.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -242,7 +242,7 @@
     "two_worlds_apart": {
       "title": "Two Worlds Apart",
       "label": "Two Worlds Apart",
-      "path": "~/Music/86/two_worlds_apart.mp3",
+      "path": "assets/audio/86/two_worlds_apart.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -256,7 +256,7 @@
     "tararatata": {
       "title": "TararaTaTa",
       "label": "TararaTaTa",
-      "path": "~/Music/86/tararatata.mp3",
+      "path": "assets/audio/86/tararatata.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -270,7 +270,7 @@
     "unzari_kettari": {
       "title": "Unzari-Kettari",
       "label": "Unzari-Kettari",
-      "path": "~/Music/86/unzari_kettari.mp3",
+      "path": "assets/audio/86/unzari_kettari.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -284,7 +284,7 @@
     "st_magnolia": {
       "title": "St. Magnolia",
       "label": "St. Magnolia",
-      "path": "~/Music/86/st_magnolia.mp3",
+      "path": "assets/audio/86/st_magnolia.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -298,7 +298,7 @@
     "lena_annette": {
       "title": "Lena & Annette",
       "label": "Lena & Annette",
-      "path": "~/Music/86/lena_annette.mp3",
+      "path": "assets/audio/86/lena_annette.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -312,7 +312,7 @@
     "burarababa": {
       "title": "BuraraBaBa",
       "label": "BuraraBaBa",
-      "path": "~/Music/86/burarababa.mp3",
+      "path": "assets/audio/86/burarababa.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -326,7 +326,7 @@
     "talk_to_you": {
       "title": "Talk to you",
       "label": "Talk to you",
-      "path": "~/Music/86/talk_to_you.mp3",
+      "path": "assets/audio/86/talk_to_you.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -340,7 +340,7 @@
     "underneath_the_sky": {
       "title": "Underneath the Sky",
       "label": "Underneath the Sky",
-      "path": "~/Music/86/underneath_the_sky.mp3",
+      "path": "assets/audio/86/underneath_the_sky.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -354,7 +354,7 @@
     "the_voice_of_the_dead": {
       "title": "The Voice of the dead",
       "label": "The Voice of the dead",
-      "path": "~/Music/86/the_voice_of_the_dead.mp3",
+      "path": "assets/audio/86/the_voice_of_the_dead.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -368,7 +368,7 @@
     "legion": {
       "title": "LEGION",
       "label": "LEGION",
-      "path": "~/Music/86/legion.mp3",
+      "path": "assets/audio/86/legion.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -382,7 +382,7 @@
     "the_nameless_tragedy": {
       "title": "The nameless tragedy",
       "label": "The nameless tragedy",
-      "path": "~/Music/86/the_nameless_tragedy.mp3",
+      "path": "assets/audio/86/the_nameless_tragedy.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -396,7 +396,7 @@
     "no_reality": {
       "title": "No Reality",
       "label": "No Reality",
-      "path": "~/Music/86/no_reality.mp3",
+      "path": "assets/audio/86/no_reality.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -410,7 +410,7 @@
     "the_same_sky_the_same_dusk": {
       "title": "The same sky, the same dusk",
       "label": "The same sky, the same dusk",
-      "path": "~/Music/86/the_same_sky_the_same_dusk.mp3",
+      "path": "assets/audio/86/the_same_sky_the_same_dusk.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -424,7 +424,7 @@
     "no_distance": {
       "title": "no distance",
       "label": "no distance",
-      "path": "~/Music/86/no_distance.mp3",
+      "path": "assets/audio/86/no_distance.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -438,7 +438,7 @@
     "trigger_or_die": {
       "title": "Trigger or Die",
       "label": "Trigger or Die",
-      "path": "~/Music/86/trigger_or_die.mp3",
+      "path": "assets/audio/86/trigger_or_die.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -452,7 +452,7 @@
     "spearhead": {
       "title": "SPEARHEAD",
       "label": "SPEARHEAD",
-      "path": "~/Music/86/spearhead.mp3",
+      "path": "assets/audio/86/spearhead.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -466,7 +466,7 @@
     "reginleif": {
       "title": "REGINLEIF",
       "label": "REGINLEIF",
-      "path": "~/Music/86/reginleif.mp3",
+      "path": "assets/audio/86/reginleif.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -480,7 +480,7 @@
     "alive_today": {
       "title": "Alive Today",
       "label": "Alive Today",
-      "path": "~/Music/86/alive_today.mp3",
+      "path": "assets/audio/86/alive_today.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -494,7 +494,7 @@
     "slumdog_paradise": {
       "title": "SLUMDOG PARADISE",
       "label": "SLUMDOG PARADISE",
-      "path": "~/Music/86/slumdog_paradise.mp3",
+      "path": "assets/audio/86/slumdog_paradise.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -508,7 +508,7 @@
     "president_me": {
       "title": "President me",
       "label": "President me",
-      "path": "~/Music/86/president_me.mp3",
+      "path": "assets/audio/86/president_me.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -522,7 +522,7 @@
     "the_last_empress": {
       "title": "The Last Empress",
       "label": "The Last Empress",
-      "path": "~/Music/86/the_last_empress.mp3",
+      "path": "assets/audio/86/the_last_empress.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -536,7 +536,7 @@
     "reality": {
       "title": "Reality",
       "label": "Reality",
-      "path": "~/Music/86/reality.mp3",
+      "path": "assets/audio/86/reality.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -550,7 +550,7 @@
     "so_tired": {
       "title": "So Tired",
       "label": "So Tired",
-      "path": "~/Music/86/so_tired.mp3",
+      "path": "assets/audio/86/so_tired.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -564,7 +564,7 @@
     "hear_my_voice": {
       "title": "Hear my voice",
       "label": "Hear my voice",
-      "path": "~/Music/86/hear_my_voice.mp3",
+      "path": "assets/audio/86/hear_my_voice.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -578,7 +578,7 @@
     "morpho": {
       "title": "MORPHO",
       "label": "MORPHO",
-      "path": "~/Music/86/morpho.mp3",
+      "path": "assets/audio/86/morpho.mp3",
       "language": "none",
       "kind": "score",
       "set": "ost",
@@ -592,7 +592,7 @@
     "3_pun_29_byou_opening_1_hitorie": {
       "title": "3-pun 29-byou (opening 1, Hitorie)",
       "label": "3-pun 29-byou (opening 1, Hitorie)",
-      "path": "~/Music/86/3_pun_29_byou_opening_1_hitorie.mp3",
+      "path": "assets/audio/86/3_pun_29_byou_opening_1_hitorie.mp3",
       "language": "ja",
       "kind": "opening",
       "set": "song",
@@ -606,7 +606,7 @@
     "kyoukaisen_opening_2_amazarashi": {
       "title": "Kyoukaisen (opening 2, amazarashi)",
       "label": "Kyoukaisen (opening 2, amazarashi)",
-      "path": "~/Music/86/kyoukaisen_opening_2_amazarashi.mp3",
+      "path": "assets/audio/86/kyoukaisen_opening_2_amazarashi.mp3",
       "language": "ja",
       "kind": "opening",
       "set": "song",
@@ -620,7 +620,7 @@
     "avid_ending_1_sawanohiroyuki_nzk_mizuki": {
       "title": "Avid (ending 1, SawanoHiroyuki[nZk]:mizuki)",
       "label": "Avid (ending 1, SawanoHiroyuki[nZk]:mizuki)",
-      "path": "~/Music/86/avid_ending_1_sawanohiroyuki_nzk_mizuki.mp3",
+      "path": "assets/audio/86/avid_ending_1_sawanohiroyuki_nzk_mizuki.mp3",
       "language": "ja",
       "kind": "ending",
       "set": "song",
@@ -634,7 +634,7 @@
     "hands_up_to_the_sky_ending_2_sawanohiroyuki_nzk_laco": {
       "title": "Hands Up to the Sky (ending 2, SawanoHiroyuki[nZk]:Laco)",
       "label": "Hands Up to the Sky (ending 2, SawanoHiroyuki[nZk]:Laco)",
-      "path": "~/Music/86/hands_up_to_the_sky_ending_2_sawanohiroyuki_nzk_laco.mp3",
+      "path": "assets/audio/86/hands_up_to_the_sky_ending_2_sawanohiroyuki_nzk_laco.mp3",
       "language": "en",
       "kind": "ending",
       "set": "song",
@@ -648,7 +648,7 @@
     "alchemilla_part_2_ending_1": {
       "title": "Alchemilla (part 2 ending 1)",
       "label": "Alchemilla (part 2 ending 1)",
-      "path": "~/Music/86/alchemilla_part_2_ending_1.mp3",
+      "path": "assets/audio/86/alchemilla_part_2_ending_1.mp3",
       "language": "ja",
       "kind": "ending",
       "set": "song",
@@ -662,7 +662,7 @@
     "lilas_part_2_ending_2_sawanohiroyuki_nzk_honoka_takahashi": {
       "title": "LilaS (part 2 ending 2, SawanoHiroyuki[nZk]:Honoka Takahashi)",
       "label": "LilaS (part 2 ending 2, SawanoHiroyuki[nZk]:Honoka Takahashi)",
-      "path": "~/Music/86/lilas_part_2_ending_2_sawanohiroyuki_nzk_honoka_takahashi.mp3",
+      "path": "assets/audio/86/lilas_part_2_ending_2_sawanohiroyuki_nzk_honoka_takahashi.mp3",
       "language": "ja",
       "kind": "ending",
       "set": "song",
@@ -676,7 +676,7 @@
     "kyoukaisen_english_cover_mewsic": {
       "title": "Kyoukaisen (English cover, mewsic)",
       "label": "Kyoukaisen (English cover, mewsic)",
-      "path": "~/Music/86/kyoukaisen_english_cover_mewsic.mp3",
+      "path": "assets/audio/86/kyoukaisen_english_cover_mewsic.mp3",
       "language": "en",
       "kind": "opening",
       "set": "extra",
@@ -691,7 +691,7 @@
     "avid_english_cover_mewsic": {
       "title": "Avid (English cover, mewsic)",
       "label": "Avid (English cover, mewsic)",
-      "path": "~/Music/86/avid_english_cover_mewsic.mp3",
+      "path": "assets/audio/86/avid_english_cover_mewsic.mp3",
       "language": "en",
       "kind": "ending",
       "set": "extra",
@@ -706,7 +706,7 @@
     "hands_up_to_the_sky_english_cover_mewsic": {
       "title": "Hands Up to the Sky (English cover, mewsic)",
       "label": "Hands Up to the Sky (English cover, mewsic)",
-      "path": "~/Music/86/hands_up_to_the_sky_english_cover_mewsic.mp3",
+      "path": "assets/audio/86/hands_up_to_the_sky_english_cover_mewsic.mp3",
       "language": "en",
       "kind": "ending",
       "set": "extra",
@@ -721,7 +721,7 @@
     "voices_of_the_chord_english_cover_mewsic": {
       "title": "Voices of the Chord (English cover, mewsic)",
       "label": "Voices of the Chord (English cover, mewsic)",
-      "path": "~/Music/86/voices_of_the_chord_english_cover_mewsic.mp3",
+      "path": "assets/audio/86/voices_of_the_chord_english_cover_mewsic.mp3",
       "language": "en",
       "kind": "score",
       "set": "extra",
@@ -736,7 +736,7 @@
     "original_soundtrack_preview_reel_aniplex": {
       "title": "Original soundtrack preview reel (Aniplex)",
       "label": "Original soundtrack preview reel (Aniplex)",
-      "path": "~/Music/86/original_soundtrack_preview_reel_aniplex.mp3",
+      "path": "assets/audio/86/original_soundtrack_preview_reel_aniplex.mp3",
       "language": "none",
       "kind": "score",
       "set": "extra",

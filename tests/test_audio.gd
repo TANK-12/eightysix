@@ -186,6 +186,17 @@ func test_the_servo_hum_is_off_until_picked() -> void:
 	assert_eq(Sfx.files_of("servo_loop"), [])
 
 
+func test_music_is_found_in_the_game_assets() -> void:
+	# Emerson moved the 86 music from ~/Music/86 into assets/audio/86 (2026-10-02); every track resolves there
+	var dir := ProjectSettings.globalize_path("res://assets/audio/86")
+	assert_true(FileAccess.file_exists(dir.path_join(".gdignore")), "Godot never imports or exports the music")
+	for id in Registry.ids("music"):
+		var path := Music.path_of(id)
+		assert_true(path.begins_with(dir), id + " is looked for in assets/audio/86")
+		assert_true(FileAccess.file_exists(path), id + " file is there")
+	assert_gt(Music.album().size(), 40, "the soundtrack album is all there")
+
+
 func test_music_follows_the_settings() -> void:
 	Settings.set_value("audio.music_menu", "off")
 	assert_eq(Music.choose("menu"), "")

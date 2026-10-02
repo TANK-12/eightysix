@@ -9,3 +9,5 @@ assets/models/**/*.glb
 assets/models/**/*.png
 assets/models/**/*.jpg
 __pycache__/
+# Emerson's 86 music: personal use only, never in the repo or a share zip
+assets/audio/86/*.mp3
