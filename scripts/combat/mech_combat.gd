@@ -414,7 +414,7 @@ func _on_part_lost(key: String) -> void:
 		for mi: MeshInstance3D in _meshes.get(key, []):
 			if mi.visible and mi.is_inside_tree():
 				var out := (mi.global_position - mech.global_position).normalized()
-				CombatFx.fling(world, mi, mech.linear_velocity + (out + Vector3.UP * 0.8) * randf_range(5.0, 8.0), Vector3(randf(), randf(), randf()) * 9.0)
+				CombatFx.fling(world, mi, mech.linear_velocity + (out + Vector3.UP * 0.8) * randf_range(5.0, 8.0), Vector3(randf(), randf(), randf()) * 9.0, mech)
 			mi.visible = false
 	CombatFx.sparks(world, at, Vector3.UP, 30, 12.0, 80.0)
 	CombatFx.smoke(world, at, Vector3.UP, 16, 1.6, Color(0.14, 0.13, 0.12, 0.75), 3.0, 3.0)

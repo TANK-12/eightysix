@@ -514,12 +514,16 @@ static func casing(parent: Node, pos: Vector3, basis: Basis, velocity: Vector3) 
 	return body
 
 
-## A lost armour panel: a copy of its mesh on a rigid body, thrown off the hit.
-static func fling(parent: Node, source: MeshInstance3D, velocity: Vector3, spin: Vector3) -> RigidBody3D:
+## A lost armour panel: a copy of its mesh on a rigid body, thrown off the hit. It starts inside the hull it
+## came off, so it never collides with `from` (Emerson's note 17: forcing the two apart kicked the mech
+## onto its side and down into the ground).
+static func fling(parent: Node, source: MeshInstance3D, velocity: Vector3, spin: Vector3, from: PhysicsBody3D = null) -> RigidBody3D:
 	var body := RigidBody3D.new()
 	body.name = "Debris"
 	body.collision_layer = 16
 	body.collision_mask = 1 | 16
+	if from != null:
+		body.add_collision_exception_with(from)
 	var aabb := source.get_aabb()
 	body.mass = 40.0
 	var copy := MeshInstance3D.new()
