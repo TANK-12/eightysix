@@ -20,7 +20,7 @@ var gravity := 9.81
 var push_scale := 4.0
 var traveled_m := 0.0
 var _tracer: MeshInstance3D
-static var _tracer_meshes := {}  # Vector2(length, width) -> BoxMesh, shared by every round of that size
+static var _tracer_meshes := {}  # Vector3(length, width, glow) -> BoxMesh, shared by every round of that look
 
 
 static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionary, owner_node: Node, scale: float, skip: Array[RID]) -> Projectile:
@@ -37,14 +37,23 @@ static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionar
 	p.name = "Round"
 	world.add_child(p)
 	p.global_position = from
-	p._build_tracer(float(round_def.get("tracer_len_m", c.get("tracer_len_m", 9.0))), float(round_def.get("tracer_w_m", 0.07)))
+	var length := float(round_def.get("tracer_len_m", c.get("tracer_len_m", 9.0)))
+	var width := float(round_def.get("tracer_w_m", 0.07))
+	# Settings > Shell tracers (Emerson's note 6 after 012): shells (1 kg and up) can be bright with a trail, or off.
+	var style := Settings.get_s("fx.shell_tracer") if float(round_def.get("projectile_kg", 0.0)) >= 1.0 else "normal"
+	if style == "bright":
+		p._build_tracer(length * 1.5, width * 3.0, 2.0)
+		p._build_tracer(length * 5.0, width * 1.5, 0.6, length * 1.5)
+	elif style != "off":
+		p._build_tracer(length, width)
 	p._face()
 	return p
 
 
-func _build_tracer(length: float, width: float = 0.07) -> void:
+## A glowing box behind the round, `length` long, starting `behind` metres back; `glow` scales its emission.
+func _build_tracer(length: float, width: float = 0.07, glow: float = 1.0, behind: float = 0.0) -> void:
 	_tracer = MeshInstance3D.new()
-	var key := Vector2(length, width)
+	var key := Vector3(length, width, glow)
 	if not _tracer_meshes.has(key):
 		var box := BoxMesh.new()
 		box.size = Vector3(width, width, length)
@@ -53,11 +62,15 @@ func _build_tracer(length: float, width: float = 0.07) -> void:
 		mat.albedo_color = Color(1.0, 0.62, 0.3)
 		mat.emission_enabled = true
 		mat.emission = Color(1.0, 0.5, 0.2)
-		mat.emission_energy_multiplier = 8.0
+		mat.emission_energy_multiplier = 8.0 * glow
+		if glow < 1.0:
+			# the trail: a faint see-through streak behind the bright head
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.albedo_color.a = 0.35
 		box.material = mat
 		_tracer_meshes[key] = box
 	_tracer.mesh = _tracer_meshes[key]
-	_tracer.position = Vector3(0, 0, length * 0.5)
+	_tracer.position = Vector3(0, 0, behind + length * 0.5)
 	_tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_tracer)
 

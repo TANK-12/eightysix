@@ -1,0 +1,89 @@
+{
+ "name": "v14_he",
+ "map": "test_range",
+ "_about": "Version 014, Emerson's note 6: a 57 mm HE hit and a dart hit on the ground at 60 m and 150 m at the default sliders, as he sees them from the chase camera. tools/bot_run.sh v14_he",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 3.0,
+   "call": "fx_demo",
+   "args": [
+    "he",
+    60.0,
+    0.0
+   ]
+  },
+  {
+   "at": 3.08,
+   "shot": "he60-0.08s"
+  },
+  {
+   "at": 3.5,
+   "shot": "he60-0.5s"
+  },
+  {
+   "at": 5.0,
+   "shot": "he60-2s"
+  },
+  {
+   "at": 8.0,
+   "call": "fx_demo",
+   "args": [
+    "he",
+    150.0,
+    0.0
+   ]
+  },
+  {
+   "at": 8.08,
+   "shot": "he150-0.08s"
+  },
+  {
+   "at": 8.5,
+   "shot": "he150-0.5s"
+  },
+  {
+   "at": 12.0,
+   "call": "fx_demo",
+   "args": [
+    "dart",
+    60.0,
+    0.0
+   ]
+  },
+  {
+   "at": 12.1,
+   "shot": "dart60-0.1s"
+  },
+  {
+   "at": 12.6,
+   "shot": "dart60-0.6s"
+  },
+  {
+   "at": 14.0,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 14.12,
+   "shot": "tracer-0.12s"
+  },
+  {
+   "at": 14.25,
+   "shot": "tracer-0.25s"
+  },
+  {
+   "at": 15.0,
+   "quit": true
+  }
+ ]
+}

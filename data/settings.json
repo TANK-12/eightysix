@@ -66,7 +66,8 @@
           ]},
           {"label": "Combat effects", "items": [
             {"key": "fx.blast_size", "label": "Shell hit size", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 1.6, "help": "How big a shell's hit looks: an HE or HEAT shell's fireball, flash and thrown dirt, and the dirt a 57 mm dart kicks up off the ground. Look only: damage and push stay as the ammo data sets them. 1.0x is the old size (the fireball and thrown dirt are new at any size)."},
-            {"key": "fx.hit_dust", "label": "Hit dust", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 1.6, "help": "How big the dust from hits on the ground and buildings grows and how long it hangs in the air, from bullets to shells and collapsing buildings. 1.0x is the old size (the fireball and thrown dirt are new at any size)."}
+            {"key": "fx.hit_dust", "label": "Hit dust", "type": "slider", "min": 0.5, "max": 3.0, "step": 0.1, "format": "x", "default": 1.6, "help": "How big the dust from hits on the ground and buildings grows and how long it hangs in the air, from bullets to shells and collapsing buildings. 1.0x is the old size (the fireball and thrown dirt are new at any size)."},
+            {"key": "fx.shell_tracer", "label": "Shell tracers", "type": "choice", "options": [["bright", "Bright, with a trail"], ["normal", "Normal"], ["off", "Off"]], "default": "bright", "help": "How the 57 mm and other shells' tracers look in flight, so you can follow a round to where it lands. Bright is three times as thick and glows, with a faint trail behind. Look only."}
           ]}
         ]}
       ]

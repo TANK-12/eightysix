@@ -138,3 +138,39 @@ func test_machine_gun_flashes_come_from_the_pool() -> void:
 		CombatFx.muzzle(holder, Vector3(i * 0.1, 2, 0), Vector3.FORWARD, 0.35)
 	var flames := _named(holder.get_children(), "mg_flame")
 	assert_lt(flames.size(), CombatFx.BULLET_POOL + 1, "100 shots, no more flames than the pool")
+
+
+## Emerson's note 6 (2026-10-02): he could not tell where his shells landed. An HE ground burst throws a dirt
+## column about 12 m up; shells get a bright tracer with a trail (Settings > Shell tracers), bullets keep theirs.
+func test_an_he_ground_burst_throws_a_dirt_column() -> void:
+	var nodes := _made(1.0, 1.0, false, true)
+	var cols := _named(nodes, "dirt_column")
+	assert_eq(cols.size(), 1, "a column of dirt")
+	var c := cols[0] as CPUParticles3D
+	var rise := c.initial_velocity_max * c.initial_velocity_max / (2.0 * c.damping_min)
+	assert_gt(rise, 8.0, "it climbs past 8 m")
+	assert_lt(rise, 20.0, "and under 20 m")
+	assert_eq(_named(_made(1.0, 1.0, true, true), "dirt_column").size(), 0, "no dirt off steel")
+
+
+## The width of each tracer box a round of `ammo` gets under Shell tracers `style`.
+func _tracers(ammo: Dictionary, style: String) -> Array:
+	Settings.set_value("fx.shell_tracer", style, false)
+	var p := Projectile.spawn(holder, Vector3.ZERO, Vector3(0, 0, -1000), ammo, null, 1.0, [])
+	var boxes := p.find_children("*", "MeshInstance3D", true, false).map(func(m: Node) -> float: return ((m as MeshInstance3D).mesh as BoxMesh).size.x)
+	p.free()
+	Settings.set_value("fx.shell_tracer", Settings.default_of("fx.shell_tracer"), false)
+	return boxes
+
+
+func test_shell_tracers_follow_the_setting() -> void:
+	var dart: Dictionary = Registry.entry("weapons", "gun_57mm")["ammo"]["apfsds"]
+	var ball: Dictionary = Registry.entry("weapons", "mg_12_7")["ammo"]["ball"]
+	assert_eq(Settings.default_of("fx.shell_tracer"), "bright", "bright by default")
+	var bright := _tracers(dart, "bright")
+	var normal := _tracers(dart, "normal")
+	assert_eq(bright.size(), 2, "bright: a head and a trail")
+	assert_eq(normal.size(), 1, "normal: one tracer")
+	assert_almost_eq(float(bright.max()) / float(normal[0]), 3.0, 0.01, "the bright head is three times as thick")
+	assert_eq(_tracers(dart, "off").size(), 0, "off: none")
+	assert_eq(_tracers(ball, "off").size(), 1, "a 12.7 mm bullet keeps its tracer whatever the setting")

@@ -3,8 +3,9 @@ extends RefCounted
 ## The look of combat: muzzle blast, tracers, impact sparks and dust, scorch and gouge decals, spent
 ## casings and flung armour. Everything here is fire-and-forget (it frees itself) and cheap enough for
 ## the Low preset: CPU particles with small counts, one short-lived light per event. No particle casts a
-## shadow: a see-through quad still throws a solid one (version 014: a dark dome on the ground under the
-## 57 mm's flash, images/456).
+## shadow (a see-through quad still throws a solid one), and every emitter works in local coordinates:
+## in world space a burst's first frame drew at the world origin, the map's spawn on the test range and in the
+## menu (Emerson's note 11 after 012: sparks and smoke at the spawn point; images/467 vs 468).
 
 const MAX_DECALS := 64
 const MAX_CASINGS := 24
@@ -88,7 +89,7 @@ static func smoke_material() -> StandardMaterial3D:
 		_smoke_mat.backlight = Color(0.55, 0.52, 0.48)
 		# and sky light scattered inside the cloud keeps its shaded side from going black.
 		_smoke_mat.emission_enabled = true
-		_smoke_mat.emission = Color(0.3, 0.29, 0.27)
+		_smoke_mat.emission = Color(0.12, 0.115, 0.11)
 		_smoke_mat.emission_energy_multiplier = 1.0
 	return _smoke_mat
 
@@ -172,6 +173,7 @@ static func brass_material() -> StandardMaterial3D:
 static func sparks(parent: Node, pos: Vector3, dir: Vector3, amount: int, speed: float, spread_deg: float = 55.0) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var streak := BoxMesh.new()
 	streak.size = Vector3(0.025, 0.28, 0.025)
 	streak.material = spark_material()
@@ -207,6 +209,7 @@ static func smoke(parent: Node, pos: Vector3, dir: Vector3, amount: int, size: f
 static func smoke_emitter(amount: int, size: float, color: Color, life: float = 1.8, speed: float = 2.0) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * size
 	quad.material = smoke_material()
@@ -227,9 +230,14 @@ static func smoke_emitter(amount: int, size: float, color: Color, life: float = 
 	grow.add_point(Vector2(0.0, 0.35))
 	grow.add_point(Vector2(1.0, 1.6))
 	p.scale_amount_curve = grow
+	# Nearly every puff leaves in the first frame: from one point, at full strength, they stacked into an opaque
+	# dark disc cut off by the ground (version 014's "dome", images/456-470). They start spread over a small
+	# ball and fade in over the first 15 % of their life.
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = size * 0.3
 	var ramp := Gradient.new()
-	ramp.set_color(0, color)
-	ramp.set_color(1, Color(color, 0.0))
+	ramp.offsets = PackedFloat32Array([0.0, 0.15, 1.0])
+	ramp.colors = PackedColorArray([Color(color, color.a * 0.35), color, Color(color, 0.0)])
 	p.color_ramp = ramp
 	p.angle_min = 0.0
 	p.angle_max = 360.0
@@ -294,6 +302,7 @@ static func muzzle(parent: Node, pos: Vector3, dir: Vector3, size: float = 1.0) 
 static func _flame() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var quad := QuadMesh.new()
 	quad.material = fire_material()
 	p.mesh = quad
@@ -341,6 +350,7 @@ static func impact(parent: Node, pos: Vector3, normal: Vector3, metal: bool, big
 		made.append(smoke(parent, pos, normal, mini(int(18 * sqrt(dust)), 48), 2.8 * dust, Color(0.18, 0.16, 0.15, 0.7), 3.2 * linger, 6.0 * sqrt(dust)))
 		if not metal:
 			made.append(clods(parent, pos, normal, size * dust))
+			made.append(dirt_column(parent, pos, normal, size * dust))
 	elif heavy and not metal:
 		var kick := blast_size() * dust
 		made.append(clods(parent, pos, normal, 0.6 * kick))
@@ -402,6 +412,7 @@ static func _emit(p: CPUParticles3D, pos: Vector3, dir: Vector3) -> void:
 static func _bullet_sparks() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var streak := BoxMesh.new()
 	streak.size = Vector3(0.02, 0.2, 0.02)
 	streak.material = spark_material()
@@ -421,6 +432,7 @@ static func _bullet_sparks() -> CPUParticles3D:
 static func _bullet_puff() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var quad := QuadMesh.new()
 	quad.material = smoke_material()
 	p.mesh = quad
@@ -445,6 +457,7 @@ static func _bullet_puff() -> CPUParticles3D:
 static func fireball(parent: Node, pos: Vector3, normal: Vector3, size: float) -> Array:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * 2.2 * size
 	quad.material = fire_material()
@@ -480,10 +493,25 @@ static func fireball(parent: Node, pos: Vector3, normal: Vector3, size: float) -
 	return [p, light]
 
 
+## A high-explosive shell's ground burst throws a dark column of dirt about 12 m up at `amount` 1 (Emerson's note 6
+## after 012: he could never tell where his HE landed). Look only, scaled by the two Combat effects sliders.
+static func dirt_column(parent: Node, pos: Vector3, normal: Vector3, amount: float) -> CPUParticles3D:
+	var a := maxf(amount, 0.3)
+	var p := smoke_emitter(mini(int(14 * sqrt(a)), 40), 2.4 * sqrt(a), Color(0.24, 0.2, 0.16, 0.85), 3.0 * dust_linger(hit_dust()), 14.0 * sqrt(a))
+	p.spread = 12.0
+	p.explosiveness = 0.95
+	p.damping_min = 7.0
+	p.damping_max = 9.0
+	p.gravity = Vector3(0, -1.5, 0)
+	p.set_meta("fx", "dirt_column")
+	return _launch(parent, p, pos, normal, p.lifetime + 0.3)
+
+
 ## Dirt thrown out of a shell's crater: dark lumps on ballistic arcs. `amount` 1 is 16 clods.
 static func clods(parent: Node, pos: Vector3, normal: Vector3, amount: float) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	p.local_coords = true
 	var lump := BoxMesh.new()
 	lump.size = Vector3.ONE * 0.2
 	lump.material = clod_material()
