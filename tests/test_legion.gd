@@ -521,3 +521,57 @@ func test_the_lowe_brain_finds_a_way_off_the_rough_patch() -> void:
 	assert_lt(best, 20.0, "it got to the stop")
 	assert_lt(worst_stall, 10.0, "it never stood still for long")
 	unit.free()
+
+
+## Lane B5 part 7: the small map's shell craters (7 m across, walls of 36-40 degrees, the Ameise's feet grip 38) are
+## bowls the legs cannot get out of the way they went in. Emerson's first wave rolled over in them and sat in one for
+## ten seconds (x -215 z 247). The brain's look-ahead keeps `ai.slope_margin_deg` under the feet's limit, so a pair
+## sent straight across the crater goes round or over the lip rather than into it.
+func _crater_pairs(margin: float, pairs: int) -> Dictionary:
+	var small := SmallMapTerrain.new(Registry.entry("maps", "small_map"))
+	var map := StaticBody3D.new()
+	map.collision_layer = Kit.LAYER_WORLD | Kit.LAYER_GRAPPLE
+	var cs := CollisionShape3D.new()
+	cs.shape = small.build_shape()
+	map.add_child(cs)
+	tree.root.add_child(map)
+	var c := Vector2(-210, 250)
+	var flips := 0
+	var steep_s := 0.0
+	for k in pairs:
+		var pair: Array[LegionMech] = []
+		var tilt: Array[float] = [0.0, 0.0]
+		var goals: Array[Vector2] = []
+		for j in 2:
+			var a := deg_to_rad(30.0 * k + 3.0 + 70.0 * j)
+			var s := c + Vector2(cos(a), sin(a)) * (40.0 + 2.3 * k + 1.7 * j)
+			var u := LegionMech.build("ameise")
+			(u.def["ai"] as Dictionary)["slope_margin_deg"] = margin
+			u.position = Vector3(s.x, small.height_at(s.x, s.y) + 1.5, s.y)
+			var far := c + (c - s).normalized() * 55.0
+			goals.append(far)
+			var brain := u.get_node("Brain")
+			brain.setup(u.position, [brain], 0, 7 + j, [Vector3(far.x, small.height_at(far.x, far.y), far.y)] as Array[Vector3])
+			tree.root.add_child(u)
+			pair.append(u)
+		for i in 120 * 45:
+			await physics_frames(1)
+			for j in 2:
+				var deg := rad_to_deg(pair[j].global_transform.basis.y.angle_to(Vector3.UP))
+				tilt[j] = maxf(tilt[j], deg)
+				steep_s += (1.0 / 120.0) if deg > 45.0 else 0.0
+			if i % 120 == 0 and goals[0].distance_to(Vector2(pair[0].global_position.x, pair[0].global_position.z)) < 6.0 and goals[1].distance_to(Vector2(pair[1].global_position.x, pair[1].global_position.z)) < 6.0:
+				break
+		flips += int(tilt[0] > 90.0) + int(tilt[1] > 90.0)
+		for u in pair:
+			u.free()
+	map.free()
+	return {"flips": flips, "steep_s": steep_s}
+
+
+func test_a_pair_sent_across_a_shell_crater_does_not_roll_over_in_it() -> void:
+	var before := await _crater_pairs(0.0, 4)
+	var after := await _crater_pairs(float(Registry.entry("enemies", "ameise")["ai"]["slope_margin_deg"]), 4)
+	print("    ameise pairs across the crater, 8 units: flipped over %d -> %d, seconds past 45 degrees %.0f -> %.0f (margin 0 -> data)" % [before["flips"], after["flips"], before["steep_s"], after["steep_s"]])
+	assert_lt(after["flips"], maxi(int(before["flips"]), 1), "fewer roll over with the margin")
+	assert_lt(float(after["steep_s"]), float(before["steep_s"]) * 0.6, "and they spend far less time tilted")

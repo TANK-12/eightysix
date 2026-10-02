@@ -506,7 +506,7 @@ func walkable_ahead(dir: Vector3, length: float) -> bool:
 		hip_h = float(leg["height"])
 		half_w = maxf(half_w, absf((leg["sole"] as Vector3).x) * 0.8)
 		half_l = maxf(half_l, absf((leg["sole"] as Vector3).z))
-	var tan_max := tan(deg_to_rad(float(g.get("max_slope_deg", 38.0))))
+	var tan_max := tan(deg_to_rad(float(g.get("max_slope_deg", 38.0)) - float(ai.get("slope_margin_deg", 0.0))))
 	var lift := hip_h * float(g.get("step_up", 0.5))
 	var side := dir.cross(Vector3.UP).normalized()
 	# Over the body's length the legs take one step up at most, so a bank that rises a little at every probe
