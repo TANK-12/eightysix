@@ -1,10 +1,15 @@
 {
-  "_about": "Lane B6: test bench mode's physics figures (scripts/mech/bench_rig.gd reads this; the per-actuator figures live in parts.json under each actuator's \"bench\"). Every number here is a reasoned draft, not a measurement of real hardware: change it here, never in code. Units are in the key names.",
+  "_about": "Lane B6: test bench mode's physics figures (scripts/mech/bench_rig.gd reads this; \"entries\" lists the mech designs the bench can load, one entry per mech id in mechs.json; the per-actuator figures live in parts.json under each actuator's \"bench\"). Every number here is a reasoned draft, not a measurement of real hardware: change it here, never in code. Units are in the key names.",
+  "entries": {
+    "juggernaut_m2": {"label": "Juggernaut Model 2 (real export)", "order": 1, "note": "B1's export with its parts.json actuators: the design the bench is for."},
+    "juggernaut_m2_blades": {"label": "Juggernaut Model 2 (blades)", "order": 2, "note": "The close-combat variant: same legs, different mass."},
+    "standin": {"label": "Stand-in walker", "order": 3, "note": "Lane A1's box walker on the older linear templates."}
+  },
   "motor": {
     "_about": "How an actuator's parts.json figures turn into limits. rated_* is what parts.json calls rated (the continuous design point). The torque-speed line runs from stall torque (rated x peak_torque_factor, at zero speed) to zero torque at the no-load speed, passing through (rated torque, rated speed). Electrical input power is the mechanical power plus copper heat; copper heat is heat_w x (torque / rated torque)^2 (current follows torque), so holding a load without moving still costs heat. A part without rotary figures (the older linear templates) is turned into torque with its lever arm.",
     "peak_torque_factor": 1.6,
     "idle_w": 80.0,
-    "swing_leg_share": 0.5,
+    "lower_mass_share": 0.45,
     "fallback_heat_share": 0.35
   },
   "thermal": {
@@ -17,13 +22,15 @@
     "derate_floor": 0.5
   },
   "failure": {
-    "_about": "A joint asked for more than shock_fail_factor x its peak torque for shock_fail_s breaks (a sheared screw or stripped gear train) and stays broken until the bench is reset. The leg then holds nothing. Toggled by Settings > Gameplay > Physics > Bench failures (off: limits still apply, nothing latches).",
+    "_about": "A joint asked for more than shock_fail_factor x its peak torque breaks (a sheared screw or stripped gear train) once the overload has built up to shock_fail_s: each tick over counts its length times how far over the limit it is (capped at 50x), so one tick of a huge impact is as bad as a longer moderate overload. It stays broken until the bench is reset and the leg then holds nothing. What the ground asks of a leg is the spring force, or, once the leg has closed up past travel_frac of its rest length against its end stop, the force of stopping its share of the body over stop_m: a hard landing. Toggled by Settings > Gameplay > Physics > Failures (off: limits still apply, nothing latches).",
     "shock_fail_factor": 2.2,
-    "shock_fail_s": 0.08,
+    "shock_fail_s": 0.03,
+    "travel_frac": 0.6,
+    "stop_m": 0.06,
     "stall_warn_s": 1.0
   },
   "supply": {
-    "_about": "The battery and its bus. nominal_v matches the voltage the parts.json figures imply (power_w / current_a). Terminal voltage sags with current through internal_mohm; the motors' no-load speed follows the voltage (back-EMF), so a sagging bus slows every joint. max_discharge_kw is the pack's limit; asking for more browns the bus out and every joint's power is cut to what the pack gives. Open-circuit voltage falls from nominal to empty_v_frac of it as the charge drops. No regeneration (a joint being driven by the load wastes the energy as heat), regen_share can turn some back on.",
+    "_about": "The battery and its bus (drive_efficiency: share of the bus power left after holding the body up that becomes push along the ground; jump_efficiency: kinetic energy over this is what a jump costs the pack). nominal_v matches the voltage the parts.json figures imply (power_w / current_a). Terminal voltage sags with current through internal_mohm; the motors' no-load speed follows the voltage (back-EMF), so a sagging bus slows every joint. max_discharge_kw is the pack's limit; asking for more browns the bus out and every joint's power is cut to what the pack gives. Open-circuit voltage falls from nominal to empty_v_frac of it as the charge drops. No regeneration (a joint being driven by the load wastes the energy as heat), regen_share can turn some back on.",
     "nominal_v": 96.0,
     "capacity_kwh": 60.0,
     "max_discharge_kw": 400.0,
@@ -31,7 +38,8 @@
     "empty_v_frac": 0.8,
     "min_v_frac": 0.7,
     "regen_share": 0.0,
-    "jump_efficiency": 0.6
+    "jump_efficiency": 0.6,
+    "drive_efficiency": 0.6
   },
   "gait": {
     "_about": "How the joint limits bend walking: step_speed_share is the share of the hip's no-load speed the swinging foot may use; sag_floor stops a flat battery or a hot joint stopping the mech dead (the legs can still creep).",

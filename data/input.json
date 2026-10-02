@@ -124,6 +124,10 @@
       "all": {"keys": ["key:F3"], "pad": []}},
     "screenshot": {"label": "Screenshot", "group": "System", "context": ["global"],
       "all": {"keys": ["key:F12"], "pad": []}},
+    "bench_reset": {"label": "Reset the test bench (battery, heat, failures)", "group": "System", "context": ["field"],
+      "all": {"keys": ["key:F6"], "pad": []}},
+    "bench_readouts": {"label": "Show or hide the test bench readouts", "group": "System", "context": ["field"],
+      "all": {"keys": ["key:F7"], "pad": []}},
     "photo_mode": {"label": "Photo mode", "group": "System", "context": ["field"],
       "all": {"keys": ["key:O"], "pad": []}},
 

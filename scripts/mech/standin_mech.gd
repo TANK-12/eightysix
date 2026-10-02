@@ -12,6 +12,7 @@ signal landed(impact_speed: float)
 signal stepped(leg: String)
 
 const RAY_MASK := 1
+const BENCH_DRIVER := preload("res://scripts/mech/bench_driver.gd")
 
 var mech_id := ""
 var def: Dictionary = {}
@@ -54,6 +55,8 @@ var _mouse_pitch := 0.0  # the pitch the mouse has set in the "angle" aim mode (
 var _mouse := Vector2.ZERO
 var _brake := 0.0
 var _bench_speed_cap := INF
+var bench: Node  # BenchDriver (lane B6): the actuators' real torque, power and heat; idle in game mode
+var _drive_force := Vector3.ZERO  # the last tick's drive push on the body, N (the bench reads it)
 var _t: Dictionary = {}
 var _step_s := 0.28
 var _step_lift_m := 0.55
@@ -234,6 +237,10 @@ static func _stretch_hitbox(cs: CollisionShape3D, s: float) -> void:
 
 func _ready() -> void:
 	add_to_group("mechs")
+	if not actuators.is_empty():
+		bench = BENCH_DRIVER.new()
+		bench.name = "Bench"
+		add_child(bench)
 	if is_player:
 		add_to_group("player_mech")
 	_aim_yaw = _yaw_of(global_transform.basis)
@@ -254,6 +261,11 @@ func _apply_tuning() -> void:
 
 func bench_mode() -> bool:
 	return Settings.get_s("gameplay.physics_mode") == "bench"
+
+
+## True when the bench's actuator model is steering this mech (bench mode and a driver with joints).
+func bench_on() -> bool:
+	return bench != null and bench_mode() and bool(bench.call("is_active"))
 
 
 func _stiffness() -> float:
@@ -319,6 +331,8 @@ func _release_jump() -> void:
 	if bench_mode():
 		var reach := float(legs[0]["upper_len"]) + float(legs[0]["lower_len"])
 		speed = JumpCharge.bench_speed(charge_s, mass, actuators, reach, p, Registry.tune("jump_bench", {}))
+		if bench_on():
+			speed = float(bench.call("bill_jump", speed, mass))
 	else:
 		speed = JumpCharge.game_speed(charge_s, p)
 		leap = float(p.get("leap_m_s", 0.0)) * JumpCharge.fraction(charge_s, float(p.get("min_hold_s", 0.12)), float(p.get("full_charge_s", 1.1)))
@@ -411,6 +425,8 @@ func tucked_inertia(t: float) -> Vector3:
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var dt := state.step
 	_read_input(dt)
+	if bench != null:
+		bench.set("drive_force_n", Vector3.ZERO)
 	var xf := state.transform
 	var up := xf.basis.y
 	var v := state.linear_velocity
@@ -455,6 +471,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_swing_now = _step_s
 	if speed * _step_s > 2.0 * _stride_half:
 		_swing_now = maxf(2.0 * _stride_half / speed, float(fdef.get("swing_min_s", 0.14)))
+	if bench_on() and legs.size() > 0:
+		# Real hips swing the foot at their own pace (lane B6): the step takes as long as the joints need.
+		_swing_now = maxf(_swing_now, float(bench.call("min_swing_s", 2.0 * _stride_half, float(legs[0]["upper_len"]) + float(legs[0]["lower_len"]))))
 	var lead := planar.normalized() * _stride_half if speed > 0.3 else Vector3.ZERO
 	# The rear legs splay back and the fronts forward, so at speed each stride is gathered in under
 	# the body, as in the anime run: rears land further forward (feet.gather_rear_m), fronts a little
@@ -489,6 +508,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		# it is actually compressed again. So a mech just off the ground cannot drive or steer.
 		leg["contact"] = not hit.is_empty()
 		leg["loaded"] = false
+		leg["ground_force_n"] = 0.0
+		leg["ground_demand_n"] = 0.0
 		if hit.is_empty():
 			continue
 		var hit_pos: Vector3 = hit["position"]
@@ -504,6 +525,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var point_v := v + w.cross(cast_w - com_world)
 		var force := k * compression - c * point_v.dot(up)
 		if force > 0.0:
+			leg["ground_demand_n"] = force
+			# Test bench: a leg cannot push harder than its weakest joint can hold (it folds instead).
+			if bench_on():
+				leg["ground_demand_n"] = float(bench.call("shock_demand", force, compression, rest, -point_v.dot(up), mass / legs.size()))
+				force = minf(force, float(bench.call("leg_force_cap", leg, point_v.dot(up) > 0.05)))
+			leg["ground_force_n"] = force
 			state.apply_force(up * force, cast_w - xf.origin)
 
 	ground_normal = normal_sum.normalized() if grounded_legs > 0 else Vector3.UP
@@ -755,9 +782,10 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	back *= speed_scale
 	side *= speed_scale
 	if bench_mode():
-		top = minf(top, _bench_speed_cap)
-		back = minf(back, _bench_speed_cap)
-		side = minf(side, _bench_speed_cap)
+		var cap := _bench_speed_cap * (float(bench.call("speed_factor")) if bench_on() else 1.0)
+		top = minf(top, cap)
+		back = minf(back, cap)
+		side = minf(side, cap)
 	var target := fwd * (_move.y * (top if _move.y >= 0.0 else back)) + right * (_move.x * side)
 	target = target.limit_length(maxf(top if _move.y >= 0.0 else back, side))
 	var planar := v - n * v.dot(n)
@@ -772,6 +800,12 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	if slide_amount <= 0.0 and _brake > 0.05:
 		dv = -planar
 		limit = float(d.get("brake_m_s2", 20.0)) * _brake
+	if bench_on():
+		# Test bench: the push is also bounded by the torque the joints have left after holding the body up,
+		# and by the power the bus has left after the legs' own draw.
+		limit = minf(limit, float(bench.call("drive_force_cap", dv)) / mass)
+		if gaining > 0.0 and speed > 0.5:
+			limit = minf(limit, float(bench.call("drive_power_w")) / (mass * speed))
 	var acc := (dv * 6.0).limit_length(minf(limit, grip))
 	if slide_amount > 0.0 and speed > 0.1:
 		# Skating feet: the ground force is kinetic friction, mu x g, always there. The legs can only
@@ -813,6 +847,9 @@ func _drive(state: PhysicsDirectBodyState3D, v: Vector3) -> void:
 	_drive_moment += (moment - _drive_moment) * minf(state.step / lag, 1.0)
 	state.apply_central_force(acc * mass)
 	state.apply_torque(_drive_moment)
+	_drive_force = acc * mass
+	if bench != null:
+		bench.set("drive_force_n", _drive_force)
 
 
 ## The feet's mean horizontal reach from the centre of mass (the lever the slide's friction spins on).
@@ -1274,6 +1311,7 @@ func telemetry() -> Dictionary:
 		"mass_kg": snappedf(mass, 0.1),
 		"last_launch_m_s": snappedf(last_launch_speed, 0.01),
 		"physics_mode": Settings.get_s("gameplay.physics_mode"),
+		"bench": bench.call("telemetry") if bench_on() else {},
 	}
 
 

@@ -214,10 +214,12 @@ func step(dt: float, demands: Dictionary) -> void:
 			j["stall_s"] = float(j["stall_s"]) + dt
 		else:
 			j["stall_s"] = 0.0
-		if want > float(j["stall_nm"]) * float(fail.get("shock_fail_factor", 2.2)):
-			j["over_s"] = float(j["over_s"]) + dt
+		var shock_nm := float(j["stall_nm"]) * float(fail.get("shock_fail_factor", 2.2))
+		if want > shock_nm:
+			# overload time, weighted by how far over: one tick of a huge impact counts as much as a long moderate one
+			j["over_s"] = float(j["over_s"]) + dt * minf(want / shock_nm, 50.0)
 		else:
-			j["over_s"] = 0.0
+			j["over_s"] = maxf(float(j["over_s"]) - dt, 0.0)
 		_update_status(j, fail)
 	_step_supply(dt, total_w, wanted_w, sup)
 	for id: String in joints:

@@ -8,10 +8,56 @@ const KNEE := "jg2_act_knee_FR"
 const YAW := "jg2_act_hip_yaw_FR"
 
 var rig: BenchRig
+var ground: StaticBody3D
+var mech: RigidBody3D
 
 
 func before_each() -> void:
 	rig = _make_rig()
+
+
+func after_each() -> void:
+	for a: String in ["move_forward", "jump", "sprint", "turn_left"]:
+		Input.action_release(a)
+	if mech != null and is_instance_valid(mech):
+		mech.free()
+	if ground != null and is_instance_valid(ground):
+		ground.free()
+	mech = null
+	ground = null
+	Settings.reset_all_quietly()
+
+
+## The real Juggernaut on flat ground in test bench mode, dropped from a hand's breadth.
+func _spawn(drop_m: float = 0.5) -> void:
+	ground = StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(600, 2, 600)
+	cs.shape = box
+	cs.position.y = -1.0
+	ground.add_child(cs)
+	tree.root.add_child(ground)
+	Settings.set_value("gameplay.physics_mode", "bench", false)
+	Settings.set_value("mech.leg_length", 1.0, false)
+	Settings.set_value("mech.foot_spread", 1.0, false)
+	Settings.set_value("mech.ride_lift_m", 0.0, false)
+	mech = MechBuilder.build("juggernaut_m2")
+	mech.position = Vector3(0, 2.4 + drop_m, 0)
+	tree.root.add_child(mech)
+
+
+func _frames(n: int) -> void:
+	for i in n:
+		await tree.physics_frame
+
+
+func _driver() -> Node:
+	return mech.get("bench")
+
+
+func _joint(leg: String, kind: String) -> Dictionary:
+	return _driver().rig.joints[_driver().leg_joints[leg][kind]]
 
 
 func _make_rig(ids: Array = [HIP, KNEE, YAW]) -> BenchRig:
@@ -123,8 +169,8 @@ func test_torque_derates_as_it_gets_hot() -> void:
 
 func test_a_shock_load_breaks_the_joint_until_reset() -> void:
 	var j: Dictionary = rig.joints[KNEE]
-	rig.step(0.05, {KNEE: {"torque": 3.0 * float(j["stall_nm"]), "omega": 0.0}})
-	assert_false(bool(j["failed"]), "a 50 ms spike is survived")
+	rig.step(0.02, {KNEE: {"torque": 3.0 * float(j["stall_nm"]), "omega": 0.0}})
+	assert_false(bool(j["failed"]), "a 20 ms spike is survived")
 	for i in 3:
 		rig.step(0.05, {KNEE: {"torque": 3.0 * float(j["stall_nm"]), "omega": 0.0}})
 	assert_true(bool(j["failed"]), "past shock_fail_s it shears")
@@ -208,3 +254,124 @@ func test_spending_energy_for_a_jump() -> void:
 	assert_almost_eq(got, 5.0e6, 1.0)
 	assert_almost_eq(float(rig.supply["energy_j"]), before - 5.0e6, 1.0)
 	assert_almost_eq(rig.spend_j(1.0e12), before - 5.0e6, 1.0, "never more than the pack holds")
+
+
+# --- the mech on the bench ----------------------------------------------------------------------
+
+
+func test_standing_on_the_bench_reads_the_static_loads() -> void:
+	_spawn()
+	await _frames(600)
+	assert_true(mech.call("bench_on"), "the bench model is steering the mech")
+	assert_eq(int(mech.call("telemetry")["grounded_legs"]), 4, "stands on four legs")
+	var hip := _joint("fl", "hip_pitch")
+	var knee := _joint("fl", "knee")
+	var share := float(hip["torque_nm"]) / float(hip["rated_nm"])
+	print("    standing: hip %.0f N m (%.2f of rated), knee %.0f N m (%.2f), bus %.1f V %.1f kW" % [float(hip["torque_nm"]), share, float(knee["torque_nm"]), float(knee["torque_nm"]) / float(knee["rated_nm"]), float(_driver().rig.supply["voltage_v"]), _driver().rig.total_power_w() / 1000.0])
+	# parts.json sizes the actuators for B1's 12.25 t export (static_torque_nm is 0.8 of rated on two legs); the
+	# game's realistic mass is 5.4 t, so four legs carry it at about 0.15 of rated.
+	var want := mech.mass * 9.81 / 4.0
+	assert_between(float(hip["torque_nm"]) / (want * 2.7), 0.7, 1.4, "hip torque is the leg's share of the weight over the hip-to-foot reach (about 2.7 m)")
+	assert_between(share, 0.1, 0.25, "about 0.15 of the hip's rated torque")
+	assert_between(float(knee["torque_nm"]) / float(knee["rated_nm"]), 0.1, 0.25, "and of the knee's")
+	assert_eq(_driver().rig.down().size(), 0, "nothing tripped or broken standing")
+	assert_gt(_driver().rig.total_power_w(), 5000.0, "holding the body costs real power")
+	assert_lt(float(_driver().rig.supply["voltage_v"]), 96.0, "and sags the bus")
+
+
+func test_game_mode_is_untouched() -> void:
+	_spawn()
+	Settings.set_value("gameplay.physics_mode", "game", false)
+	await _frames(240)
+	assert_false(mech.call("bench_on"), "game mode does not use the bench")
+	assert_eq(float(_driver().rig.total_power_w()), 0.0, "the rig sees nothing")
+	assert_true((mech.call("telemetry")["bench"] as Dictionary).is_empty())
+
+
+func test_walking_on_the_bench_is_slow_and_costs_power() -> void:
+	_spawn()
+	await _frames(360)
+	var start := mech.global_position
+	Input.action_press("move_forward", 1.0)
+	await _frames(1800)
+	Input.action_release("move_forward")
+	var moved := Vector2(mech.global_position.x - start.x, mech.global_position.z - start.z).length()
+	var hot: Dictionary = _driver().rig.hottest()
+	print("    walked %.1f m in 15 s; peak draw seen in log %.0f kW; hottest %s at %.1f C" % [moved, _peak_kw(), str(hot["id"]), float(hot["temp_c"])])
+	assert_gt(moved, 1.0, "it walks")
+	assert_lt(moved, 15.0 * 2.0, "but at a crawl")
+	assert_lt(absf(rad_to_deg(mech.global_transform.basis.get_euler().x)), 20.0, "without tipping")
+	assert_gt(float(hot["temp_c"]), 20.3, "and the joints warm up")
+	assert_gt(_peak_kw(), 20.0, "walking draws far more than standing")
+
+
+func _peak_kw() -> float:
+	var best := 0.0
+	for row: Dictionary in _driver().log:
+		best = maxf(best, float(row["kw"]))
+	return best
+
+
+func test_a_flat_battery_drops_the_machine() -> void:
+	_spawn()
+	await _frames(360)
+	var standing_y := mech.global_position.y
+	_driver().rig.supply["energy_j"] = 0.0
+	await _frames(480)
+	print("    flat battery: body %.2f m -> %.2f m" % [standing_y, mech.global_position.y])
+	assert_lt(mech.global_position.y, standing_y - 0.35, "without power the legs fold")
+	assert_eq(int(mech.call("telemetry")["grounded_legs"]) >= 0, true)
+
+
+func test_a_dead_knee_drops_its_corner() -> void:
+	_spawn()
+	await _frames(360)
+	var knee := _joint("fl", "knee")
+	knee["failed"] = true
+	await _frames(300)
+	var force := 0.0
+	for leg: Dictionary in mech.get("legs"):
+		if str(leg["name"]) == "fl":
+			force = float(leg.get("ground_force_n", 0.0))
+	assert_lt(force, 2000.0, "the broken leg carries almost nothing")
+	var roll := rad_to_deg(mech.global_transform.basis.get_euler().z)
+	var pitch := rad_to_deg(mech.global_transform.basis.get_euler().x)
+	print("    fl knee failed: fl force %.0f N, pitch %.1f roll %.1f" % [force, pitch, roll])
+	assert_gt(absf(roll) + absf(pitch), 1.0, "the body leans onto the other three")
+
+
+func test_a_hard_landing_breaks_actuators() -> void:
+	_spawn(14.0)
+	var worst := 0.0
+	var low := 99.0
+	for i in 900:
+		await tree.physics_frame
+		for leg: Dictionary in mech.get("legs"):
+			worst = maxf(worst, float(leg.get("ground_demand_n", 0.0)))
+		low = minf(low, mech.global_position.y)
+	print("    max demand %.0f N, lowest body y %.2f, vy now %.2f" % [worst, low, mech.linear_velocity.y])
+	var down: PackedStringArray = _driver().rig.down()
+	print("    dropped 14 m: down = %s" % str(down))
+	assert_gt(down.size(), 0, "a drop from 14 m is past what the joints can take")
+
+
+func test_the_jump_is_paid_for_from_the_battery() -> void:
+	_spawn()
+	await _frames(360)
+	var before := float(_driver().rig.supply["energy_j"])
+	var got: float = _driver().call("bill_jump", 3.0, mech.mass)
+	assert_almost_eq(got, 3.0, 0.001, "a full pack gives the whole jump")
+	assert_lt(float(_driver().rig.supply["energy_j"]), before - 10000.0, "and it costs energy")
+	_driver().rig.supply["energy_j"] = 1000.0
+	var weak: float = _driver().call("bill_jump", 3.0, mech.mass)
+	assert_lt(weak, 1.0, "a nearly flat pack cannot launch it")
+
+
+func test_reset_puts_the_bench_back() -> void:
+	_spawn()
+	await _frames(240)
+	_joint("fr", "knee")["failed"] = true
+	_driver().rig.supply["energy_j"] = 10.0
+	_driver().call("reset")
+	assert_eq(_driver().rig.down().size(), 0)
+	assert_almost_eq(_driver().rig.charge_frac(), 1.0, 0.001, "full pack at reset")

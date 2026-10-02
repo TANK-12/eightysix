@@ -14,7 +14,7 @@ func test_all_files_load_without_errors() -> void:
 
 func test_inherits_deep_merges_and_abstract_is_hidden() -> void:
 	var knee := Registry.entry("parts", "standin_knee_fl")
-	assert_eq(knee["bench"]["peak_force_n"], 220000.0, "own figure wins")
+	assert_eq(knee["bench"]["peak_force_n"], 700000.0, "own figure wins")
 	assert_eq(knee["bench"]["stroke_m"], 0.6, "inherited from act_linear_heavy")
 	assert_false(knee.has("inherits"))
 	assert_false(knee.has("abstract"))

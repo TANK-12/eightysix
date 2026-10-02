@@ -27,6 +27,36 @@
       },
       "source": "draft (lane A1): in the range of industrial 150 kN roller-screw electric cylinders"
     },
+    "act_linear_heavy_knee_big": {
+      "abstract": true,
+      "inherits": "act_linear_heavy_knee",
+      "label": "Heavy electric linear actuator (roller screw, 700 kN class, knee)",
+      "mass_kg": 140.0,
+      "bench": {
+        "peak_force_n": 700000.0,
+        "continuous_force_n": 300000.0,
+        "rated_power_w": 40000.0,
+        "peak_power_w": 100000.0,
+        "thermal_mass_j_per_k": 30000.0
+      },
+      "source": "draft (lane B6): sized so the stand-in's 5.2 t holds on four legs in test bench mode"
+    },
+    "act_linear_heavy_hip": {
+      "abstract": true,
+      "inherits": "act_linear_heavy",
+      "label": "Heavy electric linear actuator (roller screw, 500 kN class, hip pitch)",
+      "mass_kg": 110.0,
+      "bench": {
+        "peak_force_n": 500000.0,
+        "continuous_force_n": 220000.0,
+        "no_load_speed_m_s": 0.3,
+        "lever_arm_m": 0.9,
+        "rated_power_w": 40000.0,
+        "peak_power_w": 100000.0,
+        "thermal_mass_j_per_k": 30000.0
+      },
+      "source": "draft (lane B6): sized so the stand-in's 5.2 t holds on four legs in test bench mode (the 150 kN template could not carry its hips)"
+    },
     "act_linear_heavy_knee": {
       "abstract": true,
       "inherits": "act_linear_heavy",
@@ -166,14 +196,14 @@
       "game_motor": "hip_yaw"
     },
     "standin_hip_pitch_fl": {
-      "inherits": "act_linear_heavy",
+      "inherits": "act_linear_heavy_hip",
       "label": "Front-left hip pitch",
       "leg": "fl",
       "joint": "hip_pitch",
       "game_motor": "hip_pitch"
     },
     "standin_knee_fl": {
-      "inherits": "act_linear_heavy_knee",
+      "inherits": "act_linear_heavy_knee_big",
       "label": "Front-left knee",
       "leg": "fl",
       "joint": "knee",
@@ -187,14 +217,14 @@
       "game_motor": "hip_yaw"
     },
     "standin_hip_pitch_fr": {
-      "inherits": "act_linear_heavy",
+      "inherits": "act_linear_heavy_hip",
       "label": "Front-right hip pitch",
       "leg": "fr",
       "joint": "hip_pitch",
       "game_motor": "hip_pitch"
     },
     "standin_knee_fr": {
-      "inherits": "act_linear_heavy_knee",
+      "inherits": "act_linear_heavy_knee_big",
       "label": "Front-right knee",
       "leg": "fr",
       "joint": "knee",
@@ -208,14 +238,14 @@
       "game_motor": "hip_yaw"
     },
     "standin_hip_pitch_rl": {
-      "inherits": "act_linear_heavy",
+      "inherits": "act_linear_heavy_hip",
       "label": "Rear-left hip pitch",
       "leg": "rl",
       "joint": "hip_pitch",
       "game_motor": "hip_pitch"
     },
     "standin_knee_rl": {
-      "inherits": "act_linear_heavy_knee",
+      "inherits": "act_linear_heavy_knee_big",
       "label": "Rear-left knee",
       "leg": "rl",
       "joint": "knee",
@@ -229,14 +259,14 @@
       "game_motor": "hip_yaw"
     },
     "standin_hip_pitch_rr": {
-      "inherits": "act_linear_heavy",
+      "inherits": "act_linear_heavy_hip",
       "label": "Rear-right hip pitch",
       "leg": "rr",
       "joint": "hip_pitch",
       "game_motor": "hip_pitch"
     },
     "standin_knee_rr": {
-      "inherits": "act_linear_heavy_knee",
+      "inherits": "act_linear_heavy_knee_big",
       "label": "Rear-right knee",
       "leg": "rr",
       "joint": "knee",
