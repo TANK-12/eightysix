@@ -99,7 +99,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
   a span needs both bearings, so HE near a pier drops two spans; `Destructible` pieces have `needs`). Grapple points follow
   broken buildings (`Destructible.sync_anchors`); the small map's buildings and walls are Destructibles. Big-map frame
   rates on a quiet GPU, walking: Low 105, Medium 64, High 48, Ultra 15 (`~/Forge/docs/library/juggernaut/2026-10-02-eightysix-bigmap-fps.md`).
-  Tests `test_big_bridge` 8/8, `test_big_map` 8/8, `test_destruction` 7/7; full suite 265/265 at the end of the part.
+  Tests `test_big_bridge` 8/8, `test_big_map` 9/9, `test_mission` 6/6, `test_destruction` 7/7; full suite 271/271 at the end of the part. Missions: an alerted wave can have `track_s` (told where the player is every 4 s) so the Legion cross the 4 km map.
   Bot runs `b5_bridge`, `b5_mission`, `b5_fps`. Details and what is only reasoned:
   `~/Forge/sessions/juggernaut-alpha/results/B5.md` part 2.
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
