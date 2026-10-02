@@ -103,6 +103,7 @@ func set_mech(id: String) -> bool:
 	mech = MechBuilder.build(id)
 	if mech == null:
 		return false
+	mech.set("is_player", false)  # a display piece: it must not read the controls or fire (Emerson shot from the menu)
 	mech_id = id
 	var def := Registry.entry("mechs", id)
 	var stance: Dictionary = def.get("stance", {})
