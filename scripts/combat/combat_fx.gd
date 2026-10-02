@@ -24,6 +24,23 @@ static var _gouge_tex: Texture2D
 static var _smoke_mat: StandardMaterial3D
 static var _spark_mat: StandardMaterial3D
 static var _brass_mat: StandardMaterial3D
+static var _fire_mat: StandardMaterial3D
+static var _clod_mat: StandardMaterial3D
+
+
+## Settings > Graphics > World detail > Combat effects (Emerson, 2026-10-02). Both are look only: a blast's
+## damage and push come from the ammo data, never from these.
+static func blast_size() -> float:
+	return maxf(Settings.get_f("fx.blast_size"), 0.1)
+
+
+static func hit_dust() -> float:
+	return maxf(Settings.get_f("fx.hit_dust"), 0.1)
+
+
+## How much longer dust hangs about at a given hit_dust (2x dust lasts 1.6x as long).
+static func dust_linger(dust: float) -> float:
+	return maxf(1.0 + (dust - 1.0) * 0.6, 0.4)
 
 
 static func _free_after(node: Node, seconds: float) -> void:
@@ -101,6 +118,27 @@ static func gouge_texture() -> Texture2D:
 		tex.height = 16
 		_gouge_tex = tex
 	return _gouge_tex
+
+
+static func fire_material() -> StandardMaterial3D:
+	if _fire_mat == null:
+		_fire_mat = StandardMaterial3D.new()
+		_fire_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_fire_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_fire_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		_fire_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+		_fire_mat.vertex_color_use_as_albedo = true
+		_fire_mat.albedo_texture = _radial(64, Color(1, 1, 1, 1), Color(1, 1, 1, 0))
+		_fire_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	return _fire_mat
+
+
+static func clod_material() -> StandardMaterial3D:
+	if _clod_mat == null:
+		_clod_mat = StandardMaterial3D.new()
+		_clod_mat.albedo_color = Color(0.22, 0.18, 0.14)
+		_clod_mat.roughness = 1.0
+	return _clod_mat
 
 
 static func brass_material() -> StandardMaterial3D:
@@ -226,18 +264,100 @@ static func muzzle(parent: Node, pos: Vector3, dir: Vector3, size: float = 1.0) 
 		ring.spread = 25.0
 
 
-static func impact(parent: Node, pos: Vector3, normal: Vector3, metal: bool, big: bool) -> void:
-	var scale := 1.6 if big else 1.0
+## A round's hit: sparks and dust, scaled by the Hit dust setting. A high-explosive shell (`big`) adds a
+## fireball and flash scaled by Shell hit size, a dark dust column and, on the ground, thrown clods. A
+## `heavy` solid round (a 57 mm dart: no explosive, so no fire) still throws a dirt eruption off the ground
+## from its own speed, scaled by the same two settings. Returns every node it made (each frees itself).
+static func impact(parent: Node, pos: Vector3, normal: Vector3, metal: bool, big: bool, heavy: bool = false) -> Array:
+	var made: Array = []
+	var dust := hit_dust()
+	var linger := dust_linger(dust)
+	var boom := 1.6 if big else 1.0
 	if metal:
-		sparks(parent, pos, normal, int(34 * scale), 18.0 * scale, 70.0)
-		flash_light(parent, pos + normal * 0.4, Color(1.0, 0.75, 0.45), 6.0 * scale, 9.0 * scale, 0.15)
-		smoke(parent, pos, normal, 6, 1.0 * scale, Color(0.25, 0.24, 0.23, 0.6), 1.6, 2.5)
+		made.append(sparks(parent, pos, normal, int(34 * boom), 18.0 * boom, 70.0))
+		made.append(flash_light(parent, pos + normal * 0.4, Color(1.0, 0.75, 0.45), 6.0 * boom, 9.0 * boom, 0.15))
+		made.append(smoke(parent, pos, normal, 6, 1.0 * boom, Color(0.25, 0.24, 0.23, 0.6), 1.6, 2.5))
 	else:
-		sparks(parent, pos, normal, int(10 * scale), 12.0, 45.0)
-		smoke(parent, pos, normal, int(14 * scale), 1.8 * scale, Color(0.5, 0.45, 0.38, 0.7), 2.4, 7.0 * scale)
-		flash_light(parent, pos + normal * 0.5, Color(1.0, 0.7, 0.4), 3.0 * scale, 8.0, 0.1)
+		made.append(sparks(parent, pos, normal, int(10 * boom), 12.0, 45.0))
+		made.append(smoke(parent, pos, normal, mini(int(14 * boom * sqrt(dust)), 48), 1.8 * boom * dust, Color(0.5, 0.45, 0.38, 0.7), 2.4 * linger, 7.0 * boom * sqrt(dust)))
+		made.append(flash_light(parent, pos + normal * 0.5, Color(1.0, 0.7, 0.4), 3.0 * boom, 8.0, 0.1))
 	if big:
-		smoke(parent, pos, normal, 18, 2.8, Color(0.18, 0.16, 0.15, 0.7), 3.2, 6.0)
+		var size := blast_size()
+		made.append_array(fireball(parent, pos, normal, size))
+		made.append(smoke(parent, pos, normal, mini(int(18 * sqrt(dust)), 48), 2.8 * dust, Color(0.18, 0.16, 0.15, 0.7), 3.2 * linger, 6.0 * sqrt(dust)))
+		if not metal:
+			made.append(clods(parent, pos, normal, size * dust))
+	elif heavy and not metal:
+		var kick := blast_size() * dust
+		made.append(clods(parent, pos, normal, 0.6 * kick))
+		made.append(smoke(parent, pos, normal, mini(int(10 * sqrt(kick)), 40), 2.2 * kick, Color(0.42, 0.37, 0.3, 0.65), 2.6 * linger, 5.0 * sqrt(kick)))
+	return made
+
+
+## A high-explosive shell's fireball: hot quads that swell and burn out in a third of a second, and its flash.
+## `size` 1 is about 2 m across.
+static func fireball(parent: Node, pos: Vector3, normal: Vector3, size: float) -> Array:
+	var p := CPUParticles3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * 2.2 * size
+	quad.material = fire_material()
+	p.mesh = quad
+	p.amount = 10
+	p.lifetime = 0.35
+	p.one_shot = true
+	p.explosiveness = 1.0
+	p.direction = Vector3.UP
+	p.spread = 80.0
+	p.initial_velocity_min = 3.0 * size
+	p.initial_velocity_max = 9.0 * size
+	p.damping_min = 12.0
+	p.damping_max = 20.0
+	p.gravity = Vector3.ZERO
+	var grow := Curve.new()
+	grow.add_point(Vector2(0.0, 0.4))
+	grow.add_point(Vector2(1.0, 1.3))
+	p.scale_amount_curve = grow
+	var ramp := Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.45, 1.0])
+	ramp.colors = PackedColorArray([Color(1.0, 0.86, 0.55, 1.0), Color(1.0, 0.42, 0.1, 0.7), Color(0.3, 0.08, 0.02, 0.0)])
+	p.color_ramp = ramp
+	p.angle_max = 360.0
+	p.set_meta("fx", "fireball")
+	parent.add_child(p)
+	p.global_position = pos + normal.normalized() * 0.5 * size
+	_orient_up(p, normal)
+	p.emitting = true
+	_free_after(p, 0.8)
+	var light := flash_light(parent, pos + normal.normalized() * size, Color(1.0, 0.7, 0.38), 10.0 * sqrt(size), 22.0 * size, 0.25)
+	light.set_meta("fx", "flash")
+	return [p, light]
+
+
+## Dirt thrown out of a shell's crater: dark lumps on ballistic arcs. `amount` 1 is 16 clods.
+static func clods(parent: Node, pos: Vector3, normal: Vector3, amount: float) -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	var lump := BoxMesh.new()
+	lump.size = Vector3.ONE * 0.2
+	lump.material = clod_material()
+	p.mesh = lump
+	p.amount = clampi(int(16 * amount), 4, 80)
+	p.lifetime = 1.6
+	p.one_shot = true
+	p.explosiveness = 0.95
+	p.direction = Vector3.UP
+	p.spread = 35.0
+	p.initial_velocity_min = 6.0 * sqrt(amount)
+	p.initial_velocity_max = 16.0 * sqrt(amount)
+	p.gravity = Vector3(0, -9.8, 0)
+	p.scale_amount_min = 0.6
+	p.scale_amount_max = 1.8
+	p.set_meta("fx", "clods")
+	parent.add_child(p)
+	p.global_position = pos
+	_orient_up(p, normal)
+	p.emitting = true
+	_free_after(p, 2.0)
+	return p
 
 
 ## A scorch (or gouge) decal pressed onto whatever is under `pos`, facing out along `normal`.

@@ -202,7 +202,8 @@ func collapse() -> void:
 	var pile := Kit.build("rubble_pile", seed_value, {"size": clampf(maxf(span.x, span.z) * 0.6, 3.0, 9.0)})
 	add_child(pile)
 	if is_inside_tree():
-		CombatFx.smoke(get_parent(), global_position + Vector3.UP * 1.5, Vector3.UP, 10, 6.0, Color(0.55, 0.5, 0.44, 0.45), 6.0, 1.2)
+		var dust := CombatFx.hit_dust()
+		CombatFx.smoke(get_parent(), global_position + Vector3.UP * 1.5, Vector3.UP, 10, 6.0 * dust, Color(0.55, 0.5, 0.44, 0.45), 6.0 * CombatFx.dust_linger(dust), 1.2)
 	collapsed.emit()
 
 

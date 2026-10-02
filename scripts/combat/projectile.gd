@@ -123,8 +123,8 @@ func _impact(hit: Dictionary) -> void:
 				Rumble.play("wake_near_miss", -1, clampf(float(p["impulse_ns"]) / 2000.0, 0.2, 1.5))
 	var world := get_parent()
 	var metal := target != null or (collider is Node and (collider as Node).is_in_group("mechs"))
-	CombatFx.impact(world, point, normal, metal, blast_r > 0.0)
+	CombatFx.impact(world, point, normal, metal, blast_r > 0.0, float(info["projectile_kg"]) >= 1.0)
 	if not metal:
-		CombatFx.decal(world, point, normal, 1.6 + blast_r * 0.5)
+		CombatFx.decal(world, point, normal, (1.6 + blast_r * 0.5) * (sqrt(CombatFx.blast_size()) if blast_r > 0.0 else 1.0))
 	impacted.emit(info)
 	queue_free()

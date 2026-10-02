@@ -260,6 +260,18 @@ func _spawn_mech() -> void:
 	add_child(mech)
 
 
+## Bot runs only (tools/bot/fx_blast_check.json): a hit's look on the ground `distance_m` ahead of the mech,
+## without firing, so check images line up shot for shot. `kind` is "he", "dart" or "bullet".
+func fx_demo(kind: String, distance_m: float = 30.0, side_m: float = 0.0) -> void:
+	var fwd := -mech.global_basis.z
+	fwd.y = 0.0
+	fwd = fwd.normalized()
+	var at := mech.global_position + fwd * distance_m + fwd.cross(Vector3.UP) * side_m
+	at.y = ground_height(at.x, at.z)
+	CombatFx.impact(self, at, Vector3.UP, false, kind == "he", kind != "bullet")
+	CombatFx.decal(self, at, Vector3.UP, 1.6 + (3.0 * sqrt(CombatFx.blast_size()) if kind == "he" else 0.0))
+
+
 static func _noise_texture(normal: bool, frequency: float) -> NoiseTexture2D:
 	var noise := FastNoiseLite.new()
 	noise.frequency = frequency

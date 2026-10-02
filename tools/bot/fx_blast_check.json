@@ -1,0 +1,28 @@
+{
+  "name": "fx_blast_check",
+  "_about": "Emerson 2026-10-02: bigger shell hits and hit dust (Settings > Graphics > World detail > Combat effects). On the test range, the same hits at the old look (1.0x) and the new default (1.6x): an HE shell 30 m ahead, then a 57 mm dart 22 m ahead; shots at the fireball, the clods and the dust a few seconds on. Uses the range's fx_demo call (no firing, so the shots line up). tools/bot_run.sh fx_blast_check",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+    {"at": 0.7, "setting": "fx.blast_size", "value": 1.0},
+    {"at": 0.8, "setting": "fx.hit_dust", "value": 1.0},
+    {"at": 3.0, "call": "fx_demo", "args": ["he", 30.0, 0.0]},
+    {"at": 3.08, "shot": "old-he-fireball"},
+    {"at": 3.6, "shot": "old-he-clods"},
+    {"at": 6.0, "shot": "old-he-dust-3s"},
+    {"at": 8.0, "call": "fx_demo", "args": ["dart", 22.0, 0.0]},
+    {"at": 8.5, "shot": "old-dart-kick"},
+    {"at": 10.5, "shot": "old-dart-dust-2s"},
+    {"at": 14.0, "setting": "fx.blast_size", "value": 1.6},
+    {"at": 14.1, "setting": "fx.hit_dust", "value": 1.6},
+    {"at": 15.0, "call": "fx_demo", "args": ["he", 30.0, 0.0]},
+    {"at": 15.08, "shot": "new-he-fireball"},
+    {"at": 15.6, "shot": "new-he-clods"},
+    {"at": 18.0, "shot": "new-he-dust-3s"},
+    {"at": 20.0, "call": "fx_demo", "args": ["dart", 22.0, 0.0]},
+    {"at": 20.5, "shot": "new-dart-kick"},
+    {"at": 22.5, "shot": "new-dart-dust-2s"},
+    {"at": 23.0, "quit": true}
+  ]
+}

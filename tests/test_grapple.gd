@@ -257,3 +257,21 @@ func test_aim_assist_nudges_toward_a_marked_point_near_the_aim() -> void:
 	assert_false(t.is_empty(), "the marked point 6 deg off the aim is found")
 	if not t.is_empty():
 		assert_lt((t["point"] as Vector3).distance_to(tip), 1.6, "at the pole's tip")
+
+
+func test_the_preview_arc_shows_screen_sized_dots_even_for_a_near_ledge() -> void:
+	mech.set("is_player", true)
+	await physics_frames(240)
+	var a := combat.anchor
+	# A grapple slab 14 m out and 5 m up: a short throw that used to show one dot at most.
+	_block(Vector3(0, 6, -16), Vector3(12, 2, 2), 1 | 64)
+	await physics_frames(2)
+	_aim_at(Vector3(0, 6, -15))
+	await physics_frames(10)
+	_aim_at(Vector3(0, 6, -15))
+	await physics_frames(2)
+	assert_eq(str(a.preview()["state"]), "ok", "the arc reaches the near slab")
+	var dots := a._arc.multimesh.visible_instance_count
+	assert_gt(dots, 5, "a line of dots shows on a short throw (%d)" % dots)
+	assert_true(a._arc_mat.fixed_size and a._arc_mat.billboard_mode == BaseMaterial3D.BILLBOARD_ENABLED, "dots face the camera at a fixed screen size")
+	print("    anchor arc: %d dots on a 14 m throw" % dots)

@@ -45,6 +45,9 @@ var _dart_s := 0.0  # line paid out behind the dart, m
 var _miss := false
 const ROPE_SEGMENTS := 10
 const ARC_DOTS := 48
+## Dots spread along the preview path, and their size on screen (fixed_size units: about 10 px at 1080p).
+const ARC_DOTS_AIM := 18
+const ARC_DOT_SCREEN := 0.016
 const ARC_STEP_S := 1.0 / 60.0
 
 var _arc: MultiMeshInstance3D
@@ -95,15 +98,17 @@ func _ready() -> void:
 	_dart.mesh = cone
 	_dart.visible = false
 	add_child(_dart)
-	var dot := SphereMesh.new()
-	dot.radius = 0.09
-	dot.height = 0.18
-	dot.radial_segments = 6
-	dot.rings = 3
+	# Screen-sized round dots (about 10 px at 1080p whatever the distance): the old 0.18 m spheres were
+	# 3 px at 20 m and lost on brown ground (A4 part 5, images/296-298).
+	var dot := QuadMesh.new()
+	dot.size = Vector2.ONE * ARC_DOT_SCREEN
 	_arc_mat = StandardMaterial3D.new()
 	_arc_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_arc_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_arc_mat.no_depth_test = false
+	_arc_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	_arc_mat.fixed_size = true
+	_arc_mat.albedo_texture = _dot_texture()
+	_arc_mat.render_priority = 2
 	dot.material = _arc_mat
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
@@ -503,6 +508,21 @@ func _place_segment(seg: MeshInstance3D, a: Vector3, b: Vector3) -> void:
 
 ## The dotted arc the dart would fly (player only, while the anchor is ready; Settings > Gameplay >
 ## "Show the wire anchor's arc"): pale where it will bite, red where it cannot.
+## A round dot with a dark rim, so it reads on bright sky and pale dust alike.
+static func _dot_texture() -> GradientTexture2D:
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.55, 0.72, 1.0])
+	g.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(0.05, 0.06, 0.08, 0.8), Color(0, 0, 0, 0)])
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 32
+	tex.height = 32
+	return tex
+
+
 func _draw_arc() -> void:
 	var mm := _arc.multimesh
 	var show := mech != null and is_instance_valid(mech) and state == State.IDLE and bool(mech.get("is_player")) and mech.is_inside_tree()
@@ -513,16 +533,21 @@ func _draw_arc() -> void:
 	var p := preview()
 	var arc: PackedVector3Array = p["arc"]
 	var ok := str(p["state"]) == "ok"
-	_arc_mat.albedo_color = Color(0.85, 0.95, 1.0, 0.75) if ok else Color(1.0, 0.35, 0.3, 0.55)
-	# A dot every ~2.5 m along the path, skipping the first few metres in front of the launcher.
+	_arc_mat.albedo_color = Color(0.85, 0.97, 1.0, 1.0) if ok else Color(1.0, 0.4, 0.32, 0.85)
+	# About ARC_DOTS_AIM dots along the whole path (0.6-2.5 m apart), skipping the first 2 m in front of the
+	# launcher, so a short throw at a near ledge still shows a line of dots.
+	var length := 0.0
+	for i in range(1, arc.size()):
+		length += arc[i].distance_to(arc[i - 1])
+	var step := clampf(length / ARC_DOTS_AIM, 0.6, 2.5)
 	var count := 0
 	var since := 0.0
 	for i in range(1, arc.size()):
 		since += arc[i].distance_to(arc[i - 1])
-		if since < 2.5 or count >= ARC_DOTS:
+		if since < step or count >= ARC_DOTS:
 			continue
 		since = 0.0
-		if arc[i].distance_to(arc[0]) < 4.0:
+		if arc[i].distance_to(arc[0]) < 2.0:
 			continue
 		mm.set_instance_transform(count, Transform3D(Basis.IDENTITY, arc[i]))
 		count += 1

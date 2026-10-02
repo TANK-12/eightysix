@@ -53,7 +53,7 @@ func _process(delta: float) -> void:
 	_t = mech.call("telemetry")
 	_charge = float(mech.call("charge_fraction"))
 	for leg: Dictionary in mech.get("legs"):
-		_legs_down[str(leg["name"])] = bool(leg["loaded"])
+		_legs_down[str(leg["name"])] = bool(leg.get("loaded", false))
 	# Where the guns' rounds would land, ten times a second (a cast flight each).
 	_aim_s -= delta
 	var combat := mech.get_node_or_null("Combat") as MechCombat
