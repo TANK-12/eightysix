@@ -158,7 +158,7 @@ func test_end_screen_pauses_with_restart_and_main_menu() -> void:
 	var texts: Array = []
 	for b: Node in end.find_children("*", "Button", true, false):
 		texts.append((b as Button).text)
-	assert_eq(texts, ["Restart mission", "Main menu"])
+	assert_eq(texts, ["Keep exploring", "Restart mission", "Main menu"], "a win also offers Keep exploring (note 19 after 012)")
 	var labels: Array = []
 	for l: Node in end.find_children("*", "Label", true, false):
 		labels.append((l as Label).text)
