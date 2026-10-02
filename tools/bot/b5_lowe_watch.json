@@ -1,0 +1,383 @@
+{
+ "name": "b5_lowe_watch",
+ "map": "big_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 22.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 60,
+   "call": "report_legion",
+   "args": [
+    "t60"
+   ]
+  },
+  {
+   "at": 80,
+   "call": "report_legion",
+   "args": [
+    "t80"
+   ]
+  },
+  {
+   "at": 100,
+   "call": "report_legion",
+   "args": [
+    "t100"
+   ]
+  },
+  {
+   "at": 120,
+   "call": "report_legion",
+   "args": [
+    "t120"
+   ]
+  },
+  {
+   "at": 140,
+   "call": "report_legion",
+   "args": [
+    "t140"
+   ]
+  },
+  {
+   "at": 160,
+   "call": "report_legion",
+   "args": [
+    "t160"
+   ]
+  },
+  {
+   "at": 180,
+   "call": "report_legion",
+   "args": [
+    "t180"
+   ]
+  },
+  {
+   "at": 200,
+   "call": "report_legion",
+   "args": [
+    "t200"
+   ]
+  },
+  {
+   "at": 220,
+   "call": "report_legion",
+   "args": [
+    "t220"
+   ]
+  },
+  {
+   "at": 230,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 231.5,
+   "shot": "lowe-t230"
+  },
+  {
+   "at": 240,
+   "call": "report_legion",
+   "args": [
+    "t240"
+   ]
+  },
+  {
+   "at": 240,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 241.5,
+   "shot": "lowe-t240"
+  },
+  {
+   "at": 250,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 251.5,
+   "shot": "lowe-t250"
+  },
+  {
+   "at": 260,
+   "call": "report_legion",
+   "args": [
+    "t260"
+   ]
+  },
+  {
+   "at": 260,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 261.5,
+   "shot": "lowe-t260"
+  },
+  {
+   "at": 270,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 271.5,
+   "shot": "lowe-t270"
+  },
+  {
+   "at": 280,
+   "call": "report_legion",
+   "args": [
+    "t280"
+   ]
+  },
+  {
+   "at": 280,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 281.5,
+   "shot": "lowe-t280"
+  },
+  {
+   "at": 290,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 291.5,
+   "shot": "lowe-t290"
+  },
+  {
+   "at": 300,
+   "call": "report_legion",
+   "args": [
+    "t300"
+   ]
+  },
+  {
+   "at": 300,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 301.5,
+   "shot": "lowe-t300"
+  },
+  {
+   "at": 310,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 311.5,
+   "shot": "lowe-t310"
+  },
+  {
+   "at": 320,
+   "call": "report_legion",
+   "args": [
+    "t320"
+   ]
+  },
+  {
+   "at": 320,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 321.5,
+   "shot": "lowe-t320"
+  },
+  {
+   "at": 330,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 331.5,
+   "shot": "lowe-t330"
+  },
+  {
+   "at": 340,
+   "call": "report_legion",
+   "args": [
+    "t340"
+   ]
+  },
+  {
+   "at": 340,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 341.5,
+   "shot": "lowe-t340"
+  },
+  {
+   "at": 350,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 351.5,
+   "shot": "lowe-t350"
+  },
+  {
+   "at": 360,
+   "call": "report_legion",
+   "args": [
+    "t360"
+   ]
+  },
+  {
+   "at": 360,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 361.5,
+   "shot": "lowe-t360"
+  },
+  {
+   "at": 370,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 371.5,
+   "shot": "lowe-t370"
+  },
+  {
+   "at": 380,
+   "call": "report_legion",
+   "args": [
+    "t380"
+   ]
+  },
+  {
+   "at": 380,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 381.5,
+   "shot": "lowe-t380"
+  },
+  {
+   "at": 390,
+   "call": "look_at_legion",
+   "args": [
+    0,
+    26.0,
+    9.0
+   ]
+  },
+  {
+   "at": 391.5,
+   "shot": "lowe-t390"
+  },
+  {
+   "at": 400,
+   "call": "report_legion",
+   "args": [
+    "t400"
+   ]
+  },
+  {
+   "at": 402,
+   "quit": true
+  }
+ ],
+ "_about": "Lane B5 part 5: the Frontier finale as b5_finale_long, but a shot beside the L\u00f6we (slot 0) every 10 s from t230 to t390 to see where and why it stalls (run 368: x -160 z 1075, feet hhhhssss). tools/bot_run.sh b5_lowe_watch --timeout=450"
+}
