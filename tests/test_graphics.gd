@@ -36,7 +36,8 @@ func test_apply_reaches_viewport_and_environment() -> void:
 	tree.root.add_child(cam)
 	Settings.set_value("graphics.preset", "low", false)
 	Graphics.apply()
-	assert_almost_eq(tree.root.scaling_3d_scale, 0.65, 0.001)
+	assert_almost_eq(tree.root.scaling_3d_scale, 1.0, 0.001)
+	assert_eq(tree.root.scaling_3d_mode, Viewport.SCALING_3D_MODE_BILINEAR)
 	assert_false(holder.environment.volumetric_fog_enabled)
 	assert_eq(cam.far, 600.0)
 	Settings.set_value("graphics.preset", "ultra", false)
@@ -44,6 +45,11 @@ func test_apply_reaches_viewport_and_environment() -> void:
 	assert_eq(tree.root.msaa_3d, Viewport.MSAA_2X)
 	assert_true(holder.environment.sdfgi_enabled)
 	assert_eq(cam.far, 2600.0)
+	Settings.set_value("graphics.resolution_scale", 0.7, false)
+	Settings.set_value("graphics.upscaler", "fsr1", false)
+	Graphics.apply()
+	assert_almost_eq(tree.root.scaling_3d_scale, 0.7, 0.001, "the setting still lowers it")
+	assert_eq(tree.root.scaling_3d_mode, Viewport.SCALING_3D_MODE_FSR)
 	holder.free()
 	cam.free()
 
@@ -53,3 +59,12 @@ func test_targets_are_in_the_plan() -> void:
 	assert_eq(Registry.entry("graphics_presets", "medium")["target_fps"], 45.0)
 	assert_eq(Registry.entry("graphics_presets", "high")["target_fps"], 30.0)
 	assert_eq(Registry.entry("graphics_presets", "ultra")["target_fps"], null)
+
+
+# Emerson (2026-10-02): the base is native resolution, no upscaling, no sharpening, on every preset.
+func test_every_preset_is_native_with_no_sharpening() -> void:
+	for id in Registry.ids("graphics_presets"):
+		var p := Registry.entry("graphics_presets", id)
+		assert_almost_eq(float(p["resolution_scale"]), 1.0, 0.001, id)
+		assert_eq(p["upscaler"], "bilinear", id)
+		assert_almost_eq(float(p["sharpening"]), 0.0, 0.001, id)

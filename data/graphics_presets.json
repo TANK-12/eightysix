@@ -1,13 +1,13 @@
 {
-  "_about": "Graphics presets, one entry each. Every field below is also a setting under Settings > Graphics (its row in settings.json names the field in \"preset_field\"). Picking a preset copies its values into those settings; changing any one of them turns the preset to Custom. target_fps is for the Iris Xe with no other GPU load: never measure while a Blender job runs (pgrep -f \"[b]lender -b\"). Ultra has no target: it is for future hardware.",
+  "_about": "Graphics presets, one entry each. Every field below is also a setting under Settings > Graphics (its row in settings.json names the field in \"preset_field\"). Picking a preset copies its values into those settings; changing any one of them turns the preset to Custom. target_fps is for the Iris Xe with no other GPU load: never measure while a Blender job runs (pgrep -f \"[b]lender -b\"). Ultra has no target: it is for future hardware. Emerson (2026-10-02): the base is native resolution with no upscaling and no sharpening on every preset; render resolution and the upscaler stay as settings for anyone who wants the frames back.",
   "entries": {
     "low": {
       "label": "Low",
       "order": 1,
       "target_fps": 60,
-      "resolution_scale": 0.65,
-      "upscaler": "fsr1",
-      "sharpening": 0.1,
+      "resolution_scale": 1.0,
+      "upscaler": "bilinear",
+      "sharpening": 0.0,
       "foot_dust": false,
       "msaa": "off",
       "screen_aa": "fxaa",
@@ -33,8 +33,8 @@
       "label": "Medium",
       "order": 2,
       "target_fps": 45,
-      "resolution_scale": 0.8,
-      "upscaler": "fsr1",
+      "resolution_scale": 1.0,
+      "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": true,
       "msaa": "off",
