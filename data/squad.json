@@ -11,7 +11,11 @@
     "hit_radius_m": 3.0,
     "friendly_clear_m": 6.0,
     "attack_band_m": [180.0, 420.0],
-    "regroup_scale": 0.55
+    "regroup_scale": 0.55,
+    "way_hold_s": 3.0,
+    "steep_normal_y": 0.6,
+    "stuck_s": 2.0,
+    "detour_s": 2.0
   },
   "entries": {
     "werewolf": {"order": 1, "callsign": "Werewolf", "pilot": "Raiden Shuga", "mech": "juggernaut_m2", "slot": [-16.0, 0.0, 12.0], "colour": "#d9a441"},

@@ -34,6 +34,11 @@ var _think_left := 0.0
 var _goal := Vector3.ZERO
 var _rng := RandomNumberGenerator.new()
 var _pitch_trim := 0.0
+var _way := Vector3.ZERO  # a way round an obstacle (flat unit vector), ZERO: straight at the goal
+var _way_age := 0.0
+var _stuck_s := 0.0
+var _detour := Vector3.ZERO
+var _detour_s := 0.0
 
 
 func setup(member_id: String, member: RigidBody3D, owner_squad: Node) -> void:
@@ -98,6 +103,7 @@ func _think() -> void:
 			order = "follow"  # its target is gone: back into formation
 		target = _nearest_visible(float(_p.get("engage_m", 600.0)))
 	_goal = goal()
+	_find_way(1.0 / maxf(float(_p.get("think_hz", 5.0)), 0.5))
 
 
 ## Where the order wants it to stand now (flat world point).
@@ -156,7 +162,9 @@ func _steer() -> void:
 	var arrive := float(_p.get("arrive_m", 5.0))
 	var want := Vector3.ZERO  # world direction and throttle, flat
 	if dist > arrive:
-		want = to / dist * clampf((dist - arrive) / maxf(float(_p.get("slow_m", 25.0)), 1.0), 0.15, 1.0)
+		var way := _way if _way.length() > 0.1 else to / dist
+		want = way * clampf((dist - arrive) / maxf(float(_p.get("slow_m", 25.0)), 1.0), 0.15, 1.0)
+	want = _unstick(want)
 	want += _keep_apart()
 	want = want.limit_length(1.0)
 	running = dist > float(_p.get("run_m", 45.0)) or order == "regroup" and dist > arrive * 3.0
@@ -200,6 +208,61 @@ func _elevation() -> float:
 	var dt := get_physics_process_delta_time()
 	_pitch_trim = clampf(_pitch_trim + (want - have) * float(_p.get("pitch_trim_per_s", 0.6)) * dt, -8.0, 8.0)
 	return want + _pitch_trim
+
+
+## Once per think: when a wall or a face too steep to walk stands in the way to the goal, the first clear heading
+## round it (rays fanned left and right at chest height, as the Legion's brains do). A way round, once found, is
+## kept for way_hold_s while it stays clear, so it does not dither at the corner.
+func _find_way(dt: float) -> void:
+	var to := _flat(_goal - mech.global_position)
+	if to.length() < float(_p.get("arrive_m", 5.0)):
+		_way = Vector3.ZERO
+		return
+	var dir := to.normalized()
+	var look := minf(to.length(), clampf(mech.linear_velocity.length() * 2.0, 18.0, 35.0))
+	var from := mech.global_transform * mech.center_of_mass
+	_way_age += dt
+	if _way.length() > 0.1 and _way_age < float(_p.get("way_hold_s", 3.0)) and not _blocked(from, _way, look):
+		return
+	var side := 1.0 if int(entry.get("order", 1)) % 2 == 0 else -1.0
+	for deg: float in [0.0, 25.0, -25.0, 50.0, -50.0, 80.0, -80.0, 110.0, -110.0]:
+		var d := dir.rotated(Vector3.UP, deg_to_rad(deg * side))
+		if not _blocked(from, d, look):
+			if deg == 0.0:
+				_way = Vector3.ZERO
+			elif _way.length() < 0.1 or _way.angle_to(d) > 0.1:
+				_way = d
+				_way_age = 0.0
+			return
+	_way = -dir
+	_way_age = 0.0
+
+
+## A wall or a face steeper than steep_normal_y along `dir` within `length` (world geometry, not mechs).
+func _blocked(from: Vector3, dir: Vector3, length: float) -> bool:
+	var q := PhysicsRayQueryParameters3D.create(from, from + dir * length, 1)
+	q.exclude = [mech.get_rid()]
+	var hit := mech.get_world_3d().direct_space_state.intersect_ray(q)
+	return not hit.is_empty() and (hit["normal"] as Vector3).y < float(_p.get("steep_normal_y", 0.6))
+
+
+## Asked to move but hardly moving for stuck_s: back off at an angle for detour_s, then try again.
+func _unstick(want: Vector3) -> Vector3:
+	var dt := get_physics_process_delta_time()
+	if _detour_s > 0.0:
+		_detour_s -= dt
+		return _detour
+	if want.length() > 0.4 and _flat(mech.linear_velocity).length() < 1.0 and not bool(mech.get("airborne")):
+		_stuck_s += dt
+	else:
+		_stuck_s = maxf(_stuck_s - dt, 0.0)
+	if _stuck_s > float(_p.get("stuck_s", 2.0)):
+		_stuck_s = 0.0
+		_detour_s = float(_p.get("detour_s", 2.0))
+		_detour = -want.normalized().rotated(Vector3.UP, deg_to_rad(_rng.randf_range(45.0, 75.0) * (1.0 if _rng.randf() < 0.5 else -1.0))) * 0.7
+		_way = Vector3.ZERO
+		return _detour
+	return want
 
 
 ## A push away from any other Juggernaut closer than keep_apart_m, so the squad does not walk into itself.

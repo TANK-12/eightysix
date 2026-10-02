@@ -164,6 +164,28 @@ func test_hold_stays_put() -> void:
 	assert_lt(_flat_dist(m.global_position, at), 4.0, "held its ground for 5 s")
 
 
+func test_it_walks_round_a_wall() -> void:
+	_squad(1)
+	await physics_frames(120)
+	var m := squad.members[0]
+	var start := m.global_position
+	var point := start + Vector3(0.0, 0.0, -90.0)
+	# A 40 m wide, 10 m high wall square across the way, 40 m ahead.
+	var w := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(40.0, 10.0, 2.0)
+	cs.shape = box
+	w.add_child(cs)
+	w.position = Vector3(start.x, 5.0, start.z - 40.0)
+	world.add_child(w)
+	squad.give_order("move", point)
+	var took := await _until(func() -> bool: return _flat_dist(m.global_position, point) < 8.0, 60.0)
+	print("    round a 40 m wall to a point 90 m off: %.1f s" % took)
+	assert_lt(took, 45.0, "found its way round")
+	assert_gt(m.global_transform.basis.y.dot(Vector3.UP), 0.8, "upright")
+
+
 # --- fighting -------------------------------------------------------------------------------------
 
 
