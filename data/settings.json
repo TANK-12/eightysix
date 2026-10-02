@@ -213,6 +213,11 @@
             {"key": "gameplay.ammo", "label": "Reserve ammunition", "type": "choice", "options": [["limited", "Limited"], ["unlimited", "Unlimited"]], "default": "limited", "help": "Magazines still need reloading either way."}
           ]}
         ]},
+        {"id": "squad", "label": "Squad", "groups": [
+          {"label": "Spearhead squadron", "items": [
+            {"key": "gameplay.squad_size", "label": "Allied Juggernauts", "type": "slider", "min": 0.0, "max": 4.0, "step": 1.0, "format": "int", "default": 2.0, "help": "How many of the squad (Werewolf, Laughing Fox, Gunslinger, Snow Witch) deploy beside you. Each is a full physics Juggernaut, so more of them cost frame rate. Order them with 1 follow, 2 hold, 3 attack, 4 regroup, or from the Handler view (Tab). Takes effect at the next mission start."}
+          ]}
+        ]},
         {"id": "physics", "label": "Physics", "groups": [
           {"label": "Simulation", "items": [
             {"key": "gameplay.physics_mode", "label": "Physics mode", "type": "choice", "options": [["game", "Game (anime motors)"], ["bench", "Test bench (real actuators)"]], "default": "game", "help": "Game mode uses strong magic motors. Test bench uses real electric actuator limits: slow, power-hungry and hot. The bench settings are in the group below."},

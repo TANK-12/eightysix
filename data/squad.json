@@ -1,0 +1,22 @@
+{
+  "_about": "The player's squad (lane A5): allied Juggernauts, one entry each, spawned beside the player by \"order\" up to Settings gameplay.squad_size. Each is a full physics Juggernaut (MechBuilder, the same legs, drive and gun as the player's) driven by a SquadPilot (scripts/ai/squad_pilot.gd) that only moves the same sticks and triggers a pilot's hands would. Entry: callsign and pilot (what the Handler view shows), mech (a data/mechs.json id: the variant / loadout), slot [x right, y, z back] in metres from the leader in follow formation, engage_m (how far it opens fire with the 57 mm; overrides pilot.engage_m), colour (its marker in the Handler view). \"pilot\" holds the shared pilot figures.",
+  "pilot": {
+    "think_hz": 5.0,
+    "engage_m": 600.0,
+    "sub_engage_m": 350.0,
+    "arrive_m": 5.0,
+    "slow_m": 25.0,
+    "run_m": 45.0,
+    "keep_apart_m": 14.0,
+    "hit_radius_m": 3.0,
+    "friendly_clear_m": 6.0,
+    "attack_band_m": [180.0, 420.0],
+    "regroup_scale": 0.55
+  },
+  "entries": {
+    "werewolf": {"order": 1, "callsign": "Werewolf", "pilot": "Raiden Shuga", "mech": "juggernaut_m2", "slot": [-16.0, 0.0, 12.0], "colour": "#d9a441"},
+    "laughing_fox": {"order": 2, "callsign": "Laughing Fox", "pilot": "Theoto Rikka", "mech": "juggernaut_m2_blades", "slot": [16.0, 0.0, 12.0], "engage_m": 450.0, "colour": "#6fb7d9"},
+    "gunslinger": {"order": 3, "callsign": "Gunslinger", "pilot": "Kurena Kukumila", "mech": "juggernaut_m2", "slot": [-30.0, 0.0, 30.0], "engage_m": 950.0, "colour": "#d96f8a"},
+    "snow_witch": {"order": 4, "callsign": "Snow Witch", "pilot": "Anju Emma", "mech": "juggernaut_m2", "slot": [30.0, 0.0, 30.0], "colour": "#c9d6e3"}
+  }
+}

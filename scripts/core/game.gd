@@ -69,6 +69,7 @@ func quit_game() -> void:
 
 func register_level(node: Node) -> void:
 	level = node
+	Squad.attach(node)  # the player's allied Juggernauts (lane A5), before the mission starts on level_ready
 	current_map = pending_map
 	level_ready.emit(node)
 

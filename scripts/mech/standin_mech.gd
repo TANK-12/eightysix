@@ -20,6 +20,7 @@ var legs: Array = []
 var mass_info: Dictionary = {}
 var actuators: Array = []
 var is_player := true
+var pilot: Node = null  # a SquadPilot (lane A5) works a friendly mech's controls; null for the player and the bench
 
 var grounded_legs := 0
 var airborne := false
@@ -278,6 +279,9 @@ func _stiffness() -> float:
 
 
 func _read_input(dt: float) -> void:
+	if not is_player and pilot != null and is_instance_valid(pilot) and not Game.is_paused():
+		_read_pilot()
+		return
 	if not is_player or Game.is_paused():
 		_move = Vector2.ZERO
 		_aim = Vector2.ZERO
@@ -312,6 +316,19 @@ func _read_input(dt: float) -> void:
 	if _jump_was_held and not jump_held and charging:
 		_release_jump()
 	_jump_was_held = jump_held
+
+
+## A friendly's pilot (scripts/ai/squad_pilot.gd) on the same controls: the move stick, sprint, the brake
+## and where to face, which sets the aim heading the body then turns to under its own torque (as the mouse does).
+func _read_pilot() -> void:
+	_move = (pilot.get("move") as Vector2).limit_length(1.0)
+	_aim = Vector2.ZERO
+	_mouse = Vector2.ZERO
+	_brake = clampf(float(pilot.get("brake")), 0.0, 1.0)
+	running = bool(pilot.get("running"))
+	var face := float(pilot.get("face_yaw"))
+	if not is_nan(face):
+		_aim_yaw = face
 
 
 func _release_jump() -> void:
@@ -964,6 +981,12 @@ func _pitch_aim(dt: float) -> void:
 	var look_max := float(a.get("look_max_deg", 75.0))
 	var tilt_min := float(a.get("pitch_min_deg", -8.0))
 	var tilt_max := float(a.get("pitch_max_deg", 18.0))
+	if not is_player and pilot != null and is_instance_valid(pilot):
+		# A friendly's pilot tilts the body (the legs do it, as for the player) onto its target.
+		var want := clampf(float(pilot.get("pitch_deg")), tilt_min, tilt_max)
+		aim_pitch_deg = move_toward(aim_pitch_deg, want, 30.0 * dt)
+		look_pitch_deg = aim_pitch_deg
+		return
 	var mouse_deg := -_mouse.y * float(a.get("mouse_pitch_deg_per_px", 0.05))
 	if Settings.get_s("gameplay.aim_mode") == "angle":
 		# Analog first: the stick's deflection is the angle (full up is the top of the range, half is half,

@@ -36,6 +36,9 @@ var ai: Dictionary = {}
 var perception: Dictionary = {}
 var state := "patrol"
 var target: RigidBody3D = null
+const RETARGET_S := 1.5
+const RETARGET_MARGIN_M := 40.0  # a new Juggernaut must be this much nearer than the current one to switch
+var _retarget_s := 0.0
 ## Where the target was last seen or heard (world), and how long ago (INF: never).
 var last_known := Vector3.ZERO
 var contact_age_s := INF
@@ -153,17 +156,47 @@ func _physics_process(delta: float) -> void:
 # --- perception ---------------------------------------------------------------------------------
 
 
+## The Juggernaut it hunts: the player's, or (lane A5) the nearest living one of the player's squad when that
+## is closer by more than RETARGET_MARGIN_M. Looked at again every RETARGET_S; with no squad it is always the player.
 func _find_target() -> void:
+	_retarget_s -= get_physics_process_delta_time()
+	if target != null and is_instance_valid(target) and _retarget_s > 0.0:
+		return
+	_retarget_s = RETARGET_S
+	var best := target if target != null and is_instance_valid(target) and target_alive() else null
+	var best_d := INF if best == null else unit.global_position.distance_to(best.global_position) - RETARGET_MARGIN_M
+	for group: String in ["player_mech", "squad_mech"]:
+		for n: Node in get_tree().get_nodes_in_group(group):
+			var m := n as RigidBody3D
+			if m == null or m == best or not _alive_mech(m):
+				continue
+			var d := unit.global_position.distance_to(m.global_position)
+			if d < best_d:
+				best = m
+				best_d = d
+	if best != null and best != target:
+		_set_target(best)
+
+
+func _set_target(m: RigidBody3D) -> void:
 	if target != null and is_instance_valid(target):
-		return
-	target = get_tree().get_first_node_in_group("player_mech") as RigidBody3D
-	if target == null:
-		return
+		if target.has_signal("stepped") and target.is_connected("stepped", _on_target_stepped):
+			target.disconnect("stepped", _on_target_stepped)
+		var old: Object = target.get_meta("combat") if target.has_meta("combat") else null
+		if old != null and old.has_signal("fired") and old.is_connected("fired", _on_target_fired):
+			old.disconnect("fired", _on_target_fired)
+		_target_v = m.linear_velocity
+	target = m
 	if target.has_signal("stepped"):
 		target.connect("stepped", _on_target_stepped)
 	var combat: Object = target.get_meta("combat") if target.has_meta("combat") else null
 	if combat != null and combat.has_signal("fired"):
 		combat.connect("fired", _on_target_fired)
+
+
+static func _alive_mech(m: RigidBody3D) -> bool:
+	var combat: Object = m.get_meta("combat") if m.has_meta("combat") else null
+	return combat == null or combat.get("damage") == null or not bool((combat.get("damage") as DamageModel).is_destroyed)
 
 
 func target_alive() -> bool:

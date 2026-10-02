@@ -160,11 +160,14 @@ func _run_step(step: Dictionary) -> void:
 	elif step.has("goto"):
 		_goto(str(step["goto"]))
 	elif step.has("call"):
-		var scene := get_tree().current_scene
+		# On the current scene, or with "group" on the first node in that group (e.g. "squad", "handler_view").
+		var scene: Node = get_tree().current_scene
+		if step.has("group"):
+			scene = get_tree().get_first_node_in_group(str(step["group"]))
 		if scene != null and scene.has_method(str(step["call"])):
 			scene.callv(str(step["call"]), step.get("args", []))
 		else:
-			_errors.append("no method %s on the current scene" % step["call"])
+			_errors.append("no method %s on %s" % [step["call"], step.get("group", "the current scene")])
 	elif step.has("wait"):
 		# {"wait": "level"}: the clock stops until the map being loaded is up (at once if it already is).
 		if str(step["wait"]) == "level" and (Game.level == null or not is_instance_valid(Game.level)):

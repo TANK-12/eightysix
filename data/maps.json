@@ -2,6 +2,7 @@
   "_about": "Maps, one entry each. \"scene\" is loaded behind the loading screen; \"status\": \"planned\" entries show in the map list but cannot be started yet. \"spawn\" is the player start in metres (x, y, z) with the heading in degrees. \"tips\" are shown while it loads.",
   "entries": {
     "test_bench_flat": {
+      "squad": false,
       "label": "Test bench: flat pad",
       "order": 91,
       "scene": "res://scenes/levels/test_bench_flat.tscn",
@@ -15,6 +16,7 @@
       ]
     },
     "test_bench_rough": {
+      "squad": false,
       "label": "Test bench: rough field",
       "order": 92,
       "scene": "res://scenes/levels/test_bench_rough.tscn",
@@ -28,6 +30,7 @@
       ]
     },
     "test_range": {
+      "squad": false,
       "label": "Test range",
       "order": 90,
       "scene": "res://scenes/levels/test_range.tscn",

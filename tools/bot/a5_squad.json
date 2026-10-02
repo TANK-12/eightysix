@@ -1,0 +1,19 @@
+{
+  "name": "a5_squad",
+  "_about": "Lane A5 part 1: the squad on the small map (gameplay.squad_size default 2). Field shot with the wingmen, hold order and the player walks off, the Handler view with the squad spread, regroup, the Handler view again. tools/bot_run.sh a5_squad",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 4.0, "shot": "field-start"},
+    {"at": 4.5, "call": "give_order", "group": "squad", "args": ["hold"]},
+    {"at": 5.0, "press": "move_forward", "strength": 1.0, "for": 8.0},
+    {"at": 7.0, "press": "sprint", "strength": 1.0, "for": 5.0},
+    {"at": 13.5, "call": "open", "group": "handler_view"},
+    {"at": 15.0, "shot": "handler-after-hold"},
+    {"at": 15.5, "call": "give_order", "group": "squad", "args": ["regroup"]},
+    {"at": 22.0, "shot": "handler-regroup"},
+    {"at": 22.5, "call": "close", "group": "handler_view"},
+    {"at": 24.0, "shot": "field-regrouped"},
+    {"at": 25.0, "quit": true}
+  ]
+}
