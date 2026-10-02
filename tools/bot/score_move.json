@@ -3,6 +3,7 @@
   "_about": "Lane A3 part 4: the scoreboard's movement half (PLAN 'Raising the bar'). A fixed route on Ashen valley (map seed 8686, spawn at the start): gallop up the north road through the crater field toward the town, a full slide with a spin, a running charged jump with leg-swing turning and a mid-air shot. MoveMeter (scripts/mech/move_meter.gd) writes logs/score_move.json at the end; tools/scoreboard.py adds it to the row. tools/bot_run.sh score_move --preset=medium",
   "map": "small_map",
   "steps": [
+  {"at": 0.05, "setting": "gameplay.squad_size", "value": 0.0, "_why": "like-for-like with rows before lane A5: the squad is measured by a5_fps_0 / a5_fps_2"},
     {"at": 0.5, "wait": "level"},
     {"at": 0.6, "setting": "controls.sprint_mode", "value": "hold"},
     {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},

@@ -3,6 +3,7 @@
  "map": "small_map",
  "_about": "Scoreboard, look half (lane B4): six fixed camera shots (five viewpoints and the chase camera at the spawn) and two frame measures, the start viewpoint standing and the mech walking toward the town. tools/scoreboard.sh runs it once per preset. Keep the shots and timings fixed so rows compare.",
  "steps": [
+  {"at": 0.05, "setting": "gameplay.squad_size", "value": 0.0, "_why": "like-for-like with rows before lane A5: the squad is measured by a5_fps_0 / a5_fps_2"},
   {
    "at": 0.0,
    "setting": "controls.sprint_mode",
