@@ -563,3 +563,12 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   Hangar and main-menu Juggernaut, move hints.
 - **Move hints** (A4-side.md job 2): `data/hints.json` + `scripts/ui/move_hints.gd`, each hint once ever, Settings >
   Gameplay > HUD > Move hints. Verified: test_move_hints 5/5, bot `a4p5_hints` (images/294).
+
+### 2026-10-02 · lane B5 part 6 · Tetsu (ejb-ab/ejb-36)
+- **Native resolution on every preset** (Emerson: no upscaling or sharpening as the base): `graphics_presets.json`
+  resolution_scale 1.0, bilinear, sharpening 0; settings defaults the same. Big map cost (one sitting): Low 64 / town 50
+  fps (was 85 / 68), Medium 53 / town 42 (was 62 / 50). test_graphics 5/5.
+- **The Löwe climbs out of the Frontier finale hollow**: a step may climb the grippable slope plus one ledge, feet that
+  cannot grip can still bear weight (telemetry `b`), feet tuck under the hip to stand a sunk body up, and the brain's
+  look-ahead allows one ledge per body length. Test `test_the_lowe_brain_finds_a_way_off_the_rough_patch` (3/3).
+- Suite 295/295. **Version 011 saved** (6d763b5). Details: ~/Forge/sessions/juggernaut-alpha/results/B5.md "Part 6".
