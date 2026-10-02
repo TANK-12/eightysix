@@ -93,6 +93,24 @@ def aabb_size(hull):
     return [max(xs) - min(xs), max(ys) - min(ys), max(zs) - min(zs)]
 
 
+def subgun_muzzles(model: dict, origin: list) -> dict:
+    """The 12.7 mm muzzles: the centre of each sub-arm hull's front face (its points within 5 mm of the
+    frontmost), in the body frame. The export's "subarm_*" sockets sit at the arm's inboard root, 0.44 m
+    from the barrel (Emerson's note 12 after version 012: rounds started outside the body)."""
+    out = {}
+    for side in ("L", "R"):
+        part = next(p for p in model["parts"] if p["name"] == f"JG2_subarm.{side}")
+        front = min(v[2] for v in part["hull"])
+        tip = [v for v in part["hull"] if v[2] <= front + 0.005]
+        centre = [sum(v[i] for v in tip) / len(tip) for i in range(3)]
+        out[f"subgun_{side}"] = {
+            "bone": part["bone"],
+            "at": [round(centre[i] - origin[i], 4) for i in range(3)],
+            "forward": [0, 0, -1],
+        }
+    return out
+
+
 def main() -> int:
     model = json.loads(MODEL_JSON.read_text())
     joints = {j["bone"]: j for j in model["joints"]}
@@ -257,6 +275,7 @@ def main() -> int:
         for name, s in sockets.items()
         if name not in ("cockpit_camera", "eye_camera")
     }
+    sockets_out.update(subgun_muzzles(model, origin))
 
     table = apply_mass_table(new_parts, chassis_placements)
 

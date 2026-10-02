@@ -117,3 +117,24 @@ func test_a_bullet_puff_is_far_smaller_than_a_dart_kick() -> void:
 	var dart := CombatFx.impact(holder, Vector3.ZERO, Vector3.UP, false, false, true)
 	assert_lt(_biggest_quad(bullet), _biggest_quad(dart) * 0.5, "a 45 g bullet raises under half a 1.2 kg dart's dust")
 	assert_lt(_longest_life(bullet), 2.5, "and it settles in a couple of seconds")
+
+
+## Emerson's note 14 (2026-10-02): his muzzle flashes looked weak. The 57 mm's is a flame tongue a couple of metres
+## long with a strong light; the 12.7 mm's comes from a pool.
+func test_the_57_mm_flash_is_a_flame_tongue_with_a_light() -> void:
+	CombatFx.muzzle(holder, Vector3(0, 2.5, 0), Vector3.FORWARD)
+	var flames := _named(holder.get_children(), "muzzle_flame")
+	assert_eq(flames.size(), 1, "one flame")
+	var f := flames[0] as CPUParticles3D
+	var reach := f.initial_velocity_max * f.initial_velocity_max / (2.0 * f.damping_max)
+	assert_gt(reach, 1.5, "the tongue reaches past 1.5 m")
+	assert_lt(reach, 4.0, "and stays under 4 m")
+	var lights := holder.get_children().filter(func(n: Node) -> bool: return n is OmniLight3D)
+	assert_gt((lights[0] as OmniLight3D).omni_range, 15.0, "its light reaches the ground around the mech")
+
+
+func test_machine_gun_flashes_come_from_the_pool() -> void:
+	for i in 100:
+		CombatFx.muzzle(holder, Vector3(i * 0.1, 2, 0), Vector3.FORWARD, 0.35)
+	var flames := _named(holder.get_children(), "mg_flame")
+	assert_lt(flames.size(), CombatFx.BULLET_POOL + 1, "100 shots, no more flames than the pool")

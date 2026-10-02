@@ -2,7 +2,9 @@ class_name CombatFx
 extends RefCounted
 ## The look of combat: muzzle blast, tracers, impact sparks and dust, scorch and gouge decals, spent
 ## casings and flung armour. Everything here is fire-and-forget (it frees itself) and cheap enough for
-## the Low preset: CPU particles with small counts, one short-lived light per event.
+## the Low preset: CPU particles with small counts, one short-lived light per event. No particle casts a
+## shadow: a see-through quad still throws a solid one (version 014: a dark dome on the ground under the
+## 57 mm's flash, images/456).
 
 const MAX_DECALS := 64
 const MAX_CASINGS := 24
@@ -80,6 +82,14 @@ static func smoke_material() -> StandardMaterial3D:
 		_smoke_mat.roughness = 1.0
 		# Smoke is a volume, not a surface: no shadow maps on it.
 		_smoke_mat.disable_receive_shadows = true
+		# Thin dust passes light through it: seen against the sun it glows rather than going black (version 014:
+		# the 57 mm's smoke and ground dust read as black blobs from the cockpit, images/453).
+		_smoke_mat.backlight_enabled = true
+		_smoke_mat.backlight = Color(0.55, 0.52, 0.48)
+		# and sky light scattered inside the cloud keeps its shaded side from going black.
+		_smoke_mat.emission_enabled = true
+		_smoke_mat.emission = Color(0.3, 0.29, 0.27)
+		_smoke_mat.emission_energy_multiplier = 1.0
 	return _smoke_mat
 
 
@@ -161,6 +171,7 @@ static func brass_material() -> StandardMaterial3D:
 ## A burst of hot streaks (align to velocity, fall under gravity).
 static func sparks(parent: Node, pos: Vector3, dir: Vector3, amount: int, speed: float, spread_deg: float = 55.0) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var streak := BoxMesh.new()
 	streak.size = Vector3(0.025, 0.28, 0.025)
 	streak.material = spark_material()
@@ -188,7 +199,14 @@ static func sparks(parent: Node, pos: Vector3, dir: Vector3, amount: int, speed:
 
 ## Billowing smoke or dust: grows and fades.
 static func smoke(parent: Node, pos: Vector3, dir: Vector3, amount: int, size: float, color: Color, life: float = 1.8, speed: float = 2.0) -> CPUParticles3D:
+	return _launch(parent, smoke_emitter(amount, size, color, life, speed), pos, dir, life + 0.3)
+
+
+## smoke()'s emitter, not yet in the tree or emitting, for a caller that changes it first: a property set after
+## emitting starts left a dark unmoving blob at the spot (version 014, images/452-457).
+static func smoke_emitter(amount: int, size: float, color: Color, life: float = 1.8, speed: float = 2.0) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * size
 	quad.material = smoke_material()
@@ -196,6 +214,7 @@ static func smoke(parent: Node, pos: Vector3, dir: Vector3, amount: int, size: f
 	p.amount = maxi(amount, 1)
 	p.lifetime = life
 	p.one_shot = true
+	p.emitting = false
 	p.explosiveness = 0.85
 	p.direction = Vector3.UP
 	p.spread = 40.0
@@ -214,11 +233,16 @@ static func smoke(parent: Node, pos: Vector3, dir: Vector3, amount: int, size: f
 	p.color_ramp = ramp
 	p.angle_min = 0.0
 	p.angle_max = 360.0
+	return p
+
+
+## Adds a one-shot emitter built off-tree, places it and starts it; it frees itself after `seconds`.
+static func _launch(parent: Node, p: CPUParticles3D, pos: Vector3, dir: Vector3, seconds: float) -> CPUParticles3D:
 	parent.add_child(p)
 	p.global_position = pos
 	_orient_up(p, dir)
-	p.emitting = true
-	_free_after(p, life + 0.3)
+	p.restart()
+	_free_after(p, seconds)
 	return p
 
 
@@ -237,39 +261,59 @@ static func flash_light(parent: Node, pos: Vector3, color: Color, energy: float,
 	return light
 
 
-## The 57 mm's muzzle blast: a flash cone, a light, a smoke ring and a dust kick.
-## `size` scales the flash (1 for the 57 mm, about 0.35 for a 12.7 mm).
+## A gun's muzzle blast, seen from any side (Emerson's note 14 after 012: the old flash was a flat cone that read
+## as a dim disc from the cockpit and the chase camera): a tongue of burning propellant gas streaming out of the
+## bore, a light that throws the flash on the ground and the hull, and for the 57 mm sparks and a smoke puff.
+## `size` 1 for the 57 mm, about 0.35 for a 12.7 mm, whose flames come from a pool (16 rounds a second) and
+## which skips the sparks and smoke.
 static func muzzle(parent: Node, pos: Vector3, dir: Vector3, size: float = 1.0) -> void:
-	var flash := MeshInstance3D.new()
-	var cone := CylinderMesh.new()
-	cone.top_radius = 0.0
-	cone.bottom_radius = 0.55 * size
-	cone.height = 2.6 * size
-	cone.radial_segments = 10
-	cone.rings = 1
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	mat.albedo_color = Color(1.0, 0.7, 0.35, 0.9)
-	cone.material = mat
-	flash.mesh = cone
-	parent.add_child(flash)
-	flash.global_position = pos + dir * 1.2 * size
-	_orient_up(flash, dir)
-	if flash.is_inside_tree():
-		var tw := flash.create_tween()
-		tw.tween_property(flash, "scale", Vector3(1.6, 0.4, 1.6), 0.07)
-		tw.tween_callback(flash.queue_free)
-	flash_light(parent, pos + dir * 0.8, Color(1.0, 0.72, 0.4), 9.0 * size, 14.0 * size, 0.12)
-	sparks(parent, pos + dir * 0.5, dir, maxi(int(18 * size), 3), 26.0, 18.0)
-	if size < 0.5:
-		return  # a machine gun's flash: no smoke rings at 16 rounds a second
-	var puff := smoke(parent, pos + dir * 1.0, dir, 14, 1.4, Color(0.72, 0.7, 0.66, 0.55), 1.6, 9.0)
-	puff.spread = 70.0
-	for side: float in [-1.0, 1.0]:
-		var ring := smoke(parent, pos, dir.cross(Vector3.UP).normalized() * side, 6, 1.1, Color(0.7, 0.68, 0.64, 0.4), 1.2, 7.0)
-		ring.spread = 25.0
+	var gun := size >= 0.5
+	var flame: CPUParticles3D = _flame() if gun else _pooled("mg_flame", parent, _flame)
+	(flame.mesh as QuadMesh).size = Vector2.ONE * 1.1 * size
+	# Flame particles leave at up to 70 m/s per unit size and stop within v^2 / 2a: a tongue about 2.5 m long for
+	# the 57 mm and under a metre for the 12.7 mm.
+	flame.initial_velocity_min = 2.0 * size
+	flame.initial_velocity_max = 70.0 * size
+	flame.damping_min = 1000.0 * size
+	flame.damping_max = 1000.0 * size
+	if gun:
+		flame.one_shot = true
+		parent.add_child(flame)
+		_free_after(flame, 0.4)
+	_emit(flame, pos, dir)
+	flash_light(parent, pos + dir * 1.2 * size, Color(1.0, 0.7, 0.38), 14.0 * size, 22.0 * size, 0.09 if gun else 0.05)
+	if not gun:
+		return
+	sparks(parent, pos + dir * 0.5, dir, 18, 26.0, 18.0)
+	var puff := smoke_emitter(12, 1.4, Color(0.8, 0.78, 0.74, 0.4), 1.6, 9.0)
+	puff.spread = 60.0
+	_launch(parent, puff, pos + dir * 1.5, dir, 1.9)
+
+
+## The burning-gas tongue of a muzzle flash: bright additive quads that swell and burn out in 90 ms.
+static func _flame() -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var quad := QuadMesh.new()
+	quad.material = fire_material()
+	p.mesh = quad
+	p.amount = 12
+	p.lifetime = 0.09
+	p.explosiveness = 1.0
+	p.direction = Vector3.UP
+	p.spread = 7.0
+	p.gravity = Vector3.ZERO
+	var grow := Curve.new()
+	grow.add_point(Vector2(0.0, 0.7))
+	grow.add_point(Vector2(1.0, 1.5))
+	p.scale_amount_curve = grow
+	var ramp := Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.35, 1.0])
+	ramp.colors = PackedColorArray([Color(1.0, 0.95, 0.8, 1.0), Color(1.0, 0.6, 0.2, 0.85), Color(0.6, 0.18, 0.04, 0.0)])
+	p.color_ramp = ramp
+	p.angle_max = 360.0
+	p.set_meta("fx", "muzzle_flame")
+	return p
 
 
 ## A round's hit: sparks and dust, scaled by the Hit dust setting. A high-explosive shell (`big`) adds a
@@ -357,6 +401,7 @@ static func _emit(p: CPUParticles3D, pos: Vector3, dir: Vector3) -> void:
 
 static func _bullet_sparks() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var streak := BoxMesh.new()
 	streak.size = Vector3(0.02, 0.2, 0.02)
 	streak.material = spark_material()
@@ -375,6 +420,7 @@ static func _bullet_sparks() -> CPUParticles3D:
 
 static func _bullet_puff() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var quad := QuadMesh.new()
 	quad.material = smoke_material()
 	p.mesh = quad
@@ -398,6 +444,7 @@ static func _bullet_puff() -> CPUParticles3D:
 ## `size` 1 is about 2 m across.
 static func fireball(parent: Node, pos: Vector3, normal: Vector3, size: float) -> Array:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var quad := QuadMesh.new()
 	quad.size = Vector2.ONE * 2.2 * size
 	quad.material = fire_material()
@@ -436,6 +483,7 @@ static func fireball(parent: Node, pos: Vector3, normal: Vector3, size: float) -
 ## Dirt thrown out of a shell's crater: dark lumps on ballistic arcs. `amount` 1 is 16 clods.
 static func clods(parent: Node, pos: Vector3, normal: Vector3, amount: float) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var lump := BoxMesh.new()
 	lump.size = Vector3.ONE * 0.2
 	lump.material = clod_material()

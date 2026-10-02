@@ -986,6 +986,32 @@
             0.0,
             -0.0
           ]
+        },
+        "subgun_L": {
+          "bone": "subarm.L",
+          "at": [
+            -0.8298,
+            -0.2977,
+            -1.7979
+          ],
+          "forward": [
+            0,
+            0,
+            -1
+          ]
+        },
+        "subgun_R": {
+          "bone": "subarm.R",
+          "at": [
+            0.8298,
+            -0.2977,
+            -1.7979
+          ],
+          "forward": [
+            0,
+            0,
+            -1
+          ]
         }
       },
       "origin": "model2's 'body' bone (chest height); the coxa/thigh/shin/ram meshes stay fixed to it as ordinary chassis parts, and the gun/subarms are locked (see B1.md locked_bones)",

@@ -379,3 +379,20 @@ func test_the_57mm_mark_is_where_its_round_lands() -> void:
 	assert_true(bool(hit["hit"]), "it lands on the wall")
 	assert_almost_eq(float(hit["range_m"]), 120.0, 1.5, "at the wall's range")
 	assert_between(under, 0.0, 0.2, "a little under the bore line (the drop over 120 m)")
+
+
+## Emerson's note 12 (2026-10-02): the 12.7 mm rounds started outside the body. Each sub-gun's muzzle is the front
+## of its sub-arm (the "subgun" socket), not 0.6 m ahead of the arm's inboard root.
+func test_sub_gun_muzzles_are_at_the_front_of_the_sub_arms() -> void:
+	var m := MechBuilder.build("juggernaut_m2")
+	tree.root.add_child(m)
+	await physics_frames(2)
+	var combat := m.get_node("Combat")
+	var sockets: Dictionary = (m.get("def") as Dictionary)["sockets"]
+	for side in 2:
+		var name := "subgun_L" if side == 0 else "subgun_R"
+		var a: Array = (sockets[name] as Dictionary)["at"]
+		var muzzle: Vector3 = combat.call("sub_muzzle_local", side)
+		assert_almost_eq(muzzle.distance_to(Vector3(a[0], a[1], a[2])), 0.0, 0.001, "%s fires from its socket" % name)
+		assert_gt(absf(muzzle.x), 0.7, "%s is out on the sub-arm, not under the nose" % name)
+	m.free()

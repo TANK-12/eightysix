@@ -1,0 +1,25 @@
+{
+ "name": "v14_cockpit_fx",
+ "map": "small_map",
+ "_about": "Version 014, Emerson's notes 13-14: wingmen seen from the cockpit, and the 57 mm and 12.7 mm muzzle flashes from the cockpit and the chase camera. tools/bot_run.sh v14_cockpit_fx",
+ "steps": [
+  {"at": 0.05, "setting": "gameplay.squad_size", "value": 2.0},
+  {"at": 0.5, "wait": "level"},
+  {"at": 0.6, "setting": "gameplay.default_view", "value": "cockpit"},
+  {"at": 4.0, "press": "turn_left", "strength": 0.5, "for": 0.6},
+  {"at": 5.5, "shot": "cockpit-wingman"},
+  {"at": 6.0, "press": "turn_right", "strength": 0.5, "for": 0.6},
+  {"at": 7.5, "press": "fire_main", "strength": 1.0, "for": 0.1},
+  {"at": 7.53, "shot": "cockpit-57-a"},
+  {"at": 7.6, "shot": "cockpit-57-b"},
+  {"at": 9.5, "press": "fire_sub", "strength": 1.0, "for": 1.5},
+  {"at": 10.2, "shot": "cockpit-mg"},
+  {"at": 11.5, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 13.5, "press": "fire_main", "strength": 1.0, "for": 0.1},
+  {"at": 13.53, "shot": "third-57-a"},
+  {"at": 13.6, "shot": "third-57-b"},
+  {"at": 15.5, "press": "fire_sub", "strength": 1.0, "for": 1.5},
+  {"at": 16.2, "shot": "third-mg"},
+  {"at": 17.5, "quit": true}
+ ]
+}

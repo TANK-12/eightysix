@@ -76,9 +76,10 @@ func _ready() -> void:
 ## CombatFx.MECH_LAYER, except where the mech's "cockpit_show" lists parts (lane A4 part 5, Emerson's note 6):
 ## then everything not listed goes on CombatFx.COCKPIT_SHELL_LAYER, which the first-person camera leaves
 ## out, since it sits inside the pod and saw only the back of the hull around the pilot (a layer test is
-## "shares any layer with the camera's mask", so a part cannot be on both).
+## "shares any layer with the camera's mask", so a part cannot be on both). Only the player's own mech: the
+## wingmen are seen from outside and stay whole (Emerson's note 13, they looked "cooked" from the cockpit).
 func _tag_mech_layer() -> void:
-	var show: Array = (mech.get("def") as Dictionary).get("cockpit_show", [])
+	var show: Array = (mech.get("def") as Dictionary).get("cockpit_show", []) if mech.get("is_player") else []
 	for node: Node in mech.find_children("*", "GeometryInstance3D", true, false):
 		if node is Decal or node.get_parent() == self:
 			continue
@@ -295,8 +296,13 @@ func fire_main() -> bool:
 # --- sub-arm machine guns -------------------------------------------------------------------------
 
 
-## Where each sub-arm gun's muzzle is: the sub-arm socket plus the barrel ahead of it.
+## Where each sub-arm gun's muzzle is: the "subgun" socket at the front of the sub-arm (Emerson's note 12 after
+## 012: the old "subarm" socket is the arm's inboard root, so rounds started 0.6 m out in the air), or for a mech
+## without one, the sub-arm socket plus the barrel ahead of it.
 func sub_muzzle_local(side: int) -> Vector3:
+	var gun := _socket("subgun_L" if side == 0 else "subgun_R", Vector3.INF)
+	if gun != Vector3.INF:
+		return gun
 	var fallback := Vector3(-0.4 if side == 0 else 0.4, -0.1, -1.7)
 	return _socket("subarm_L" if side == 0 else "subarm_R", fallback) + Vector3(0.0, 0.0, -float(_c.get("sub_barrel_m", 0.6)))
 

@@ -84,3 +84,21 @@ func test_the_cockpit_view_still_draws_other_mechs() -> void:
 	for mi: MeshInstance3D in meshes:
 		assert_ne(mi.layers & cam.cull_mask, 0, "%s of an enemy is drawn from the cockpit" % mi.name)
 	unit.free()
+
+
+## Emerson's note 13 (2026-10-02): in first person the wingmen looked "cooked": every Juggernaut's hull went on
+## the cockpit shell layer, not only the pilot's own. A Juggernaut that is not the player is drawn whole.
+func test_the_cockpit_view_draws_a_wingman_whole() -> void:
+	var wingman := MechBuilder.build("juggernaut_m2")
+	wingman.set("is_player", false)
+	wingman.position = Vector3(12, 3.0, -10)
+	tree.root.add_child(wingman)
+	await physics_frames(5)
+	cam.set("view", "cockpit")
+	cam.call("_process", 0.0)
+	var hidden: Array = []
+	for mi: Node in wingman.find_children("*", "MeshInstance3D", true, false):
+		if mi.get_parent().name != "Combat" and (mi as MeshInstance3D).layers & cam.cull_mask == 0:
+			hidden.append(str(mi.name))
+	assert_eq(hidden.size(), 0, "no part of the wingman is cut from the cockpit view: %s" % ", ".join(hidden))
+	wingman.free()
