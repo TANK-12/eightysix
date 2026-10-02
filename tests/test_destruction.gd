@@ -164,3 +164,26 @@ func test_a_burnt_out_truck_stands_and_comes_apart_under_fire() -> void:
 		d.take_hit({"point": d.to_global(Vector3(0.0, 1.2, 0.0)), "dir": Vector3.RIGHT, "damage": 1500.0, "ammo": "he"})
 		shots += 1
 	assert_lt(d.integrity(), 0.6, "a few HE rounds wreck the wreck (%d)" % shots)
+
+
+## Lane B5 part 3: street and depot props from the kit (a rail car, a power pole, crate stacks, a sandbag wall):
+## each stands as built for every seed (nothing floats), and a rail car comes apart under HE.
+func test_the_street_and_depot_props_stand_as_built() -> void:
+	for id: String in ["rail_car", "power_pole", "crate_stack", "sandbag_wall"]:
+		for seed_v in 8:
+			var d := Destructible.make(id, seed_v)
+			holder.add_child(d)
+			assert_gt(d.pieces.size(), 1, "%s seed %d has pieces" % [id, seed_v])
+			assert_true(d._unsupported().is_empty(), "%s seed %d: everything on it is held up as built" % [id, seed_v])
+			d.free()
+
+
+func test_a_rail_car_roof_comes_down_with_its_walls() -> void:
+	var d := Destructible.make("rail_car", 2)
+	holder.add_child(d)
+	var shots := 0
+	while d.integrity() > 0.6 and shots < 14:
+		d.take_hit({"point": d.to_global(Vector3(0.0, 1.5, 0.0)), "dir": Vector3.RIGHT, "damage": 1500.0, "ammo": "he"})
+		shots += 1
+	assert_lt(d.integrity(), 0.7, "HE wrecks a rail car (%d rounds)" % shots)
+	assert_true(d._unsupported().is_empty(), "nothing is left hanging")

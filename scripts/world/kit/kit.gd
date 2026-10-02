@@ -111,6 +111,12 @@ static func build(id: String, seed_value: int = 0, overrides: Dictionary = {}) -
 			_wreck(parts, e, rng)
 		"rubble":
 			_rubble(parts, e, rng)
+		"railcar":
+			_railcar(parts, e, rng)
+		"pole":
+			_pole(parts, e, rng)
+		"stack":
+			_stack(parts, e, rng)
 		_:
 			push_warning("Kit: '%s' has no builder '%s'" % [id, e.get("builder", "")])
 	var mesh := parts.commit()
@@ -619,6 +625,79 @@ static func _wreck(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> v
 	if rng.randf() < 0.5:
 		parts.piece(mat, Transform3D(roll, Vector3(bed_x - bed_l * 0.5 + 0.06, top + 0.5, 0.0)), Vector3(0.12, 0.7, bed_w))
 	parts.anchors.append(Vector3(length * 0.27, top + 1.8, 0.0))
+
+
+## A derelict box car on a stub of track (lane B5 part 3): ties, two rails, two bogies, the floor, side walls in
+## thirds (the middle third of one side missing: the door), end walls and a roof in halves that each need both
+## sides under them (so it comes down when the walls go). Sometimes one roof half is burnt away.
+static func _railcar(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
+	var mat := str(e.get("material", "steel_rust"))
+	var length := float(e.get("length_m", 12.0))
+	var width := float(e.get("width_m", 3.0))
+	var height := float(e.get("height_m", 2.8))
+	var tie := 0.14
+	var rail := 0.15
+	var track := length + 8.0
+	for k in int(track / 0.9):
+		parts.piece("rock_dark", Transform3D(Basis(), Vector3(-track * 0.5 + 0.45 + k * 0.9, tie * 0.5, 0.0)), Vector3(0.25, tie, 2.4))
+	for sz: float in [-0.72, 0.72]:
+		parts.piece(mat, Transform3D(Basis(), Vector3(0.0, tie + rail * 0.5, sz)), Vector3(track, rail, 0.1))
+	var rail_top := tie + rail
+	for sx: float in [-0.32, 0.32]:
+		parts.piece(mat, Transform3D(Basis(), Vector3(length * sx, rail_top + 0.25, 0.0)), Vector3(2.4, 0.5, width * 0.7))
+	var floor_y := rail_top + 0.5 + 0.15
+	parts.piece(mat, Transform3D(Basis(), Vector3(0.0, floor_y, 0.0)), Vector3(length, 0.3, width))
+	var base := floor_y + 0.15
+	var third := length / 3.0
+	var open_side := 1.0 if rng.randf() < 0.5 else -1.0
+	for sz: float in [-1.0, 1.0]:
+		for k in 3:
+			var x := (k - 1) * third
+			if not (sz == open_side and k == 1):  # the middle third of the open side is the door
+				parts.piece(mat, Transform3D(Basis(), Vector3(x, base + height * 0.5, sz * (width * 0.5 - 0.06))), Vector3(third, height, 0.12))
+	for sx: float in [-1.0, 1.0]:
+		parts.piece(mat, Transform3D(Basis(), Vector3(sx * (length * 0.5 - 0.06), base + height * 0.5, 0.0)), Vector3(0.12, height, width - 0.24))
+	var burnt := rng.randi_range(0, 1) if rng.randf() < 0.35 else -1
+	for k in 2:
+		if k != burnt:
+			parts.piece(mat, Transform3D(Basis(), Vector3((k - 0.5) * length * 0.5, base + height + 0.06, 0.0)), Vector3(length * 0.5, 0.12, width), 2)
+	parts.anchors.append(Vector3(0.0, base + height + 0.12, 0.0))
+
+
+## A steel power pole with a cross arm (lane B5 part 3); one time in three it has snapped and the top lies on the ground.
+static func _pole(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
+	var mat := str(e.get("material", "steel_rust"))
+	var height := float(e.get("height_m", 7.5))
+	var snapped := rng.randf() < 0.33
+	var yaw := rng.randf() * TAU
+	var half := height * 0.5
+	parts.piece(mat, Transform3D(Basis(), Vector3(0.0, half * 0.5, 0.0)), Vector3(0.3, half, 0.3))
+	if snapped:
+		parts.piece(mat, Transform3D(Basis(Vector3.UP, yaw), Vector3(cos(yaw) * half * 0.55, 0.13, -sin(yaw) * half * 0.55)), Vector3(half, 0.26, 0.26))
+	else:
+		parts.piece(mat, Transform3D(Basis(), Vector3(0.0, half * 1.5, 0.0)), Vector3(0.26, half, 0.26))
+		parts.piece(mat, Transform3D(Basis(Vector3.UP, yaw), Vector3(0.0, height + 0.1, 0.0)), Vector3(0.2, 0.2, 2.4))
+	parts.anchors.append(Vector3(0.0, half * 0.5 + half * 0.5, 0.0))
+
+
+## Boxes piled up (lane B5 part 3): "pyramid" is rows of crates of size_m, one fewer each row up (crate_stack);
+## "wall" is courses of long low bags, each course shifted half a bag (sandbag_wall). A little yaw per box.
+static func _stack(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
+	var mat := str(e.get("material", "steel_paint"))
+	var size: Array = e.get("box_m", [1.0, 1.0, 1.0])
+	var b := Vector3(float(size[0]), float(size[1]), float(size[2]))
+	var rows := int(e.get("rows", 3))
+	var across := int(e.get("across", 3))
+	var wall := str(e.get("layout", "pyramid")) == "wall"
+	for r in rows:
+		var n := across if wall else across - r
+		for k in n:
+			var x := (k - (n - 1) * 0.5) * b.x
+			if wall and r % 2 == 1:
+				x += b.x * 0.5
+			var yaw := rng.randf_range(-0.1, 0.1)
+			parts.piece(mat, Transform3D(Basis(Vector3.UP, yaw), Vector3(x, b.y * (r + 0.5), 0.0)), b)
+	parts.anchors.append(Vector3(0.0, b.y * rows, 0.0))
 
 
 ## A mound of concrete chunks, one convex collider for the whole pile.

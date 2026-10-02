@@ -4,22 +4,22 @@
     "town": {
       "label": "Ruined town", "street_every_m": 64.0, "street_w_m": 12.0, "lot_m": 18.0, "fill": 0.62,
       "kits": {"ruin_house": 3, "ruin_house_two": 3, "ruin_block": 2, "ruin_tower": 1},
-      "extras": {"wreck_truck": 0.14, "rubble_pile": 0.35, "wall_broken_4m": 0.25}
+      "extras": {"wreck_truck": 0.14, "rubble_pile": 0.35, "wall_broken_4m": 0.25, "power_pole": 0.2, "crate_stack": 0.1, "sandbag_wall": 0.15}
     },
     "village": {
       "label": "Village", "street_every_m": 80.0, "street_w_m": 10.0, "lot_m": 20.0, "fill": 0.55,
       "kits": {"ruin_house": 4, "ruin_house_two": 2},
-      "extras": {"wreck_truck": 0.1, "wall_4m": 0.3, "wall_window_4m": 0.15, "rubble_pile": 0.15}
+      "extras": {"wreck_truck": 0.1, "wall_4m": 0.3, "wall_window_4m": 0.15, "rubble_pile": 0.15, "power_pole": 0.2, "crate_stack": 0.1, "sandbag_wall": 0.1}
     },
     "depot": {
       "label": "Rail depot", "street_every_m": 70.0, "street_w_m": 16.0, "lot_m": 26.0, "fill": 0.5,
       "kits": {"ruin_block": 3, "ruin_tower": 1},
-      "extras": {"wreck_truck": 0.2, "wall_concrete_6m": 0.4, "tank_trap": 0.3, "rubble_pile": 0.2}
+      "extras": {"wreck_truck": 0.2, "wall_concrete_6m": 0.4, "tank_trap": 0.3, "rubble_pile": 0.2, "rail_car": 0.3, "crate_stack": 0.25, "power_pole": 0.15}
     },
     "farm": {
       "label": "Farmstead", "street_every_m": 70.0, "street_w_m": 8.0, "lot_m": 22.0, "fill": 0.6,
       "kits": {"ruin_house": 2, "ruin_house_two": 1},
-      "extras": {"wall_4m": 0.4, "wall_broken_4m": 0.3}
+      "extras": {"wall_4m": 0.4, "wall_broken_4m": 0.3, "crate_stack": 0.2, "power_pole": 0.15}
     }
   }
 }

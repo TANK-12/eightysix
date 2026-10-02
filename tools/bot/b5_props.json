@@ -1,0 +1,76 @@
+{
+ "name": "b5_props",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: the new street and depot props (rail car, power pole, crate stack, sandbag wall), one close look each. tools/bot_run.sh b5_props",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "look_at_place",
+   "args": [
+    "rail_car",
+    0,
+    -16.0,
+    5.0
+   ]
+  },
+  {
+   "at": 4.0,
+   "shot": "rail_car"
+  },
+  {
+   "at": 5.0,
+   "call": "look_at_place",
+   "args": [
+    "power_pole",
+    0,
+    -9.0,
+    3.5
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "power_pole"
+  },
+  {
+   "at": 9.0,
+   "call": "look_at_place",
+   "args": [
+    "crate_stack",
+    0,
+    7.0,
+    3.0
+   ]
+  },
+  {
+   "at": 12.0,
+   "shot": "crate_stack"
+  },
+  {
+   "at": 13.0,
+   "call": "look_at_place",
+   "args": [
+    "sandbag_wall",
+    0,
+    7.0,
+    3.0
+   ]
+  },
+  {
+   "at": 16.0,
+   "shot": "sandbag_wall"
+  },
+  {
+   "at": 17.0,
+   "quit": true
+  }
+ ]
+}

@@ -46,7 +46,7 @@ static func layout(terrain: BigTerrain, town: Dictionary) -> Array:
 					for extra: String in extras:
 						if rng.randf() < float(extras[extra]):
 							out.append({"kit": extra, "at": [p.x, p.y], "rot": facing + rng.randf_range(-25.0, 25.0), "seed": rng.randi() % 100000, "town": str(town["id"])})
-							taken.append(Vector3(p.x, p.y, 3.0))
+							taken.append(Vector3(p.x, p.y, float(Kit.entry(extra).get("clear_m", 3.0))))
 							break
 				along += lot
 	return out
