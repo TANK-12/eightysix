@@ -1,0 +1,157 @@
+{
+ "name": "b5_wire_slopes",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: does the wire bite the big map's steep slopes? Parks 45 m below three of the steepest interior slopes (55-62 degrees), fires the wire, logs the preview and state, one screenshot each. tools/bot_run.sh b5_wire_slopes",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.7,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 1.0,
+   "call": "park_below_slope",
+   "args": [
+    1100,
+    -450,
+    45.0
+   ]
+  },
+  {
+   "at": 1.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 3.5,
+   "call": "report_wire",
+   "args": [
+    "cliff-east idle"
+   ]
+  },
+  {
+   "at": 3.7,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 5.2,
+   "call": "report_wire",
+   "args": [
+    "cliff-east fired"
+   ]
+  },
+  {
+   "at": 5.3,
+   "shot": "cliff-east-wire"
+  },
+  {
+   "at": 5.5,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 7.0,
+   "call": "park_below_slope",
+   "args": [
+    -1300,
+    25,
+    45.0
+   ]
+  },
+  {
+   "at": 7.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 9.5,
+   "call": "report_wire",
+   "args": [
+    "cliff-west idle"
+   ]
+  },
+  {
+   "at": 9.7,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 11.2,
+   "call": "report_wire",
+   "args": [
+    "cliff-west fired"
+   ]
+  },
+  {
+   "at": 11.3,
+   "shot": "cliff-west-wire"
+  },
+  {
+   "at": 11.5,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 13.0,
+   "call": "park_below_slope",
+   "args": [
+    -675,
+    1325,
+    45.0
+   ]
+  },
+  {
+   "at": 13.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 15.5,
+   "call": "report_wire",
+   "args": [
+    "cliff-south idle"
+   ]
+  },
+  {
+   "at": 15.7,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 17.2,
+   "call": "report_wire",
+   "args": [
+    "cliff-south fired"
+   ]
+  },
+  {
+   "at": 17.3,
+   "shot": "cliff-south-wire"
+  },
+  {
+   "at": 17.5,
+   "press": "grapple_fire",
+   "strength": 1.0,
+   "for": 0.15
+  },
+  {
+   "at": 19.0,
+   "quit": true
+  }
+ ]
+}

@@ -314,6 +314,26 @@ func report_bridge(label: String) -> void:
 		print("big_map %s: bridge %s integrity %.2f, %d of %d pieces gone, %d anchors listed" % [label, b.get_meta("bridge", "?"), b.integrity(), b.gone.size(), b.pieces.size(), b.listed.size()])
 
 
+## Bot hook: the Juggernaut `distance_m` downhill of (x, z), facing straight up the slope there, gun
+## raised to the slope's top. For wire checks on cliffs and rim mountains.
+func park_below_slope(x: float, z: float, distance_m: float = 40.0) -> void:
+	var up := Vector2(terrain.height_at(x + 4.0, z) - terrain.height_at(x - 4.0, z), terrain.height_at(x, z + 4.0) - terrain.height_at(x, z - 4.0)).normalized()
+	var at := Vector2(x, z) - up * distance_m
+	stream.prime(Vector3(at.x, 0.0, at.y))
+	var rise := terrain.height_at(x, z) - terrain.height_at(at.x, at.y)
+	_park_mech(Vector3(at.x, 0.0, at.y), Vector3(up.x, 0.0, up.y), clampf(rad_to_deg(atan2(rise, distance_m)), -5.0, 28.0))
+
+
+## Bot hook: what the wire would do now and its state, into the bot log (label: when).
+func report_wire(label: String) -> void:
+	var combat := mech.get_node_or_null("Combat") as MechCombat
+	if combat == null or combat.anchor == null:
+		return
+	var a := combat.anchor
+	var pre := a.preview()
+	print("big_map %s: wire %s, a shot would be '%s' at %s (%.0f m)" % [label, ["idle", "flying", "attached"][a.state], pre["state"], str((pre["point"] as Vector3).round()), (pre["point"] as Vector3).distance_to(mech.global_position)])
+
+
 ## Bot hook: how much of the building face_building() aimed at still stands (into the bot log).
 func report_target(label: String) -> void:
 	var b: Variant = get_meta("target_building", null)
