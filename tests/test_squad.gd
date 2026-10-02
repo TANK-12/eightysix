@@ -248,3 +248,21 @@ func test_the_handler_view_opens_shows_and_orders() -> void:
 	h.close()
 	assert_false(h.is_open)
 	assert_eq(world.get_viewport().get_camera_3d(), field_cam, "the field camera is back")
+
+
+func test_the_squad_has_hints_and_tips() -> void:
+	_squad(1)
+	var hints := MoveHints.new()
+	world.add_child(hints)
+	var state := hints.state()
+	assert_eq(int(state["squad"]), 1, "the hint state counts the squad")
+	state["play_s"] = 30.0
+	var seen: Array = []
+	for id in Registry.ids("hints"):
+		if not id in ["squad_orders", "handler_view"]:
+			seen.append(id)
+	assert_eq(MoveHints.pick(Registry.file("hints")["entries"], state, seen), "squad_orders", "the squad hint comes up")
+	for id: String in ["squad_orders", "handler_view"]:
+		assert_true(Registry.has_entry("hints", id), id + " hint")
+		assert_true(Registry.has_entry("tips", id), id + " tip")
+	hints.free()

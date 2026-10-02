@@ -1,5 +1,5 @@
 {
-  "_about": "Move hints, one entry each (lane A4 part 5). MoveHints (scripts/ui/move_hints.gd) shows a hint the first time its \"when\" holds, once, then never again (the seen list lives in user://move_hints_seen.json); Settings > Gameplay > HUD > Move hints turns them all off. \"text\" names actions in braces, {sprint}, and each is replaced by the player's own binding (key, and pad button when a pad is plugged in). \"when\" is a list that must all hold; each item tests one number or flag of the state MoveHints builds from the mech: play_s (seconds of play), speed_m_s, running, charging, airborne, skidding, anchor_ready (the wire anchor can bite where it aims), cockpit_view. {\"key\": k, \"min\": x} and {\"key\": k, \"max\": x} test numbers, {\"key\": k, \"is\": true/false} a flag. \"order\" ranks hints that are due together; \"show_s\" is how long one stays (default 7).",
+  "_about": "Move hints, one entry each (lane A4 part 5). MoveHints (scripts/ui/move_hints.gd) shows a hint the first time its \"when\" holds, once, then never again (the seen list lives in user://move_hints_seen.json); Settings > Gameplay > HUD > Move hints turns them all off. \"text\" names actions in braces, {sprint}, and each is replaced by the player's own binding (key, and pad button when a pad is plugged in). \"when\" is a list that must all hold; each item tests one number or flag of the state MoveHints builds from the mech: play_s (seconds of play), speed_m_s, running, charging, airborne, skidding, anchor_ready (the wire anchor can bite where it aims), cockpit_view, squad (allied Juggernauts on the map). {\"key\": k, \"min\": x} and {\"key\": k, \"max\": x} test numbers, {\"key\": k, \"is\": true/false} a flag. \"order\" ranks hints that are due together; \"show_s\" is how long one stays (default 7).",
   "entries": {
     "view": {
       "order": 1,
@@ -35,6 +35,8 @@
       "order": 7,
       "text": "In the air nothing pushes you: the aim stick swings the legs to turn the body, slowly, and the 57 mm's recoil and the wire are your other levers.",
       "when": [{"key": "airborne", "is": true}, {"key": "play_s", "min": 12.0}]
-    }
+    },
+    "squad_orders": {"order": 8, "text": "Your squad is with you. {order_follow} follow me, {order_hold} hold, {order_attack} attack the Legion you face, {order_regroup} regroup.", "when": [{"key": "play_s", "min": 25.0}, {"key": "squad", "min": 1}]},
+    "handler_view": {"order": 9, "text": "Press {handler_view} for the Handler view: the squad from above, what they can see, and a click sends them there.", "when": [{"key": "play_s", "min": 70.0}, {"key": "squad", "min": 1}]}
   }
 }

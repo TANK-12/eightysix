@@ -14,7 +14,7 @@ func _entries() -> Dictionary:
 func test_every_hint_is_well_formed() -> void:
 	var entries := _entries()
 	assert_gt(entries.size(), 5, "the moves are covered")
-	var known := ["play_s", "speed_m_s", "running", "charging", "airborne", "skidding", "anchor_ready", "cockpit_view"]
+	var known := ["play_s", "speed_m_s", "running", "charging", "airborne", "skidding", "anchor_ready", "cockpit_view", "squad"]
 	var orders := {}
 	for id: String in entries:
 		var e: Dictionary = entries[id]

@@ -6,6 +6,8 @@
     "no_air_control": {"text": "In the air only real forces move you: swing the aim and the legs slowly turn the body; fire the main gun to kick yourself the other way; the wire anchor pulls you where it bites."},
     "charge_jump": {"text": "Jump is hold-to-charge. A low crouch also shrinks what the enemy can hit."},
     "settings_deep": {"text": "Dead zones, response curves and rumble strength are all under Settings > Controls."},
-    "presets": {"text": "Graphics presets switch live. Change one setting and the preset becomes Custom."}
+    "presets": {"text": "Graphics presets switch live. Change one setting and the preset becomes Custom."},
+    "squad_orders": {"text": "Your squad takes orders from 1 to 4: follow, hold, attack what you face, regroup. On a pad, give them from the Handler view."},
+    "handler_view": {"text": "Tab opens the Handler view, the Para-RAID picture: your squad from above and every Legion they can see. Click the ground to send them."}
   }
 }

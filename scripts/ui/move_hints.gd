@@ -84,6 +84,7 @@ static func bind_text(text: String) -> String:
 
 func state() -> Dictionary:
 	var s := {"play_s": _play_s, "anchor_ready": _anchor_ready, "cockpit_view": false}
+	s["squad"] = get_tree().get_nodes_in_group("squad_mech").size()  # allied Juggernauts on the map (lane A5)
 	var cam := get_viewport().get_camera_3d()
 	if cam != null and "view" in cam:
 		s["cockpit_view"] = str(cam.get("view")) == "cockpit"
