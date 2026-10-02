@@ -52,7 +52,7 @@ func _ready() -> void:
 	handler.squad = self
 	add_child(handler)
 	var layer := CanvasLayer.new()
-	layer.layer = 5
+	layer.layer = 41  # above the Handler view (40), so orders show there too
 	add_child(layer)
 	_toast = Label.new()
 	_toast.name = "OrderToast"

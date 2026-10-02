@@ -1,0 +1,16 @@
+{
+ "name": "a5_fps_0",
+ "map": "small_map",
+ "_about": "Lane A5: small-map frame rate with 0 allied Juggernauts (gameplay.squad_size 0, set before the level registers). 8 s standing, 10 s walking. Compare a5_fps_0 with a5_fps_2 in one sitting on one preset: tools/bot_run.sh a5_fps_0 --preset=medium",
+ "steps": [
+  {"at": 0.05, "setting": "gameplay.squad_size", "value": 0.0},
+  {"at": 0.5, "wait": "level"},
+  {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 6.0, "measure": 8.0, "label": "still"},
+  {"at": 14.5, "shot": "still"},
+  {"at": 15.0, "press": "move_forward", "strength": 1.0, "for": 12.0},
+  {"at": 16.0, "measure": 10.0, "label": "walk"},
+  {"at": 26.5, "shot": "walk"},
+  {"at": 28.0, "quit": true}
+ ]
+}

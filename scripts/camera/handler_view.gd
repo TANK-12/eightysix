@@ -22,11 +22,12 @@ var _overlay: Control
 var _previous: Camera3D
 var _sight_s := 0.0
 var _font: Font
+var _hidden: Array[CanvasLayer] = []  # the field HUDs hidden while the view is open
 
 
 func _ready() -> void:
 	add_to_group("handler_view")
-	layer = 6
+	layer = 40  # over the field HUDs (10-12), under pause (50), mission end (55) and photo mode (60)
 	visible = false
 	camera = Camera3D.new()
 	camera.name = "HandlerCamera"
@@ -58,6 +59,12 @@ func open() -> void:
 	_place_camera(1.0)
 	camera.make_current()
 	_refresh_sight()
+	# The field HUDs (every lower CanvasLayer) hide, as in photo mode: this screen is the Handler's picture.
+	_hidden.clear()
+	for cl: Node in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		if cl != self and (cl as CanvasLayer).visible and (cl as CanvasLayer).layer < layer:
+			(cl as CanvasLayer).visible = false
+			_hidden.append(cl)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -67,6 +74,10 @@ func close() -> void:
 	is_open = false
 	visible = false
 	camera.clear_current(false)
+	for cl: CanvasLayer in _hidden:
+		if is_instance_valid(cl):
+			cl.visible = true
+	_hidden.clear()
 	if _previous != null and is_instance_valid(_previous):
 		_previous.make_current()
 	if squad.level != null and squad.level.has_method("capture_mouse"):
@@ -165,9 +176,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _draw_overlay() -> void:
 	var size := _overlay.size
 	_overlay.draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.05, 0.08, 0.18))
-	_text(Vector2(24, 36), "Para-RAID  ·  Spearhead squadron  ·  Handler view", 20, Color(0.75, 0.9, 1.0))
+	_text(Vector2(24, 58), "Para-RAID  ·  Spearhead squadron  ·  Handler view", 20, Color(0.75, 0.9, 1.0))
 	var who := "whole squad" if squad.selected < 0 else squad.callsign(squad.selected)
-	_text(Vector2(24, 62), "Orders to: %s    Last order: %s" % [who, Squad.ORDER_WORDS.get(squad.last_order, squad.last_order)], 16, Color(0.8, 0.85, 0.9))
+	_text(Vector2(24, 84), "Orders to: %s    Last order: %s" % [who, Squad.ORDER_WORDS.get(squad.last_order, squad.last_order)], 16, Color(0.8, 0.85, 0.9))
 	_text(Vector2(24, size.y - 24), "1 follow  ·  2 hold  ·  3 attack  ·  4 regroup  ·  click: move there, or attack a red marker  ·  wheel / L1 R1: pick who  ·  Tab: back to the field", 15, Color(0.75, 0.8, 0.85))
 	for u: Node3D in seen_legion:
 		if SquadPilot._legion_alive(u):

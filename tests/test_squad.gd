@@ -261,12 +261,16 @@ func test_the_handler_view_opens_shows_and_orders() -> void:
 	world.add_child(field_cam)
 	field_cam.make_current()
 	var u := _legion("ameise", Vector3(0.0, 0.0, -200.0), Vector3.BACK, false)
+	var hud := CanvasLayer.new()
+	hud.layer = 12  # where the mission HUD sits
+	world.add_child(hud)
 	var h := squad.handler
 	h.open()
 	assert_true(h.is_open)
 	assert_eq(world.get_viewport().get_camera_3d(), h.camera, "the tactical camera is live")
 	assert_gt(h.camera.global_position.y, 100.0, "high above the squad")
 	assert_has(h.seen_legion, u, "the Legion the squad sees is on the board")
+	assert_false(hud.visible, "the field HUD hides")
 	var mid: Vector3 = h.centre()[0]
 	var screen := h.camera.unproject_position(mid + Vector3(30.0, 0.0, 0.0))
 	assert_true(h.order_move_at(screen), "a click on the ground gives a move order")
@@ -280,6 +284,7 @@ func test_the_handler_view_opens_shows_and_orders() -> void:
 	h.close()
 	assert_false(h.is_open)
 	assert_eq(world.get_viewport().get_camera_3d(), field_cam, "the field camera is back")
+	assert_true(hud.visible, "and the field HUD")
 
 
 func test_the_squad_has_hints_and_tips() -> void:
