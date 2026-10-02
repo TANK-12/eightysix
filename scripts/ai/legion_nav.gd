@@ -8,7 +8,7 @@ extends RefCounted
 ## waypoints; the brain steers to the next one with its own local avoidance for the rest.
 
 const CELL_M := 16.0
-const SLOPE_WEIGHT := 3.0  # a cell at the slope limit costs this much more to cross than flat ground
+const SLOPE_WEIGHT := 10.0  # a cell at the slope limit costs this much more to cross than flat ground
 const CORRIDOR_EXTEND_M := 40.0  # a bridge corridor runs this far past each end, over the steep banks
 const CORRIDOR_WIDTH_M := 12.0
 
@@ -18,11 +18,14 @@ var _origin := Vector2.ZERO  # world x, z of the centre of cell (0, 0)
 var _base_solid := PackedByteArray()  # 1: a wall by terrain
 var _corridors := {}  # id -> {"cells": Array[Vector2i], "open": bool}
 var _terrain: BigTerrain
+var blocked := 0  # cells closed by block() so far
 
 
-## A grid over [-area_half_m, area_half_m] on both axes. max_slope_deg: steeper cells are walls (a little under the
-## units' own limit, as a cell's slope is a 32 m average); wade_m: water deeper than this is a wall.
-static func build(terrain: BigTerrain, area_half_m: float, max_slope_deg: float = 30.0, wade_m: float = 0.6) -> LegionNav:
+## A grid over [-area_half_m, area_half_m] on both axes. max_slope_deg: cells steeper than this are walls (a cell's
+## slope is its steepest 8 m edge in the overview, and the 1 m ground the units walk on is rougher than that: a
+## unit's feet fail on most ground over 35 degrees, so 34 is a wall; the Löwe's own 32 is left to the cost and
+## to block()); wade_m: water deeper than this is a wall.
+static func build(terrain: BigTerrain, area_half_m: float, max_slope_deg: float = 34.0, wade_m: float = 0.6) -> LegionNav:
 	var nav := LegionNav.new()
 	nav._terrain = terrain
 	nav._n = int(ceilf(area_half_m * 2.0 / CELL_M))
@@ -35,29 +38,37 @@ static func build(terrain: BigTerrain, area_half_m: float, max_slope_deg: float 
 	nav._grid.update()
 	nav._base_solid.resize(nav._n * nav._n)
 	var tan_max := tan(deg_to_rad(max_slope_deg))
-	# one height read per cell (plus a ring round the grid), then the slopes from neighbours: the terrain's own
-	# lookup is the slow part
-	var w := nav._n + 2
-	var hs := PackedFloat32Array()
-	hs.resize(w * w)
-	for j in w:
-		for i in w:
-			var c := nav._centre(Vector2i(i - 1, j - 1))
-			hs[j * w + i] = terrain.overview_height(c.x, c.y)
 	var wet := terrain.water_level - wade_m
+	var step := float(BigTerrain.FAR_STEP)
+	var on := terrain.on
+	var diag := step * sqrt(2.0)
 	for j in nav._n:
 		for i in nav._n:
-			var k := (j + 1) * w + i + 1
-			var gx := (hs[k + 1] - hs[k - 1]) / (2.0 * CELL_M)
-			var gz := (hs[k + w] - hs[k - w]) / (2.0 * CELL_M)
-			var slope := sqrt(gx * gx + gz * gz)
+			var c := nav._centre(Vector2i(i, j))
+			# The steepest 8 m edge of the overview inside the cell's footprint, not a slope averaged over
+			# several cells: a 60 m crag line a cell wide is a wall to a Löwe, and the average never saw it.
+			var ox := clampi(roundi((c.x + terrain.half) / step), 1, on - 2)
+			var oz := clampi(roundi((c.y + terrain.half) / step), 1, on - 2)
+			var steepest := 0.0
+			for dz in range(-1, 2):
+				for dx in range(-1, 2):
+					var k := (oz + dz) * on + ox + dx
+					var h: float = terrain.overview[k]
+					if dx < 1:
+						steepest = maxf(steepest, absf(terrain.overview[k + 1] - h) / step)
+					if dz < 1:
+						steepest = maxf(steepest, absf(terrain.overview[k + on] - h) / step)
+					if dx < 1 and dz < 1:
+						steepest = maxf(steepest, absf(terrain.overview[k + on + 1] - h) / diag)
+					if dx > -1 and dz < 1:
+						steepest = maxf(steepest, absf(terrain.overview[k + on - 1] - h) / diag)
 			var cell := Vector2i(i, j)
-			var wall := slope > tan_max or hs[k] < wet
+			var wall := steepest > tan_max or terrain.overview_height(c.x, c.y) < wet
 			nav._base_solid[j * nav._n + i] = 1 if wall else 0
 			if wall:
 				nav._grid.set_point_solid(cell, true)
 			else:
-				nav._grid.set_point_weight_scale(cell, 1.0 + SLOPE_WEIGHT * (slope / tan_max) * (slope / tan_max))
+				nav._grid.set_point_weight_scale(cell, 1.0 + SLOPE_WEIGHT * (steepest / tan_max) * (steepest / tan_max))
 	return nav
 
 
@@ -115,6 +126,21 @@ func path(from: Vector3, to: Vector3) -> PackedVector3Array:
 	if not out.is_empty() and _cell_of(Vector2(to.x, to.z)) == b:
 		out[out.size() - 1] = Vector3(to.x, to.y, to.z)
 	return out
+
+
+## Marks the cell under world (x, z) a wall: a unit that could not get through it (a crag the 8 m overview did not
+## show) tells the rest. A bridge corridor's cells stay as they are. Returns whether a cell was closed.
+func block(x: float, z: float) -> bool:
+	var c := _cell_of(Vector2(x, z))
+	if c.x < 0 or _grid.is_point_solid(c):
+		return false
+	for id: String in _corridors:
+		if (_corridors[id]["cells"] as Array).has(c):
+			return false
+	_grid.set_point_solid(c, true)
+	_base_solid[c.y * _n + c.x] = 1
+	blocked += 1
+	return true
 
 
 ## Whether the cell under world (x, z) is a wall.

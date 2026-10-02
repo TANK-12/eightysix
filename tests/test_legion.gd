@@ -394,3 +394,73 @@ func test_a_unit_lying_on_its_side_or_back_rights_itself() -> void:
 		print("    %s started 120 degrees over: %.0f degrees after 10 s, %d feet planted" % [id, tilt, u.planted_count])
 		assert_lt(tilt, 25.0, id + " is upright again")
 		u.free()
+
+
+## A steep hillside with 1 m bumps, like the big map's 25-35 degree slopes (a foothold needs a flat enough
+## 0.8 m patch: on this ground about a quarter of the spots fail). Rises toward -z at `deg`.
+func _bumpy_hill(deg: float) -> StaticBody3D:
+	var b := StaticBody3D.new()
+	var hm := HeightMapShape3D.new()
+	var n := 257
+	hm.map_width = n
+	hm.map_depth = n
+	var noise := FastNoiseLite.new()
+	noise.seed = 7
+	noise.frequency = 0.55
+	var heights := PackedFloat32Array()
+	heights.resize(n * n)
+	for z in n:
+		for x in n:
+			heights[z * n + x] = noise.get_noise_2d(float(x), float(z)) * 0.7 - float(z - n / 2) * tan(deg_to_rad(deg))
+	hm.map_data = heights
+	var cs := CollisionShape3D.new()
+	cs.shape = hm
+	b.add_child(cs)
+	tree.root.add_child(b)
+	return b
+
+
+## Part 4 (the Frontier sweep's last wave stalled on the big map's hills, units motionless with one foot planted):
+## a leg that found no foothold set its foot down where it was going and never tried again while the body was
+## still (no stride, so no retry), and a unit with under two feet standing has no grip. Now such a leg searches
+## the ground around the spot and keeps trying, and the body leans with the slope (its hips are held level to the
+## hillside, not to the world) so the front legs can reach. Driven up a rough 27 degree hill, each unit gets 40 m up it.
+func test_a_unit_keeps_climbing_a_rough_hillside_instead_of_stalling() -> void:
+	ground.free()
+	ground = _bumpy_hill(27.0)
+	for id: String in UNITS:
+		var u := _spawn(id, Vector3(0, -60.0 * tan(deg_to_rad(27.0)) + 3.0, 60.0))
+		await physics_frames(240)
+		var z0 := u.global_position.z
+		u.face_dir = Vector3(0, 0, -1)
+		u.move_goal = Vector3(0, 0, -4.0)
+		var worst_stall := 0.0
+		var still := 0.0
+		for i in 3600:  # 30 s
+			await physics_frames(1)
+			if Vector2(u.linear_velocity.x, u.linear_velocity.z).length() < 0.2:
+				still += 1.0 / 120.0
+				worst_stall = maxf(worst_stall, still)
+			else:
+				still = 0.0
+		var got := z0 - u.global_position.z
+		print("    %s on a rough 27 degree hill: %.0f m up in 30 s, longest standstill %.1f s, body %.0f degrees from level, feet %s" % [id, got, worst_stall, _tilt_deg(u), u.telemetry()["feet"]])
+		assert_gt(got, 40.0, id + " got up the hill")
+		assert_lt(worst_stall, 6.0, id + " never stood still for long")
+		u.free()
+
+
+func test_a_unit_stuck_on_its_belly_hops_off_with_shake_free() -> void:
+	var u := _spawn("ameise", Vector3(0, 3.0, 0))
+	await physics_frames(240)
+	u.rotation = Vector3(deg_to_rad(44.0), 0.0, 0.0)  # leaning like the one on the 41 degree face
+	var y0 := u.global_position.y
+	u.shake_free()
+	var top := 0.0
+	for i in 40:
+		await physics_frames(1)
+		top = maxf(top, u.global_position.y - y0)
+	assert_gt(top, 0.5, "it left the ground (rose %.2f m)" % top)
+	await physics_frames(600)
+	assert_lt(_tilt_deg(u), 25.0, "and is back on its feet, %.0f degrees from level" % _tilt_deg(u))
+	u.free()

@@ -5,6 +5,8 @@ date: 2026-09-30 · for: both · lane A1
 A bot script is JSON played by the `Bot` autoload (`scripts/core/bot.gd`) when the game starts with
 `-- --bot=res://tools/bot/<name>.json --out=<folder>`. `tools/bot_run.sh <name>` does that off screen
 and puts the output in the next `images/NNN-<name>/`; `tools/fps_log.py` plays `fps_route` once per preset.
+`tools/check_arrival.py <folder>` reads a run's `report.json` (made with `report_legion` calls, as `b5_finale_long`
+makes) and says whether every Legion unit reached the Juggernaut (exit 1 when one did not).
 `tools/bot_run.sh <name> --build` plays the same script on the exported game (`build/linux/`, from
 `tools/export.sh`), so a build can be checked the same way as the source.
 

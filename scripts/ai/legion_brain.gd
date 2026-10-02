@@ -28,6 +28,8 @@ const NAV_MIN_M := 70.0  # nearer than this a goal is walked at directly
 const NAV_REPLAN_S := 8.0
 const NAV_PASSED_M := 22.0  # a waypoint this close is behind it
 const NAV_LOOKAHEAD := 2  # steer to the waypoint this many ahead of the next one
+const NAV_BOGGED_S := 10.0  # a unit that walked less than NAV_BOGGED_M in this long on a path is bogged down
+const NAV_BOGGED_M := 10.0
 
 var unit: LegionMech
 var ai: Dictionary = {}
@@ -69,6 +71,9 @@ var _path := PackedVector3Array()
 var _path_i := 0
 var _path_goal := Vector3.INF
 var _path_at_ms := 0
+var bogged := 0  # times it hardly moved along a path and had the cells ahead and under it closed
+var _bog_pos := Vector3.INF
+var _bog_ms := 0
 var _target_v := Vector3.ZERO
 var _shot_i := 0
 var _stuck_s := 0.0
@@ -371,8 +376,23 @@ func _nav_goal(goal: Vector3) -> Vector3:
 	var here := unit.global_position
 	if nav == null or not _fixed_route.is_empty() or _flat(goal - here).length() < NAV_MIN_M:
 		_path = PackedVector3Array()
+		_bog_pos = Vector3.INF
 		return goal
 	var now := Time.get_ticks_msec()
+	if now - _bog_ms > int(NAV_BOGGED_S * 1000.0):
+		# Hardly moved along a path for NAV_BOGGED_S: what is ahead cannot be crossed (a crag the grid did
+		# not show). Close that cell for everyone and find another way.
+		if _bog_pos != Vector3.INF and not _path.is_empty() and _flat(here - _bog_pos).length() < NAV_BOGGED_M:
+			var ahead := _flat(_path[mini(_path_i, _path.size() - 1)] - here).normalized()
+			var step := LegionNav.CELL_M * 0.6
+			nav.block(here.x + ahead.x * step, here.z + ahead.z * step)
+			nav.block(here.x, here.z)  # and the ground it is stuck on
+			bogged += 1
+			_path = PackedVector3Array()
+			if bogged >= 2 and unit.planted_count < 2:
+				unit.shake_free()  # lying on a slope with nothing under its feet: hop off it
+		_bog_pos = here
+		_bog_ms = now
 	if _path.is_empty() or _flat(goal - _path_goal).length() > 40.0 or now - _path_at_ms > int(NAV_REPLAN_S * 1000.0):
 		_path = nav.path(here, goal)
 		_path_i = 0
@@ -604,5 +624,6 @@ func telemetry() -> Dictionary:
 		"shots": shots,
 		"goal": [snappedf(_goal.x, 0.1), snappedf(_goal.z, 0.1)],
 		"route_i": _route_i,
+		"bogged": bogged,
 		"steer": [snappedf(_steer_dir.x, 0.01), snappedf(_steer_dir.z, 0.01)],
 	}

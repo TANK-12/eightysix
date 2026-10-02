@@ -39,7 +39,7 @@ func test_a_path_over_open_hills_is_about_straight() -> void:
 	assert_gt(p.size(), 3, "a path exists")
 	var straight := Vector2(from.x - to.x, from.z - to.z).length()
 	print("    nav: farm track to the spawn, %.0f m straight, %.0f m by path, %d waypoints" % [straight, _length(p), p.size()])
-	assert_lt(_length(p), straight * 1.6, "not a huge detour")
+	assert_lt(_length(p), straight * 2.2, "not a huge detour")
 	assert_lt(Vector2(p[p.size() - 1].x - to.x, p[p.size() - 1].z - to.z).length(), 40.0, "and it ends at the goal")
 
 
@@ -92,6 +92,11 @@ class StubNav:
 	extends LegionNav
 	var asked := 0
 	var way := PackedVector3Array()
+	var closed: Array[Vector2] = []
+
+	func block(x: float, z: float) -> bool:
+		closed.append(Vector2(x, z))
+		return true
 
 	func path(_from: Vector3, _to: Vector3) -> PackedVector3Array:
 		asked += 1
@@ -127,3 +132,50 @@ func test_a_far_goal_is_reached_by_the_paths_waypoints_and_a_near_one_directly()
 	assert_eq(b._nav_goal(far), far, "no nav: straight at it")
 	u.free()
 	ground.free()
+
+
+func test_a_unit_that_hardly_moved_along_its_path_closes_the_cell_ahead_and_asks_again() -> void:
+	var ground := StaticBody3D.new()
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(800, 2, 800)
+	cs.shape = box
+	cs.position.y = -1.0
+	ground.add_child(cs)
+	tree.root.add_child(ground)
+	var u := LegionMech.build("lowe")
+	u.position = Vector3(0, 0.3, 0)
+	tree.root.add_child(u)
+	var b := u.get_node("Brain") as LegionBrain
+	var nav := StubNav.new()
+	nav.way = PackedVector3Array([Vector3(0, 0, -50), Vector3(0, 0, -150), Vector3(0, 0, -250), Vector3(0, 0, -400)])
+	b.nav = nav
+	var far := Vector3(0, 0, -400)
+	b._nav_goal(far)
+	assert_eq(nav.closed.size(), 0, "nothing closed at first")
+	b._bog_ms = Time.get_ticks_msec() - int(LegionBrain.NAV_BOGGED_S * 1000.0) - 500  # the last look was 10 s ago, here
+	b._bog_pos = u.global_position + Vector3(3, 0, 0)
+	b._nav_goal(far)
+	assert_eq(nav.closed.size(), 2, "10 s and 3 m on: the cell ahead and the one under it are closed")
+	assert_lt(absf(nav.closed[0].x), 1.0, "straight ahead of it")
+	assert_lt(nav.closed[0].y, -5.0, "on its way to the next waypoint")
+	assert_eq(nav.closed[1], Vector2(0, 0), "and its own")
+	assert_eq(b.bogged, 1, "counted")
+	assert_eq(nav.asked, 2, "and the path is asked for again")
+	b._bog_ms = Time.get_ticks_msec() - int(LegionBrain.NAV_BOGGED_S * 1000.0) - 500
+	b._bog_pos = u.global_position + Vector3(30, 0, 0)  # it did get somewhere
+	b._nav_goal(far)
+	assert_eq(nav.closed.size(), 2, "a unit that covered 30 m in that time is not bogged down")
+	u.free()
+	ground.free()
+
+
+func test_a_narrow_crag_line_is_a_wall_on_the_grid() -> void:
+	# The Frontier sweep's Löwe stalled at x -86 against a 35-41 degree band (x -101, z 1395-1435) about 8 m
+	# wide that the grid's old 32 m averaged slope did not see.
+	var nav := _n()
+	var walls := 0
+	for z in range(1395, 1436, 8):
+		if nav.is_wall(-101.0, float(z)):
+			walls += 1
+	assert_gt(walls, 3, "most of the crag line is wall (%d of 6)" % walls)

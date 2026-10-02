@@ -34,7 +34,7 @@
         {"objective": "Find and destroy the Ameise scouts on the farm track", "groups": [{"enemy": "ameise", "count": 2, "area": "farm_road"}], "after_s": 0.0, "delay_s": 6.0},
         {"objective": "A Grauwolf pack comes over the western hills: destroy it", "groups": [{"enemy": "grauwolf", "count": 3, "area": "west_hills"}], "alerted": true, "track_s": 150.0, "after_s": 0.0, "delay_s": 8.0},
         {"objective": "A Grauwolf column is crossing the Ash river bridge, mid-map: stop it, or drop the bridge under it", "groups": [{"enemy": "grauwolf", "count": 3, "area": "ash_road_west", "route": [[-60.0, -329.1], [-40.0, -325.0], [-20.0, -320.9], [0.0, -316.8], [20.0, -312.7], [40.0, -308.6], [60.0, -304.4], [85.0, -299.3]], "once": true, "trigger_m": 450.0}], "after_s": 0.0, "delay_s": 8.0},
-        {"objective": "A Löwe leads the last push along the lake road: destroy every unit", "groups": [{"enemy": "lowe", "count": 1, "area": "lake_road"}, {"enemy": "grauwolf", "count": 2, "area": "east_shore"}, {"enemy": "ameise", "count": 1, "area": "farm_road"}], "alerted": true, "track_s": 240.0, "after_s": 0.0, "delay_s": 0.0}
+        {"objective": "A Löwe leads the last push along the lake road: destroy every unit", "groups": [{"enemy": "lowe", "count": 1, "area": "lake_road"}, {"enemy": "grauwolf", "count": 2, "area": "east_shore"}, {"enemy": "ameise", "count": 1, "area": "farm_road"}], "alerted": true, "track_s": 480.0, "after_s": 0.0, "delay_s": 0.0}
       ]
     }
   }

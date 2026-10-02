@@ -126,9 +126,65 @@
    ]
   },
   {
-   "at": 330,
+   "at": 340,
+   "call": "report_legion",
+   "args": [
+    "t340"
+   ]
+  },
+  {
+   "at": 360,
+   "call": "report_legion",
+   "args": [
+    "t360"
+   ]
+  },
+  {
+   "at": 380,
+   "call": "report_legion",
+   "args": [
+    "t380"
+   ]
+  },
+  {
+   "at": 400,
+   "call": "report_legion",
+   "args": [
+    "t400"
+   ]
+  },
+  {
+   "at": 420,
+   "call": "report_legion",
+   "args": [
+    "t420"
+   ]
+  },
+  {
+   "at": 440,
+   "call": "report_legion",
+   "args": [
+    "t440"
+   ]
+  },
+  {
+   "at": 460,
+   "call": "report_legion",
+   "args": [
+    "t460"
+   ]
+  },
+  {
+   "at": 480,
+   "call": "report_legion",
+   "args": [
+    "t480"
+   ]
+  },
+  {
+   "at": 482,
    "quit": true
   }
  ],
- "_about": "Lane B5 part 3: the Frontier sweep's last wave over 5 minutes, Juggernaut standing at the spawn: distance to the player, speed, planted feet and tilt of every unit every 20 s. Still stalls (see results/B5.md part 3 item 11). tools/bot_run.sh b5_finale_long --timeout=420"
+ "_about": "Lane B5 part 3: the Frontier sweep's last wave over 5 minutes, Juggernaut standing at the spawn: distance to the player, speed, planted feet and tilt of every unit every 20 s. Still stalls (see results/B5.md part 3 item 11). tools/bot_run.sh b5_finale_long --timeout=420 Part 4: runs to t480 (the L\u00f6we needs about 400 s over the detours; wave 4 tracks for 480 s). Check with tools/check_arrival.py <folder>."
 }

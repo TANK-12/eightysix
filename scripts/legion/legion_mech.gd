@@ -78,6 +78,7 @@ var _leg_max_n := 0.0  # one leg's load limit, N
 var _weak: Dictionary = {}  # damage key -> weak-point entry from enemies.json "damage.weak"
 var _aim_joints: Dictionary = {}  # kind -> part name (turret_yaw, gun_pitch, launcher_yaw ...)
 var _wreck_s := 0.0
+var _slope_n := Vector3.UP  # the ground's normal under the body, smoothed (see _ground_normal)
 
 
 static func model_data(enemy_def: Dictionary) -> Dictionary:
@@ -472,25 +473,34 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if hip_w.distance_to(leg["planted"] as Vector3) <= reach:
 			standing.append(leg)
 	var n := maxf(standing.size(), 1.0)
+	_slope_n = _slope_n.lerp(_ground_normal(state) if standing.size() >= 2 else Vector3.UP, 1.0 - exp(-state.step * 3.0)).normalized()
 	var weight := mass * state.total_gravity.length()
 	# Levelling (an attitude sensor in the suspension): each hip aims at the standing feet's mean
 	# height plus its ride height, gait.level of the way from its own foot's, so a bump under one
 	# foot does not tip the body and the body still follows a hill by the rest.
 	# A hip higher or lower than the standing hips' mean (the body rolling or pitching) is pushed
 	# back gait.attitude_gain times as hard as the whole body's bob: the narrow-hipped Ameise needs it.
+	# Part 4: all of it in a frame sheared to the slope (height minus the ground's gradient times the flat
+	# position, scaled by gait.follow), so the hips are held level to the hillside and not to the world: on a
+	# 27 degree hill a world-level body had its uphill hips at the ground ahead and the front legs found no
+	# foothold (the big map's Frontier sweep stalled that way).
 	var ground_y := 0.0
 	var hips_y := 0.0
+	var slope := Vector2.ZERO
+	if _slope_n.y > 0.2:
+		slope = Vector2(-_slope_n.x, -_slope_n.z) / _slope_n.y * float(_g.get("follow", 0.8))
+	var shear := func(p: Vector3) -> float: return p.y - slope.x * p.x - slope.y * p.z
 	for leg: Dictionary in standing:
-		ground_y += (leg["planted"] as Vector3).y / n
-		hips_y += (xf * (leg["p0"] as Vector3)).y / n
+		ground_y += float(shear.call(leg["planted"] as Vector3)) / n
+		hips_y += float(shear.call(xf * (leg["p0"] as Vector3))) / n
 	var level := float(_g.get("level", 0.7))
 	var attitude := float(_g.get("attitude_gain", 2.0))
 	for leg: Dictionary in standing:
 		var hip_w := xf * (leg["p0"] as Vector3)
 		var foot: Vector3 = leg["planted"]
 		var rest_h := float(leg["height"]) * float(_g.get("ride", 1.0))
-		var hip_y := hips_y + (hip_w.y - hips_y) * attitude
-		var squeeze := rest_h - (hip_y - lerpf(foot.y, ground_y, level))
+		var hip_y := hips_y + (float(shear.call(hip_w)) - hips_y) * attitude
+		var squeeze := rest_h - (hip_y - lerpf(float(shear.call(foot)), ground_y, level))
 		if squeeze < -rest_h * 0.35:
 			continue  # the foot is far below the hip: the leg hangs at full stretch and carries nothing
 		var hip_v := state.get_velocity_at_local_position(hip_w - xf.origin)
@@ -541,11 +551,7 @@ func _keel(state: PhysicsDirectBodyState3D) -> void:
 	var up := state.transform.basis.y
 	var target := Vector3.UP
 	if planted_count >= 2:
-		var from := state.transform.origin + Vector3.UP * 0.5
-		var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 12.0, 1)
-		var hit := state.get_space_state().intersect_ray(q)
-		if not hit.is_empty():
-			target = hit["normal"]
+		target = _slope_n
 	elif v.length() > 3.0 or absf(v.y) > 2.0:
 		return
 	var lean := up.angle_to(target)
@@ -559,6 +565,42 @@ func _keel(state: PhysicsDirectBodyState3D) -> void:
 	var spin := w - up * w.dot(up)
 	var accel := axis.normalized() * push - spin * float(_g.get("keep_damping", 4.0))
 	state.apply_torque(accel * inertia.x)
+
+
+## The ground's slope under the body: a plane through four points one stride ahead, behind and to each side
+## (a single ray reads one 1 m bump's face), the single ray under the body where one of them misses.
+func _ground_normal(state: PhysicsDirectBodyState3D) -> Vector3:
+	var xf := state.transform
+	var space := state.get_space_state()
+	var fwd := Vector3(-xf.basis.z.x, 0.0, -xf.basis.z.z).normalized()
+	var side := Vector3(xf.basis.x.x, 0.0, xf.basis.x.z).normalized()
+	var reach := _stride
+	var pts: Array[Vector3] = []
+	var centre := Vector3.ZERO
+	for off: Vector3 in [fwd * reach, -fwd * reach, side * reach, -side * reach, Vector3.ZERO]:
+		var from := xf.origin + off + Vector3.UP * 0.5
+		var q := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 12.0, LAYER_WORLD)
+		var hit := space.intersect_ray(q)
+		if hit.is_empty():
+			if off == Vector3.ZERO:
+				return Vector3.UP
+			continue
+		if off == Vector3.ZERO:
+			centre = hit["normal"]
+		pts.append(hit["position"])
+	if pts.size() < 5:
+		return centre if centre != Vector3.ZERO else Vector3.UP
+	var n := (pts[2] - pts[3]).cross(pts[0] - pts[1])
+	return n.normalized() if n.length() > 0.0001 and n.y > 0.0 else centre
+
+
+## A unit lying beached on a steep slope (no foot carrying, so no grip to walk with: the Frontier sweep's Ameise sat
+## 80 s on a 41 degree face with its belly on the ground) rocks itself free: a hop and a push downhill, the way
+## the hull leans. The brain calls it after it has been stuck for a while.
+func shake_free() -> void:
+	var up := global_transform.basis.y
+	var downhill := Vector3(up.x, 0.0, up.z).normalized()
+	apply_central_impulse((Vector3.UP * float(_g.get("shake_up_m_s", 4.5)) + downhill * float(_g.get("shake_out_m_s", 2.5))) * mass)
 
 
 func _step_gait(dt: float) -> void:
@@ -577,6 +619,8 @@ func _step_gait(dt: float) -> void:
 		var home := _home(leg, xf, vh, 0.0)
 		if Vector2(home.x - (leg["planted"] as Vector3).x, home.z - (leg["planted"] as Vector3).z).length() > _stride * 0.18:
 			settle = float(_g.get("settle_hz", 1.6))
+		elif not bool(leg.get("ok", true)) and _leg_alive(leg):
+			settle = float(_g.get("settle_hz", 1.6))  # a foot with nothing to stand on keeps stepping, still or not
 	var hz := clampf(maxf(need, settle), 0.0, max_hz)
 	var before := _phase
 	_phase = fposmod(_phase + hz * dt, 1.0)
@@ -605,10 +649,12 @@ func _step_gait(dt: float) -> void:
 				# lifted; none (a cliff face, a wall): it touches down where it was going but
 				# carries nothing and grips nothing there, and tries again next step.
 				var hold: Variant = null
-				for f: float in [1.0, 0.7, 0.4]:
+				for f: float in [1.0, 0.7, 0.4, 0.2]:
 					hold = foothold(leg, (leg["from"] as Vector3).lerp(home, f), (leg["from"] as Vector3).y)
 					if hold != null:
 						break
+				if hold == null:
+					hold = _foothold_near(leg, home, (leg["from"] as Vector3).y)
 				leg["ok"] = hold != null
 				leg["planted"] = hold if hold != null else _ground_below(home, home)
 				leg["foot"] = leg["planted"]
@@ -676,6 +722,22 @@ func foothold(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
 	if Vector2(gx, gz).length() > tan(deg_to_rad(float(_g.get("max_slope_deg", 38.0)))):
 		return null
 	return p
+
+
+## The foothold nearest `at` within gait.search_m (default 1.6 m) on rings of 8 spots, or null. On rough ground
+## (the big map's 25-35 degree hillsides) a 0.8 m patch that is flat enough is rarely under the exact spot a
+## stride aims for, and a leg that gave up there left the unit with under two feet standing and no grip.
+func _foothold_near(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
+	var reach := float(_g.get("search_m", 1.6))
+	var ring := reach / 3.0
+	while ring <= reach + 0.01:
+		for i in 8:
+			var a := TAU * float(i) / 8.0
+			var hold: Variant = foothold(leg, at + Vector3(cos(a), 0.0, sin(a)) * ring, from_y)
+			if hold != null:
+				return hold
+		ring += reach / 3.0
+	return null
 
 
 func _ground_below(at: Vector3, fallback: Vector3) -> Vector3:
@@ -1004,4 +1066,19 @@ func telemetry() -> Dictionary:
 		"tilt_deg": snappedf(rad_to_deg(global_transform.basis.y.angle_to(Vector3.UP)), 0.1),
 		"sleeping": sleeping,
 		"move_goal": snappedf(move_goal.length(), 0.1),
+		"feet": _feet_state(),
 	}
+
+
+## One letter per leg for the bot report: s standing on a foothold, h down but without one (a wall, a cliff,
+## nothing under it), w in the air swinging, x lost.
+func _feet_state() -> String:
+	var out := ""
+	for leg: Dictionary in legs:
+		if not _leg_alive(leg):
+			out += "x"
+		elif float(leg["swing_t"]) >= 0.0:
+			out += "w"
+		else:
+			out += "s" if bool(leg.get("ok", true)) else "h"
+	return out
