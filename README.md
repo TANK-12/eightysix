@@ -645,3 +645,12 @@ through a friendly, Legion retarget, Handler view), full suite 400 passed, 0 fai
   town 47.5 / 40.4 / 37.1. Before the pass Low 64 / Medium 53. Results: `results/LOOK.md`.
 - **Verified:** shots on both maps, no shader errors, `test_world_look` 8/8, `test_graphics` 5/5, `test_kit` 6/6.
   **Not done:** model upgrades, decals, baked AO; export of the compressed textures not run.
+
+### 2026-10-02 · lane A5 · Minato/Tetsu (ejb-42, hey) · part 2: way round walls, Handler polish, fps
+Wingmen find a way round walls and back off when stuck (40 m wall, 15.9 s to a point 90 m off); a click on a Legion
+marker in the Handler view orders an attack on it; the field HUDs hide in the Handler view; the first two wingmen walk
+ahead on the flanks where the camera sees them; the squad is on the mission end screen. **Verified:** test_squad 11/11;
+bot `images/436-a5_squad/` (Handler view, hold and regroup) and `images/437-hangar_check/` (0 errors); fps on Medium,
+small map, one sitting: no squad 42.5 / walking 43.0, two wingmen 42.2 / 43.1 (`images/433-a5_fps_0`, `434-a5_fps_2`).
+Also: `tests/test_scratch_bench.gd` (a B6 debugging leftover that re-ran every bench test) moved to
+`~/Forge/sessions/juggernaut-alpha/archive/scratch/`, three stray uid files committed.
