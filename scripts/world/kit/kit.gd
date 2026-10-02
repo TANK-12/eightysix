@@ -586,20 +586,39 @@ static func _hedgehog(parts: Parts, e: Dictionary) -> void:
 ## wreck rolls a little to one side (a collapsed axle) and sits at a random heading. Lane B5 part 2.
 static func _wreck(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> void:
 	var mat := str(e.get("material", "steel_rust"))
+	var cab_mat := str(e.get("cab_material", mat))
+	var tyre_mat := str(e.get("tyre_material", mat))
 	var length := float(e.get("length_m", 5.8))
 	var width := float(e.get("width_m", 2.2))
 	var wheel := float(e.get("wheel_m", 0.9))
 	var roll := Basis(Vector3.RIGHT, rng.randf_range(-0.1, 0.1))
 	var chassis_y := wheel * 0.85
+	var burnt := rng.randi_range(0, 3) if rng.randf() < 0.6 else -1  # one tyre burnt away
+	var k := 0
 	for sx: float in [-0.3, 0.32]:
 		for sz: float in [-1.0, 1.0]:
-			parts.piece(mat, Transform3D(Basis(), Vector3(length * sx, wheel * 0.5, sz * width * 0.5)), Vector3(wheel, wheel, 0.4))
+			if k != burnt:
+				parts.piece(tyre_mat, Transform3D(Basis(), Vector3(length * sx, wheel * 0.5, sz * width * 0.5)), Vector3(wheel, wheel, 0.4))
+			k += 1
 	parts.piece(mat, Transform3D(roll, Vector3(0.0, chassis_y + 0.18, 0.0)), Vector3(length, 0.36, width * 0.9))
 	var top := chassis_y + 0.36
-	parts.piece(mat, Transform3D(roll, Vector3(length * 0.32, top + 0.7, 0.0)), Vector3(length * 0.28, 1.4, width))
-	if rng.randf() < 0.7:
-		parts.piece(mat, Transform3D(roll, Vector3(-length * 0.18, top + 0.45, 0.0)), Vector3(length * 0.5, 0.9, width))
-	parts.anchors.append(Vector3(length * 0.32, top + 1.4, 0.0))
+	# cab: a lower body, an upper cabin set back from its front with the dark windscreen on that front, and the bonnet
+	parts.piece(cab_mat, Transform3D(roll, Vector3(length * 0.32, top + 0.5, 0.0)), Vector3(length * 0.26, 1.0, width))
+	parts.piece(cab_mat, Transform3D(roll, Vector3(length * 0.27, top + 1.4, 0.0)), Vector3(length * 0.2, 0.8, width * 0.92))
+	parts.piece("rock_dark", Transform3D(roll, Vector3(length * 0.37 + 0.03, top + 1.4, 0.0)), Vector3(0.06, 0.55, width * 0.8))
+	parts.piece(cab_mat, Transform3D(roll, Vector3(length * 0.52, top + 0.275, 0.0)), Vector3(length * 0.14, 0.55, width * 0.95))
+	# the open bed: a floor, a headboard behind the cab, two sides and (often) a tailgate that burnt off
+	var bed_x := -length * 0.18
+	var bed_l := length * 0.5
+	var bed_w := width * 0.95
+	parts.piece(mat, Transform3D(roll, Vector3(bed_x, top + 0.075, 0.0)), Vector3(bed_l, 0.15, bed_w))
+	parts.piece(mat, Transform3D(roll, Vector3(bed_x + bed_l * 0.5 - 0.06, top + 0.65, 0.0)), Vector3(0.12, 1.0, bed_w))
+	for sz: float in [-1.0, 1.0]:
+		if rng.randf() < 0.75:
+			parts.piece(mat, Transform3D(roll, Vector3(bed_x, top + 0.5, sz * (bed_w * 0.5 - 0.06))), Vector3(bed_l, 0.7, 0.12))
+	if rng.randf() < 0.5:
+		parts.piece(mat, Transform3D(roll, Vector3(bed_x - bed_l * 0.5 + 0.06, top + 0.5, 0.0)), Vector3(0.12, 0.7, bed_w))
+	parts.anchors.append(Vector3(length * 0.27, top + 1.8, 0.0))
 
 
 ## A mound of concrete chunks, one convex collider for the whole pile.

@@ -110,7 +110,7 @@
       "size_m": [3.0, 6.0], "chunks": 7, "collision": "convex", "climb": true, "grapple": false, "order": 72
     },
     "wreck_truck": {
-      "label": "Burnt-out truck", "kind": "debris", "builder": "wreck", "material": "steel_rust",
+      "label": "Burnt-out truck", "kind": "debris", "builder": "wreck", "material": "steel_rust", "cab_material": "steel_paint", "tyre_material": "rock_dark",
       "length_m": 5.8, "width_m": 2.2, "wheel_m": 0.9, "collision": "boxes", "climb": true, "grapple": true,
       "break": true, "order": 73
     },
