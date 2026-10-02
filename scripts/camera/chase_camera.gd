@@ -14,6 +14,9 @@ var _shake_t := 0.0
 var _noise := FastNoiseLite.new()
 var _started := false
 var _skip: Array[RID] = []  # the followed mech's own bodies, left out of the camera sweep
+## The gunner's optics (Emerson's note 20 after 012): index into camera.third_person.optics_steps; 0 is no optics.
+var zoom_i := 0
+var _last_zoom_i := 1
 
 
 func _ready() -> void:
@@ -56,6 +59,34 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("camera_view"):
 		view = "cockpit" if view == "third" else "third"
 		_started = false
+	if not current:
+		return  # the Handler view owns the wheel while it is up
+	if event.is_action_pressed("optics_zoom_in"):
+		step_zoom(1)
+	elif event.is_action_pressed("optics_zoom_out"):
+		step_zoom(-1)
+	elif event.is_action_pressed("zoom_optics"):
+		toggle_optics()
+
+
+## The optics magnification now (1 = no optics).
+func zoom() -> float:
+	var steps: Array = Registry.tune("camera.third_person", {}).get("optics_steps", [1])
+	return float(steps[clampi(zoom_i, 0, steps.size() - 1)])
+
+
+func step_zoom(by: int) -> void:
+	var steps: Array = Registry.tune("camera.third_person", {}).get("optics_steps", [1])
+	zoom_i = clampi(zoom_i + by, 0, steps.size() - 1)
+	if zoom_i > 0:
+		_last_zoom_i = zoom_i
+	_started = false
+
+
+## Middle mouse: straight into the optics at the last magnification, or back out.
+func toggle_optics() -> void:
+	zoom_i = 0 if zoom_i > 0 else _last_zoom_i
+	_started = false
 
 
 func _process(delta: float) -> void:
@@ -69,7 +100,17 @@ func _process(delta: float) -> void:
 	_shake_t += delta
 	var jitter := Vector3(_noise.get_noise_2d(_shake_t * 60.0, 0.0), _noise.get_noise_2d(0.0, _shake_t * 60.0), 0.0) * _shake * 0.35
 
-	cull_mask = 0xFFFFF & ~CombatFx.COCKPIT_SHELL_LAYER if view == "cockpit" else 0xFFFFF
+	var optics := zoom_i > 0
+	cull_mask = 0xFFFFF & ~CombatFx.COCKPIT_SHELL_LAYER if view == "cockpit" or optics else 0xFFFFF
+	if optics:
+		# Down the 57 mm's bore from the cockpit: the middle of the view is where the gun points.
+		var eye_at: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])
+		var combat := target.get_node_or_null("Combat")
+		var bore: Vector3 = combat.call("gun_direction") if combat != null else -body_xf.basis.z
+		fov = Settings.get_f("gameplay.fov_cockpit") / zoom()
+		global_position = body_xf * Vector3(eye_at[0], eye_at[1], eye_at[2])
+		look_at(global_position + bore, body_xf.basis.y if absf(bore.dot(body_xf.basis.y)) < 0.99 else Vector3.UP)
+		return
 	if view == "cockpit":
 		var eye: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])
 		fov = Settings.get_f("gameplay.fov_cockpit")

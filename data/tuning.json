@@ -192,7 +192,9 @@
       "free_look_deg_s": 140.0,
       "aim_follow": 0.8,
       "fast_follow_m_s": 15.0,
-      "min_clear_m": 6.0
+      "min_clear_m": 6.0,
+      "_optics": "The gunner's optics (Emerson's note 20 after 012): the wheel steps through these magnifications, looking down the 57 mm's bore from the cockpit at the cockpit field of view divided by the step; 1 is the normal view.",
+      "optics_steps": [1, 3, 6, 10]
     },
     "cockpit": {"fov_deg": 85.0}
   },

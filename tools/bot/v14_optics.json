@@ -1,0 +1,63 @@
+{
+ "name": "v14_optics",
+ "map": "small_map",
+ "_about": "Version 014, Emerson's note 20: the gunner's optics at 3x and 10x (wheel), looking down the 57 mm's bore. tools/bot_run.sh v14_optics",
+ "steps": [
+  {
+   "at": 0.05,
+   "setting": "gameplay.squad_size",
+   "value": 0.0
+  },
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 4.0,
+   "shot": "no-optics"
+  },
+  {
+   "at": 4.5,
+   "call": "step_zoom",
+   "group": "game_camera",
+   "args": [
+    1
+   ]
+  },
+  {
+   "at": 5.5,
+   "shot": "optics-3x"
+  },
+  {
+   "at": 6.0,
+   "call": "step_zoom",
+   "group": "game_camera",
+   "args": [
+    2
+   ]
+  },
+  {
+   "at": 7.0,
+   "shot": "optics-10x"
+  },
+  {
+   "at": 7.2,
+   "press": "aim_down",
+   "strength": 0.6,
+   "for": 0.4
+  },
+  {
+   "at": 8.5,
+   "shot": "optics-10x-ground"
+  },
+  {
+   "at": 9.0,
+   "quit": true
+  }
+ ]
+}

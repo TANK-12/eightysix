@@ -64,6 +64,34 @@ func _draw() -> void:
 		_draw_weak_points(cam)
 	if combat.anchor != null and cam != null:
 		_draw_anchor(cam)
+	if cam != null and cam.has_method("zoom") and float(cam.call("zoom")) > 1.0:
+		_draw_optics(cam)
+
+
+## The gunner's optics (Emerson's note 20 after 012): a round sight with a crosshair on the bore, the
+## magnification, and a laser rangefinder's distance to whatever is under the cross.
+func _draw_optics(cam: Camera3D) -> void:
+	var c := size * 0.5
+	var r := minf(size.x, size.y) * 0.46
+	var reach := size.length()
+	draw_arc(c, r + reach * 0.5, 0.0, TAU, 96, Color(0.0, 0.0, 0.0, 0.88), reach, true)
+	var col := Color(UiTheme.color("accent"), 0.9)
+	draw_arc(c, r, 0.0, TAU, 96, col, 1.5, true)
+	var gap := 14.0
+	for d: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+		draw_line(c + d * gap, c + d * r, col, 1.0, true)
+	for i in range(1, 6):
+		var x := r * 0.18 * i
+		for side: float in [-1.0, 1.0]:
+			draw_line(c + Vector2(side * x, -5.0), c + Vector2(side * x, 5.0), col, 1.0, true)
+	var font := UiTheme.font("mono")
+	var zoom := float(cam.call("zoom"))
+	draw_string(font, c + Vector2(r * 0.62, -r * 0.62), "%dx" % int(zoom), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, col)
+	var q := PhysicsRayQueryParameters3D.create(cam.global_position, cam.global_position - cam.global_basis.z * 4000.0, 0xFFFFF)
+	q.exclude = [mech.get_rid()]
+	var hit := mech.get_world_3d().direct_space_state.intersect_ray(q)
+	var text := "range  ----" if hit.is_empty() else "range  %d m" % int(cam.global_position.distance_to(hit["position"]))
+	draw_string(font, c + Vector2(r * 0.62, r * 0.62 + 22.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, col)
 
 
 func _panel(rect: Rect2) -> void:
