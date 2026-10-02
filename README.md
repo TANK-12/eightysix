@@ -537,6 +537,7 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   walking push on one leg; the brain probes three tracks ahead, keeps to `maps.json` `legion_area_half_m`, holds
   detours, backs out of dead ends. Verified: test_legion 9/9 and test_ai 20/20 (before/after numbers in
   ~/Forge/sessions/juggernaut-alpha/results/A4.md "Part 4"), bot `a4p4_legion_watch` (images/246 before, 258 after).
+  B5 part 5 bots: `b5_hillside` (one of each Legion type on 15/27/24 degree hills, big map) and `b5_bridge_shell` (real HE at a bridge bearing); results in ~/Forge/sessions/juggernaut-alpha/results/B5.md "Part 5".
 - **The 57 mm's own mark and the sub-arm guns** (commit 5f491b3): the mark sits where the round lands, with its
   range; the 12.7 mm guns have a small cross and a setting (fixed on the body by default / a little play / aimed by
   the arms). Verified: test_combat 15/15, bot `a4p4_aim` (images/265).

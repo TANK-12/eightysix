@@ -29,6 +29,8 @@ var places: Array = []  # every placed kit node
 var bridges: Array[Destructible] = []
 ## The Legion's path-finding grid (missions hand it to the units' brains): bridges are corridors that close when a span goes.
 var nav: LegionNav
+var _hill_units: Array[LegionMech] = []
+var _hill_up := Vector2(0, -1)
 var build_ms := {}
 
 
@@ -301,6 +303,30 @@ func blast_bridge_bearing(index: int = 3, rounds: int = 3) -> void:
 		b.take_hit({"point": at, "dir": Vector3.UP, "damage": 1100.0, "ammo": "he"})
 
 
+## Bot hook (lane B5 part 5): the Juggernaut `distance_m` from the first bridge, side on to it at the `index`-th steel
+## bearing (counted from the west end; `side` 1 or -1 picks the bank), the gun raised to that bearing, for firing
+## real shells at it (the bridge beat otherwise uses a scripted hit). The aim point goes into the bot log.
+func aim_at_bridge_bearing(index: int = 4, distance_m: float = 60.0, side: float = 1.0, trim_deg: float = 0.0, shift_m: float = 0.0) -> void:
+	if bridges.is_empty():
+		return
+	var b := bridges[0]
+	var bearings: Array[int] = []
+	for p: Dictionary in b.pieces:
+		if str(p["material"]) == "steel_rust":
+			bearings.append(int(p["index"]))
+	bearings.sort_custom(func(x: int, y: int) -> bool: return b._boxes[x].position.x < b._boxes[y].position.x)
+	var target := b.to_global(b._boxes[bearings[clampi(index, 0, bearings.size() - 1)]].get_center())
+	var across := Vector3(-b.global_transform.basis.z.x, 0.0, -b.global_transform.basis.z.z).normalized() * signf(side)
+	var at := target + across * distance_m + b.global_transform.basis.x.normalized() * shift_m
+	stream.prime(at)
+	var ground_y := terrain.height_at(at.x, at.z)
+	var pitch := rad_to_deg(atan2(target.y - (ground_y + 4.5), distance_m)) + trim_deg
+	var to_target := target - at
+	to_target.y = 0.0
+	_park_mech(at, to_target.normalized(), pitch)
+	print("big_map: aiming at bearing %d %s from %s (ground %.1f, pitch %.1f)" % [index, str(target.round()), str(at.round()), ground_y, pitch])
+
+
 ## Bot hook: the Juggernaut standing still at (x, z) facing `heading_deg` (compass: 0 north, 90 east).
 func park_at(x: float, z: float, heading_deg: float = 0.0) -> void:
 	stream.prime(Vector3(x, 0.0, z))
@@ -333,6 +359,11 @@ func report_bridge(label: String) -> void:
 		var along := -b.global_transform.basis.x.normalized()  # the bridge runs along its local +X
 		var far := b.global_position - along * float(b.over.get("length_m", 0.0))
 		print("big_map %s: bridge %s integrity %.2f, %d of %d pieces gone, %d anchors listed, from %s to %s" % [label, b.get_meta("bridge", "?"), b.integrity(), b.gone.size(), b.pieces.size(), b.listed.size(), str(b.global_position.round()), str(far.round())])
+		var bearing_hp: Array[int] = []
+		for p: Dictionary in b.pieces:
+			if str(p["material"]) == "steel_rust" and not b.gone.has(int(p["index"])):
+				bearing_hp.append(roundi(b.hp[int(p["index"])]))
+		print("big_map %s: bearing hit points left %s" % [label, str(bearing_hp)])
 
 
 ## Bot hook: the Juggernaut `distance_m` downhill of (x, z), facing straight up the slope there, gun
@@ -343,6 +374,81 @@ func park_below_slope(x: float, z: float, distance_m: float = 40.0) -> void:
 	stream.prime(Vector3(at.x, 0.0, at.y))
 	var rise := terrain.height_at(x, z) - terrain.height_at(at.x, at.y)
 	_park_mech(Vector3(at.x, 0.0, at.y), Vector3(up.x, 0.0, up.y), clampf(rad_to_deg(atan2(rise, distance_m)), -5.0, 28.0))
+
+
+## Bot hook (lane B5 part 5): one Legion unit of each type standing on a hillside of about `deg` degrees found
+## within 400 m of (x, z) (the steepest 12 m slope nearest that angle), 36 m apart along the contour, each facing
+## uphill (`mode` "up") or across the slope ("across"), and the Juggernaut parked below them so the ground streams
+## in. Their brains are removed; `walk_hillside(true)` sends them up it. The spot goes into the bot report.
+func hillside_lineup(deg: float = 25.0, x: float = 0.0, z: float = 0.0, mode: String = "up") -> void:
+	var best := Vector3(x, 0.0, z)
+	var best_err := INF
+	var best_up := Vector2(0, -1)
+	for dz in range(-400, 401, 20):
+		for dx in range(-400, 401, 20):
+			var px := x + dx
+			var pz := z + dz
+			if terrain.height_at(px, pz) < terrain.water_level + 3.0:
+				continue
+			var gx := (terrain.height_at(px + 6.0, pz) - terrain.height_at(px - 6.0, pz)) / 12.0
+			var gz := (terrain.height_at(px, pz + 6.0) - terrain.height_at(px, pz - 6.0)) / 12.0
+			var err := absf(rad_to_deg(atan(Vector2(gx, gz).length())) - deg)
+			if err < best_err:
+				best_err = err
+				best = Vector3(px, 0.0, pz)
+				best_up = Vector2(gx, gz).normalized()
+	stream.prime(best)
+	var along := Vector2(-best_up.y, best_up.x)
+	var facing := best_up if mode == "up" else along
+	for old: LegionMech in _hill_units:
+		if is_instance_valid(old):
+			old.queue_free()
+	_hill_units.clear()
+	var i := 0
+	for id: String in ["ameise", "grauwolf", "lowe"]:
+		var u := LegionMech.build(id)
+		var p2 := Vector2(best.x, best.z) + along * 36.0 * float(i - 1)
+		u.position = Vector3(p2.x, terrain.height_at(p2.x, p2.y) + 1.5, p2.y)
+		u.basis = Basis.looking_at(Vector3(facing.x, 0.0, facing.y), Vector3.UP)
+		var brain := u.get_node_or_null("Brain")
+		if brain != null:
+			brain.free()
+		add_child(u)
+		u.face_dir = Vector3(facing.x, 0.0, facing.y)
+		_hill_units.append(u)
+		i += 1
+	_hill_up = best_up
+	var below := Vector2(best.x, best.z) - best_up * 60.0
+	_park_mech(Vector3(below.x, 0.0, below.y), Vector3(best_up.x, 0.0, best_up.y))
+	if Bot.active:
+		Bot.report["hillside"] = {"at": [best.x, best.z], "slope_deg": snappedf(deg + best_err, 0.1), "up": [best_up.x, best_up.y], "mode": mode}
+
+
+## Bot hook: send the lined-up hillside units walking up the slope (on) or stop them (off).
+func walk_hillside(on: bool, speed_m_s: float = 4.0) -> void:
+	for u: LegionMech in _hill_units:
+		if is_instance_valid(u):
+			u.move_goal = Vector3(_hill_up.x, 0.0, _hill_up.y) * speed_m_s if on else Vector3.ZERO
+
+
+## Bot hook: a camera `dist_m` off the flank of hillside unit `index` along the contour (side on to the slope),
+## `up_m` above it; `front` looks at it from downhill instead. The unit's own telemetry goes into the report.
+func look_at_hill_unit(index: int, dist_m: float = 14.0, up_m: float = 2.0, front: bool = false) -> void:
+	if index >= _hill_units.size() or not is_instance_valid(_hill_units[index]):
+		return
+	_ensure_view_camera()
+	var u := _hill_units[index]
+	var side := Vector3(-_hill_up.y, 0.0, _hill_up.x)
+	var off := (-Vector3(_hill_up.x, 0.0, _hill_up.y) * 0.6 + side * 0.1) if front else side
+	var eye := u.global_position + off.normalized() * dist_m
+	eye.y = maxf(u.global_position.y + up_m, terrain.height_at(eye.x, eye.z) + 1.5)
+	view_camera.global_position = eye
+	view_camera.look_at(u.global_position + Vector3.UP * 1.2, Vector3.UP)
+	view_camera.current = true
+	if Bot.active:
+		if not Bot.report.has("hill_units"):
+			Bot.report["hill_units"] = []
+		(Bot.report["hill_units"] as Array).append({"index": index, "t": Time.get_ticks_msec(), "telemetry": u.telemetry()})
 
 
 ## Bot hook: what the wire would do now and its state, into the bot log (label: when).

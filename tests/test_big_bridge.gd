@@ -178,7 +178,7 @@ func test_a_span_needs_both_bearings_so_one_shot_out_drops_the_two_it_carried() 
 	print("    bridge: one bearing out took %d pieces of %d" % [before - (d.pieces.size() - d.gone.size()), before])
 
 
-func test_two_he_rounds_at_a_bearing_break_it() -> void:
+func test_a_direct_he_round_at_a_bearing_breaks_it_in_one_or_two() -> void:
 	var lay := _lay()
 	var d := Destructible.make(str(lay["kit"]), 1, lay["over"])
 	holder.add_child(d)
@@ -189,6 +189,26 @@ func test_two_he_rounds_at_a_bearing_break_it() -> void:
 		rounds += 1
 	print("    bridge: a bearing breaks after %d HE rounds" % rounds)
 	assert_between(float(rounds), 1.0, 3.0, "a few rounds at the weak point, not one and not many")
+
+
+## Part 5: a fired HE shell (500 damage) bursts on the deck beside a bearing (bearings sit under it) and gives it a share of its 800,
+## measured 150-620 a hit on the live bridge, so a bearing's hit points are tuned down (tuning "destruction" weak_hp_scale):
+## shells at the deck beside it, not scripted hits on it, break it in a few.
+func test_a_few_shells_bursting_beside_a_bearing_break_it() -> void:
+	var lay := _lay()
+	var d := Destructible.make(str(lay["kit"]), 1, lay["over"])
+	holder.add_child(d)
+	var b := _bearings(d)[2]
+	var size: Vector3 = d.pieces[b]["size"]
+	var scale := float(Registry.tune("destruction", {}).get("weak_hp_scale", 1.0))
+	assert_almost_eq(d.hp[b], size.x * size.y * size.z * 2500.0 * scale, 1.0, "a bearing has the weak share of its steel's hit points")
+	var at := d._boxes[b].get_center() + Vector3(0.0, 0.0, size.z * 0.5 + 1.2)  # 1.2 m beside the bearing, at the deck's side
+	var rounds := 0
+	while not d.gone.has(b) and rounds < 10:
+		d.take_hit({"point": d.to_global(at), "dir": Vector3.UP, "damage": 500.0, "ammo": "he"})
+		rounds += 1
+	print("    bridge: a bearing breaks after %d HE shells bursting 1.2 m beside it" % rounds)
+	assert_between(float(rounds), 2.0, 6.0, "a few shells, not one and not many")
 
 
 func test_the_bearings_are_marked_weak_points_a_player_can_be_shown() -> void:

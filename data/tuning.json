@@ -249,7 +249,7 @@
     "max_s": 4.0
   },
   "destruction": {
-    "_about": "Walls and buildings that break (lane B5, scripts/world/destructible.gd). hp_per_m3: hit points of a kit piece per cubic metre of its material. ammo: per ammo id, radius_m is how far from the struck piece others take damage (falling off to nothing at that distance) and scale multiplies the round's damage against masonry (penetrators punch a hole, high explosive breaks wide). collapse_below: a building with less than this share of its volume standing comes down. throw_m_s: how fast a broken piece leaves along the shot. debris_cap: loose pieces kept at once (the oldest go). slab_slide_m_s, slab_tip_rad_s and slab_friction: a bridge span that loses a bearing slides sideways and tips over its long side so it comes off the pier caps.",
+    "_about": "Walls and buildings that break (lane B5, scripts/world/destructible.gd). hp_per_m3: hit points of a kit piece per cubic metre of its material. ammo: per ammo id, radius_m is how far from the struck piece others take damage (falling off to nothing at that distance) and scale multiplies the round's damage against masonry (penetrators punch a hole, high explosive breaks wide). weak_hp_scale: a weak point (the bridge's bearings) has this share of the hit points its steel would have (fired HE bursts on the deck beside a bearing and gave it 150-620 of 800 a hit, so at 1.0 a bearing took 5-6 shells). collapse_below: a building with less than this share of its volume standing comes down. throw_m_s: how fast a broken piece leaves along the shot. debris_cap: loose pieces kept at once (the oldest go). slab_slide_m_s, slab_tip_rad_s and slab_friction: a bridge span that loses a bearing slides sideways and tips over its long side so it comes off the pier caps.",
     "hp_per_m3": {"brick": 700.0, "concrete": 1100.0, "steel_rust": 2500.0, "_default": 900.0},
     "ammo": {
       "apfsds": {"radius_m": 0.5, "scale": 0.5},
@@ -260,6 +260,7 @@
       "_default": {"radius_m": 0.8, "scale": 1.0}
     },
     "collapse_below": 0.35,
+    "weak_hp_scale": 0.5,
     "throw_m_s": 6.0,
     "debris_cap": 160,
   "slab_slide_m_s": 3.5,

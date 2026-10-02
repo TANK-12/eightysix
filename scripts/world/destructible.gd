@@ -55,6 +55,8 @@ static func make(id: String, seed_v: int, overrides: Dictionary = {}, range_m: f
 		var v := size.x * size.y * size.z
 		var i := int(p["index"])
 		d.hp[i] = v * float(hp_m3.get(str(p["material"]), hp_m3.get("_default", 1000.0)))
+		if bool(p.get("weak", false)):
+			d.hp[i] *= float(d._cfg.get("weak_hp_scale", 1.0))
 		d._boxes.append((p["xf"] as Transform3D) * AABB(-size * 0.5, size))
 		d._base_y = minf(d._base_y, d._boxes[-1].position.y)
 		if p.get("gone", false):

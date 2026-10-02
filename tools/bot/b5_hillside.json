@@ -1,0 +1,473 @@
+{
+ "name": "b5_hillside",
+ "_about": "Lane B5 part 5: one Legion unit of each type standing then walking on a 15, 27 degree hillside (facing up) and a 24 degree one (across), on the big map; side and front shots of each (hillside_lineup, look_at_hill_unit). tools/bot_run.sh b5_hillside --timeout=200",
+ "map": "big_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "hillside_lineup",
+   "args": [
+    15,
+    0,
+    1200,
+    "up"
+   ]
+  },
+  {
+   "at": 10.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 10.8,
+   "shot": "15up-ameise-side"
+  },
+  {
+   "at": 10.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 11.6,
+   "shot": "15up-ameise-front"
+  },
+  {
+   "at": 12.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 12.8,
+   "shot": "15up-grauwolf-side"
+  },
+  {
+   "at": 12.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 13.6,
+   "shot": "15up-grauwolf-front"
+  },
+  {
+   "at": 14.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 14.8,
+   "shot": "15up-lowe-side"
+  },
+  {
+   "at": 14.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 15.6,
+   "shot": "15up-lowe-front"
+  },
+  {
+   "at": 16.0,
+   "call": "walk_hillside",
+   "args": [
+    true,
+    4.0
+   ]
+  },
+  {
+   "at": 21.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 21.8,
+   "shot": "15up-ameise-walk"
+  },
+  {
+   "at": 22.5,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 23.3,
+   "shot": "15up-grauwolf-walk"
+  },
+  {
+   "at": 24.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 24.8,
+   "shot": "15up-lowe-walk"
+  },
+  {
+   "at": 25.5,
+   "call": "walk_hillside",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 26.0,
+   "call": "hillside_lineup",
+   "args": [
+    27,
+    0,
+    1200,
+    "up"
+   ]
+  },
+  {
+   "at": 35.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 35.8,
+   "shot": "27up-ameise-side"
+  },
+  {
+   "at": 35.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 36.6,
+   "shot": "27up-ameise-front"
+  },
+  {
+   "at": 37.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 37.8,
+   "shot": "27up-grauwolf-side"
+  },
+  {
+   "at": 37.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 38.6,
+   "shot": "27up-grauwolf-front"
+  },
+  {
+   "at": 39.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 39.8,
+   "shot": "27up-lowe-side"
+  },
+  {
+   "at": 39.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 40.6,
+   "shot": "27up-lowe-front"
+  },
+  {
+   "at": 41.0,
+   "call": "walk_hillside",
+   "args": [
+    true,
+    4.0
+   ]
+  },
+  {
+   "at": 46.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 46.8,
+   "shot": "27up-ameise-walk"
+  },
+  {
+   "at": 47.5,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 48.3,
+   "shot": "27up-grauwolf-walk"
+  },
+  {
+   "at": 49.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 49.8,
+   "shot": "27up-lowe-walk"
+  },
+  {
+   "at": 50.5,
+   "call": "walk_hillside",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 51.0,
+   "call": "hillside_lineup",
+   "args": [
+    24,
+    0,
+    1200,
+    "across"
+   ]
+  },
+  {
+   "at": 60.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 60.8,
+   "shot": "24across-ameise-side"
+  },
+  {
+   "at": 60.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 61.6,
+   "shot": "24across-ameise-front"
+  },
+  {
+   "at": 62.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 62.8,
+   "shot": "24across-grauwolf-side"
+  },
+  {
+   "at": 62.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 63.6,
+   "shot": "24across-grauwolf-front"
+  },
+  {
+   "at": 64.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 64.8,
+   "shot": "24across-lowe-side"
+  },
+  {
+   "at": 64.85,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    3.0,
+    true
+   ]
+  },
+  {
+   "at": 65.6,
+   "shot": "24across-lowe-front"
+  },
+  {
+   "at": 66.0,
+   "call": "walk_hillside",
+   "args": [
+    true,
+    4.0
+   ]
+  },
+  {
+   "at": 71.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    0,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 71.8,
+   "shot": "24across-ameise-walk"
+  },
+  {
+   "at": 72.5,
+   "call": "look_at_hill_unit",
+   "args": [
+    1,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 73.3,
+   "shot": "24across-grauwolf-walk"
+  },
+  {
+   "at": 74.0,
+   "call": "look_at_hill_unit",
+   "args": [
+    2,
+    16.0,
+    2.5,
+    false
+   ]
+  },
+  {
+   "at": 74.8,
+   "shot": "24across-lowe-walk"
+  },
+  {
+   "at": 75.5,
+   "call": "walk_hillside",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 77.0,
+   "quit": true
+  }
+ ]
+}

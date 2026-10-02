@@ -1,0 +1,257 @@
+{
+ "name": "b5_bridge_shell",
+ "_about": "Lane B5 part 5: real HE shells (fire_main) at the Ash bridge's 5th bearing from the south bank 60 m off. The gun is fixed to the body and the body settles for seconds after being parked, so each shot re-parks with a pitch trim (11.5-13.5) and about one in two lands on the bearing (images/360); the bridge and its bearings' hit points are logged after each (report_bridge). tools/bot_run.sh b5_bridge_shell --timeout=120",
+ "map": "big_map",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    12.0,
+    0.0
+   ]
+  },
+  {
+   "at": 4.0,
+   "call": "report_bridge",
+   "args": [
+    "before"
+   ]
+  },
+  {
+   "at": 4.2,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 4.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    11.5,
+    0.0
+   ]
+  },
+  {
+   "at": 4.6,
+   "press": "cycle_ammo",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 5.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 6.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 1 (trim 11.5)"
+   ]
+  },
+  {
+   "at": 7.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    12.5,
+    0.0
+   ]
+  },
+  {
+   "at": 8.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 9.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 2 (trim 12.5)"
+   ]
+  },
+  {
+   "at": 10.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    13.5,
+    0.0
+   ]
+  },
+  {
+   "at": 11.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 12.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 3 (trim 13.5)"
+   ]
+  },
+  {
+   "at": 13.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    11.5,
+    0.0
+   ]
+  },
+  {
+   "at": 14.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 15.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 4 (trim 11.5)"
+   ]
+  },
+  {
+   "at": 16.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    12.5,
+    0.0
+   ]
+  },
+  {
+   "at": 17.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 18.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 5 (trim 12.5)"
+   ]
+  },
+  {
+   "at": 19.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    12.5,
+    0.0
+   ]
+  },
+  {
+   "at": 20.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 21.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 6 (trim 12.5)"
+   ]
+  },
+  {
+   "at": 22.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    12.0,
+    0.0
+   ]
+  },
+  {
+   "at": 23.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 24.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 7 (trim 12.0)"
+   ]
+  },
+  {
+   "at": 25.3,
+   "call": "aim_at_bridge_bearing",
+   "args": [
+    4,
+    60.0,
+    1.0,
+    13.0,
+    0.0
+   ]
+  },
+  {
+   "at": 26.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.12
+  },
+  {
+   "at": 27.5,
+   "call": "report_bridge",
+   "args": [
+    "after shell 8 (trim 13.0)"
+   ]
+  },
+  {
+   "at": 29.5,
+   "shot": "after"
+  },
+  {
+   "at": 34.5,
+   "call": "report_bridge",
+   "args": [
+    "settled"
+   ]
+  },
+  {
+   "at": 34.6,
+   "shot": "settled"
+  },
+  {
+   "at": 35.0,
+   "quit": true
+  }
+ ]
+}
