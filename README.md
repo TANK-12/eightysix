@@ -585,3 +585,17 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   macOS into `build/share/`, built from that version's own commit, each with an install script (`tools/share/`) and
   HOW-TO-RUN.txt; older zips are deleted. `tools/builds.py clear-shares` deletes them all. Windows is one exe (data inside).
   Verified: tools/tests/test_builds.py 13/13; Linux install + run and Windows run (Wine) checked on the real 011 zips.
+
+### 2026-10-02 · lane A4 · Nagi (relay-29) · part 7: Hangar, menu Juggernaut, Legion sounds, Dyneema mass
+- **Hangar screen and the Juggernaut behind the main menu** (data/hangar.json, scripts/ui/hangar_stage.gd, hangar.gd,
+  scenes/ui/hangar.tscn, main_menu.gd, `Game.goto_hangar()`, bot `goto: hangar`; settings `interface.menu_showcase` and
+  `hangar.light`). Five light presets (Q / E), orbit, part picking with name and mass, O hides panels, F12 photo.
+  **Verified:** tests/test_hangar.gd 17/17; screenshots images/409-hangar_check; fps off screen on the Iris Xe
+  (images 404-406): menu showcase 81 / 84 / 87 on Low / Medium / High, Hangar 80-85, plain menu backdrop 145.
+  Not screenshotted: the hover tooltip and the pad reticle. The variant picked in the Hangar does not change what Deploy spawns (A5).
+- **Legion sounds:** mech_sounds.gd handles Legion mechs from an `enemies.json` "sounds" block; legion_mech.gd untouched.
+  tests/test_legion_sounds.gd 5/5 (sound ids only; not listened to).
+- **Dyneema mass:** 20 mm rope 0.22 kg/m, 17.6 kg per spool; table combat-loaded 5423 -> 5354 kg, game mech 5563.7 -> 5493.9 kg.
+  tests/test_juggernaut.gd 27/27. Note: ~/Forge/docs/library/juggernaut/2026-10-02-dyneema-mass.md.
+- Full suite on the shared tree: 387 passed, 3 failed, none in this part: test_audio x2 (music moved to assets/audio/86 by
+  another session) and test_graphics apply (Ultra preset changed by the look pass). Details: results/A4.md "Part 7".

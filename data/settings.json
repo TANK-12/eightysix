@@ -254,7 +254,9 @@
           {"label": "Look", "items": [
             {"key": "interface.theme", "label": "Menu theme", "type": "choice", "options_from": "themes", "default": "handler_console", "help": "Switches straight away."},
             {"key": "interface.button_prompts", "label": "Button prompts", "type": "choice", "options": [["auto", "Match last used"], ["keyboard", "Keyboard and mouse"], ["playstation", "PlayStation"]], "default": "auto", "help": "Which buttons the game shows in hints."},
-            {"key": "interface.menu_sounds", "label": "Menu sounds", "type": "toggle", "default": true, "help": "Clicks and ticks in menus."}
+            {"key": "interface.menu_sounds", "label": "Menu sounds", "type": "toggle", "default": true, "help": "Clicks and ticks in menus."},
+            {"key": "interface.menu_showcase", "label": "Juggernaut behind the menu", "type": "toggle", "default": true, "help": "The main menu shows your Juggernaut standing in the hangar behind the buttons, swaying slowly. Off draws the plain menu backdrop (a little lighter on the laptop)."},
+            {"key": "hangar.light", "label": "Hangar lighting", "type": "choice", "options_from": "hangar", "default": "showroom", "help": "The light the Juggernaut is shown in, in the Hangar and behind the main menu. Also changes with Q and E in the Hangar."}
           ]},
           {"label": "Learning", "items": [
             {"key": "gameplay.tutorial", "label": "Tutorial hints", "type": "toggle", "default": false, "help": "A stub for now: off by default until Emerson decides after testing."}

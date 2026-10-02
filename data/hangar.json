@@ -1,0 +1,120 @@
+{
+  "_about": "The Hangar (scripts/ui/hangar_stage.gd): the room the Juggernaut is shown in, on the Hangar screen and behind the main menu. \"entries\" are light presets, one each: pick one in the Hangar (Q / E or the buttons) or in Settings > Gameplay > Menus and theme. A preset has \"background\" (the colour behind the room, only seen through the door gap), \"ambient\" {color, energy}, \"exposure\", optional \"fog\" {color, density}, optional \"grade\" (shadow_shift / highlight_shift, see weather.json) and \"lights\": each {kind: spot | omni | sun, at: [x, y, z] metres with the mech standing at the origin and facing -z, look: [x, y, z] (spot and sun), color, energy, range (spot and omni), angle (spot, degrees), shadow: true | false, lamp: true draws a glowing fixture at that position}. Keep shadows to one or two lights per preset: the Iris Xe pays for each. \"stage\" holds the room and the cameras (metres, degrees); \"slots\" name the loadout slots on the Hangar screen; \"groups\" sort parts by kind in the parts list; \"menu\" is the slow sway behind the main menu (the Juggernaut stands to the right of the buttons; shift_x is how far, as a share of the picture width).",
+  "stage": {
+    "room": {"width_m": 40.0, "length_m": 52.0, "height_m": 15.0},
+    "orbit": {
+      "min_distance_m": 3.5,
+      "max_distance_m": 24.0,
+      "start_distance_m": 12.5,
+      "start_yaw_deg": 148.0,
+      "start_pitch_deg": -12.0,
+      "min_pitch_deg": -80.0,
+      "max_pitch_deg": 25.0,
+      "focus": [0.0, 1.7, 0.0],
+      "max_pan_m": 4.0,
+      "stick_orbit_deg_s": 100.0,
+      "pan_m_s": 3.0,
+      "mouse_orbit_rad_px": 0.006,
+      "zoom_step": 0.9,
+      "fov_deg": 45.0
+    },
+    "settle_s": 1.2
+  },
+  "menu": {
+    "mech": "juggernaut_m2",
+    "distance_m": 13.0,
+    "pitch_deg": -7.0,
+    "yaw_deg": 150.0,
+    "sway_deg": 26.0,
+    "period_s": 48.0,
+    "focus": [0.0, 1.7, 0.0],
+    "shift_x": 0.2,
+    "fov_deg": 42.0
+  },
+  "slots": {
+    "main_gun": "Main gun",
+    "sub_left": "Left sub-arm",
+    "sub_right": "Right sub-arm",
+    "sub_guns": "Sub-arm guns"
+  },
+  "groups": {
+    "body": {"label": "Body and cockpit", "order": 1, "kinds": ["chassis", "armour", "cockpit", "sensor", "other"]},
+    "legs": {"label": "Legs", "order": 2, "kinds": ["leg_upper", "leg_lower", "foot", "joint"]},
+    "weapons": {"label": "Guns and ammunition", "order": 3, "kinds": ["gun_barrel", "gun_mech", "weapon", "ammo"]},
+    "internals": {"label": "Power pack and internals", "order": 4, "kinds": ["internals"]},
+    "actuators": {"label": "Actuators", "order": 5, "kinds": ["actuator"]}
+  },
+  "entries": {
+    "showroom": {
+      "label": "Showroom",
+      "order": 10,
+      "description": "A warm key from above and in front, a cold rim from behind: the film look.",
+      "background": "#05060a",
+      "ambient": {"color": "#2a3140", "energy": 0.9},
+      "exposure": 1.0,
+      "grade": {"shadow_shift": [-0.01, 0.0, 0.025], "highlight_shift": [0.02, 0.008, -0.012], "strength": 1.0},
+      "lights": [
+        {"kind": "spot", "at": [-7.0, 12.0, -10.0], "look": [0.0, 1.8, 0.0], "color": "#ffe6c4", "energy": 15.37, "range": 40.0, "angle": 34.0, "shadow": true},
+        {"kind": "spot", "at": [9.0, 8.0, 12.0], "look": [0.0, 2.0, 0.0], "color": "#8fb4ff", "energy": 7.71, "range": 40.0, "angle": 38.0, "shadow": true},
+        {"kind": "spot", "at": [10.0, 5.0, -9.0], "look": [0.0, 1.5, 0.0], "color": "#ffd9a8", "energy": 2.66, "range": 40.0, "angle": 45.0, "shadow": false},
+        {"kind": "omni", "at": [0.0, 6.0, 0.0], "color": "#a8b4c8", "energy": 0.38, "range": 20.0, "shadow": false}
+      ]
+    },
+    "work_lights": {
+      "label": "Work lights",
+      "order": 20,
+      "description": "Flat white overhead tubes, like a maintenance bay: nothing hidden.",
+      "background": "#0a0b0d",
+      "ambient": {"color": "#8a9098", "energy": 0.9},
+      "exposure": 1.05,
+      "lights": [
+        {"kind": "spot", "at": [0.0, 13.5, -5.0], "look": [0.0, 0.0, 0.0], "color": "#f4f7ff", "energy": 10.89, "range": 40.0, "angle": 50.0, "shadow": true, "lamp": true},
+        {"kind": "spot", "at": [0.0, 13.5, 5.0], "look": [0.0, 0.0, 0.0], "color": "#f4f7ff", "energy": 10.89, "range": 40.0, "angle": 50.0, "shadow": false, "lamp": true},
+        {"kind": "omni", "at": [-8.0, 6.0, 0.0], "color": "#dfe6f0", "energy": 0.62, "range": 20.0, "shadow": false},
+        {"kind": "omni", "at": [8.0, 6.0, 0.0], "color": "#dfe6f0", "energy": 0.62, "range": 20.0, "shadow": false}
+      ]
+    },
+    "floodlit_night": {
+      "label": "Floodlit night",
+      "order": 30,
+      "description": "Hard blue-white floods from either side, deep shadows between them.",
+      "background": "#020306",
+      "ambient": {"color": "#0b1018", "energy": 0.35},
+      "exposure": 1.1,
+      "fog": {"color": "#0c1219", "density": 0.012},
+      "grade": {"shadow_shift": [-0.015, 0.0, 0.03], "highlight_shift": [0.0, 0.01, 0.025], "strength": 1.0},
+      "lights": [
+        {"kind": "spot", "at": [-12.0, 9.0, 4.0], "look": [0.0, 1.8, 0.0], "color": "#d6e6ff", "energy": 17.11, "range": 45.0, "angle": 26.0, "shadow": true, "lamp": true},
+        {"kind": "spot", "at": [12.0, 9.0, -5.0], "look": [0.0, 1.8, 0.0], "color": "#d6e6ff", "energy": 17.11, "range": 45.0, "angle": 26.0, "shadow": true, "lamp": true},
+        {"kind": "omni", "at": [0.0, 12.0, 0.0], "color": "#ff3b2a", "energy": 0.08, "range": 25.0, "shadow": false}
+      ]
+    },
+    "dawn_door": {
+      "label": "Dawn at the door",
+      "order": 40,
+      "description": "The hangar door is open on a low sun: long orange light across the floor.",
+      "background": "#3a2a24",
+      "ambient": {"color": "#3a3a46", "energy": 0.5},
+      "exposure": 1.0,
+      "fog": {"color": "#4a3a34", "density": 0.008},
+      "grade": {"shadow_shift": [-0.01, 0.0, 0.02], "highlight_shift": [0.03, 0.012, -0.02], "strength": 1.0},
+      "lights": [
+        {"kind": "sun", "look": [0.5, -0.22, -1.0], "at": [0.0, 0.0, 0.0], "color": "#ffb070", "energy": 3.0, "shadow": true},
+        {"kind": "spot", "at": [-8.0, 6.0, -12.0], "look": [0.0, 1.8, 0.0], "color": "#ffc89a", "energy": 9.0, "range": 40.0, "angle": 40.0, "shadow": false},
+        {"kind": "omni", "at": [0.0, 7.0, -4.0], "color": "#9ab0d0", "energy": 0.22, "range": 20.0, "shadow": false}
+      ]
+    },
+    "emergency": {
+      "label": "Emergency amber",
+      "order": 50,
+      "description": "Power is down; only the amber alarm lamps are on.",
+      "background": "#030201",
+      "ambient": {"color": "#2a1608", "energy": 0.35},
+      "exposure": 1.15,
+      "lights": [
+        {"kind": "spot", "at": [-9.0, 10.0, -6.0], "look": [0.0, 1.5, 0.0], "color": "#ff8a2a", "energy": 7.48, "range": 40.0, "angle": 40.0, "shadow": true, "lamp": true},
+        {"kind": "spot", "at": [9.0, 10.0, 6.0], "look": [0.0, 1.5, 0.0], "color": "#ff7a1a", "energy": 4.68, "range": 40.0, "angle": 40.0, "shadow": false, "lamp": true}
+      ]
+    }
+  }
+}

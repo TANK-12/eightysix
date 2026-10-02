@@ -2475,6 +2475,12 @@
     },
     "ameise_mg": {
       "fire": "mg_12_7_fire"
+    },
+    "grauwolf_rockets": {
+      "fire": "hydraulic_hiss"
+    },
+    "grauwolf_blade": {
+      "fire": "impact_metal"
     }
   },
   "surfaces": {

@@ -1,0 +1,15 @@
+{
+  "name": "hangar_fps",
+  "_about": "A4 part 7: frame rate of the main menu with the Juggernaut behind it, and of the Hangar screen, in the preset given by --preset. tools/bot_run.sh hangar_fps --preset=medium",
+  "steps": [
+    {"at": 3.0, "measure": 6.0, "label": "menu showcase"},
+    {"at": 9.5, "setting": "interface.menu_showcase", "value": false},
+    {"at": 10.0, "measure": 4.0, "label": "menu plain backdrop"},
+    {"at": 14.5, "setting": "interface.menu_showcase", "value": true},
+    {"at": 15.0, "goto": "hangar"},
+    {"at": 18.0, "measure": 6.0, "label": "hangar showroom"},
+    {"at": 24.5, "call": "preview_light", "args": ["work_lights"]},
+    {"at": 25.5, "measure": 4.0, "label": "hangar work lights"},
+    {"at": 30.0, "quit": true}
+  ]
+}

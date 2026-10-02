@@ -1,0 +1,30 @@
+{
+  "name": "hangar_check",
+  "_about": "A4 part 7: the main menu with the Juggernaut behind the buttons, then the Hangar screen: each light preset, an orbit, a pinned part, the blades variant, and a clean (panels hidden) view. tools/bot_run.sh hangar_check",
+  "steps": [
+    {"at": 3.5, "shot": "menu-showcase"},
+    {"at": 9.0, "shot": "menu-showcase-later"},
+    {"at": 9.5, "goto": "hangar"},
+    {"at": 12.5, "shot": "hangar-showroom"},
+    {"at": 12.6, "call": "preview_light", "args": ["work_lights"]},
+    {"at": 13.3, "shot": "hangar-work-lights"},
+    {"at": 13.4, "call": "preview_light", "args": ["floodlit_night"]},
+    {"at": 14.1, "shot": "hangar-floodlit-night"},
+    {"at": 14.2, "call": "preview_light", "args": ["dawn_door"]},
+    {"at": 14.9, "shot": "hangar-dawn-door"},
+    {"at": 15.0, "call": "preview_light", "args": ["emergency"]},
+    {"at": 15.7, "shot": "hangar-emergency"},
+    {"at": 15.8, "call": "preview_light", "args": ["showroom"]},
+    {"at": 15.9, "call": "view", "args": [230.0, -18.0, 9.0]},
+    {"at": 16.6, "shot": "hangar-orbit-rear"},
+    {"at": 16.7, "call": "view", "args": [90.0, 8.0, 6.0]},
+    {"at": 16.8, "call": "pin_part", "args": ["jg2_canopy"]},
+    {"at": 17.5, "shot": "hangar-pinned-canopy"},
+    {"at": 17.6, "call": "show_variant", "args": ["juggernaut_m2_blades"]},
+    {"at": 17.7, "call": "view", "args": [148.0, -12.0, 12.5]},
+    {"at": 20.0, "shot": "hangar-blades"},
+    {"at": 20.1, "call": "set_panels_hidden", "args": [true]},
+    {"at": 20.8, "shot": "hangar-clean"},
+    {"at": 21.0, "quit": true}
+  ]
+}

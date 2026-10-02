@@ -7,6 +7,7 @@ signal level_ready(level: Node)
 const MAIN_MENU := "res://scenes/ui/main_menu.tscn"
 const LOADING := "res://scenes/ui/loading_screen.tscn"
 const PAUSE_MENU := "res://scenes/ui/pause_menu.tscn"
+const HANGAR := "res://scenes/ui/hangar.tscn"
 
 var pending_map := ""
 var current_map := ""
@@ -52,6 +53,13 @@ func goto_main_menu() -> void:
 	_leave_level()
 	current_map = ""
 	get_tree().change_scene_to_file(MAIN_MENU)
+
+
+## The Hangar screen (scripts/ui/hangar.gd), from the main menu.
+func goto_hangar() -> void:
+	_leave_level()
+	current_map = ""
+	get_tree().change_scene_to_file(HANGAR)
 
 
 func quit_game() -> void:

@@ -1999,7 +1999,7 @@
     "jg2_spool_l": {
       "kind": "armour",
       "label": "Juggernaut Model 2: spool.L",
-      "mass_kg": 80.0,
+      "mass_kg": 47.6,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -2016,14 +2016,14 @@
         "mesh": "box"
       },
       "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
-      "empty_kg": 80.0,
-      "load_kg": 0.0,
-      "mass_note": "winch: 50 m of 16 mm steel wire (~50 kg) + drum and motor"
+      "empty_kg": 30.0,
+      "load_kg": 17.6,
+      "mass_note": "winch drum and motor; the load is 80 m of 20 mm Dyneema rope at 0.22 kg/m (the game's wire_anchor)"
     },
     "jg2_spool_r": {
       "kind": "armour",
       "label": "Juggernaut Model 2: spool.R",
-      "mass_kg": 80.0,
+      "mass_kg": 47.6,
       "health": 1000,
       "armour_mm": 6,
       "collider": {
@@ -2040,9 +2040,9 @@
         "mesh": "box"
       },
       "source": "B1 export from mk2_m37_shin_tube.blend: collision is the export's own convex hull(s) at the rest pose; size is the axis-aligned hull bbox",
-      "empty_kg": 80.0,
-      "load_kg": 0.0,
-      "mass_note": "winch: 50 m of 16 mm steel wire (~50 kg) + drum and motor"
+      "empty_kg": 30.0,
+      "load_kg": 17.6,
+      "mass_note": "winch drum and motor; the load is 80 m of 20 mm Dyneema rope at 0.22 kg/m (the game's wire_anchor)"
     },
     "jg2_subarm_l": {
       "kind": "armour",
@@ -2188,8 +2188,8 @@
     "jg2_int_wiring_hydraulics": {
       "kind": "internals",
       "label": "Juggernaut Model 2: wiring hydraulics",
-      "mass_kg": 218.5,
-      "empty_kg": 218.5,
+      "mass_kg": 213.5,
+      "empty_kg": 213.5,
       "load_kg": 0.0,
       "mass_note": "cables, lines, fasteners: 5% of the rest",
       "health": 600,

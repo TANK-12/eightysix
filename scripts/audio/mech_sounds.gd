@@ -20,6 +20,9 @@ var _skid: AudioStreamPlayer3D
 var _reel: AudioStreamPlayer3D
 var _anchor: Node
 var _poll := 0.0
+## A Legion mech's "sounds" block from enemies.json (step, step_db, step_pitch, servo, servo_db, servo_pitch);
+## empty for the Juggernaut, which uses the foot, servo and gun sounds of the surface and weapon tables.
+var _legion: Dictionary = {}
 
 
 func _ready() -> void:
@@ -31,7 +34,12 @@ func _ready() -> void:
 		mech.connect("landed", _on_landed)
 	if mech.has_signal("jumped"):
 		mech.connect("jumped", _on_jumped)
+	if "enemy_id" in mech:
+		_legion = (mech.get("def") as Dictionary).get("sounds", {})
 	var combat := mech.get_node_or_null("Combat")
+	if combat == null and mech.has_signal("fired"):
+		# a Legion mech fires from its own body: no Combat node, the signal is on the mech itself
+		mech.connect("fired", _on_fired)
 	if combat != null:
 		combat.connect("fired", _on_fired)
 		combat.connect("reloaded", _on_reloaded)
@@ -39,7 +47,7 @@ func _ready() -> void:
 		if _anchor != null:
 			_anchor.connect("attached", _on_wire_attached)
 			_anchor.connect("snapped", _on_wire_snapped)
-	_servo = Sfx.loop("servo_loop", mech) as AudioStreamPlayer3D
+	_servo = Sfx.loop(str(_legion.get("servo", "servo_loop")), mech) as AudioStreamPlayer3D
 	_skid = Sfx.loop("skid_loop", mech) as AudioStreamPlayer3D
 	_reel = Sfx.loop("wire_reel_loop", mech) as AudioStreamPlayer3D
 	for p in [_servo, _skid, _reel]:
@@ -58,8 +66,9 @@ func _process(delta: float) -> void:
 	var turn := absf(mech.angular_velocity.y)
 	var work := clampf(speed / 18.0 + turn * 0.4, 0.0, 1.0)
 	if _servo != null:
-		_servo.volume_db = lerpf(SERVO_QUIET_DB, SERVO_LOUD_DB, sqrt(work)) + Sfx.mix_db("servo_loop")
-		_servo.pitch_scale = 0.85 + work * 0.45
+		var servo_event := str(_legion.get("servo", "servo_loop"))
+		_servo.volume_db = lerpf(SERVO_QUIET_DB, SERVO_LOUD_DB, sqrt(work)) + Sfx.mix_db(servo_event) + float(_legion.get("servo_db", 0.0))
+		_servo.pitch_scale = (0.85 + work * 0.45) * float(_legion.get("servo_pitch", 1.0)) * float(Sfx.choice_of(servo_event).get("pitch", 1.0))
 	# telemetry "slide" is an amount 0-1 (a slight slip while running is normal), "skidding" a flag
 	var slide := 0.0
 	if mech.has_method("telemetry"):
@@ -78,6 +87,10 @@ func _process(delta: float) -> void:
 
 
 func _foot_at(leg: String) -> Vector3:
+	if not _legion.is_empty():
+		for l: Dictionary in mech.get("legs"):
+			if str(l.get("tag", "")) == leg:
+				return mech.call("sole_world", l)
 	return mech.global_transform * LEG_OFFSETS.get(leg, Vector3.ZERO)
 
 
@@ -90,6 +103,10 @@ func _surface_under(at: Vector3) -> String:
 
 func _on_stepped(leg: String) -> void:
 	var at := _foot_at(leg)
+	if _legion.has("step"):
+		var pace := clampf(mech.linear_velocity.length() / 12.0, 0.0, 1.0)
+		Sfx.play(str(_legion["step"]), at, lerpf(-9.0, 0.0, pace) + float(_legion.get("step_db", 0.0)), float(_legion.get("step_pitch", 1.0)))
+		return
 	var surf: Dictionary = Registry.file("sounds").get("surfaces", {}).get(_surface_under(at), {})
 	var speed := mech.linear_velocity.length()
 	Sfx.play(str(surf.get("foot", "foot_dirt")), at, lerpf(-9.0, 0.0, clampf(speed / 15.0, 0.0, 1.0)))

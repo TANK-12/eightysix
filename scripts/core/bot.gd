@@ -188,6 +188,8 @@ func _run_step(step: Dictionary) -> void:
 func _goto(where: String) -> void:
 	if where == "menu":
 		Game.goto_main_menu()
+	elif where == "hangar":
+		Game.goto_hangar()
 	elif where == "pause":
 		Game.open_pause()
 	elif where == "photo":

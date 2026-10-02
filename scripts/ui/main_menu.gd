@@ -10,11 +10,14 @@ var _maps_panel: PanelContainer
 var _status: Label
 var _prompt: Label
 var _settings: Control = null
+var _stage: HangarStage = null
+var _scrim: TextureRect
 
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_build()
+	Settings.changed.connect(_on_setting_changed)
 	UiTheme.theme_changed.connect(_on_theme_changed)
 	Controls.device_changed.connect(func(_kind: String) -> void: _refresh_status())
 	Input.joy_connection_changed.connect(func(_d: int, _c: bool) -> void: _refresh_status())
@@ -49,6 +52,13 @@ func _on_settings_closed() -> void:
 func _build() -> void:
 	_backdrop = UiTheme.make_backdrop()
 	add_child(_backdrop)
+	_scrim = TextureRect.new()
+	_scrim.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	_scrim.mouse_filter = MOUSE_FILTER_IGNORE
+	_scrim.stretch_mode = TextureRect.STRETCH_SCALE
+	_scrim.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	add_child(_scrim)
+	_update_showcase()
 
 	var frame := Control.new()
 	frame.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
@@ -92,7 +102,7 @@ func _build() -> void:
 	left.add_child(_menu)
 	_add_entry("Deploy", _deploy, Game.default_map() == "")
 	_add_entry("Select map", open_maps)
-	_add_entry("Hangar", func() -> void: pass, true, "Variants and loadouts arrive in lane A5.")
+	_add_entry("Hangar", Game.goto_hangar, not MechBuilder.can_build("juggernaut_m2"), "Look at the Juggernaut: orbit it, point at its parts, change the light.")
 	_add_entry("Settings", func() -> void: open_settings())
 	_add_entry("Quit to desktop", Game.quit_game)
 
@@ -207,7 +217,55 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_theme_changed() -> void:
 	UiTheme.style_backdrop(_backdrop)
+	_scrim.texture = _scrim_texture()
 	queue_redraw()
+
+
+func _on_setting_changed(key: String, value: Variant) -> void:
+	if key == "interface.menu_showcase":
+		_update_showcase()
+	elif key == "hangar.light" and _stage != null:
+		_stage.set_light(str(value))
+
+
+## The Juggernaut standing in the hangar behind the buttons (HangarStage in showcase mode: a slow sway
+## of the camera), when Settings > Gameplay > Menus and theme > "Juggernaut behind the menu" is on and
+## the model can be built; otherwise the plain backdrop. The stage is a 3D node under this Control: the
+## 3D picture draws first, the menu on top of it.
+func _update_showcase() -> void:
+	var want := Settings.get_b("interface.menu_showcase")
+	if want and _stage == null:
+		var menu: Dictionary = Registry.file("hangar").get("menu", {})
+		var stage := HangarStage.new()
+		stage.showcase = true
+		stage.shift_x = float(menu.get("shift_x", 0.2))
+		add_child(stage)
+		move_child(stage, 0)
+		if stage.set_mech(str(menu.get("mech", "juggernaut_m2"))):
+			_stage = stage
+		else:
+			stage.queue_free()
+	elif not want and _stage != null:
+		_stage.queue_free()
+		_stage = null
+	_backdrop.visible = _stage == null
+	_scrim.visible = _stage != null
+	_scrim.texture = _scrim_texture()
+
+
+## A dark wash from the left edge, so the title and buttons read over the picture.
+func _scrim_texture() -> GradientTexture2D:
+	var bg := UiTheme.color("bg")
+	var g := Gradient.new()
+	g.offsets = PackedFloat32Array([0.0, 0.3, 0.55])
+	g.colors = PackedColorArray([Color(bg, 0.92), Color(bg, 0.6), Color(bg, 0.0)])
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill_from = Vector2(0.0, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 256
+	tex.height = 8
+	return tex
 
 
 func _draw_frame(frame: Control) -> void:
