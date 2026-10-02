@@ -464,3 +464,60 @@ func test_a_unit_stuck_on_its_belly_hops_off_with_shake_free() -> void:
 	await physics_frames(600)
 	assert_lt(_tilt_deg(u), 25.0, "and is back on its feet, %.0f degrees from level" % _tilt_deg(u))
 	u.free()
+
+
+## Lane B5 part 6: the big map's 1 m ground where the Löwe stood 80 s on the Frontier finale (bot run 368, x -160
+## z 1075, feet "hhhhssss"): gentle on the 8 m overview (10-25 degrees) but 30-50 degrees from one metre to the next.
+func _big_map_patch(at: Vector2) -> StaticBody3D:
+	var t := BigTerrain.new(Registry.entry("maps", "big_map"))
+	var b := StaticBody3D.new()
+	b.collision_layer = Kit.LAYER_WORLD | Kit.LAYER_GRAPPLE
+	var c := t.tile_of(at.x, at.y)
+	for dz in range(-1, 2):
+		for dx in range(-1, 2):
+			var data := t.tile(c.x + dx, c.y + dz, 1)
+			var o := t.tile_origin(c.x + dx, c.y + dz)
+			var cs := CollisionShape3D.new()
+			cs.shape = BigTerrain.tile_shape(data)
+			cs.position = Vector3(o.x + BigTerrain.TILE_M * 0.5, 0.0, o.y + BigTerrain.TILE_M * 0.5)
+			b.add_child(cs)
+	b.set_meta("terrain", t)
+	tree.root.add_child(b)
+	return b
+
+
+## The Löwe's own brain walking it to a stop 120 m on, up out of the hollow past a 3-4 m bank of about 40 degrees
+## (west of the start). Before part 6 it got 9 m in 90 s: it sank onto its belly against the bank, and with its hips
+## under the ground ahead no foot could land (the step-up limit was a ledge rule, so a long stride could not climb
+## past 19 degrees, and a sunk body had no foothold in reach). Now a foot may climb the grippable slope plus a ledge,
+## bear weight where it cannot grip, and tuck in under its hip to stand the body back up.
+func test_the_lowe_brain_finds_a_way_off_the_rough_patch() -> void:
+	ground.free()
+	ground = _big_map_patch(Vector2(-160, 1075))
+	var t: BigTerrain = ground.get_meta("terrain")
+	var dir := Vector3(-115, 0, -94).normalized()
+	var goal := Vector3(-160, 0, 1075) + dir * 120.0
+	goal.y = t.height_at(goal.x, goal.z)
+	unit = LegionMech.build("lowe")
+	unit.position = Vector3(-160, t.height_at(-160, 1075) + 4.0, 1075)
+	var brain := unit.get_node("Brain")
+	brain.setup(unit.position, [brain], 0, 7, [goal] as Array[Vector3])
+	tree.root.add_child(unit)
+	var start := unit.global_position
+	var worst_stall := 0.0
+	var still := 0.0
+	var best := INF
+	for i in 120 * 150:  # 150 s
+		await physics_frames(1)
+		if Vector2(unit.linear_velocity.x, unit.linear_velocity.z).length() < 0.5:
+			still += 1.0 / 120.0
+			worst_stall = maxf(worst_stall, still)
+		else:
+			still = 0.0
+		best = minf(best, Vector2(goal.x - unit.global_position.x, goal.z - unit.global_position.z).length())
+		if best < 6.0:
+			break
+	print("    lowe brain on the rough patch: closest %.0f m to a stop 120 m away, longest standstill %.1f s, feet %s" % [best, worst_stall, unit.telemetry()["feet"]])
+	assert_lt(best, 20.0, "it got to the stop")
+	assert_lt(worst_stall, 10.0, "it never stood still for long")
+	unit.free()

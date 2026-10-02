@@ -461,12 +461,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var com := xf.basis * center_of_mass
 	planted_count = 0
 	support_n = 0.0
+	var gripping := 0
+	var grip_n := 0.0
 	var lever := 0.0
 	# Which legs stand on a foothold within reach: each carries its share of the weight plus k / n
 	# and c / n of the body's spring, so the bob and the load stay the same with 2 legs down or 6.
 	var standing: Array = []
 	for leg: Dictionary in legs:
-		if not bool(leg["down"]) or not bool(leg.get("ok", true)):
+		if not bool(leg["down"]) or not (bool(leg.get("ok", true)) or bool(leg.get("bears", false))):
 			continue
 		var hip_w := xf * (leg["p0"] as Vector3)
 		var reach := float(leg["l1"]) + float(leg["l2"]) + 0.3
@@ -510,6 +512,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.apply_force(Vector3.UP * f, hip_w - xf.origin)
 		planted_count += 1
 		support_n += f
+		if not bool(leg.get("bears", false)):
+			gripping += 1
+			grip_n += f
 		lever += Vector2(hip_w.x - xf.origin.x, hip_w.z - xf.origin.z).length()
 	_keel(state)
 	if planted_count == 0:
@@ -519,8 +524,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	# Walking needs the stepping legs: with fewer than half its legs on footholds (the rest on a
 	# wall or a cliff face) a unit pushes with that share of its grip, so it cannot shove its hull
 	# up a wall on one leg.
-	var grip := mu * support_n * clampf(float(planted_count) / maxf(legs.size() * 0.5, 1.0), 0.0, 1.0)
-	if planted_count < 2:
+	# Only the feet with traction push (a bearing foot carries weight and nothing else).
+	var grip := mu * grip_n * clampf(float(gripping) / maxf(legs.size() * 0.5, 1.0), 0.0, 1.0)
+	if gripping < 2:
 		grip = 0.0  # one leg cannot walk
 	var v := state.linear_velocity
 	var goal := move_goal * speed_scale
@@ -645,17 +651,33 @@ func _step_gait(dt: float) -> void:
 			var lift := float(_g.get("lift_m", 0.6)) * clampf(vh.length() / 4.0 + 0.4, 0.4, 1.0)
 			leg["foot"] = (leg["from"] as Vector3).lerp(home, s) + Vector3.UP * sin(s * PI) * lift
 			if t >= 1.0 or (window <= 0.0):
-				# Land on the nearest foothold it could stand on along the way back to where it
-				# lifted; none (a cliff face, a wall): it touches down where it was going but
-				# carries nothing and grips nothing there, and tries again next step.
+				# Land on the nearest foothold it could stand on: grip first, then ground that only bears weight
+				# (part 6). Each: along the way back to where it lifted, then rings round where it was going, then
+				# tucked in under its own hip (part 6: a body sunk low on rough ground has the ground ahead above its
+				# hips; feet under the hips stand it back up). None (a cliff face, a wall): it touches down where it
+				# was going but carries nothing and grips nothing there, and tries again next step.
+				var from_y := (leg["from"] as Vector3).y
+				var hip_w := xf * (leg["p0"] as Vector3)
+				var tuck := Vector3(hip_w.x, home.y, hip_w.z)
 				var hold: Variant = null
-				for f: float in [1.0, 0.7, 0.4, 0.2]:
-					hold = foothold(leg, (leg["from"] as Vector3).lerp(home, f), (leg["from"] as Vector3).y)
+				var bears := false
+				for bear: bool in [false, true]:
+					for f: float in [1.0, 0.7, 0.4, 0.2]:
+						hold = foothold(leg, (leg["from"] as Vector3).lerp(home, f), from_y, bear)
+						if hold != null:
+							break
+					if hold == null:
+						hold = _foothold_near(leg, home, from_y, bear)
+					if hold == null:
+						for f: float in [0.5, 0.0]:
+							hold = foothold(leg, tuck.lerp(home, f), from_y, bear)
+							if hold != null:
+								break
 					if hold != null:
+						bears = bear
 						break
-				if hold == null:
-					hold = _foothold_near(leg, home, (leg["from"] as Vector3).y)
-				leg["ok"] = hold != null
+				leg["ok"] = hold != null and not bears
+				leg["bears"] = bears
 				leg["planted"] = hold if hold != null else _ground_below(home, home)
 				leg["foot"] = leg["planted"]
 				leg["swing_t"] = -1.0
@@ -692,13 +714,20 @@ func _home(leg: Dictionary, xf: Transform3D, vh: Vector3, ahead_s: float) -> Vec
 ## Where leg `leg`'s foot could stand near `at` (world), or null: the ground straight down from the
 ## hip's height (so nothing above the hip: roofs, wall tops, a cliff's rim), no steeper than
 ## gait.max_slope_deg across the foot's footprint, and no higher than gait.step_up x the hip height above `from_y` (where the
-## foot lifted from).
-func foothold(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
+## foot lifted from). `bear` (lane B5 part 6): a foothold that carries weight but gives no traction, where the footprint's
+## mean slope is within the limit though one edge of it drops away (a foot bedded on a bump or in rubble). Grip needs the
+## whole footprint; load only needs the ground under it.
+func foothold(leg: Dictionary, at: Vector3, from_y: float, bear: bool = false) -> Variant:
 	if not is_inside_tree():
 		return null
 	var hip_w := global_transform * (leg["p0"] as Vector3)
 	var rest_h := float(leg["height"])
-	var top := minf(hip_w.y - rest_h * 0.15, from_y + rest_h * float(_g.get("step_up", 0.5)))
+	# One ledge of gait.step_up x the hip height, on top of the rise of the steepest slope the feet grip over the
+	# ground the foot travels (part 6: without it a 3.3 m Löwe stride could not climb past 19 degrees).
+	var from: Vector3 = leg.get("from", at)
+	var run := Vector2(at.x - from.x, at.z - from.z).length()
+	var climb := rest_h * float(_g.get("step_up", 0.5)) + run * tan(deg_to_rad(float(_g.get("max_slope_deg", 38.0))))
+	var top := minf(hip_w.y - rest_h * 0.15, from_y + climb)
 	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, hip_w.y, at.z), Vector3(at.x, hip_w.y - rest_h * 3.0, at.z), LAYER_WORLD)
 	q.exclude = [get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(q)
@@ -719,6 +748,9 @@ func foothold(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
 	# The steeper side each way, so the toe of a cliff (flat on one side) still reads as the cliff.
 	var gx := maxf(absf(float(h.call(r, 0.0)) - p.y), absf(p.y - float(h.call(-r, 0.0)))) / r
 	var gz := maxf(absf(float(h.call(0.0, r)) - p.y), absf(p.y - float(h.call(0.0, -r)))) / r
+	if bear:
+		gx = absf(float(h.call(r, 0.0)) - float(h.call(-r, 0.0))) / (2.0 * r)
+		gz = absf(float(h.call(0.0, r)) - float(h.call(0.0, -r))) / (2.0 * r)
 	if Vector2(gx, gz).length() > tan(deg_to_rad(float(_g.get("max_slope_deg", 38.0)))):
 		return null
 	return p
@@ -727,13 +759,13 @@ func foothold(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
 ## The foothold nearest `at` within gait.search_m (default 1.6 m) on rings of 8 spots, or null. On rough ground
 ## (the big map's 25-35 degree hillsides) a 0.8 m patch that is flat enough is rarely under the exact spot a
 ## stride aims for, and a leg that gave up there left the unit with under two feet standing and no grip.
-func _foothold_near(leg: Dictionary, at: Vector3, from_y: float) -> Variant:
+func _foothold_near(leg: Dictionary, at: Vector3, from_y: float, bear: bool = false) -> Variant:
 	var reach := float(_g.get("search_m", 1.6))
 	var ring := reach / 3.0
 	while ring <= reach + 0.01:
 		for i in 8:
 			var a := TAU * float(i) / 8.0
-			var hold: Variant = foothold(leg, at + Vector3(cos(a), 0.0, sin(a)) * ring, from_y)
+			var hold: Variant = foothold(leg, at + Vector3(cos(a), 0.0, sin(a)) * ring, from_y, bear)
 			if hold != null:
 				return hold
 		ring += reach / 3.0
@@ -1070,7 +1102,7 @@ func telemetry() -> Dictionary:
 	}
 
 
-## One letter per leg for the bot report: s standing on a foothold, h down but without one (a wall, a cliff,
+## One letter per leg for the bot report: s standing on a foothold, b down on ground that carries it but gives no grip, h down but without one (a wall, a cliff,
 ## nothing under it), w in the air swinging, x lost.
 func _feet_state() -> String:
 	var out := ""
@@ -1080,5 +1112,5 @@ func _feet_state() -> String:
 		elif float(leg["swing_t"]) >= 0.0:
 			out += "w"
 		else:
-			out += "s" if bool(leg.get("ok", true)) else "h"
+			out += "s" if bool(leg.get("ok", true)) else ("b" if bool(leg.get("bears", false)) else "h")
 	return out

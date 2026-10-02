@@ -493,7 +493,7 @@ func in_area(at: Vector3) -> Vector3:
 ## Whether the ground along flat `dir` for `length` m past the unit's nose is ground the legs can
 ## walk, along three tracks (the middle and each side's feet): probed every ai.probe_step_m with a
 ## ray from high above (so a roof or a wall top counts as ground that rises), no rise or drop between two
-## probes steeper than gait.max_slope_deg plus a step of gait.step_up x hip height, no probe
+## probes, or over the body's length, steeper than gait.max_slope_deg plus one step of gait.step_up x hip height, no probe
 ## deeper under the water line than ai.max_wade_m, and no probe outside the Legion area.
 func walkable_ahead(dir: Vector3, length: float) -> bool:
 	var space := unit.get_world_3d().direct_space_state
@@ -509,9 +509,14 @@ func walkable_ahead(dir: Vector3, length: float) -> bool:
 	var tan_max := tan(deg_to_rad(float(g.get("max_slope_deg", 38.0))))
 	var lift := hip_h * float(g.get("step_up", 0.5))
 	var side := dir.cross(Vector3.UP).normalized()
+	# Over the body's length the legs take one step up at most, so a bank that rises a little at every probe
+	# but more than that over a body length is as much a wall as one ledge (lane B5 part 6: the Löwe walked
+	# into a 2-3 m bank on the big map that its feet could not hold, and stood there).
+	var span := maxi(int(ceilf(half_l * 2.0 / step)), 1)
 	for off: float in [0.0, -half_w, half_w]:
 		var at := unit.global_position + side * off
-		var last := _ground_y(space, at)
+		var ys: Array[float] = [_ground_y(space, at)]
+		var ledge_at := -INF  # where along the track the last probe steeper than the slope limit was
 		var d := step
 		while d <= length + half_l + 0.01:
 			var p := at + dir * d
@@ -520,9 +525,16 @@ func walkable_ahead(dir: Vector3, length: float) -> bool:
 			var y := _ground_y(space, p)
 			if y < water_y - float(ai.get("max_wade_m", 0.6)):
 				return false
-			if absf(y - last) > step * tan_max + lift:  # a rise it cannot climb, or a drop it would fall off (a bridge edge)
+			if absf(y - ys[-1]) > step * tan_max + lift:  # a rise it cannot climb, or a drop it would fall off (a bridge edge)
 				return false
-			last = y
+			var back := mini(span, ys.size())
+			if absf(y - ys[-back]) > step * back * tan_max + lift:
+				return false
+			if absf(y - ys[-1]) > step * tan_max:  # a ledge: one per body length, not one at every probe
+				if d - ledge_at < half_l * 2.0:
+					return false
+				ledge_at = d
+			ys.append(y)
 			d += step
 	return true
 
