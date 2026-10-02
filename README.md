@@ -145,7 +145,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
   (`~/.local/share/applications/eightysix.desktop`, right-click: previous version, or from the project folder)
   and the Forge hub's Play both call it; the hub's Versions panel plays any saved version.
   `python3 tools/builds.py share` makes Windows, Linux and macOS zips for friends (each with a HOW-TO-RUN.txt)
-  in the newest version's `share/`. Platforms are one entry each in `tools/platforms.json`; templates for all
+  in `build/share/` (SHARE_DIR in `tools/builds.py`; only the newest version's set is kept, older zips are deleted). Platforms are one entry each in `tools/platforms.json`; templates for all
   three are installed. `build/` is git-ignored and nothing deletes a version.
 
 ## Log
@@ -614,3 +614,17 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   pass), test_scripts compile of scripts/ai/squad.gd (lane A5's unfinished file).
   Reasoned, not verified: heat never matters at 5.5 t (hottest joint 20.5 C after a walk and a jump), because parts.json
   sizes the actuators for the old 12.25 t. Measurements: ~/Forge/docs/library/eightysix/2026-10-02-bench-readouts.md.
+
+### 2026-10-02 · lane A5 · Minato/Tetsu (ejb-42, hey) · part 1: the squad and the Handler view
+Emerson moved the 86 music from `~/Music/86` into `assets/audio/86/` (he did not want it in his own music):
+`data/music.json` paths are now relative to the project, `assets/audio/86/.gdignore` keeps Godot from importing
+or exporting it, it is git-ignored and in every export preset's exclude filter (2182b8b). **Verified:** test_audio 18/18
+(new `test_music_is_found_in_the_game_assets`).
+
+Lane A5 part 1 (9adabae, 2ffe50d): allied Juggernauts from `data/squad.json` (Werewolf, Laughing Fox, Gunslinger, Snow
+Witch), each a full physics Juggernaut with a `SquadPilot` that only works the controls (move stick, facing, sprint,
+brake, body tilt). Orders 1 follow, 2 hold, 3 attack, 4 regroup; Tab opens the Handler view (tactical camera, Para-RAID
+overlay, click to move, wheel or L1/R1 picks who). The Legion hunt the nearest Juggernaut. Settings > Gameplay > Squad
+(default 2). **Verified:** `tools/run_tests.sh test_squad` 10/10 (move 86 m in 9.7 s, turn 55° and hit in 1.6 s, never fires
+through a friendly, Legion retarget, Handler view), full suite 400 passed, 0 failed. **Not run yet:** the bot run
+`a5_squad` and fps with the squad. Details: `~/Forge/sessions/juggernaut-alpha/results/A5.md`.
