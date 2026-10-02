@@ -61,6 +61,11 @@ func _process(delta: float) -> void:
 		return
 	if mission.state == "running":
 		_count.text = "Wave %d of %d · %d Legion left" % [mission.wave + 1, mission.waves_total(), mission.alive()]
+		var g := mission.guide() if Settings.get_b("gameplay.objective_guide") else {}
+		if not g.is_empty():
+			var metric := Settings.get_s("gameplay.units") == "metric"
+			var d := float(g["distance_m"]) * (1.0 if metric else 1.0936)
+			_count.text += "\nnearest %d %s, bearing %03d" % [roundi(d), "m" if metric else "yd", roundi(float(g["bearing_deg"])) % 360]
 	_banner_s = maxf(_banner_s - delta, 0.0)
 	_banner.modulate.a = clampf(_banner_s / 0.6, 0.0, 1.0)
 

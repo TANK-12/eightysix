@@ -245,3 +245,20 @@ func test_a_marching_column_ignores_the_juggernaut_until_the_end_of_its_route() 
 	assert_gt(u.global_position.x, 15.0, "and keeps walking (x %.0f)" % u.global_position.x)
 	await physics_frames(3600)  # to the end of the route
 	assert_ne(brain.state, "patrol", "at the end of the route it fights")
+
+
+func test_the_guide_points_at_the_nearest_legion_of_the_wave() -> void:
+	var m := _mission(
+		{
+			"areas": {"east": {"at": [400.0, 0.0], "radius_m": 0.5}, "north": {"at": [0.0, -900.0], "radius_m": 0.5}},
+			"waves": [{"objective": "two", "groups": [{"enemy": "ameise", "count": 1, "area": "east"}, {"enemy": "ameise", "count": 1, "area": "north"}]}],
+		}
+	)
+	await physics_frames(5)
+	var g := m.guide()
+	assert_false(g.is_empty(), "a wave with Legion alive has a guide")
+	assert_between(float(g["distance_m"]), 380.0, 420.0, "the nearer one, 400 m east")
+	assert_between(float(g["bearing_deg"]), 85.0, 95.0, "due east is 090 (%.0f)" % float(g["bearing_deg"]))
+	for u: LegionMech in m.units:
+		_kill(u)
+	assert_true(m.guide().is_empty(), "nothing alive, no guide")

@@ -1,0 +1,38 @@
+{
+ "name": "b5_guide",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: the objective guide (nearest Legion distance and bearing under the objective, diamond on the heading tape) on the big map's first wave. tools/bot_run.sh b5_guide",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 4.0,
+   "shot": "guide-spawn"
+  },
+  {
+   "at": 4.2,
+   "press": "turn_right",
+   "strength": 1.0,
+   "for": 1.5
+  },
+  {
+   "at": 7.0,
+   "shot": "guide-turned"
+  },
+  {
+   "at": 7.5,
+   "quit": true
+  }
+ ]
+}

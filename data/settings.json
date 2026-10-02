@@ -196,6 +196,7 @@
             {"key": "gameplay.sub_guns_aim", "label": "Sub-arm guns", "type": "choice", "options": [["fixed", "Fixed straight ahead on the body"], ["play", "A little play on the mounts"], ["arms", "Aimed by the arms"]], "default": "fixed", "help": "Fixed: the 12.7 mm guns point where the body points, like the 57 mm. A little play: each mount swings a few degrees toward your aim. Aimed by the arms: the sub-arms swing the guns onto your aim within their reach. Their mark is the small cross."},
             {"key": "gameplay.move_hints", "label": "Move hints", "type": "toggle", "default": true, "help": "A short hint the first time a move is possible (the gallop, the slide, a flip, the wire anchor, the air). Each shows once, ever."},
             {"key": "gameplay.heading_tape", "label": "Heading tape", "type": "toggle", "default": true, "help": "Compass strip at the top of the screen."},
+            {"key": "gameplay.objective_guide", "label": "Objective guide", "type": "toggle", "default": true, "help": "Shows the distance and compass bearing to the nearest Legion of the current wave, under the objective and as a diamond on the heading tape."},
             {"key": "gameplay.damage_diagram", "label": "Damage diagram", "type": "toggle", "default": true, "help": "Per-part health of your Juggernaut."},
             {"key": "gameplay.units", "label": "Units", "type": "choice", "options": [["metric", "Metric"], ["imperial", "Imperial"]], "default": "metric", "help": "Speeds and ranges."}
           ]}

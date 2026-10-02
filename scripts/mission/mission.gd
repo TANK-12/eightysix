@@ -63,6 +63,7 @@ static func start_in(level_node: Node3D, mission_id: String) -> Mission:
 
 
 func _ready() -> void:
+	add_to_group("mission")
 	_rng.seed = hash(id)
 	player = level.get("mech") as RigidBody3D
 	var combat: Object = player.get_meta("combat") if player != null and player.has_meta("combat") else null
@@ -108,6 +109,24 @@ func _track_player(delta: float) -> void:
 		if brain != null and is_instance_valid(u) and not u.dead:
 			var err := u.position.distance_to(player.global_position) * 0.1
 			brain.hear_of(player.global_position + Vector3(_rng.randfn(0.0, err), 0.0, _rng.randfn(0.0, err)))
+
+
+## The nearest living Legion of the current wave from the Juggernaut: {"distance_m", "bearing_deg"} (compass,
+## 0 north, 90 east), flat. Empty when none is alive. What the objective guide shows.
+func guide() -> Dictionary:
+	if player == null or not is_instance_valid(player):
+		return {}
+	var best := {}
+	var best_d := INF
+	for u: Variant in units:
+		if not is_instance_valid(u) or (u as LegionMech).dead:
+			continue
+		var d := (u as Node3D).global_position - player.global_position
+		var flat := Vector2(d.x, d.z).length()
+		if flat < best_d:
+			best_d = flat
+			best = {"distance_m": flat, "bearing_deg": fposmod(rad_to_deg(atan2(d.x, -d.z)), 360.0)}
+	return best
 
 
 func waves_total() -> int:

@@ -128,6 +128,14 @@ func _draw_heading(col: Color) -> void:
 			var label := "%03d" % posmod(deg, 360)
 			_draw.draw_string(font, Vector2(x - 18, 76), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(col, 0.8))
 	_draw.draw_line(Vector2(cx, 34), Vector2(cx, 56), UiTheme.color("warn"), 2.0)
+	var mission := get_tree().get_first_node_in_group("mission") as Mission
+	if mission != null and Settings.get_b("gameplay.objective_guide"):
+		var g := mission.guide()
+		if not g.is_empty():
+			var off := clampf(angle_difference(deg_to_rad(heading), deg_to_rad(float(g["bearing_deg"]))), -1.0471976, 1.0471976)
+			var px := cx + rad_to_deg(off) * px_per_deg
+			var warn := UiTheme.color("warn")
+			_draw.draw_colored_polygon(PackedVector2Array([Vector2(px, 36), Vector2(px + 7, 44), Vector2(px, 52), Vector2(px - 7, 44)]), warn)
 	var chip := Rect2(cx - 26.0, 4.0, 52.0, 24.0)
 	_draw.draw_rect(chip, SHADE)
 	_draw.draw_rect(chip, Color(col, 0.6), false, 1.0)
