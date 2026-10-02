@@ -13,6 +13,7 @@ var _shake := 0.0
 var _shake_t := 0.0
 var _noise := FastNoiseLite.new()
 var _started := false
+var _skip: Array[RID] = []  # the followed mech's own bodies, left out of the camera sweep
 
 
 func _ready() -> void:
@@ -27,6 +28,7 @@ func _ready() -> void:
 func follow(node: Node3D) -> void:
 	target = node
 	_started = false
+	_skip = _own_rids()
 	if node.has_signal("landed"):
 		node.connect("landed", func(impact: float) -> void: add_shake(clampf(impact / 12.0, 0.1, 1.0)))
 	if node.has_signal("stepped"):
@@ -116,19 +118,45 @@ func _process(delta: float) -> void:
 	_pos = _pos.lerp(desired, 1.0 - exp(-rate * delta))
 	_look = _look.lerp(look, 1.0 - exp(-rate * 1.6 * delta))
 
-	var final := _pos
-	var space := get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(_look, _pos, 1)
-	var hit := space.intersect_ray(query)
-	if not hit.is_empty():
-		final = (hit["position"] as Vector3) + (hit["normal"] as Vector3) * float(cfg.get("collision_margin_m", 0.4))
-	# Never inside the chassis: keep at least min_clear_m from the body's centre.
+	# Emerson's note 18 (after 012): the camera went into the ground. A sphere (not a thin ray) is swept from the
+	# look point out to the camera, so the near plane never grazes the terrain; when the room behind is shorter
+	# than min_clear_m (the camera would sit in the hull) it rises over the mech's back instead of being pushed
+	# back out through the hill or wall it just avoided. Legion bodies are not counted: it passes through them.
 	var clear := float(cfg.get("min_clear_m", 6.0))
-	var from_body := final - body_xf.origin
-	if from_body.length() < clear:
-		final = body_xf.origin + (from_body.normalized() if from_body.length() > 0.01 else body_xf.basis.z) * clear
+	var final := _swept(_look, _pos, float(cfg.get("collision_radius_m", 0.5)))
+	if final.distance_to(body_xf.origin) < clear:
+		var back := Vector3(offset.x, 0.0, offset.z).normalized() * clear * 0.35
+		var over := body_xf.origin + Vector3.UP * clear + back
+		final = _swept(_look, over, float(cfg.get("collision_radius_m", 0.5)))
 		_pos = final
 	fov = Settings.get_f("gameplay.fov_third")
 	global_position = final + jitter
 	if global_position.distance_to(_look) > 0.01:
 		look_at(_look, Vector3.UP)
+
+
+## The farthest point from `from` towards `to` that a ball of `radius` reaches without touching the world.
+func _swept(from: Vector3, to: Vector3, radius: float) -> Vector3:
+	var ball := SphereShape3D.new()
+	ball.radius = radius
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = ball
+	q.transform = Transform3D(Basis.IDENTITY, from)
+	q.motion = to - from
+	q.collision_mask = 1
+	q.exclude = _skip
+	var space := get_world_3d().direct_space_state
+	if not space.intersect_shape(q, 1).is_empty():
+		return from  # the look point itself is in the solid: stay on it rather than sweep from inside
+	var safe: PackedFloat32Array = space.cast_motion(q)
+	return from + (to - from) * safe[0]
+
+
+## The followed mech's own bodies (hull and leg hitboxes): the look point sits inside them.
+func _own_rids() -> Array[RID]:
+	var out: Array[RID] = []
+	if target is CollisionObject3D:
+		out.append((target as CollisionObject3D).get_rid())
+	for n: Node in target.find_children("*", "CollisionObject3D", true, false):
+		out.append((n as CollisionObject3D).get_rid())
+	return out
