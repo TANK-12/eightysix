@@ -1,0 +1,52 @@
+{
+  "_about": "Lane B6: test bench mode's physics figures (scripts/mech/bench_rig.gd reads this; the per-actuator figures live in parts.json under each actuator's \"bench\"). Every number here is a reasoned draft, not a measurement of real hardware: change it here, never in code. Units are in the key names.",
+  "motor": {
+    "_about": "How an actuator's parts.json figures turn into limits. rated_* is what parts.json calls rated (the continuous design point). The torque-speed line runs from stall torque (rated x peak_torque_factor, at zero speed) to zero torque at the no-load speed, passing through (rated torque, rated speed). Electrical input power is the mechanical power plus copper heat; copper heat is heat_w x (torque / rated torque)^2 (current follows torque), so holding a load without moving still costs heat. A part without rotary figures (the older linear templates) is turned into torque with its lever arm.",
+    "peak_torque_factor": 1.6,
+    "idle_w": 80.0,
+    "swing_leg_share": 0.5,
+    "fallback_heat_share": 0.35
+  },
+  "thermal": {
+    "_about": "Winding temperature: heat in = copper heat; heat out = cooling_w_per_k x (temperature - ambient). parts.json may give cooling_w_per_k; otherwise it is cooling_share x the rated heat spread over the climb to max_winding_c, so about 70 percent of rated torque is the most an actuator can hold for ever. From derate_from_c the available torque falls linearly to derate_floor of full at max_winding_c, where the thermal cutout trips (a drive that has folded back and still cannot shed the heat); it resets once the winding is reset_below_derate_c under the derate point. Rotary figures without their own temperatures use the values here.",
+    "ambient_c": 20.0,
+    "max_winding_c": 155.0,
+    "derate_from_c": 120.0,
+    "reset_below_derate_c": 15.0,
+    "cooling_share": 0.5,
+    "derate_floor": 0.5
+  },
+  "failure": {
+    "_about": "A joint asked for more than shock_fail_factor x its peak torque for shock_fail_s breaks (a sheared screw or stripped gear train) and stays broken until the bench is reset. The leg then holds nothing. Toggled by Settings > Gameplay > Physics > Bench failures (off: limits still apply, nothing latches).",
+    "shock_fail_factor": 2.2,
+    "shock_fail_s": 0.08,
+    "stall_warn_s": 1.0
+  },
+  "supply": {
+    "_about": "The battery and its bus. nominal_v matches the voltage the parts.json figures imply (power_w / current_a). Terminal voltage sags with current through internal_mohm; the motors' no-load speed follows the voltage (back-EMF), so a sagging bus slows every joint. max_discharge_kw is the pack's limit; asking for more browns the bus out and every joint's power is cut to what the pack gives. Open-circuit voltage falls from nominal to empty_v_frac of it as the charge drops. No regeneration (a joint being driven by the load wastes the energy as heat), regen_share can turn some back on.",
+    "nominal_v": 96.0,
+    "capacity_kwh": 60.0,
+    "max_discharge_kw": 400.0,
+    "internal_mohm": 1.0,
+    "empty_v_frac": 0.8,
+    "min_v_frac": 0.7,
+    "regen_share": 0.0,
+    "jump_efficiency": 0.6
+  },
+  "gait": {
+    "_about": "How the joint limits bend walking: step_speed_share is the share of the hip's no-load speed the swinging foot may use; sag_floor stops a flat battery or a hot joint stopping the mech dead (the legs can still creep).",
+    "step_speed_share": 0.5,
+    "sag_floor": 0.1
+  },
+  "grounds": {
+    "_about": "The two bench grounds (maps.json test_bench_flat / test_bench_rough read their block here). flat: a level concrete pad with painted marks every 10 m and two ramps. rough: noise-height rock field, amplitude_m high at wavelength_m, plus steps and a boulder strip.",
+    "flat": {"size_m": 400.0, "ramp_deg": 8.0, "mark_every_m": 10.0},
+    "rough": {"size_m": 400.0, "amplitude_m": 1.6, "wavelength_m": 22.0, "seed": 8620, "step_height_m": 0.35, "steps": 5, "boulders": 40}
+  },
+  "readout": {
+    "_about": "The bench HUD (scripts/ui/bench_hud.gd): bar colours turn to warning at warn_frac of the limit and to alarm at alarm_frac; temperature warns at the derate point and alarms 10 degrees below the trip.",
+    "warn_frac": 0.75,
+    "alarm_frac": 0.95,
+    "log_interval_s": 0.5
+  }
+}
