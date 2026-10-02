@@ -96,7 +96,8 @@ def aabb_size(hull):
 def subgun_muzzles(model: dict, origin: list) -> dict:
     """The 12.7 mm muzzles: the centre of each sub-arm hull's front face (its points within 5 mm of the
     frontmost), in the body frame. The export's "subarm_*" sockets sit at the arm's inboard root, 0.44 m
-    from the barrel (Emerson's note 12 after version 012: rounds started outside the body)."""
+    from the barrel (Emerson's note 12 after version 012: rounds started outside the body).
+    """
     out = {}
     for side in ("L", "R"):
         part = next(p for p in model["parts"] if p["name"] == f"JG2_subarm.{side}")
