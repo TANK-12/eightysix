@@ -8,7 +8,6 @@ extends Node3D
 const MAP_ID := "big_map"
 const MECH_ID := "juggernaut_m2"
 const HUD_SCRIPT := preload("res://scripts/ui/test_hud.gd")
-const GROUND_SHADER := preload("res://assets/kit/shaders/ground.gdshader")
 const WATER_SHADER := preload("res://assets/kit/shaders/water.gdshader")
 const TEX := "res://assets/kit/textures/"
 const SMALL_MAP := preload("res://scripts/world/small_map.gd")  # its noise textures are shared
@@ -126,6 +125,14 @@ func look_from(viewpoint: String) -> void:
 	var eye := _v3(v["eye"])
 	var look := _v3(v["look"])
 	eye.y = maxf(eye.y, terrain.overview_height(eye.x, eye.z) + 2.0)
+	# lane LOOK: "rel_eye" / "rel_look" put the camera and its target that high above the ground there,
+	# and the ground around it streams in first
+	if v.has("rel_eye") or v.has("rel_look"):
+		stream.prime(Vector3(eye.x, 0.0, eye.z))
+	if v.has("rel_eye"):
+		eye.y = ground_height(eye.x, eye.z) + float(v["rel_eye"])
+	if v.has("rel_look"):
+		look.y = ground_height(look.x, look.z) + float(v["rel_look"])
 	view_camera.global_position = eye
 	view_camera.look_at(look, Vector3.UP)
 	view_camera.current = true
@@ -140,22 +147,19 @@ func _ensure_view_camera() -> void:
 		add_child(view_camera)
 
 
+## Bot hook (lane LOOK): every HUD layer of this map on or off, so look-pass shots show only the world.
+func show_hud(on: bool) -> void:
+	for n: Node in get_children():
+		if n is CanvasLayer:
+			(n as CanvasLayer).visible = on
+
+
 func follow_mech() -> void:
 	camera.current = true
 
 
 func _ground_material() -> ShaderMaterial:
-	var mat := ShaderMaterial.new()
-	mat.shader = GROUND_SHADER
-	mat.set_shader_parameter("ground_col", load(TEX + "ground/color.jpg"))
-	mat.set_shader_parameter("ground_nrm", load(TEX + "ground/normal.jpg"))
-	mat.set_shader_parameter("rock_col", load(TEX + "rock/color.jpg"))
-	mat.set_shader_parameter("rock_nrm", load(TEX + "rock/normal.jpg"))
-	mat.set_shader_parameter("town_col", load(TEX + "concrete/color.jpg"))
-	mat.set_shader_parameter("town_nrm", load(TEX + "concrete/normal.jpg"))
-	mat.set_shader_parameter("macro", SMALL_MAP._noise(false, 0.01, 7))
-	mat.set_shader_parameter("water_level", terrain.water_level)
-	return mat
+	return GroundLook.material(entry, terrain.water_level)
 
 
 func _build_water() -> void:

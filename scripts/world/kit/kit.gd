@@ -34,8 +34,17 @@ static func material(id: String) -> Material:
 	if spec.has("shader"):
 		var sm := ShaderMaterial.new()
 		sm.shader = load(SHADER_DIR + str(spec["shader"]) + ".gdshader")
-		sm.set_shader_parameter("colour_a", _colour(spec.get("colour_a", [0.2, 0.25, 0.1])))
-		sm.set_shader_parameter("colour_b", _colour(spec.get("colour_b", [0.35, 0.35, 0.2])))
+		if spec.has("colour_a"):
+			sm.set_shader_parameter("colour_a", _colour(spec.get("colour_a", [0.2, 0.25, 0.1])))
+			sm.set_shader_parameter("colour_b", _colour(spec.get("colour_b", [0.35, 0.35, 0.2])))
+		# lane LOOK: "tex" maps a shader uniform to a texture under assets/kit/textures, "params" sets numbers
+		# and colours (a 3-number list is a colour)
+		for uniform: String in spec.get("tex", {}):
+			sm.set_shader_parameter(uniform, load(TEX_DIR + str(spec["tex"][uniform])))
+		if spec.has("tex"):
+			sm.set_shader_parameter("macro", macro_noise())
+		for uniform: String in spec.get("params", {}):
+			sm.set_shader_parameter(uniform, _param(spec["params"][uniform]))
 		mat = sm
 	else:
 		var m := StandardMaterial3D.new()
@@ -75,6 +84,39 @@ static func material(id: String) -> Material:
 
 static func _colour(a: Array) -> Color:
 	return Color(float(a[0]), float(a[1]), float(a[2]))
+
+
+static func _param(v: Variant) -> Variant:
+	return _colour(v) if v is Array else v
+
+
+static var _macro: NoiseTexture2D
+
+
+## The seamless noise the wall shaders break up their coats and stains with (one for all of them).
+static func macro_noise() -> NoiseTexture2D:
+	if _macro == null:
+		var noise := FastNoiseLite.new()
+		noise.seed = 7
+		noise.frequency = 0.01
+		noise.fractal_octaves = 5
+		_macro = NoiseTexture2D.new()
+		_macro.width = 512
+		_macro.height = 512
+		_macro.seamless = true
+		_macro.noise = noise
+		_macro.generate_mipmaps = true
+	return _macro
+
+
+## A map's palette (maps.json "palette" -> "kit": {material id: {uniform: value}}): shader numbers and colours
+## of the kit's shared materials, set live so the same ruin is painted for the map being played.
+static func apply_palette(kit_palette: Dictionary) -> void:
+	for id: String in kit_palette:
+		var mat := material(id)
+		if mat is ShaderMaterial:
+			for uniform: String in kit_palette[id]:
+				(mat as ShaderMaterial).set_shader_parameter(uniform, _param(kit_palette[id][uniform]))
 
 
 ## Build a kit piece. seed_value varies the random ones; overrides replace entry numbers (the map
@@ -273,7 +315,8 @@ static func _shrub(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> v
 		var r := pow(rng.randf(), 0.4)
 		var at := Vector3(dir.x * s * 0.48, dir.y * s * 0.62 + s * 0.12, dir.z * s * 0.48) * r
 		var size := s * rng.randf_range(0.065, 0.12)
-		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)).scaled(Vector3(1.0, rng.randf_range(0.6, 0.95), rng.randf_range(0.8, 1.2)))
+		# lane LOOK: each cluster is a long, thin leaf (about 1 : 0.5 : 0.2) rather than a blob, so the plant reads as leaves
+		var basis := Basis.from_euler(Vector3(rng.randf() * TAU, rng.randf() * TAU, rng.randf() * TAU)).scaled(Vector3(rng.randf_range(1.5, 2.1), rng.randf_range(0.14, 0.26), rng.randf_range(0.45, 0.7)))
 		var tone := rng.randf()
 		var hv := clampf(at.y / (s * 0.9), 0.0, 1.0)
 		var pts := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
@@ -315,8 +358,15 @@ static func _grass(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> v
 		var side := Vector3(-sin(ang), 0.0, cos(ang)) * rng.randf_range(0.018, 0.03)
 		var bh := h * rng.randf_range(0.6, 1.15)
 		var tone := rng.randf()
-		var tip := root + lean * bh * 0.45 + Vector3(0.0, bh, 0.0)
-		for v: Array in [[root - side, 0.0], [root + side, 0.0], [tip, 1.0]]:
+		# lane LOOK: two segments that bend over toward the tip (a quad and a triangle) instead of one straight spike
+		var mid := root + lean * bh * 0.12 + Vector3(0.0, bh * 0.52, 0.0)
+		var tip := root + lean * bh * 0.5 + Vector3(0.0, bh * 0.93, 0.0)
+		var blade: Array = [
+			[root - side, 0.0], [root + side, 0.0], [mid + side * 0.7, 0.5],
+			[root - side, 0.0], [mid + side * 0.7, 0.5], [mid - side * 0.7, 0.5],
+			[mid - side * 0.7, 0.5], [mid + side * 0.7, 0.5], [tip, 1.0],
+		]
+		for v: Array in blade:
 			st.set_color(Color(tone, 0, 0))
 			st.set_normal(Vector3.UP)
 			st.set_uv(Vector2(0.0, v[1]))

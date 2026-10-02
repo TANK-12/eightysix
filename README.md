@@ -628,3 +628,20 @@ overlay, click to move, wheel or L1/R1 picks who). The Legion hunt the nearest J
 (default 2). **Verified:** `tools/run_tests.sh test_squad` 10/10 (move 86 m in 9.7 s, turn 55° and hit in 1.6 s, never fires
 through a friendly, Legion retarget, Handler view), full suite 400 passed, 0 failed. **Not run yet:** the bot run
 `a5_squad` and fps with the squad. Details: `~/Forge/sessions/juggernaut-alpha/results/A5.md`.
+
+### 2026-10-02 · lane LOOK · Tetsu (Relay 26, hey account) · the world's look pass
+- **Cause of the soft, grainy, slow ground: the kit textures were imported uncompressed with no mipmaps.** Godot only
+  fixes that for textures it sees used in 3D in the editor; ours load from script. All 45 `assets/kit/textures/*/*.import`
+  now have `compress/mode=2` and `mipmaps/generate=true` (test `test_every_kit_texture_is_compressed_and_mipmapped`).
+  Big map Low 22.7 -> 49 fps from that alone.
+- New CC0 ambientCG sets (listed in `assets/SOURCES.md`), `ground.gdshader` rewritten (dirt, turf, stones, gravel, rock,
+  far-rock fade, palette uniforms, one fetch per layer), `masonry.gdshader` for brick/concrete/steel,
+  `scripts/world/ground_look.gd`, a `palette` per map in `data/maps.json` (big map `frontier_morning` weather), bent
+  grass and thinner shrub leaves. Ultra is MSAA 4x with no TAA (sharpness 15.5 against 4.5, `tools/sharpness.py`);
+  saved settings still say TAA until the preset is picked again.
+- Tools: `tools/bot/make_look_bots.py` writes `look_small.json` / `look_big.json` (8-10 fixed views per map),
+  `tools/contact_sheet.py` makes before/after sheets. Before `images/392`, `393`; after `423`, `424`.
+- fps (big map, off screen 1080p): Low 52 / Medium 44.5 / High 36.8 / Ultra 15 (vsync cap, GPU 130-160 ms);
+  town 47.5 / 40.4 / 37.1. Before the pass Low 64 / Medium 53. Results: `results/LOOK.md`.
+- **Verified:** shots on both maps, no shader errors, `test_world_look` 8/8, `test_graphics` 5/5, `test_kit` 6/6.
+  **Not done:** model upgrades, decals, baked AO; export of the compressed textures not run.

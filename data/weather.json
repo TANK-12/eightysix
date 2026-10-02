@@ -54,8 +54,8 @@
       "fog_sky_affect": 0.2,
       "volumetric_anisotropy": 0.3,
       "grade": {
-        "contrast": 1.08,
-        "saturation": 0.95,
+        "contrast": 1.14,
+        "saturation": 1.02,
         "shadow_shift": [
           -0.012,
           0.002,
@@ -326,6 +326,76 @@
         ]
       },
       "glow_intensity": 0.2,
+      "glow_threshold": 1.4
+    },
+    "frontier_morning": {
+      "label": "Frontier morning",
+      "order": 5,
+      "sun_elevation_deg": 21.0,
+      "sun_azimuth_deg": 150.0,
+      "sun_energy": 1.7,
+      "sun_colour": [
+        1.0,
+        0.9,
+        0.76
+      ],
+      "sky_top": [
+        0.1,
+        0.25,
+        0.43
+      ],
+      "sky_horizon": [
+        0.62,
+        0.68,
+        0.7
+      ],
+      "ground_colour": [
+        0.16,
+        0.17,
+        0.14
+      ],
+      "cloud_coverage": 0.45,
+      "cloud_lit": [
+        1.0,
+        0.93,
+        0.82
+      ],
+      "cloud_shade": [
+        0.34,
+        0.4,
+        0.48
+      ],
+      "fog_colour": [
+        0.58,
+        0.64,
+        0.66
+      ],
+      "fog_density": 0.0004,
+      "volumetric_density": 0.0015,
+      "ambient_energy": 0.7,
+      "exposure": 1.0,
+      "white": 1.0,
+      "sun_scatter": 0.08,
+      "height_fog_top_m": 14.0,
+      "height_fog_density": 0.008,
+      "fog_sky_affect": 0.2,
+      "volumetric_anisotropy": 0.3,
+      "grade": {
+        "contrast": 1.12,
+        "saturation": 1.0,
+        "shadow_shift": [
+          -0.02,
+          0.012,
+          0.035
+        ],
+        "highlight_shift": [
+          0.022,
+          0.01,
+          -0.014
+        ],
+        "strength": 1.0
+      },
+      "glow_intensity": 0.3,
       "glow_threshold": 1.4
     }
   }

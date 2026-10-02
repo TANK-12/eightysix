@@ -57,6 +57,16 @@
       "description": "A hand-made valley on the edge of the Legion zone: a ruined town on a plateau, a river running south into a lake, roads, a broken bridge, a crater field from old shelling and rock outcrops to climb. Built in lane B3 from the asset kit (data/kit.json).",
       "spawn": {"position": [-250.0, 0.0, 330.0], "heading_deg": 28.0},
       "weather": "golden_afternoon",
+      "palette": {
+        "_about": "The map's colours (lane LOOK): ground = ground.gdshader uniforms (tints, grass_amount, stone_amount, contrast), kit = shader uniforms of the kit's shared materials (Kit.apply_palette). Ashen valley: a warm dry steppe, ochre dirt and sun-bleached grass, brick and terracotta ruins.",
+        "ground": {"dry_tint": [0.92, 0.88, 0.82], "grass_tint": [0.6, 0.6, 0.34], "dead_tint": [0.78, 0.7, 0.45], "stone_tint": [0.92, 0.9, 0.86], "road_tint": [0.85, 0.8, 0.72], "mud_tint": [0.42, 0.37, 0.32], "grass_amount": 0.5, "stone_amount": 0.45, "contrast": 0.88},
+        "kit": {
+          "brick": {"base_tint": [1.0, 0.9, 0.82], "coat_a": [0.9, 0.82, 0.62], "coat_b": [0.78, 0.8, 0.68], "coat_c": [0.86, 0.66, 0.5], "coat_d": [0.78, 0.8, 0.82], "dado_col": [0.24, 0.3, 0.28]},
+          "foliage": {"colour_a": [0.2, 0.22, 0.09], "colour_b": [0.5, 0.5, 0.22]},
+          "grass": {"colour_a": [0.22, 0.22, 0.1], "colour_b": [0.62, 0.55, 0.3]},
+          "concrete": {"base_tint": [0.74, 0.72, 0.68], "coat_a": [0.8, 0.74, 0.62], "coat_b": [0.66, 0.7, 0.64], "coat_c": [0.74, 0.58, 0.46], "coat_d": [0.74, 0.75, 0.76]}
+        }
+      },
       "ambience": "wind_loop",
       "reverb_zones": [{"reverb": "valley", "at": [0, 0], "size_m": [1024, 200, 1024], "amount": 0.5, "priority": 0}, {"reverb": "town", "at": [10, -170], "size_m": [240, 60, 220], "amount": 0.8, "priority": 1}],
       "backdrop": {"extent_m": 1600.0, "cell_m": 16.0, "start_m": 30.0, "rise_m": 60.0, "ridge_m": 120.0, "colour": [0.3, 0.26, 0.21], "gorge_rise_m": 700.0, "bend_m": 170.0, "bend_over_m": 320.0, "water_reach_m": 420.0, "seed": 86},
@@ -136,6 +146,14 @@
       ],
       "viewpoints": {
         "start": {"eye": [-262, 7, 350], "look": [-200, 6, 250]},
+        "l_ground": {"eye": [-200, 0, 250], "look": [-194, 0, 242], "rel_eye": 1.6, "rel_look": 0.0},
+        "l_street": {"eye": [-8, 0, -80], "look": [2, 0, -160], "rel_eye": 3.0, "rel_look": 4.0},
+        "l_ruins": {"eye": [-12, 0, -92], "look": [-38, 0, -122], "rel_eye": 3.5, "rel_look": 5.0},
+        "l_bridge": {"eye": [196, 9, -128], "look": [216, 3, -88]},
+        "l_ridge_n": {"eye": [0, 0, 120], "look": [0, 0, 480], "rel_eye": 4.0, "rel_look": 70.0},
+        "l_ridge_e": {"eye": [60, 0, 100], "look": [480, 0, 60], "rel_eye": 4.0, "rel_look": 70.0},
+        "l_ridge_w": {"eye": [-100, 0, -100], "look": [-480, 0, -60], "rel_eye": 4.0, "rel_look": 70.0},
+        "l_ridge_s": {"eye": [0, 0, -200], "look": [0, 0, -480], "rel_eye": 4.0, "rel_look": 70.0},
         "town": {"eye": [-120, 34, -20], "look": [0, 8, -170]},
         "street": {"eye": [-20, 4.5, -72], "look": [2, 4, -150]},
         "river_exit": {"eye": [190, 16, -330], "look": [165, 4, -540]},
@@ -171,7 +189,17 @@
       ],
       "heading_deg": 60.0
      },
-     "weather": "golden_afternoon",
+     "weather": "frontier_morning",
+     "palette": {
+      "_about": "The map's colours (lane LOOK): see small_map. Sector 86 frontier: overcast and cool, olive turf, slate-grey dirt and stone, washed-out plaster over dark brick.",
+      "ground": {"dry_tint": [0.88, 0.84, 0.78], "grass_tint": [0.42, 0.5, 0.28], "dead_tint": [0.55, 0.52, 0.34], "stone_tint": [0.8, 0.8, 0.78], "road_tint": [0.72, 0.72, 0.7], "mud_tint": [0.36, 0.34, 0.3], "grass_amount": 0.55, "stone_amount": 0.55, "contrast": 0.95},
+      "kit": {
+       "brick": {"base_tint": [0.86, 0.82, 0.82], "coat_a": [0.8, 0.78, 0.7], "coat_b": [0.64, 0.72, 0.68], "coat_c": [0.74, 0.64, 0.56], "coat_d": [0.66, 0.72, 0.78], "dado_col": [0.18, 0.22, 0.22]},
+       "foliage": {"colour_a": [0.11, 0.16, 0.09], "colour_b": [0.3, 0.38, 0.2]},
+       "grass": {"colour_a": [0.15, 0.2, 0.1], "colour_b": [0.45, 0.5, 0.28]},
+       "concrete": {"base_tint": [0.62, 0.64, 0.66], "coat_a": [0.66, 0.66, 0.6], "coat_b": [0.5, 0.56, 0.54], "coat_c": [0.6, 0.55, 0.5], "coat_d": [0.58, 0.62, 0.68]}
+      }
+     },
      "ambience": "wind_loop",
      "water_level_m": 0.0,
      "terrain": {
@@ -573,6 +601,11 @@
      "viewpoints": {
       "bridge": {"eye": [-70, 14, -262], "look": [-8, 2, -318]},
       "bridge_side": {"eye": [-6, 24, -268], "look": [0, 9, -318]},
+      "l_ground": {"eye": [-730, 0, 1385], "look": [-724, 0, 1377], "rel_eye": 1.6, "rel_look": 0.0},
+      "l_street": {"eye": [-1135, 0, -372], "look": [-1150, 0, -452], "rel_eye": 3.0, "rel_look": 5.0},
+      "l_brook": {"eye": [600, 0, 100], "look": [600, 0, 160], "rel_eye": 3.5, "rel_look": 4.0},
+      "l_ridge": {"eye": [-300, 0, 1300], "look": [-300, 0, 1950], "rel_eye": 4.0, "rel_look": 100.0},
+      "l_ridge_n": {"eye": [100, 0, -1000], "look": [200, 0, -1900], "rel_eye": 4.0, "rel_look": 130.0},
       "overview": {
        "eye": [
         -1500,

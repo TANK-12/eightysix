@@ -1,7 +1,8 @@
-// Small-map ground (lane B3): ambientCG textures (see assets/SOURCES.md) painted by the terrain's splat
-// image: r road, g shore and mud, b scorch, a town rubble. Grass and dry dirt from the ground set,
-// tinted by large-scale noise; rock on slopes, projected three ways so cliffs do not smear; each set
-// sampled at two scales so the tiling does not show at a distance.
+// Ground of both maps (lane B3, look pass by lane LOOK): ambientCG textures (see assets/SOURCES.md) painted by
+// the terrain's splat image: r road, g shore and mud, b scorch, a town rubble. Dirt, real turf and stony
+// ground, each sampled at two scales so the tiling does not show, mixed by large-scale noise and kept off
+// the slopes; rock on slopes, projected two ways so cliffs do not smear. The colours are the map's palette
+// (maps.json "palette" -> "ground", set by GroundLook), not the textures' own.
 shader_type spatial;
 render_mode diffuse_lambert, specular_schlick_ggx;
 
@@ -13,16 +14,31 @@ uniform float splat_n = 1025.0;
 uniform vec2 splat_shift = vec2(0.0);
 uniform float splat_step = 1.0;
 uniform sampler2D ground_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
-uniform sampler2D ground_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
-uniform sampler2D rock_col : source_color, filter_linear_mipmap, repeat_enable;
-uniform sampler2D rock_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
+uniform sampler2D ground_nrm : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D rock_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D rock_nrm : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D turf_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D turf_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
+uniform sampler2D stone_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D stone_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
+uniform sampler2D road_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D road_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D town_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D town_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D macro : hint_default_white, filter_linear_mipmap, repeat_enable;
-uniform float ground_scale = 0.3;
+uniform float ground_scale = 0.4;
+uniform float turf_scale = 0.8;
+uniform float stone_scale = 0.35;
+uniform float road_scale = 0.5;
+uniform vec3 stone_tint : source_color = vec3(0.9, 0.86, 0.8);
+// how much of the ground is turf (0 none, 1 nearly all) and how much of the dirt is stony
+uniform float grass_amount = 0.5;
+uniform float stone_amount = 0.5;
+uniform float contrast = 1.0;
 uniform float rock_scale = 0.16;
 uniform float town_scale = 0.33;
 uniform vec3 grass_tint : source_color = vec3(0.62, 0.66, 0.42);
+uniform vec3 dead_tint : source_color = vec3(0.72, 0.64, 0.4);
 uniform vec3 dry_tint : source_color = vec3(0.9, 0.8, 0.64);
 uniform vec3 road_tint : source_color = vec3(0.78, 0.74, 0.68);
 uniform vec3 mud_tint : source_color = vec3(0.42, 0.38, 0.32);
@@ -44,8 +60,16 @@ void vertex() {
 	wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
 
-vec3 two_scale(sampler2D t, vec2 uv, float mixv) {
-	return mix(texture(t, uv).rgb, texture(t, uv * 0.29 + vec2(0.37, 0.71)).rgb, mixv);
+// The texture at its own scale, its brightness varied by the coarse noise already sampled (v in 0..1): the
+// tiling is hidden without a second fetch of the texture.
+vec3 two_scale(sampler2D t, vec2 uv, float v) {
+	return texture(t, uv).rgb * mix(0.6, 1.4, v);
+}
+
+// the texture's own detail pulled toward its mean colour by k (1 keeps it all): the grain fix of lane B4
+vec3 detail(sampler2D t, vec3 c, float k) {
+	vec3 mean = textureLod(t, vec2(0.5), 9.0).rgb;
+	return mean + (c - mean) * k;
 }
 
 void fragment() {
@@ -53,40 +77,70 @@ void fragment() {
 	float m1 = texture(macro, wp.xz * 0.0021).r;
 	float m2 = texture(macro, wp.xz * 0.017 + 0.3).r;
 	float m3 = texture(macro, wp.xz * 0.11 + 0.5).r;
-	vec2 guv = wp.xz * ground_scale;
-	vec3 g = two_scale(ground_col, guv, 0.35 + 0.3 * m2);
+	float slope = 1.0 - wn.y;
 	float far = smoothstep(4.0, detail_fade_m, length(wp - CAMERA_POSITION_WORLD));
-	vec3 g_mean = textureLod(ground_col, guv * 0.29 + vec2(0.37, 0.71), 6.0).rgb;
-	g = g_mean + (g - g_mean) * mix(detail_near, detail_far, far);
-	float green = smoothstep(0.32, 0.68, m1 + (m2 - 0.5) * 0.35);
-	vec3 col = g * mix(dry_tint, grass_tint, green) * 1.25;
+	float keep = mix(detail_near, detail_far, far);
+
+	// dirt, with stones coming through in patches
+	vec2 guv = wp.xz * ground_scale;
+	vec3 dirt = detail(ground_col, two_scale(ground_col, guv, m2), keep) * dry_tint;
+	vec2 suv = wp.xz * stone_scale;
+	float stony = smoothstep(0.5, 0.8, m2 * 0.7 + m3 * 0.5 + (1.0 - stone_amount) * -0.35) * stone_amount * 1.6;
+	stony = clamp(stony + smoothstep(0.1, 0.3, slope) * 0.4, 0.0, 1.0);
 	vec3 nrm = texture(ground_nrm, guv).rgb;
-	float rough = 0.95;
+	vec3 col = dirt;
+	if (stony > 0.01) {
+		vec3 stones = detail(stone_col, two_scale(stone_col, suv, m3), keep) * stone_tint;
+		nrm = mix(nrm, texture(stone_nrm, suv).rgb, stony);
+		col = mix(dirt, stones, stony);
+	}
+	// close up a finer pass of the dirt's own grain, so near ground is crisp rather than smooth
+	float close_k = 1.0 - smoothstep(2.0, 18.0, length(wp - CAMERA_POSITION_WORLD));
+	if (close_k > 0.01) {
+		vec3 fine = texture(ground_col, wp.xz * ground_scale * 4.3 + 0.17).rgb;
+		col *= 1.0 + (dot(fine, vec3(0.333)) - 0.4) * 1.1 * close_k;
+		nrm = mix(nrm, normalize(nrm + texture(ground_nrm, wp.xz * ground_scale * 4.3 + 0.17).rgb - 0.5), close_k * 0.5);
+	}
+
+	// turf where it is flat and the big noise says so, with its own blade-scale detail
+	float green = smoothstep(0.38, 0.62, m1 + (m2 - 0.5) * 0.4 + (grass_amount - 0.5) * 0.6);
+	green *= 1.0 - smoothstep(0.1, 0.26, slope);
+	green *= 0.55 + 0.45 * smoothstep(0.25, 0.6, m3);
+	if (green > 0.01) {
+		vec2 tuv = wp.xz * turf_scale;
+		vec3 turf = detail(turf_col, two_scale(turf_col, tuv, m3), keep) * mix(grass_tint, dead_tint, smoothstep(0.35, 0.7, m2 * 0.6 + m3 * 0.5));
+		col = mix(col, turf, green);
+		nrm = mix(nrm, texture(turf_nrm, tuv).rgb, green);
+	}
+	float rough = mix(0.95, 0.88, green);
 
 	// town rubble ground: concrete broken up by the dirt
 	// patches of broken paving in the dirt, not one pale square
 	float town = s.a * smoothstep(0.5, 0.78, m3 * 0.65 + m2 * 0.55) * 0.85;
 	if (town > 0.01) {
 		vec2 tuv = wp.xz * town_scale;
-		col = mix(col, texture(town_col, tuv).rgb * 0.85, town);
+		col = mix(col, texture(town_col, tuv).rgb * stone_tint * 0.7, town);
 		nrm = mix(nrm, texture(town_nrm, tuv).rgb, town);
 	}
 
 	// roads: packed gravel, paler and flatter
 	float road = s.r;
-	col = mix(col, g * road_tint * (0.9 + 0.2 * m3), road);
-	nrm = mix(nrm, vec3(0.5, 0.5, 1.0), road * 0.5);
-	rough = mix(rough, 0.97, road);
+	if (road > 0.01) {
+		vec2 ruv = wp.xz * road_scale;
+		vec3 gravel = detail(road_col, texture(road_col, ruv).rgb, keep) * road_tint * (0.9 + 0.2 * m3) * 1.7;
+		col = mix(col, gravel, road);
+		nrm = mix(nrm, texture(road_nrm, ruv).rgb, road * 0.7);
+		rough = mix(rough, 0.97, road);
+	}
 
 	// shore and mud, wet (darker, glossier) just above the water line
 	float mud = s.g;
-	col = mix(col, g * mud_tint, mud * 0.85);
+	col = mix(col, dirt * mud_tint * 2.2, mud * 0.85);
 	float wet = (1.0 - smoothstep(water_level + 0.1, water_level + 0.9, wp.y)) * mud;
 	col *= 1.0 - wet * 0.35;
 	rough = mix(rough, 0.35, wet);
 
 	// rock on slopes, three-way projection
-	float slope = 1.0 - wn.y;
 	float rockiness = smoothstep(0.2, 0.36, slope + (m2 - 0.5) * 0.16);
 	if (rockiness > 0.01) {
 		// the two side projections only: rock only shows on slopes, where the top one smears
@@ -110,6 +164,13 @@ void fragment() {
 		}
 		float top = clamp(wn.y * 1.4 - 0.4, 0.0, 1.0);
 		vec3 r = top > 0.01 ? mix(r_side, texture(rock_col, wp.xz * rock_scale).rgb, top) : r_side;
+		// far rock: the texture's grain turns into a screen-door pattern on distant ridges, so it fades to its mean
+		float rock_far = smoothstep(40.0, 260.0, length(wp - CAMERA_POSITION_WORLD));
+		vec3 r_mean = textureLod(rock_col, vec2(0.5), 9.0).rgb;
+		r = mix(r, r_mean, rock_far * 0.85);
+		// strata of warm and cool stone broken up by the noise, so a far ridge is not one grey
+		r *= mix(vec3(1.12, 0.98, 0.84), vec3(0.88, 0.96, 1.08), smoothstep(0.3, 0.7, m2 * 0.6 + m3 * 0.5 + wp.y * 0.0015));
+		n_side = mix(n_side, vec3(0.5, 0.5, 1.0), rock_far * 0.8);
 		col = mix(col, r * rock_tint, rockiness);
 		nrm = mix(nrm, n_side, rockiness);
 	}
@@ -117,7 +178,8 @@ void fragment() {
 	// shell scorch
 	col *= mix(1.0, 0.32 + 0.2 * m3, s.b * 0.9);
 	col *= 0.86 + 0.28 * m3;
-	ALBEDO = col;
+	vec3 grey = vec3(dot(col, vec3(0.333)));
+	ALBEDO = grey + (col - grey) * contrast;
 	ROUGHNESS = mix(rough, 0.9, rockiness);
 	NORMAL_MAP = nrm;
 	NORMAL_MAP_DEPTH = mix(mix(relief_near, relief_far, far), 1.6, rockiness);

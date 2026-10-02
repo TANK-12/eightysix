@@ -95,8 +95,8 @@
       "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": true,
-      "msaa": "2x",
-      "screen_aa": "taa",
+      "msaa": "4x",
+      "screen_aa": "off",
       "shadow_size": 8192,
       "shadow_filter": 4,
       "shadow_distance": 260,
@@ -113,7 +113,8 @@
       "lod_bias": 0.5,
       "anisotropic": 4,
       "foliage_density": 1.0,
-      "clouds": "high"
+      "clouds": "high",
+      "note": "Lane LOOK (2026-10-02): TAA was the softness Emerson saw. Same view, same machine (images/401-look_aa, tools/sharpness.py, higher = sharper): TAA + MSAA 2x 4.5 (moving 4.3), MSAA 4x alone 15.5 (16.4), MSAA 2x alone 16.0 (16.8), FXAA + MSAA 4x 11.7, FXAA + MSAA 2x 11.9. Frame rate the same in every mode (15.0 fps: SDFGI and the shadows dominate). Ultra is now MSAA 4x with no screen-space AA; TAA stays a setting."
     }
   }
 }

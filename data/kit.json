@@ -3,14 +3,16 @@
   "materials": {
     "rock": {"textures": "rock", "triplanar": true, "scale_m": 3.2, "tint": [0.86, 0.84, 0.8], "roughness": 0.92},
     "rock_dark": {"textures": "rock", "triplanar": true, "scale_m": 4.0, "tint": [0.62, 0.6, 0.57], "roughness": 0.95},
-    "concrete": {"textures": "concrete", "triplanar": true, "scale_m": 2.6, "tint": [0.92, 0.9, 0.86], "roughness": 0.9, "grime": 0.6},
-    "brick": {"textures": "brick_ruin", "triplanar": true, "scale_m": 2.2, "tint": [0.95, 0.92, 0.9], "roughness": 0.9, "grime": 0.7},
+    "concrete": {"shader": "masonry", "tex": {"base_col": "concrete_stained/color.jpg", "base_nrm": "concrete_stained/normal.jpg", "base_rgh": "concrete_stained/roughness.jpg", "coat_col": "plaster/color.jpg", "coat_nrm": "plaster/normal.jpg"},
+      "params": {"base_scale": 0.45, "coat_scale": 0.5, "coat_amount": 0.2, "streaks": 0.6, "base_dirt": 0.6, "soot": 0.3, "relief": 0.8}},
+    "brick": {"shader": "masonry", "tex": {"base_col": "brick_worn/color.jpg", "base_nrm": "brick_worn/normal.jpg", "base_rgh": "brick_worn/roughness.jpg", "base_ao": "brick_worn/ao.jpg", "coat_col": "plaster/color.jpg", "coat_nrm": "plaster/normal.jpg"},
+      "params": {"base_scale": 0.9, "coat_scale": 0.5, "coat_amount": 0.5, "streaks": 0.45, "base_dirt": 0.55, "soot": 0.25, "relief": 1.0}},
     "brass": {"albedo": [0.78, 0.6, 0.3], "metallic": 1.0, "roughness": 0.32},
     "brass_spent": {"albedo": [0.55, 0.42, 0.24], "metallic": 1.0, "roughness": 0.55},
     "shell_steel": {"albedo": [0.2, 0.21, 0.19], "metallic": 0.7, "roughness": 0.45},
     "copper_band": {"albedo": [0.72, 0.4, 0.26], "metallic": 1.0, "roughness": 0.35},
-    "steel_rust": {"albedo": [0.38, 0.22, 0.15], "metallic": 0.2, "roughness": 0.8, "grime": 0.5},
-    "steel_paint": {"albedo": [0.36, 0.38, 0.35], "metallic": 0.2, "roughness": 0.65, "grime": 0.4},
+    "steel_rust": {"textures": "rust_paint", "triplanar": true, "scale_m": 1.6, "tint": [1.9, 1.15, 0.8], "metallic": 0.25, "roughness": 0.9, "grime": 0.4},
+    "steel_paint": {"textures": "rust_paint", "triplanar": true, "scale_m": 1.6, "tint": [0.95, 1.1, 1.0], "metallic": 0.2, "roughness": 0.85, "grime": 0.3},
     "foliage": {"shader": "foliage", "colour_a": [0.13, 0.15, 0.08], "colour_b": [0.36, 0.37, 0.22]},
     "grass": {"shader": "grass", "colour_a": [0.16, 0.2, 0.09], "colour_b": [0.52, 0.5, 0.28]}
   },
@@ -32,7 +34,7 @@
     },
     "shrub": {
       "label": "Shrub", "kind": "plant", "builder": "shrub", "material": "foliage",
-      "size_m": [0.8, 2.4], "clusters": [36, 52], "stems": 4, "collision": "none", "order": 20
+      "size_m": [0.8, 2.4], "clusters": [44, 60], "stems": 4, "collision": "none", "order": 20
     },
     "grass": {
       "label": "Grass clump", "kind": "plant", "builder": "grass", "material": "grass",

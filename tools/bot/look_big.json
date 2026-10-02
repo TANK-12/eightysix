@@ -1,0 +1,222 @@
+{
+ "name": "look_big",
+ "map": "big_map",
+ "_about": "Lane LOOK: fixed look-pass views on the big map (ground close up, Kreuzberg street and wide, Brook, the Ash bridge, a ridge, the depot, the valley) and the Juggernaut beside buildings. tools/bot_run.sh look_big --preset=ultra",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 2.0,
+   "shot": "jg_spawn"
+  },
+  {
+   "at": 2.8,
+   "call": "look_from",
+   "args": [
+    "l_ground"
+   ]
+  },
+  {
+   "at": 4.3,
+   "shot": "l_ground"
+  },
+  {
+   "at": 5.0,
+   "call": "look_from",
+   "args": [
+    "l_street"
+   ]
+  },
+  {
+   "at": 8.5,
+   "shot": "l_street"
+  },
+  {
+   "at": 9.2,
+   "call": "look_from",
+   "args": [
+    "kreuzberg"
+   ]
+  },
+  {
+   "at": 12.7,
+   "shot": "kreuzberg"
+  },
+  {
+   "at": 13.399999999999999,
+   "call": "look_from",
+   "args": [
+    "l_brook"
+   ]
+  },
+  {
+   "at": 16.9,
+   "shot": "l_brook"
+  },
+  {
+   "at": 17.599999999999998,
+   "call": "look_from",
+   "args": [
+    "brook"
+   ]
+  },
+  {
+   "at": 21.099999999999998,
+   "shot": "brook"
+  },
+  {
+   "at": 21.799999999999997,
+   "call": "look_from",
+   "args": [
+    "depot"
+   ]
+  },
+  {
+   "at": 25.299999999999997,
+   "shot": "depot"
+  },
+  {
+   "at": 25.999999999999996,
+   "call": "look_from",
+   "args": [
+    "bridge_side"
+   ]
+  },
+  {
+   "at": 29.499999999999996,
+   "shot": "bridge_side"
+  },
+  {
+   "at": 30.199999999999996,
+   "call": "look_from",
+   "args": [
+    "ford"
+   ]
+  },
+  {
+   "at": 33.699999999999996,
+   "shot": "ford"
+  },
+  {
+   "at": 34.4,
+   "call": "look_from",
+   "args": [
+    "l_ridge"
+   ]
+  },
+  {
+   "at": 37.9,
+   "shot": "l_ridge"
+  },
+  {
+   "at": 38.6,
+   "call": "look_from",
+   "args": [
+    "l_ridge_n"
+   ]
+  },
+  {
+   "at": 42.1,
+   "shot": "l_ridge_n"
+  },
+  {
+   "at": 42.800000000000004,
+   "call": "look_from",
+   "args": [
+    "river_valley"
+   ]
+  },
+  {
+   "at": 46.300000000000004,
+   "shot": "river_valley"
+  },
+  {
+   "at": 47.00000000000001,
+   "call": "look_from",
+   "args": [
+    "front_line"
+   ]
+  },
+  {
+   "at": 50.50000000000001,
+   "shot": "front_line"
+  },
+  {
+   "at": 51.20000000000001,
+   "call": "look_from",
+   "args": [
+    "overview"
+   ]
+  },
+  {
+   "at": 54.70000000000001,
+   "shot": "overview"
+  },
+  {
+   "at": 55.40000000000001,
+   "call": "follow_mech"
+  },
+  {
+   "at": 55.70000000000001,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    0,
+    26
+   ]
+  },
+  {
+   "at": 59.20000000000001,
+   "shot": "jg_kreuzberg_a"
+  },
+  {
+   "at": 59.90000000000001,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    2,
+    30
+   ]
+  },
+  {
+   "at": 63.40000000000001,
+   "shot": "jg_kreuzberg_b"
+  },
+  {
+   "at": 64.10000000000001,
+   "call": "face_building",
+   "args": [
+    "depot",
+    0,
+    28
+   ]
+  },
+  {
+   "at": 67.60000000000001,
+   "shot": "jg_depot"
+  },
+  {
+   "at": 68.80000000000001,
+   "quit": true
+  }
+ ]
+}

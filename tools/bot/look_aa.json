@@ -1,0 +1,252 @@
+{
+ "name": "look_aa",
+ "map": "small_map",
+ "_about": "Lane LOOK: Ultra's anti-aliasing options on one still view and 1.4 s of walking and turning: TAA + MSAA 2x (the old Ultra), MSAA 4x alone, FXAA + MSAA 4x, FXAA + MSAA 2x, MSAA 2x alone. tools/bot_run.sh look_aa --preset=ultra; compare with tools/sharpness.py",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 2.0,
+   "setting": "graphics.screen_aa",
+   "value": "taa"
+  },
+  {
+   "at": 2.0,
+   "setting": "graphics.msaa",
+   "value": "2x"
+  },
+  {
+   "at": 2.0,
+   "call": "park_at",
+   "args": [
+    -38,
+    -92,
+    0
+   ]
+  },
+  {
+   "at": 4.5,
+   "shot": "taa_msaa2_still"
+  },
+  {
+   "at": 4.7,
+   "measure": 2.0,
+   "label": "taa_msaa2"
+  },
+  {
+   "at": 7.1,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 7.3,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 1.2
+  },
+  {
+   "at": 8.549999999999999,
+   "shot": "taa_msaa2_moving"
+  },
+  {
+   "at": 9.149999999999999,
+   "setting": "graphics.screen_aa",
+   "value": "off"
+  },
+  {
+   "at": 9.149999999999999,
+   "setting": "graphics.msaa",
+   "value": "4x"
+  },
+  {
+   "at": 9.149999999999999,
+   "call": "park_at",
+   "args": [
+    -38,
+    -92,
+    0
+   ]
+  },
+  {
+   "at": 11.649999999999999,
+   "shot": "msaa4_still"
+  },
+  {
+   "at": 11.849999999999998,
+   "measure": 2.0,
+   "label": "msaa4"
+  },
+  {
+   "at": 14.249999999999998,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 14.449999999999998,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 1.2
+  },
+  {
+   "at": 15.699999999999998,
+   "shot": "msaa4_moving"
+  },
+  {
+   "at": 16.299999999999997,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 16.299999999999997,
+   "setting": "graphics.msaa",
+   "value": "4x"
+  },
+  {
+   "at": 16.299999999999997,
+   "call": "park_at",
+   "args": [
+    -38,
+    -92,
+    0
+   ]
+  },
+  {
+   "at": 18.799999999999997,
+   "shot": "fxaa_msaa4_still"
+  },
+  {
+   "at": 18.999999999999996,
+   "measure": 2.0,
+   "label": "fxaa_msaa4"
+  },
+  {
+   "at": 21.4,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 21.599999999999998,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 1.2
+  },
+  {
+   "at": 22.849999999999998,
+   "shot": "fxaa_msaa4_moving"
+  },
+  {
+   "at": 23.45,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 23.45,
+   "setting": "graphics.msaa",
+   "value": "2x"
+  },
+  {
+   "at": 23.45,
+   "call": "park_at",
+   "args": [
+    -38,
+    -92,
+    0
+   ]
+  },
+  {
+   "at": 25.95,
+   "shot": "fxaa_msaa2_still"
+  },
+  {
+   "at": 26.15,
+   "measure": 2.0,
+   "label": "fxaa_msaa2"
+  },
+  {
+   "at": 28.55,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 28.75,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 1.2
+  },
+  {
+   "at": 30.0,
+   "shot": "fxaa_msaa2_moving"
+  },
+  {
+   "at": 30.6,
+   "setting": "graphics.screen_aa",
+   "value": "off"
+  },
+  {
+   "at": 30.6,
+   "setting": "graphics.msaa",
+   "value": "2x"
+  },
+  {
+   "at": 30.6,
+   "call": "park_at",
+   "args": [
+    -38,
+    -92,
+    0
+   ]
+  },
+  {
+   "at": 33.1,
+   "shot": "msaa2_still"
+  },
+  {
+   "at": 33.300000000000004,
+   "measure": 2.0,
+   "label": "msaa2"
+  },
+  {
+   "at": 35.7,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 1.6
+  },
+  {
+   "at": 35.900000000000006,
+   "press": "turn_right",
+   "strength": 0.6,
+   "for": 1.2
+  },
+  {
+   "at": 37.150000000000006,
+   "shot": "msaa2_moving"
+  },
+  {
+   "at": 38.25000000000001,
+   "quit": true
+  }
+ ]
+}

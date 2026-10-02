@@ -42,7 +42,7 @@ func test_apply_reaches_viewport_and_environment() -> void:
 	assert_eq(cam.far, 600.0)
 	Settings.set_value("graphics.preset", "ultra", false)
 	Graphics.apply()
-	assert_eq(tree.root.msaa_3d, Viewport.MSAA_2X)
+	assert_eq(tree.root.msaa_3d, Viewport.MSAA_4X)
 	assert_true(holder.environment.sdfgi_enabled)
 	assert_eq(cam.far, 2600.0)
 	Settings.set_value("graphics.resolution_scale", 0.7, false)
