@@ -317,7 +317,14 @@ func summary() -> Dictionary:
 		"kills": kills,
 		"time_s": snappedf(elapsed_s, 0.1),
 		"player_hits": hits_taken,
+		"squad": squad_report(),
 	}
+
+
+## The squad's rows (Squad.report, lane A5); empty when the player fights alone.
+func squad_report() -> Array:
+	var squad := get_tree().get_first_node_in_group("squad")
+	return squad.call("report") if squad != null else []
 
 
 ## Every unit of the current wave: id, position, distance to the player, health and its brain's state.

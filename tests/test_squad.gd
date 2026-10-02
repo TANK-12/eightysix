@@ -126,6 +126,12 @@ func test_select_and_address() -> void:
 	assert_eq(squad.selected, -1, "wraps to the whole squad")
 	squad.select_next(-1)
 	assert_eq(squad.selected, 1, "and back")
+	var rows := squad.report()
+	assert_eq(rows.size(), 2)
+	assert_eq(str(rows[0]["callsign"]), "Werewolf")
+	assert_true(bool(rows[0]["alive"]))
+	var lines := MissionEnd.squad_lines([{"callsign": "Werewolf", "alive": true, "armour": 0.82, "shots": 14}, {"callsign": "Laughing Fox", "alive": false}])
+	assert_eq(lines, "\nWerewolf  armour 82 %  ·  14 shots\nLaughing Fox  lost", "the end screen's squad lines")
 	squad.selected = 0
 	squad.give_order("hold")
 	assert_eq(squad.pilots[0].order, "hold")

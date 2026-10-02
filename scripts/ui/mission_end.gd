@@ -12,6 +12,17 @@ var _left := DELAY_S
 var _shown := false
 
 
+## The squad's part of the stats: one line each, "Werewolf  armour 82 %  · 14 shots" or "Laughing Fox  lost".
+static func squad_lines(rows: Array) -> String:
+	var out := ""
+	for row: Dictionary in rows:
+		if bool(row.get("alive", false)):
+			out += "\n%s  armour %d %%  ·  %d shots" % [row.get("callsign", ""), roundi(100.0 * float(row.get("armour", 0.0))), int(row.get("shots", 0))]
+		else:
+			out += "\n%s  lost" % row.get("callsign", "")
+	return out
+
+
 static func clock(seconds: float) -> String:
 	return "%d:%02d" % [int(seconds) / 60, int(seconds) % 60]
 
@@ -65,6 +76,7 @@ func show_now() -> void:
 	box.add_child(sub)
 	var stats := Label.new()
 	stats.text = "Time %s\nLegion destroyed %d\nWave %d of %d" % [clock(float(summary.get("time_s", 0.0))), int(summary.get("kills", 0)), int(summary.get("wave", 0)), int(summary.get("waves", 0))]
+	stats.text += squad_lines(summary.get("squad", []))
 	box.add_child(stats)
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 14

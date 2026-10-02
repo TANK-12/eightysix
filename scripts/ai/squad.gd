@@ -157,6 +157,17 @@ func seen(u: Node3D) -> bool:
 	return false
 
 
+## One row per member for the mission summary: callsign, whether it is still fighting, armour left (0-1), 57 mm shots.
+func report() -> Array:
+	var out: Array = []
+	for i in pilots.size():
+		var p := pilots[i]
+		var combat := p.mech.get_node_or_null("Combat") if is_instance_valid(p.mech) else null
+		var armour := float(combat.damage.total_fraction()) if combat != null and combat.get("damage") != null else 0.0
+		out.append({"callsign": callsign(i), "alive": p.alive(), "armour": snappedf(armour, 0.01), "shots": p.shots})
+	return out
+
+
 func select_next(step: int) -> void:
 	var n := pilots.size()
 	if n == 0:
