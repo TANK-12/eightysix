@@ -1,0 +1,53 @@
+{
+ "name": "b5_rim",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: the rim mountains from inside the map (viewpoints rim_north, rim_east, rim_south): silhouette and rock texture scale. tools/bot_run.sh b5_rim",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "look_from",
+   "args": [
+    "rim_north"
+   ]
+  },
+  {
+   "at": 4.0,
+   "shot": "rim_north"
+  },
+  {
+   "at": 5.0,
+   "call": "look_from",
+   "args": [
+    "rim_east"
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "rim_east"
+  },
+  {
+   "at": 9.0,
+   "call": "look_from",
+   "args": [
+    "rim_south"
+   ]
+  },
+  {
+   "at": 12.0,
+   "shot": "rim_south"
+  },
+  {
+   "at": 13.0,
+   "quit": true
+  }
+ ]
+}

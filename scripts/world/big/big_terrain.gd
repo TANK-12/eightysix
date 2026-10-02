@@ -315,6 +315,8 @@ func _natural(x: float, z: float, water_d: float) -> float:
 	var edge := smoothstep(half - rim_w, half - 8.0, maxf(absf(x), absf(z)) + spur * spur * rim_w * 0.55)
 	if edge > 0.0:
 		h += edge * edge * float(_t.get("rim_m", 160.0)) * maxf(0.75, 0.8 + 0.5 * b + 0.55 * _n_peaks.get_noise_2d(x, z))
+		# sharp crests and gullies on the mountains (the ridged noise again, squared), so the rim is rock, not cones
+		h += edge * edge * float(_t.get("rim_crag_m", 0.0)) * r * r
 	return h
 
 
