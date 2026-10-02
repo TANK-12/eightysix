@@ -10,15 +10,19 @@ packs share zips for friends on Windows, Linux and macOS.
     python3 tools/builds.py list [--json]           the saved versions, newest first
     python3 tools/builds.py export <platform> [--debug]  one export into build/<platform>/
     python3 tools/builds.py share [--platforms windows,linux,macos]
-                                                    export the current game for each platform and zip
-                                                    it into the newest version's share/ folder
+                                                    zip the newest saved version for each platform (built
+                                                    from that version's own commit) into build/share/,
+                                                    each with an install script; older zips are deleted
+    python3 tools/builds.py clear-shares            delete every share zip (they are remade on demand)
 
 Emerson's rule (2026-10-01): one version per finished, committed part, from a clean tree, with a note
 saying what is in it. Versions 007 and 008 were saved by Play from a folder holding another session's
 uncommitted files, so no commit matched them; that is why only "save" numbers a version now.
 
 Platforms and what to watch come from tools/platforms.json. Versions live in
-build/versions/NNN-YYYY-MM-DD_HHMM/ (git-ignored). Nothing here deletes a version.
+build/versions/NNN-YYYY-MM-DD_HHMM/ (git-ignored). Nothing here deletes a version. Share zips are the
+exception to keeping things: Emerson (2026-10-02) wants only the newest set on disk, so share deletes the old
+ones once the new ones are made, and clear-shares deletes them all.
 """
 
 import argparse
@@ -41,7 +45,13 @@ ROOT = Path(__file__).resolve().parent.parent
 GODOT = os.environ.get("GODOT", "godot")
 VERSION_DIR = re.compile(r"^(\d{3})-")
 
-Exporter = Callable[[str, bool], int]
+Exporter = Callable[..., int]  # (platform, debug, project root = ROOT) -> exit code
+SHARE_DIR = (
+    Path("build") / "share"
+)  # the newest version's share zips, the only ones kept
+SHARE_WORK = (
+    Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "eightysix-share"
+)
 
 
 def load_platforms(root: Path = ROOT) -> dict:
@@ -188,7 +198,7 @@ def save_version(
     return info, True
 
 
-def godot_export(platform: str, debug: bool) -> int:
+def godot_export(platform: str, debug: bool, root: Path = ROOT) -> int:
     platforms = load_platforms()
     entry = platforms["platforms"][platform]
     tdir = templates_dir()
@@ -200,11 +210,11 @@ def godot_export(platform: str, debug: bool) -> int:
             file=sys.stderr,
         )
         return 3
-    out = ROOT / "build" / platform / entry["file"]
+    out = root / "build" / platform / entry["file"]
     out.parent.mkdir(parents=True, exist_ok=True)
     mode = "--export-debug" if debug else "--export-release"
     result = subprocess.run(
-        [GODOT, "--headless", "--path", str(ROOT), mode, entry["preset"], str(out)],
+        [GODOT, "--headless", "--path", str(root), mode, entry["preset"], str(out)],
         stdout=sys.stderr,
     )
     if result.returncode == 0 and not out.is_file():
@@ -292,63 +302,160 @@ def save(
     )
 
 
-def zip_folder(folder: Path, zip_path: Path, readme: str) -> None:
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-        for path in sorted(folder.iterdir()):
-            if path.is_file():
-                z.write(path, f"{folder.name}/{path.name}")
-        z.writestr(f"{folder.name}/HOW-TO-RUN.txt", readme + "\n")
+def _zip_add(z: zipfile.ZipFile, name: str, data: bytes, mode: int) -> None:
+    info = zipfile.ZipInfo(name, date_time=datetime.now().timetuple()[:6])
+    info.create_system = 3  # unix, so the mode below is honoured on Linux and macOS
+    info.external_attr = (0o100000 | mode) << 16
+    info.compress_type = zipfile.ZIP_DEFLATED
+    z.writestr(info, data)
+
+
+def share_zips(root: Path) -> list[Path]:
+    """Every share zip on disk: build/share/, the old per-version share/ folders, and the zip a macOS
+    export leaves in build/macos/."""
+    found = sorted((root / SHARE_DIR).glob("*.zip"))
+    found += sorted((root / "build" / "versions").glob("*/share/*.zip"))
+    found += sorted((root / "build" / "macos").glob("*.zip"))
+    return found
+
+
+def clear_shares(root: Path) -> tuple[int, int]:
+    """Deletes every share zip (Emerson: they take space and are remade from a version on demand).
+    Returns (files deleted, bytes freed)."""
+    count = freed = 0
+    for path in share_zips(root):
+        freed += path.stat().st_size
+        path.unlink()
+        count += 1
+    for folder in (root / "build" / "versions").glob("*/share"):
+        if folder.is_dir() and not any(folder.iterdir()):
+            folder.rmdir()
+    return count, freed
+
+
+def checkout_version(root: Path, commit: str, dest: Path) -> None:
+    """The game exactly as it was at `commit`, in `dest` (a git worktree), with the files git does not
+    keep copied in: synced model files and Godot's import cache (so the export does not re-import it all).
+    """
+    subprocess.run(
+        ["git", "-C", str(root), "worktree", "add", "--detach", str(dest), commit],
+        check=True,
+        capture_output=True,
+    )
+    for path in (root / "assets" / "models").rglob("*"):
+        if path.suffix in (".glb", ".png", ".jpg") and path.is_file():
+            target = dest / path.relative_to(root)
+            if not target.exists():
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(path, target)
+    # Packaging settings are today's, not the version's (e.g. the Windows pack inside the exe)
+    shutil.copy2(root / "export_presets.cfg", dest / "export_presets.cfg")
+    if (root / ".godot").is_dir():
+        shutil.copytree(
+            root / ".godot",
+            dest / ".godot",
+            ignore=shutil.ignore_patterns("shader_cache", "editor"),
+            dirs_exist_ok=True,
+        )
+
+
+def drop_checkout(root: Path, dest: Path) -> None:
+    subprocess.run(
+        ["git", "-C", str(root), "worktree", "remove", "--force", str(dest)],
+        capture_output=True,
+    )
+    if dest.is_dir():
+        shutil.rmtree(dest)
+    subprocess.run(["git", "-C", str(root), "worktree", "prune"], capture_output=True)
 
 
 def share(
     root: Path, platforms: dict, wanted: list[str], exporter: Exporter
 ) -> list[Path]:
-    """Zips the current game for each wanted platform into its version's share/ folder. The current
-    game must be a saved version (save() first), so a share zip always matches a version.
+    """Zips the newest saved version for each wanted platform into build/share/, then deletes every older
+    share zip. Each platform is exported from that version's own commit (a scratch checkout), so the zips
+    match the version even while sessions keep editing the game; the local platform reuses the version's
+    saved build. Every zip holds one folder with the game, an install script and HOW-TO-RUN.txt.
     """
-    if ensure(root, platforms, exporter) is None:
-        raise SystemExit("share: no build to share")
     saved = versions(root)
-    local = platforms["local"]
-    pck = (
-        root
-        / "build"
-        / local
-        / (Path(platforms["platforms"][local]["file"]).stem + ".pck")
-    )
-    if not saved or saved[0].get("pck_sha256") != sha256(pck):
-        raise SystemExit(
-            'share: the current game is not a saved version; run save --note "..." first'
-        )
+    if not saved:
+        raise SystemExit('share: no saved version yet; run save --note "..." first')
     info = saved[0]
+    commit = str(info.get("commit", ""))
+    if info.get("dirty") or commit in ("", "none", "?"):
+        raise SystemExit(
+            f"share: version {info['number']:03d} was not saved from a commit; save a new version first"
+        )
     vdir = Path(info["dir"])
-    (vdir / "share").mkdir(exist_ok=True)
+    out_dir = root / SHARE_DIR
+    new_dir = out_dir / ".new"
+    if new_dir.is_dir():
+        shutil.rmtree(new_dir)
+    new_dir.mkdir(parents=True)
+    work = SHARE_WORK / f"v{info['number']:03d}"
+    remote = [p for p in wanted if p != platforms["local"]]
     made = []
-    for platform in wanted:
-        entry = platforms["platforms"][platform]
-        stem = f"eightysix-{info['game_version']}-v{info['number']:03d}-{platform}"
-        zip_path = vdir / "share" / f"{stem}.zip"
-        readme = f"Eighty Six {info['game_version']}, version {info['number']:03d} ({info['made']}), {entry['label']}.\n{entry['how_to_run']}"
-        if platform != platforms["local"]:
-            if exporter(platform, False) != 0:
-                print(f"share: {platform} export failed", file=sys.stderr)
-                continue
-            src = root / "build" / platform
-        else:
-            src = vdir / platform
+    try:
+        if remote:
+            if work.exists():
+                drop_checkout(root, work)
+            work.parent.mkdir(parents=True, exist_ok=True)
+            checkout_version(root, commit, work)
+        for platform in wanted:
+            entry = platforms["platforms"][platform]
+            if platform == platforms["local"]:
+                src = vdir / platform
+            else:
+                if exporter(platform, False, work) != 0:
+                    print(f"share: {platform} export failed", file=sys.stderr)
+                    continue
+                src = work / "build" / platform
+            made.append(_share_zip(root, info, platform, entry, src, new_dir))
+    finally:
+        if remote and work.exists():
+            drop_checkout(root, work)
+    if made:
+        clear_shares(root)
+        for path in made:
+            path.rename(out_dir / path.name)
+    shutil.rmtree(new_dir)
+    return [out_dir / path.name for path in made]
+
+
+def _share_zip(
+    root: Path, info: dict, platform: str, entry: dict, src: Path, out_dir: Path
+) -> Path:
+    stem = f"eightysix-{info['game_version']}-v{info['number']:03d}-{platform}"
+    zip_path = out_dir / f"{stem}.zip"
+    readme = (
+        f"Eighty Six {info['game_version']}, version {info['number']:03d} ({info['made']}), "
+        f"{entry['label']}.\n{entry['how_to_run']}\n"
+    )
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         if entry["file"].endswith(".zip"):
-            shutil.copy2(src / entry["file"], zip_path)
-            with zipfile.ZipFile(zip_path, "a") as z:
-                z.writestr("HOW-TO-RUN.txt", readme + "\n")
+            # macOS: Godot's own zip holds the .app; its files go in our folder with their modes
+            with zipfile.ZipFile(src / entry["file"]) as app:
+                for item in app.infolist():
+                    if item.is_dir():
+                        continue
+                    mode = (item.external_attr >> 16) & 0o777 or 0o644
+                    _zip_add(z, f"{stem}/{item.filename}", app.read(item), mode)
         else:
-            staged = vdir / "share" / stem
-            staged.mkdir(exist_ok=True)
-            for name in (entry["file"], Path(entry["file"]).stem + ".pck"):
-                shutil.copy2(src / name, staged / name)
-            zip_folder(staged, zip_path, readme)
-            shutil.rmtree(staged)
-        made.append(zip_path)
-    return made
+            names = [entry["file"]]
+            if not entry.get("pack_embedded"):
+                names.append(Path(entry["file"]).stem + ".pck")
+            for name in names:
+                path = src / name
+                z.write(path, f"{stem}/{name}")
+        for extra in entry.get("extra", []):
+            _zip_add(
+                z, f"{stem}/{Path(extra).name}", (root / extra).read_bytes(), 0o644
+            )
+        if entry.get("installer"):
+            script = root / entry["installer"]
+            _zip_add(z, f"{stem}/{script.name}", script.read_bytes(), 0o755)
+        _zip_add(z, f"{stem}/HOW-TO-RUN.txt", readme.encode(), 0o644)
+    return zip_path
 
 
 def main() -> int:
@@ -367,9 +474,14 @@ def main() -> int:
     p.add_argument("--debug", action="store_true")
     p = sub.add_parser("share")
     p.add_argument("--platforms", default="")
+    sub.add_parser("clear-shares")
     args = parser.parse_args()
     platforms = load_platforms()
 
+    if args.cmd == "clear-shares":
+        count, freed = clear_shares(ROOT)
+        print(f"deleted {count} share zips, {freed / 1e6:.0f} MB freed")
+        return 0
     if args.cmd == "export":
         return godot_export(args.platform, args.debug)
     if args.cmd == "list":

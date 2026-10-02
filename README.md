@@ -572,3 +572,16 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   cannot grip can still bear weight (telemetry `b`), feet tuck under the hip to stand a sunk body up, and the brain's
   look-ahead allows one ledge per body length. Test `test_the_lowe_brain_finds_a_way_off_the_rough_patch` (3/3).
 - Suite 295/295. **Version 011 saved** (6d763b5). Details: ~/Forge/sessions/juggernaut-alpha/results/B5.md "Part 6".
+
+### 2026-10-02 · lane A4 · Sora (ejb-ef) · part 6: bigger shell hits and hit dust, wire anchor arc dots
+- **Emerson's ask, bigger explosions and hit dust:** Settings > Graphics > World detail > Combat effects, "Shell hit
+  size" and "Hit dust" (0.5-3.0x, default 1.6x; 1.0x is the old look). HE/HEAT shells get a fireball, flash and thrown
+  clods; the default dart throws clods and a dust column off the ground (no fire); dust is bigger and lasts longer.
+  Look only, damage and recoil untouched. Verified: tests/test_combat_fx.gd 5/5; combat, damage, destruction tests green.
+- **Wire anchor arc** as screen-sized billboard dots (about 10 px), spread along short throws too. Verified:
+  test_grapple 11/11 (8 dots on a 14 m throw).
+- test_hud no longer errors on a stand-in mech's legs. Commit 7cde48e. Details: results/A4.md "Part 6".
+- **Share zips** (B5 part 6 addendum): `python3 tools/builds.py share` zips the newest saved version for Windows, Linux and
+  macOS into `build/share/`, built from that version's own commit, each with an install script (`tools/share/`) and
+  HOW-TO-RUN.txt; older zips are deleted. `tools/builds.py clear-shares` deletes them all. Windows is one exe (data inside).
+  Verified: tools/tests/test_builds.py 13/13; Linux install + run and Windows run (Wine) checked on the real 011 zips.

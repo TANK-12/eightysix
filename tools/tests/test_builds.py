@@ -8,6 +8,8 @@ import unittest
 import zipfile
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
+import shutil
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -16,9 +18,26 @@ import builds  # noqa: E402
 PLATFORMS = {
     "local": "linux",
     "platforms": {
-        "linux": {"label": "Linux", "file": "game.x86_64", "how_to_run": "run it"},
-        "windows": {"label": "Windows", "file": "game.exe", "how_to_run": "run it"},
-        "macos": {"label": "macOS", "file": "game.zip", "how_to_run": "open it"},
+        "linux": {
+            "label": "Linux",
+            "file": "game.x86_64",
+            "how_to_run": "run it",
+            "installer": "install.sh",
+            "extra": ["icon.svg"],
+        },
+        "windows": {
+            "label": "Windows",
+            "file": "game.exe",
+            "how_to_run": "run it",
+            "installer": "install.bat",
+            "pack_embedded": True,
+        },
+        "macos": {
+            "label": "macOS",
+            "file": "game.zip",
+            "how_to_run": "open it",
+            "installer": "install.command",
+        },
     },
     "watch_ignore": ["build", "images"],
     "watch_ignore_files": ["*.md"],
@@ -33,17 +52,20 @@ class FakeGodot:
         self.calls: list[str] = []
         self.fail = False
 
-    def __call__(self, platform: str, debug: bool) -> int:
+    def __call__(self, platform: str, debug: bool, root: Optional[Path] = None) -> int:
+        root = root or self.root
         self.calls.append(platform)
         if self.fail:
             return 1
-        out = self.root / "build" / platform
+        out = root / "build" / platform
         out.mkdir(parents=True, exist_ok=True)
-        source = (self.root / "data.json").read_text()
+        source = (root / "data.json").read_text()
         name = PLATFORMS["platforms"][platform]["file"]
         if name.endswith(".zip"):
             with zipfile.ZipFile(out / name, "w") as z:
-                z.writestr("Game.app/data", source)
+                info = zipfile.ZipInfo("Game.app/Contents/MacOS/Game")
+                info.external_attr = 0o100755 << 16
+                z.writestr(info, source)
         else:
             (out / name).write_bytes(b"template")
             (out / name).chmod(0o755)
@@ -148,15 +170,40 @@ class Builds(unittest.TestCase):
         self.godot.fail = False
         self.assertNotEqual(self.ensure(), good, "tries again next launch")
 
-    def test_share_needs_the_current_game_saved(self) -> None:
+    def fake_checkouts(self) -> None:
+        """A version's commit stands in as the data.json it was saved with."""
+        self.committed = (self.root / "data.json").read_text()
+        for name in ("SHARE_WORK", "checkout_version", "drop_checkout"):
+            self.addCleanup(setattr, builds, name, getattr(builds, name))
+        builds.SHARE_WORK = self.root / "work"
+
+        def checkout(root: Path, commit: str, dest: Path) -> None:
+            dest.mkdir(parents=True)
+            (dest / "data.json").write_text(self.committed)
+
+        builds.checkout_version = checkout
+        builds.drop_checkout = lambda root, dest: shutil.rmtree(dest)
+        for name, text in [
+            ("install.sh", "#!/bin/sh"),
+            ("install.bat", "@echo off"),
+            ("install.command", "#!/bin/sh"),
+            ("icon.svg", "<svg/>"),
+        ]:
+            (self.root / name).write_text(text)
+
+    def share_all(self) -> list[Path]:
+        return builds.share(
+            self.root, PLATFORMS, ["linux", "windows", "macos"], self.godot
+        )
+
+    def test_share_needs_a_saved_version(self) -> None:
         with self.assertRaises(SystemExit):
             builds.share(self.root, PLATFORMS, ["linux"], self.godot)
 
-    def test_share_zips_every_platform_with_how_to_run(self) -> None:
+    def test_share_zips_every_platform_with_an_installer(self) -> None:
         self.save()
-        zips = builds.share(
-            self.root, PLATFORMS, ["linux", "windows", "macos"], self.godot
-        )
+        self.fake_checkouts()
+        zips = self.share_all()
         self.assertEqual(
             [z.name for z in zips],
             [
@@ -164,21 +211,84 @@ class Builds(unittest.TestCase):
                 for p in ("linux", "windows", "macos")
             ],
         )
+        self.assertTrue(all(z.parent == self.root / "build" / "share" for z in zips))
+
+        def mode(z: zipfile.ZipFile, name: str) -> int:
+            return (z.getinfo(name).external_attr >> 16) & 0o777
+
+        stem = zips[0].stem
         with zipfile.ZipFile(zips[0]) as z:
-            names = z.namelist()
-            stem = zips[0].stem
-            self.assertIn(f"{stem}/game.x86_64", names)
-            self.assertIn(f"{stem}/game.pck", names)
+            self.assertEqual(
+                sorted(z.namelist()),
+                sorted(
+                    f"{stem}/{n}"
+                    for n in (
+                        "game.x86_64",
+                        "game.pck",
+                        "install.sh",
+                        "icon.svg",
+                        "HOW-TO-RUN.txt",
+                    )
+                ),
+            )
+            self.assertTrue(mode(z, f"{stem}/game.x86_64") & 0o100, "binary runs")
+            self.assertEqual(mode(z, f"{stem}/install.sh"), 0o755)
+            self.assertEqual(mode(z, f"{stem}/HOW-TO-RUN.txt"), 0o644)
             self.assertIn("run it", z.read(f"{stem}/HOW-TO-RUN.txt").decode())
-            mode = z.getinfo(f"{stem}/game.x86_64").external_attr >> 16
-            self.assertTrue(mode & 0o100, "Linux binary stays executable")
+        stem = zips[1].stem
+        with zipfile.ZipFile(zips[1]) as z:
+            self.assertEqual(
+                sorted(z.namelist()),
+                sorted(
+                    f"{stem}/{n}" for n in ("game.exe", "install.bat", "HOW-TO-RUN.txt")
+                ),
+                "the pack is inside the exe: one file to run",
+            )
+        stem = zips[2].stem
         with zipfile.ZipFile(zips[2]) as z:
-            self.assertIn("Game.app/data", z.namelist())
-            self.assertIn("HOW-TO-RUN.txt", z.namelist())
-        share_dir = zips[0].parent
-        self.assertEqual(sorted(p.suffix for p in share_dir.iterdir()), [".zip"] * 3)
-        info = json.loads((share_dir.parent / "VERSION.json").read_text())
-        self.assertEqual(info["number"], 1)
+            self.assertEqual(mode(z, f"{stem}/Game.app/Contents/MacOS/Game"), 0o755)
+            self.assertEqual(mode(z, f"{stem}/install.command"), 0o755)
+        self.assertFalse(
+            (self.root / "work" / "v001").exists(), "scratch checkout gone"
+        )
+
+    def test_share_builds_the_saved_version_not_later_edits(self) -> None:
+        self.save()
+        self.fake_checkouts()
+        self.bump("another session's half-done edit")
+        zips = self.share_all()
+        with zipfile.ZipFile(zips[0]) as z:
+            self.assertEqual(z.read(f"{zips[0].stem}/game.pck").decode(), "one")
+        with zipfile.ZipFile(zips[2]) as z:
+            self.assertEqual(
+                z.read(f"{zips[2].stem}/Game.app/Contents/MacOS/Game").decode(), "one"
+            )
+
+    def test_share_keeps_only_the_newest_zips_and_clear_deletes_them_all(self) -> None:
+        self.save()
+        self.fake_checkouts()
+        old_share = Path(builds.versions(self.root)[0]["dir"]) / "share"
+        old_share.mkdir()
+        (old_share / "old-linux.zip").write_bytes(b"old")
+        (self.root / "build" / "share").mkdir(parents=True)
+        (self.root / "build" / "share" / "older.zip").write_bytes(b"old")
+        zips = self.share_all()
+        self.assertEqual(builds.share_zips(self.root), sorted(zips))
+        self.assertFalse(old_share.exists(), "the emptied old folder goes too")
+        count, freed = builds.clear_shares(self.root)
+        self.assertEqual(count, 3)
+        self.assertGreater(freed, 0)
+        self.assertEqual(builds.share_zips(self.root), [])
+        self.assertEqual(len(builds.versions(self.root)), 1, "versions are kept")
+
+    def test_a_failed_export_keeps_the_old_zips(self) -> None:
+        self.save()
+        self.fake_checkouts()
+        first = self.share_all()
+        self.godot.fail = True
+        made = builds.share(self.root, PLATFORMS, ["windows"], self.godot)
+        self.assertEqual(made, [])
+        self.assertEqual(builds.share_zips(self.root), sorted(first))
 
     def test_versions_saved_at_made_time(self) -> None:
         self.save()

@@ -1,29 +1,55 @@
 {
-  "_about": "Export targets for tools/builds.py (and tools/export.sh, which calls it). One entry per platform: the preset name in export_presets.cfg, the file Godot writes into build/<platform>/, and the template files it needs in ~/.local/share/godot/export_templates/<godot version>/. 'local' is the platform tools/play.sh runs on this machine. A change under a 'watch_ignore' folder or to a 'watch_ignore_files' file never needs a rebuild (none of them go into the export).",
+  "_about": "Export targets for tools/builds.py (and tools/export.sh, which calls it). One entry per platform: the preset name in export_presets.cfg, the file Godot writes into build/<platform>/, and the template files it needs in ~/.local/share/godot/export_templates/<godot version>/. 'local' is the platform tools/play.sh runs on this machine. A change under a 'watch_ignore' folder or to a 'watch_ignore_files' file never needs a rebuild (none of them go into the export). 'installer' is the install script that goes into each share zip (tools/share/); 'extra' are more project files it needs; 'pack_embedded' means the export puts the game data inside the binary (no .pck beside it).",
   "local": "linux",
   "platforms": {
     "linux": {
       "label": "Linux (x86_64)",
       "preset": "Linux",
       "file": "eightysix.x86_64",
-      "templates": ["linux_release.x86_64"],
-      "how_to_run": "Unzip, then double-click eightysix.x86_64 (or run ./eightysix.x86_64). Keep eightysix.pck beside it."
+      "templates": [
+        "linux_release.x86_64"
+      ],
+      "how_to_run": "Unzip, open the folder and run: sh install.sh (it puts Eighty Six in your app menu). Or just run ./eightysix.x86_64 from the folder; keep eightysix.pck beside it.",
+      "installer": "tools/share/install.sh",
+      "extra": [
+        "icon.svg"
+      ]
     },
     "windows": {
       "label": "Windows (x86_64)",
       "preset": "Windows",
       "file": "eightysix.exe",
-      "templates": ["windows_release_x86_64.exe"],
-      "how_to_run": "Unzip, then run eightysix.exe. Keep eightysix.pck beside it. The game is not signed, so Windows SmartScreen may warn: More info, then Run anyway."
+      "templates": [
+        "windows_release_x86_64.exe"
+      ],
+      "how_to_run": "Right-click the zip, Extract All, then double-click install.bat in the folder: it installs the game for you with a Start menu and desktop shortcut. Or just run eightysix.exe (one file, the game is inside it). The game is not signed, so Windows SmartScreen may warn: More info, then Run anyway.",
+      "installer": "tools/share/install.bat",
+      "pack_embedded": true
     },
     "macos": {
       "label": "macOS (Intel and Apple Silicon)",
       "preset": "macOS",
       "file": "eightysix.zip",
-      "templates": ["macos.zip"],
-      "how_to_run": "Unzip and move Eighty Six.app to Applications. The game is not notarised by Apple, so the first time: right-click the app, Open, then Open again (or System Settings, Privacy & Security, Open Anyway)."
+      "templates": [
+        "macos.zip"
+      ],
+      "how_to_run": "Unzip, open Terminal, type  sh  and a space, drag install.command from the folder into the window and press Return. It copies Eighty Six to Applications and lifts macOS's block on apps that are not notarised by Apple, then opens it. (Double-clicking the app straight from the download is refused by macOS: it is not notarised.)",
+      "installer": "tools/share/install.command"
     }
   },
-  "watch_ignore": [".godot", ".git", "build", "images", "logs", "tests", "tools", "assets/audio/review"],
-  "watch_ignore_files": ["*.md", "*.tmp", ".gitignore"]
+  "watch_ignore": [
+    ".godot",
+    ".git",
+    "build",
+    "images",
+    "logs",
+    "tests",
+    "tools",
+    "assets/audio/review"
+  ],
+  "watch_ignore_files": [
+    "*.md",
+    "*.tmp",
+    ".gitignore"
+  ]
 }
