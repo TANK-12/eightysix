@@ -59,7 +59,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
   and a level for every sound, from 1,816 downloaded CC0/free sounds (`~/Forge/shared/sound_library/`,
   `tools/audio/fetch_library.py`; per-sound choices by `tools/audio/pick_choices.py` from `tools/audio/choices.json`
   into `assets/audio/lib/`). Settings > Audio > **Music**: menu / exploring / combat track, Shuffle or Off, song
-  language, Skip; tracks in `~/Music/86/` (personal use, never in the repo), listed in `data/music.json` by
+  language, Skip; tracks in `assets/audio/86/` (personal use: git-ignored, `.gdignore` keeps Godot from importing or exporting them; moved there from `~/Music/86` by Emerson 2026-10-02), listed in `data/music.json` by
   `tools/audio/fetch_music.py`; `Music` autoload. The gun was capped by Godot's 3D `max_db` (+3 dB); lifted.
 - **Look, lane B4 part 2 (2026-10-01).** Undertaker's emblem (headless skeleton with a shovel) on both cockpit
   side panels as a worn decal: `data/emblems.json`, `scripts/look/emblem.gd`, the editable picture
