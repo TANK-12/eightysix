@@ -599,3 +599,18 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   tests/test_juggernaut.gd 27/27. Note: ~/Forge/docs/library/juggernaut/2026-10-02-dyneema-mass.md.
 - Full suite on the shared tree: 387 passed, 3 failed, none in this part: test_audio x2 (music moved to assets/audio/86 by
   another session) and test_graphics apply (Ultra preset changed by the look pass). Details: results/A4.md "Part 7".
+
+### 2026-10-02 · lane B6 part 2 · Tetsu (Relay 30, hey account) · bench grounds and HUD check
+- **Two test grounds** for Test bench physics: maps `test_bench_flat` (400 m pad, painted marks every 10 m, two 8 degree
+  ramps) and `test_bench_rough` (rock field, five 0.35 m steps 50 m ahead, 40 boulders; about 1.2 m of real relief, the
+  noise is scaled by the interior range). `scripts/world/test_bench.gd` extends the test range, forces bench physics while
+  the map is open and restores the old mode on exit, and spawns `Settings bench.design`. F6 resets the bench, F7 hides the
+  readouts. Figures live in `data/bench.json` "grounds".
+- **HUD moved** to the left of the screen (it sat on top of the hull panel) with bigger cells and text; checked on a real
+  bot run, `tools/bot_run.sh bench_check` (images/414-bench_check: stand, walk, jump on the flat pad, stand and walk on
+  the rough field).
+- Verified: tests/test_bench.gd 29/29 (5 new ground tests); bot run 6 screenshots, 0 errors; full suite 386/390, the 4
+  failures are not bench: test_audio x2 (music moved to assets/audio/86), test_graphics apply (preset changed by the look
+  pass), test_scripts compile of scripts/ai/squad.gd (lane A5's unfinished file).
+  Reasoned, not verified: heat never matters at 5.5 t (hottest joint 20.5 C after a walk and a jump), because parts.json
+  sizes the actuators for the old 12.25 t. Measurements: ~/Forge/docs/library/eightysix/2026-10-02-bench-readouts.md.

@@ -1,0 +1,24 @@
+{
+  "name": "bench_check",
+  "_about": "Lane B6: the test bench grounds with the bench HUD. Stands, walks, runs and jumps the Juggernaut Model 2 on the flat pad (HUD screenshots at each stage), then the rough field. tools/bot_run.sh bench_check",
+  "map": "test_bench_flat",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 3.0, "shot": "flat-standing"},
+    {"at": 3.1, "sample": "stand"},
+    {"at": 3.2, "press": "move_forward", "strength": 1.0, "for": 8.0},
+    {"at": 11.0, "shot": "flat-walking"},
+    {"at": 11.1, "sample": "walk"},
+    {"at": 11.5, "press": "jump", "strength": 1.0, "for": 1.0},
+    {"at": 13.2, "shot": "flat-jump"},
+    {"at": 16.0, "shot": "flat-after-jump"},
+    {"at": 16.1, "sample": "after_jump"},
+    {"at": 16.5, "goto": "map:test_bench_rough"},
+    {"at": 17.0, "wait": "level"},
+    {"at": 20.0, "shot": "rough-standing"},
+    {"at": 20.1, "press": "move_forward", "strength": 1.0, "for": 8.0},
+    {"at": 28.0, "shot": "rough-walking"},
+    {"at": 28.1, "sample": "rough_walk"},
+    {"at": 28.5, "quit": true}
+  ]
+}

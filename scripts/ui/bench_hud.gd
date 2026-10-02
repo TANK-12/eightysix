@@ -8,7 +8,7 @@ const KINDS := ["hip_yaw", "hip_pitch", "knee", "ankle"]
 const SHORT := {"hip_yaw": "yaw", "hip_pitch": "hip", "knee": "knee", "ankle": "ankle"}
 const LEGS := ["fl", "fr", "rl", "rr"]
 const ALARM := Color(0.95, 0.27, 0.22)
-const CELL := Vector2(112.0, 40.0)
+const CELL := Vector2(136.0, 48.0)
 
 var driver: Node
 var _draw: Control
@@ -73,8 +73,8 @@ func _on_draw() -> void:
 	var warn := UiTheme.color("warn")
 	var cols := KINDS.size()
 	var width := CELL.x * cols + 8.0
-	var origin := Vector2(_draw.size.x - width - 36.0, 96.0)
-	var panel := Rect2(origin - Vector2(10.0, 24.0), Vector2(width + 20.0, 96.0 + CELL.y * LEGS.size() + 92.0))
+	var origin := Vector2(46.0, 112.0)
+	var panel := Rect2(origin - Vector2(10.0, 24.0), Vector2(width + 20.0, 96.0 + CELL.y * LEGS.size() + 104.0))
 	_draw.draw_rect(panel, Color(0.0, 0.0, 0.0, 0.35))
 	_draw.draw_rect(panel, Color(UiTheme.color("accent"), 0.4), false, 1.0)
 	_label(origin + Vector2(0.0, -4.0), "Test bench", 18, UiTheme.color("accent"))
@@ -94,7 +94,7 @@ func _on_draw() -> void:
 		_label(grid + Vector2(CELL.x * c + 4.0, 0.0), SHORT[KINDS[c]], 13, dim)
 	for r in LEGS.size():
 		var name: String = LEGS[r]
-		_label(grid + Vector2(-8.0, 28.0 + CELL.y * r), name, 11, dim)
+		_label(grid + Vector2(-8.0, 28.0 + CELL.y * r), name, 13, dim)
 		for c in cols:
 			var id: String = driver.leg_joints.get(name, {}).get(KINDS[c], "")
 			if id == "" or not rig.joints.has(id):
@@ -111,7 +111,7 @@ func _on_draw() -> void:
 		if shown >= 3:
 			break
 		var e: Dictionary = rig.events[i]
-		_label(foot + Vector2(0.0, 18.0 + 15.0 * shown), "%5.1f s  %s %s" % [float(e["t"]), str(e["joint"]).replace("jg2_act_", ""), str(e["what"])], 11, warn if shown == 0 else dim)
+		_label(foot + Vector2(0.0, 20.0 + 16.0 * shown), "%5.1f s  %s %s" % [float(e["t"]), str(e["joint"]).replace("jg2_act_", ""), str(e["what"])], 12, warn if shown == 0 else dim)
 		shown += 1
 
 
@@ -129,8 +129,8 @@ func _cell(at: Vector2, j: Dictionary) -> void:
 	var derate_tick := (float(j["derate_c"]) - 20.0) / maxf(float(j["max_c"]) - 20.0, 1.0)
 	_bar(Rect2(at + Vector2(0.0, 10.0), Vector2(CELL.x - 20.0, 4.0)), temp_frac, _temp_colour(j), derate_tick)
 	var line := "%.0f kNm %.0f kW %.0fC" % [float(j["torque_nm"]) / 1000.0, float(j["elec_w"]) / 1000.0, float(j["temp_c"])]
-	_label(at + Vector2(0.0, 26.0), line, 10, UiTheme.color("text"))
+	_label(at + Vector2(0.0, 28.0), line, 12, UiTheme.color("text"))
 	if status != BenchRig.OK and status != BenchRig.WARM:
-		_label(at + Vector2(0.0, 36.0), status, 10, UiTheme.color("warn"))
+		_label(at + Vector2(0.0, 41.0), status, 12, UiTheme.color("warn"))
 	elif status == BenchRig.WARM:
-		_label(at + Vector2(0.0, 36.0), "derated", 10, UiTheme.color("warn"))
+		_label(at + Vector2(0.0, 41.0), "derated", 12, UiTheme.color("warn"))
