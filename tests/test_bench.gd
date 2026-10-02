@@ -375,3 +375,89 @@ func test_reset_puts_the_bench_back() -> void:
 	_driver().call("reset")
 	assert_eq(_driver().rig.down().size(), 0)
 	assert_almost_eq(_driver().rig.charge_frac(), 1.0, 0.001, "full pack at reset")
+
+
+# --- the two bench grounds ----------------------------------------------------------------------
+
+
+func _open_ground(map_id: String) -> Node3D:
+	Settings.set_value("gameplay.physics_mode", "game", false)
+	var entry := Registry.entry("maps", map_id)
+	assert_true(Game.can_start(map_id), "%s can be started from the menu" % map_id)
+	var level: Node3D = (load(str(entry["scene"])) as PackedScene).instantiate()
+	tree.root.add_child(level)
+	return level
+
+
+func _close_ground(level: Node3D) -> void:
+	level.free()
+	Game.level = null
+	mech = null
+
+
+func test_the_flat_pad_spawns_a_mech_in_bench_mode_and_it_stands() -> void:
+	var level := _open_ground("test_bench_flat")
+	mech = level.get("mech")
+	assert_true(mech != null, "a mech is spawned")
+	assert_eq(Settings.get_s("gameplay.physics_mode"), "bench", "the map forces test bench physics")
+	await _frames(600)
+	assert_true(mech.call("bench_on"), "the actuator model is steering it")
+	assert_eq(int(mech.call("telemetry")["grounded_legs"]), 4, "stands on four legs on the pad")
+	assert_between(mech.global_position.y, 0.5, 5.0, "on top of the pad, not through it (%.2f m)" % mech.global_position.y)
+	assert_eq(float(level.call("ground_height", 30.0, -20.0)), 0.0, "the pad is level")
+	_close_ground(level)
+	assert_eq(Settings.get_s("gameplay.physics_mode"), "game", "leaving the map gives the physics mode back")
+
+
+func test_the_flat_pad_has_marks_and_two_ramps() -> void:
+	var level := _open_ground("test_bench_flat")
+	var step := float(Registry.file("bench")["grounds"]["flat"]["mark_every_m"])
+	var strips := 0
+	var ramps := 0
+	for n: Node in level.get_children():
+		if n is MeshInstance3D:
+			strips += 1
+		elif n is StaticBody3D and absf((n as Node3D).rotation.x) > 0.05:
+			ramps += 1
+	assert_eq(ramps, 2, "two ramps")
+	assert_gt(strips, int(400.0 / step), "painted marks every %.0f m both ways (%d strips)" % [step, strips])
+	_close_ground(level)
+
+
+func test_the_rough_field_is_rough_but_flat_at_the_spawn() -> void:
+	var level := _open_ground("test_bench_rough")
+	var spec: Dictionary = Registry.file("bench")["grounds"]["rough"]
+	var lo := INF
+	var hi := -INF
+	for k in 400:
+		var h := float(level.call("ground_height", -190.0 + k * 0.95, -120.0 + 0.37 * k))
+		lo = minf(lo, h)
+		hi = maxf(hi, h)
+	print("    rough field: %.2f to %.2f m on a 400-point cross (set amplitude %.2f m)" % [lo, hi, float(spec["amplitude_m"])])
+	assert_gt(hi - lo, 0.4, "the field has relief")
+	assert_lt(hi - lo, float(spec["amplitude_m"]) * 1.2, "within the set amplitude")
+	assert_lt(absf(float(level.call("ground_height", 0.0, 0.0))), 0.01, "the spawn is at height zero")
+	var bodies := 0
+	for n: Node in level.get_children():
+		if n is StaticBody3D and n.name != "TerrainBody":
+			bodies += 1
+	assert_gt(bodies, int(spec["boulders"]) + int(spec["steps"]) - 1, "boulders and steps are solid bodies (%d)" % bodies)
+	_close_ground(level)
+
+
+func test_the_rough_field_holds_the_mech_up() -> void:
+	var level := _open_ground("test_bench_rough")
+	mech = level.get("mech")
+	await _frames(600)
+	assert_true(mech.call("bench_on"), "bench physics on the rough ground")
+	assert_gt(int(mech.call("telemetry")["grounded_legs"]), 2, "standing on the field")
+	assert_between(mech.global_position.y, 0.5, 5.0, "on the surface (%.2f m)" % mech.global_position.y)
+	_close_ground(level)
+
+
+func test_the_bench_grounds_load_whatever_design_the_setting_names() -> void:
+	Settings.set_value("bench.design", "standin", false)
+	var level := _open_ground("test_bench_flat")
+	mech = level.get("mech")
+	assert_eq(str(mech.get("def").get("id", "standin")), "standin", "the stand-in is on the pad")
+	_close_ground(level)

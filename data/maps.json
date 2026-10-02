@@ -1,6 +1,32 @@
 {
   "_about": "Maps, one entry each. \"scene\" is loaded behind the loading screen; \"status\": \"planned\" entries show in the map list but cannot be started yet. \"spawn\" is the player start in metres (x, y, z) with the heading in degrees. \"tips\" are shown while it loads.",
   "entries": {
+    "test_bench_flat": {
+      "label": "Test bench: flat pad",
+      "order": 91,
+      "scene": "res://scenes/levels/test_bench_flat.tscn",
+      "status": "alpha",
+      "size_m": 400,
+      "description": "Lane B6: a level 400 m concrete pad with painted marks every 10 m and two 8 degree ramps. Starts in Test bench physics with the design chosen in Settings; F6 resets the bench, F7 shows or hides the readouts.",
+      "spawn": {"position": [0.0, 0.0, 0.0], "heading_deg": 0.0},
+      "tips": [
+        "Walk the painted marks to time a run: ten metres per line.",
+        "F6 resets battery, heat and failures; F7 hides the readouts."
+      ]
+    },
+    "test_bench_rough": {
+      "label": "Test bench: rough field",
+      "order": 92,
+      "scene": "res://scenes/levels/test_bench_rough.tscn",
+      "status": "alpha",
+      "size_m": 400,
+      "description": "Lane B6: a rock field 1.6 m high at a 22 m wavelength, five 0.35 m steps ahead of the spawn and 40 boulders. Test bench physics, for watching the actuators work.",
+      "spawn": {"position": [0.0, 0.0, 0.0], "heading_deg": 0.0},
+      "tips": [
+        "The steps are 50 m ahead: a 0.35 m ledge loads the knees.",
+        "F6 resets battery, heat and failures; F7 hides the readouts."
+      ]
+    },
     "test_range": {
       "label": "Test range",
       "order": 90,
