@@ -524,7 +524,7 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 		var y := lerpf(h0, h1, x / length) - deck
 		parts.piece(mat, Transform3D(Basis(), Vector3(x, y - bearing - drop * 0.5, 0.0)), Vector3(pil, drop, width * 0.8))
 		if bearing > 0.0:
-			parts.piece("steel_rust", Transform3D(Basis(), Vector3(x, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6))
+			parts.piece("steel_rust", Transform3D(Basis(), Vector3(x, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6), 1, true)
 	# lane B5: an abutment block under each end (a bridge set into banks), so the end spans stand on something
 	var abut := float(e.get("abutment_m", 0.0))
 	if abut > 0.0:
@@ -535,7 +535,7 @@ static func _bridge(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> 
 			parts.piece(mat, Transform3D(Basis(), Vector3(x, y - bearing - abut_drop * 0.5, 0.0)), Vector3(abut, abut_drop, width * 0.95))
 			if bearing > 0.0:
 				var bx := 0.6 if end == 0 else length - 0.6  # under the end span, on the abutment
-				parts.piece("steel_rust", Transform3D(Basis(), Vector3(bx, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6))
+				parts.piece("steel_rust", Transform3D(Basis(), Vector3(bx, y - bearing * 0.5, 0.0)), Vector3(0.5, bearing, width * 0.6), 1, true)
 	parts.anchors.append(Vector3(length * 0.5, h0 + par, width * 0.5))
 
 
@@ -657,11 +657,12 @@ class Parts:
 	## A breakable box: drawn, collided and listed for break_apart.
 	## needs: how many standing pieces must hold it up from below (Destructible's support check; 2 for
 	## a bridge span that rests on a bearing at each end).
-	func piece(mat: String, xf: Transform3D, size: Vector3, needs: int = 1) -> void:
+	## weak: a part the player is shown as a weak point (the bridge's steel bearings).
+	func piece(mat: String, xf: Transform3D, size: Vector3, needs: int = 1, weak: bool = false) -> void:
 		var idx := next_piece
 		next_piece += 1
 		var lost := gone.has(idx) or gone.has(str(idx))
-		pieces.append({"xf": xf, "size": size, "material": mat, "index": idx, "gone": lost, "needs": needs})
+		pieces.append({"xf": xf, "size": size, "material": mat, "index": idx, "gone": lost, "needs": needs, "weak": weak})
 		if lost:
 			return
 		box(mat, xf, size)

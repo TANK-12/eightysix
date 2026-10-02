@@ -10,11 +10,13 @@ extends Control
 const RANGE_MARKS := [500.0, 1000.0, 1500.0]
 const DIAGRAM := Vector2(190.0, 230.0)
 const TARGET_EVERY_S := 0.1
+const WEAK_RANGE_M := 250.0  # weak points (a bridge's steel bearings) are marked this close
 
 var mech: RigidBody3D
 var combat: MechCombat
 var _target: Dictionary = {}
 var _target_s := 0.0
+var _weak: Array[Vector3] = []
 var _drops: Dictionary = {}  # ammo id -> [drop at each RANGE_MARKS distance]
 
 
@@ -35,6 +37,7 @@ func _process(delta: float) -> void:
 	if _target_s <= 0.0 and combat.anchor != null:
 		_target_s = TARGET_EVERY_S
 		_target = combat.anchor.preview() if combat.anchor.state == WireAnchor.State.IDLE else {}
+		_weak = Destructible.weak_marks(get_tree(), mech.global_position, WEAK_RANGE_M)
 	queue_redraw()
 
 
@@ -57,6 +60,8 @@ func _draw() -> void:
 		if cam != null:
 			_draw_range_marks(cam)
 	_draw_damage()
+	if cam != null:
+		_draw_weak_points(cam)
 	if combat.anchor != null and cam != null:
 		_draw_anchor(cam)
 
@@ -188,6 +193,32 @@ func _draw_damage() -> void:
 	draw_string(font, rect.position + Vector2(14.0, 26.0), "hull %d%%" % roundi(total * 100.0), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, health_color(total))
 	if combat.limp_factor() < 1.0:
 		draw_string(UiTheme.font("mono"), rect.position + Vector2(14.0, rect.size.y - 12.0), "leg damaged: limping", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UiTheme.color("warn"))
+
+
+## A diamond on each weak point in range (the steel bearings under a bridge deck); the one nearest the
+## middle of the screen also gets its distance. Looking along a bridge they all line up, so a label on
+## each would be an unreadable stack.
+func _draw_weak_points(cam: Camera3D) -> void:
+	var col := Color(UiTheme.color("warn"), 0.85)
+	var centre := size * 0.5
+	var best := -1
+	var best_d := INF
+	var spots: Array[Vector2] = []
+	for at: Vector3 in _weak:
+		spots.append(cam.unproject_position(at) if not cam.is_position_behind(at) else Vector2(-1e5, -1e5))
+		var d := spots[-1].distance_to(centre)
+		if d < best_d:
+			best_d = d
+			best = spots.size() - 1
+	for i in spots.size():
+		var p := spots[i]
+		if p.x < -1e4:
+			continue
+		var r := 7.0 if i == best else 5.0
+		draw_polyline(PackedVector2Array([p + Vector2(0, -r), p + Vector2(r, 0), p + Vector2(0, r), p + Vector2(-r, 0), p + Vector2(0, -r)]), col, 2.0, true)
+	if best >= 0 and best_d < 1e4:
+		var text := "weak point %d m" % roundi(_weak[best].distance_to(mech.global_position))
+		draw_string(UiTheme.font("mono"), spots[best] + Vector2(14.0, 5.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, col)
 
 
 ## Attached: cable length and tension against the wire's breaking strength (warn colour near it),

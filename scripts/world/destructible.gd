@@ -14,6 +14,7 @@ signal broke(count: int)
 signal collapsed
 
 const GROUND_EPS := 0.35  # a piece whose bottom is this close to the base stands on the ground
+const WEAK_GROUP := "weak_points"  # Destructibles with a part the HUD marks (the bridge's bearings)
 const TOUCH_EPS := 0.25  # how near a piece's top must be to the bottom of the one it holds up
 
 static var _debris: Array[RigidBody3D] = []
@@ -60,6 +61,8 @@ static func make(id: String, seed_v: int, overrides: Dictionary = {}, range_m: f
 			d.gone[i] = true
 		else:
 			d._volume += v
+	if d.pieces.any(func(q: Dictionary) -> bool: return bool(q.get("weak", false))):
+		d.add_to_group(WEAK_GROUP)
 	return d
 
 
@@ -73,6 +76,28 @@ func integrity() -> float:
 			var s: Vector3 = p["size"]
 			left += s.x * s.y * s.z
 	return left / _volume
+
+
+## World positions of the weak parts still standing (steel bearings): what the combat HUD marks.
+func weak_points() -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	if is_collapsed:
+		return out
+	for p: Dictionary in pieces:
+		var i := int(p["index"])
+		if bool(p.get("weak", false)) and not gone.has(i):
+			out.append(to_global(_boxes[i].get_center()))
+	return out
+
+
+## Every weak point standing within `range_m` of `from`, in any Destructible in the tree.
+static func weak_marks(tree: SceneTree, from: Vector3, range_m: float) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	for n: Node in tree.get_nodes_in_group(WEAK_GROUP):
+		for q: Vector3 in (n as Destructible).weak_points():
+			if q.distance_to(from) <= range_m:
+				out.append(q)
+	return out
 
 
 ## The kit anchors (grapple points) on the current pieces, in world space.

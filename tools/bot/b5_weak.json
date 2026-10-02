@@ -1,0 +1,47 @@
+{
+ "name": "b5_weak",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: the combat HUD marks the bridge's steel bearings as weak points (diamond, distance) within 250 m. Parks 60 m and then 25 m before the Ash river bridge. tools/bot_run.sh b5_weak",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "face_bridge",
+   "args": [
+    60.0
+   ]
+  },
+  {
+   "at": 1.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 5.0,
+   "shot": "weak-60m"
+  },
+  {
+   "at": 5.2,
+   "call": "face_bridge",
+   "args": [
+    25.0
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "weak-25m"
+  },
+  {
+   "at": 8.5,
+   "quit": true
+  }
+ ]
+}

@@ -189,3 +189,22 @@ func test_two_he_rounds_at_a_bearing_break_it() -> void:
 		rounds += 1
 	print("    bridge: a bearing breaks after %d HE rounds" % rounds)
 	assert_between(float(rounds), 1.0, 3.0, "a few rounds at the weak point, not one and not many")
+
+
+func test_the_bearings_are_marked_weak_points_a_player_can_be_shown() -> void:
+	var lay := _lay()
+	var d := Destructible.make(str(lay["kit"]), 1, lay["over"])
+	holder.add_child(d)
+	var pts := d.weak_points()
+	assert_eq(pts.size(), _bearings(d).size(), "one weak point per standing bearing")
+	var b := _bearings(d)[2]
+	assert_true(pts.has(d.to_global(d._boxes[b].get_center())), "at the bearing's centre, in world space")
+	var near := Destructible.weak_marks(tree, pts[0], 20.0)
+	assert_gt(near.size(), 0, "marks within range of the player")
+	assert_lt(near.size(), pts.size(), "marks out of range are left out")
+	assert_eq(Destructible.weak_marks(tree, pts[0] + Vector3(5000.0, 0.0, 0.0), 300.0).size(), 0, "none from far away")
+	d._break([b] as Array[int], Vector3.ZERO, 0.0)
+	assert_eq(d.weak_points().size(), pts.size() - 1, "a broken bearing is no longer marked")
+	var plain := Destructible.make("ruin_house", 1)
+	holder.add_child(plain)
+	assert_eq(plain.weak_points().size(), 0, "a building has none")
