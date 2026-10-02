@@ -46,6 +46,9 @@ var move_goal := Vector3.ZERO
 var face_dir := Vector3.ZERO
 var aim_point: Variant = null
 var planted_count := 0
+const FALL_MIN_AIR_S := 0.35
+var _air_s := 0.0
+var _fall_v := 0.0
 var support_n := 0.0
 var speed_scale := 1.0
 ## Weak-point effects: a lost optic narrows sight (brains read sight_scale); lost arms stop the guns.
@@ -423,8 +426,29 @@ func _physics_process(delta: float) -> void:
 	if dead:
 		_wreck_s += delta
 		return
+	_track_fall(delta)
 	_step_gait(delta)
 	_pose()
+
+
+## A long fall hurts (lane B5 part 3, a bridge span dropping under a column): while no foot is planted the
+## fastest downward speed is kept; landing on two or more feet after more than FALL_MIN_AIR_S in the air costs
+## hull, def "fall".hull_per_m_s of the unit's health for every m/s over "fall".safe_m_s (default 9, about a
+## 4 m drop; 0.1 per m/s, so 15 m/s from a 12 m drop takes about 60 %).
+func _track_fall(delta: float) -> void:
+	if planted_count == 0:
+		_air_s += delta
+		_fall_v = minf(_fall_v, linear_velocity.y)
+		return
+	var speed := -_fall_v
+	var air := _air_s
+	_air_s = 0.0
+	_fall_v = 0.0
+	var cfg: Dictionary = def.get("fall", {})
+	var over := speed - float(cfg.get("safe_m_s", 9.0))
+	if air > FALL_MIN_AIR_S and planted_count >= 2 and over > 0.0:
+		var amount := float(def.get("health", 1500.0)) * float(cfg.get("hull_per_m_s", 0.1)) * over
+		take_hit({"key": "hull", "damage": amount, "penetration_mm": 100000.0, "splash": true, "point": global_position})
 
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:

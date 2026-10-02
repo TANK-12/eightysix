@@ -364,3 +364,18 @@ func test_legs_keep_their_shape_running_a_slalom_on_rough_ground() -> void:
 		assert_lt(tilt95, 15.0, "level over the bumps: " + note)
 		assert_lt(tilts[-1], 30.0, "never close to tipping: " + note)
 		u.free()
+
+
+## Lane B5 part 3: a Legion unit that falls a long way (a bridge span dropping under a column) is hurt by the
+## landing, one that steps down a small drop is not. Hull damage from the impact speed over fall.safe_m_s.
+func test_a_long_fall_hurts_a_unit_and_a_small_one_does_not() -> void:
+	var u := _spawn("grauwolf", Vector3(0, 12.0, 0))
+	await physics_frames(360)  # 3 s: falls 12 m (about 15 m/s) and settles
+	var hurt := u.health_fraction()
+	print("    grauwolf dropped 12 m: hull %.2f" % hurt)
+	assert_lt(hurt, 0.8, "a 12 m fall costs real hull")
+	assert_gt(hurt, 0.0, "but a 10 t unit survives it")
+	u.free()
+	var v := _spawn("grauwolf", Vector3(0, 1.5, 0))
+	await physics_frames(240)
+	assert_almost_eq(v.health_fraction(), 1.0, 0.001, "a short drop costs nothing")
