@@ -3,12 +3,14 @@ extends CanvasLayer
 ## The Handler command view (lane A5): the Para-RAID commander's screen. A high tactical camera over the
 ## squad with markers for every Juggernaut (callsign, armour, order) and the Legion the squad can see
 ## (only what a Processor has a line of sight to, as the Para-RAID shares it). The game keeps running.
-## Order keys work as in the field; a left click on the ground sends the addressed members there, the
+## Order keys work as in the field; a left click on the ground sends the addressed members there (on a Legion
+## marker: attack that one), the
 ## wheel or L1/R1 picks who is addressed, and the view key (Tab) goes back to the field camera.
 
 const HEIGHT_MIN_M := 110.0
 const BACK_RATIO := 0.55  # how far behind the squad the camera sits for its height, so it looks down at an angle
 const SIGHT_REFRESH_S := 0.25
+const PICK_PX := 22.0  # a click this close to a Legion marker picks that Legion
 const LEGION_COLOUR := Color(0.95, 0.25, 0.2)
 const LEADER_COLOUR := Color(0.95, 0.95, 0.9)
 
@@ -120,7 +122,24 @@ func _refresh_sight() -> void:
 			seen_legion.append(u)
 
 
-## Sends the addressed members to the ground under a screen point (the left click). Returns whether it hit ground.
+## The left click: on a Legion marker (within PICK_PX) an attack on that Legion, otherwise a move to the ground.
+func click_at(screen: Vector2) -> String:
+	var best: Node3D = null
+	var best_px := PICK_PX
+	for u: Node3D in seen_legion:
+		if not SquadPilot._legion_alive(u):
+			continue
+		var px := _screen(u.global_position).distance_to(screen)
+		if px < best_px:
+			best = u
+			best_px = px
+	if best != null:
+		squad.give_order("attack", null, best)
+		return "attack"
+	return "move" if order_move_at(screen) else ""
+
+
+## Sends the addressed members to the ground under a screen point. Returns whether it hit ground.
 func order_move_at(screen: Vector2) -> bool:
 	var from := camera.project_ray_origin(screen)
 	var to := from + camera.project_ray_normal(screen) * 8000.0
@@ -137,7 +156,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
 	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
 		get_viewport().set_input_as_handled()
-		order_move_at(click.position)
+		click_at(click.position)
 
 
 # --- the overlay ---------------------------------------------------------------------------------
@@ -149,7 +168,7 @@ func _draw_overlay() -> void:
 	_text(Vector2(24, 36), "Para-RAID  ·  Spearhead squadron  ·  Handler view", 20, Color(0.75, 0.9, 1.0))
 	var who := "whole squad" if squad.selected < 0 else squad.callsign(squad.selected)
 	_text(Vector2(24, 62), "Orders to: %s    Last order: %s" % [who, Squad.ORDER_WORDS.get(squad.last_order, squad.last_order)], 16, Color(0.8, 0.85, 0.9))
-	_text(Vector2(24, size.y - 24), "1 follow  ·  2 hold  ·  3 attack  ·  4 regroup  ·  click: move there  ·  wheel / L1 R1: pick who  ·  Tab: back to the field", 15, Color(0.75, 0.8, 0.85))
+	_text(Vector2(24, size.y - 24), "1 follow  ·  2 hold  ·  3 attack  ·  4 regroup  ·  click: move there, or attack a red marker  ·  wheel / L1 R1: pick who  ·  Tab: back to the field", 15, Color(0.75, 0.8, 0.85))
 	for u: Node3D in seen_legion:
 		if SquadPilot._legion_alive(u):
 			_marker(u.global_position, LEGION_COLOUR, str(u.get("enemy_id")).capitalize() if u.get("enemy_id") != null else "Legion", "", true)

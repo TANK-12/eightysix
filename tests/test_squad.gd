@@ -267,6 +267,10 @@ func test_the_handler_view_opens_shows_and_orders() -> void:
 	for p: SquadPilot in squad.pilots:
 		assert_eq(p.order, "move")
 		assert_lt(_flat_dist(p.order_point, mid + Vector3(30.0, 0.0, 0.0)), 3.0, "to the clicked point")
+	assert_eq(h.click_at(h.camera.unproject_position(u.global_position) + Vector2(6, 4)), "attack", "a click on the red marker")
+	for p: SquadPilot in squad.pilots:
+		assert_eq(p.order, "attack")
+		assert_eq(p.order_target, u, "that Legion")
 	h.close()
 	assert_false(h.is_open)
 	assert_eq(world.get_viewport().get_camera_3d(), field_cam, "the field camera is back")
