@@ -67,7 +67,7 @@ func _ready() -> void:
 	# A real game (started through Game.start_map, not a bot run or a test) plays the map's mission.
 	var playing := Game.pending_map == MAP_ID and not Bot.active
 	Game.register_level(self)
-	if playing:
+	if playing and not Game.free_roam:
 		start_mission()
 
 

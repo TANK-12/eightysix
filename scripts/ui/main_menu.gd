@@ -132,7 +132,19 @@ func _build() -> void:
 		b.disabled = not Game.can_start(id)
 		var map_id := id
 		b.pressed.connect(func() -> void: Game.start_map(map_id))
-		list.add_child(b)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		list.add_child(row)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(b)
+		# Free roam (Emerson's note 19 after 012): the same map with no Legion, to explore with the squad.
+		if Game.can_start(id) and str(entry.get("mission", "")) != "":
+			var free := Button.new()
+			free.theme_type_variation = "PageButton"
+			free.text = "Free roam"
+			free.tooltip_text = "The same map with no Legion: explore it with your squad."
+			free.pressed.connect(func() -> void: Game.start_map(map_id, true))
+			row.add_child(free)
 		var desc := Label.new()
 		desc.text = str(entry.get("description", ""))
 		desc.theme_type_variation = "FaintLabel"

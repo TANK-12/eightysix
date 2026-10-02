@@ -11,6 +11,8 @@ const HANGAR := "res://scenes/ui/hangar.tscn"
 
 var pending_map := ""
 var current_map := ""
+## Free roam (Emerson's note 19 after 012): the map with no mission, so no Legion; the squad still deploys.
+var free_roam := false
 var level: Node = null
 var _pause_menu: Node = null
 var _photo: PhotoMode
@@ -35,18 +37,19 @@ func default_map() -> String:
 	return ""
 
 
-func start_map(map_id: String) -> void:
+func start_map(map_id: String, free: bool = false) -> void:
 	if not can_start(map_id):
 		push_warning("Game: map '%s' cannot be started yet" % map_id)
 		return
 	_leave_level()
 	pending_map = map_id
+	free_roam = free
 	get_tree().change_scene_to_file(LOADING)
 
 
 func restart_map() -> void:
 	if current_map != "":
-		start_map(current_map)
+		start_map(current_map, free_roam)
 
 
 func goto_main_menu() -> void:

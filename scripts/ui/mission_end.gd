@@ -2,7 +2,7 @@ class_name MissionEnd
 extends CanvasLayer
 ## Win or lose screen for a mission (lane A4 part 2): a few seconds after the end (so the last wreck
 ## or your own falls in view) the game pauses and a card shows the result, the time, the Legion
-## destroyed and the waves, with Restart mission and Main menu.
+## destroyed and the waves, with Keep exploring (a win), Restart mission and Main menu.
 
 const DELAY_S := 3.0
 
@@ -81,9 +81,21 @@ func show_now() -> void:
 	var gap := Control.new()
 	gap.custom_minimum_size.y = 14
 	box.add_child(gap)
+	# Emerson's note 19 after 012: after beating every wave, keep playing on the live map with the squad.
+	var first: Button = _button(box, "Keep exploring", keep_exploring) if won else null
 	var restart := _button(box, "Restart mission", Game.restart_map)
 	_button(box, "Main menu", Game.goto_main_menu)
-	restart.grab_focus.call_deferred()
+	(first if first != null else restart).grab_focus.call_deferred()
+
+
+## Closes the card and plays on: the map stays live with the squad, and no more waves come.
+func keep_exploring() -> void:
+	get_tree().paused = false
+	if Game.level != null and is_instance_valid(Game.level) and Game.level.has_method("capture_mouse"):
+		Game.level.call("capture_mouse")
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	queue_free()
 
 
 func _button(box: Control, text: String, action: Callable) -> Button:

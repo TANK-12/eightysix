@@ -1,0 +1,9 @@
+{
+ "name": "v14_free_roam_menu",
+ "_about": "Version 014, Emerson's note 19: the main menu's map list with a Free roam button beside each map that has a mission. tools/bot_run.sh v14_free_roam_menu",
+ "steps": [
+  {"at": 3.5, "call": "open_maps"},
+  {"at": 4.5, "shot": "map-list"},
+  {"at": 5.0, "quit": true}
+ ]
+}
