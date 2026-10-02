@@ -69,6 +69,7 @@ static func layout(terrain: BigTerrain, entry: Dictionary, spec: Dictionary) -> 
 		"pillar_drop_m": deck - low + 2.0,
 		"abutment_m": 3.0,
 		"bearing_m": 0.35,
+		"parapet_m": 1.5,  # a Legion leg steps over 1 m: this is a wall to them, so a column stays on the deck
 		"width_m": float(road.get("width_m", 9.0)) + 1.5,
 	}
 	over["span_m"] = length / maxf(1.0, roundf(length / float(kit.get("span_m", 7.0))))

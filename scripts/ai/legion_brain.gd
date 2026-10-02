@@ -37,11 +37,22 @@ var sees := false
 var home := Vector3.ZERO
 ## Half the side of the square (centred on the map's origin) the unit may walk in; INF: anywhere.
 var area_half_m := INF
+## The map's water line (the mission sets it where the map has one): ground more than ai.max_wade_m under
+## it is not ground the unit walks onto. -INF: no water.
+var water_y := -INF
 var pack: Array = []  # LegionBrain: the units it was spawned with (itself included)
 var pack_index := 0
 var state_age_s := 0.0
 var shots := 0
 var _route: Array[Vector3] = []
+var _fixed_route: Array[Vector3] = []
+## A routed unit's options (a mission group's "once" and "trigger_m"): walk the route once and stay at its
+## last stop; and wait where it spawned until the target is within march_trigger_m.
+var route_once := false
+var march_trigger_m := 0.0
+var _marching := false
+var _route_done := false
+var _provoked := false  # hit since it set out
 var _route_i := 0
 var _route_wait := 0.0
 var _think_left := 0.0
@@ -71,15 +82,21 @@ func _ready() -> void:
 
 
 ## Called by the mission before the unit enters the tree: where it lives and who it hunts with.
-func setup(home_at: Vector3, members: Array, index: int, seed_value: int) -> void:
+## `route`: the stops it patrols between, in order and round again (a mission group's "route"); empty: a
+## random loop round home.
+func setup(home_at: Vector3, members: Array, index: int, seed_value: int, route: Array[Vector3] = []) -> void:
 	home = home_at
 	pack = members
 	pack_index = index
 	_rng.seed = seed_value
+	_fixed_route = route
 
 
 func _make_route() -> void:
 	_route.clear()
+	if not _fixed_route.is_empty():
+		_route.append_array(_fixed_route)
+		return
 	var r := float(ai.get("patrol_radius_m", 50.0))
 	var n := int(ai.get("patrol_points", 4))
 	var a0 := _rng.randf() * TAU
@@ -214,6 +231,7 @@ func _on_target_fired(_weapon: String, _ammo: String) -> void:
 
 
 func _on_hit_taken(_key: String, _dealt: float, info: Dictionary) -> void:
+	_provoked = true
 	var shooter: Variant = info.get("shooter")
 	if shooter is Node3D and is_instance_valid(shooter) and shooter == target:
 		_contact(target.global_position, false)
@@ -226,7 +244,7 @@ func _choose_state() -> void:
 	var memory := float(perception.get("memory_s", 15.0))
 	var want := state
 	var retreat_at := float(unit.def.get("retreat_health_fraction", 0.0))
-	if not target_alive():
+	if not target_alive() or _holds_formation():
 		want = "patrol"
 	elif retreat_at > 0.0 and unit.health_fraction() < retreat_at and contact_age_s < memory * 2.0:
 		want = "retreat"
@@ -237,6 +255,12 @@ func _choose_state() -> void:
 	else:
 		want = "patrol"
 	set_state(want)
+
+
+## A column on a once-only route keeps marching, ignoring what it sees, until it gets to the last stop or is
+## hit (convoy discipline: this is what lets a player watch it cross a bridge).
+func _holds_formation() -> bool:
+	return route_once and _marching and not _route_done and not _provoked and not _fixed_route.is_empty()
 
 
 func set_state(s: String) -> void:
@@ -258,13 +282,25 @@ func _patrol(dt: float) -> void:
 	if _route.is_empty():
 		hold()
 		return
+	var routed := not _fixed_route.is_empty()  # a column keeps walking: close stops, no waiting at them
+	if routed and march_trigger_m > 0.0 and not _marching:
+		_marching = target != null and is_instance_valid(target) and _flat(target.global_position - unit.global_position).length() < march_trigger_m
+		if not _marching:
+			hold()
+			return
 	var goal := _route[_route_i]
-	if _flat(goal - unit.global_position).length() < float(ai.get("arrive_m", 6.0)):
-		hold()
-		_route_wait += dt
-		if _route_wait > float(ai.get("patrol_wait_s", 3.0)):
-			_route_wait = 0.0
+	if _flat(goal - unit.global_position).length() < float(ai.get("route_arrive_m", 3.0) if routed else ai.get("arrive_m", 6.0)):
+		if routed and route_once and _route_i == _route.size() - 1:
+			_route_done = true
+			hold()
+		elif routed:
 			_route_i = (_route_i + 1) % _route.size()
+		else:
+			hold()
+			_route_wait += dt
+			if _route_wait > float(ai.get("patrol_wait_s", 3.0)):
+				_route_wait = 0.0
+				_route_i = (_route_i + 1) % _route.size()
 		return
 	steer_to(goal, float(ai.get("patrol_speed_m_s", 4.0)))
 
@@ -400,9 +436,9 @@ func in_area(at: Vector3) -> Vector3:
 
 ## Whether the ground along flat `dir` for `length` m past the unit's nose is ground the legs can
 ## walk, along three tracks (the middle and each side's feet): probed every ai.probe_step_m with a
-## ray from high above (so a roof or a wall top counts as ground that rises), no rise between two
-## probes steeper than gait.max_slope_deg plus a step of gait.step_up x hip height, and no probe
-## outside the Legion area.
+## ray from high above (so a roof or a wall top counts as ground that rises), no rise or drop between two
+## probes steeper than gait.max_slope_deg plus a step of gait.step_up x hip height, no probe
+## deeper under the water line than ai.max_wade_m, and no probe outside the Legion area.
 func walkable_ahead(dir: Vector3, length: float) -> bool:
 	var space := unit.get_world_3d().direct_space_state
 	var g: Dictionary = unit.def.get("gait", {})
@@ -426,7 +462,9 @@ func walkable_ahead(dir: Vector3, length: float) -> bool:
 			if area_half_m != INF and (absf(p.x) > area_half_m or absf(p.z) > area_half_m):
 				return false
 			var y := _ground_y(space, p)
-			if y - last > step * tan_max + lift:
+			if y < water_y - float(ai.get("max_wade_m", 0.6)):
+				return false
+			if absf(y - last) > step * tan_max + lift:  # a rise it cannot climb, or a drop it would fall off (a bridge edge)
 				return false
 			last = y
 			d += step
@@ -528,4 +566,7 @@ func telemetry() -> Dictionary:
 		"sees": sees,
 		"contact_age_s": snappedf(contact_age_s, 0.1) if contact_age_s < 1e6 else -1.0,
 		"shots": shots,
+		"goal": [snappedf(_goal.x, 0.1), snappedf(_goal.z, 0.1)],
+		"route_i": _route_i,
+		"steer": [snappedf(_steer_dir.x, 0.01), snappedf(_steer_dir.z, 0.01)],
 	}

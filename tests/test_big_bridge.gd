@@ -91,7 +91,7 @@ func test_parapets_chip_under_he_but_a_concrete_span_does_not_fall_to_a_few_roun
 	var deck := -1
 	for p: Dictionary in d.pieces:
 		var sz: Vector3 = p["size"]
-		if sz.z < 0.5 and sz.y < 1.2:
+		if sz.z < 0.5 and sz.y < 1.8:
 			parapet = int(p["index"])
 		elif sz.y < 1.0 and sz.z > 5.0 and sz.x > 3.0:
 			deck = int(p["index"])

@@ -13,6 +13,7 @@ signal unit_destroyed(unit: LegionMech)
 signal ended(won: bool)
 
 const TRACK_EVERY_S := 4.0
+const COLUMN_GAP_M := 14.0  # a routed group spawns in single file this far apart (more than the AI's keep-apart distance)
 
 var id := ""
 var def: Dictionary = {}
@@ -136,7 +137,7 @@ func _start_wave(index: int) -> void:
 		var members: Array = []
 		var area: Dictionary = (def.get("areas", {}) as Dictionary).get(str(g.get("area", "")), {})
 		for i in int(g.get("count", 1)):
-			var u := _spawn(str(g["enemy"]), area, members, i)
+			var u := _spawn(str(g["enemy"]), area, members, i, _route_points(g), g)
 			if u != null:
 				units.append(u)
 				all_units.append(u)
@@ -153,20 +154,43 @@ func _start_wave(index: int) -> void:
 	wave_started.emit(wave, units.size())
 
 
-func _spawn(enemy_id: String, area: Dictionary, members: Array, index: int) -> LegionMech:
+## A group's "route": each stop is an area name (its centre) or an [x, z] point; returned on the ground, in
+## order. Empty without one.
+func _route_points(group: Dictionary) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	var areas: Dictionary = def.get("areas", {})
+	for stop: Variant in group.get("route", []):
+		var c: Array = stop if stop is Array else (areas.get(str(stop), {}) as Dictionary).get("at", [0.0, 0.0])
+		out.append(Vector3(float(c[0]), _ground(float(c[0]), float(c[1])), float(c[1])))
+	return out
+
+
+func _spawn(enemy_id: String, area: Dictionary, members: Array, index: int, route: Array[Vector3] = [], group: Dictionary = {}) -> LegionMech:
 	var u := LegionMech.build(enemy_id)
 	if u == null:
 		return null
 	var at := spawn_point(area)
+	var heading := Vector3.ZERO
+	if not route.is_empty():
+		heading = route[0] - at  # a column faces its first stop
+	elif player != null:
+		heading = player.global_position - at
+	heading.y = 0.0
+	if heading.length() > 1.0:
+		heading = heading.normalized()
+		if not route.is_empty():  # in single file along the road, each unit of the wave further back (abreast they push each other off a bridge)
+			at -= heading * float(units.size()) * COLUMN_GAP_M
+			at.y = _ground(at.x, at.z)
+		u.basis = Basis.looking_at(heading, Vector3.UP)
 	u.position = at + Vector3.UP * 0.6
-	if player != null:
-		var to := player.global_position - at
-		to.y = 0.0
-		if to.length() > 1.0:
-			u.basis = Basis.looking_at(to.normalized(), Vector3.UP)
 	var brain := u.get_node_or_null("Brain") as LegionBrain
 	if brain != null:
-		brain.setup(at, members, index, _rng.randi())
+		brain.setup(at, members, index, _rng.randi(), route)
+		var terrain: Variant = level.get("terrain")
+		if terrain != null and terrain is Object and "water_level" in (terrain as Object):
+			brain.water_y = float((terrain as Object).get("water_level"))
+		brain.route_once = bool(group.get("once", false))
+		brain.march_trigger_m = float(group.get("trigger_m", 0.0))
 		var map_id := str(def.get("map", ""))
 		if Registry.has_entry("maps", map_id):
 			brain.area_half_m = float(Registry.entry("maps", map_id).get("legion_area_half_m", INF))

@@ -1,0 +1,108 @@
+{
+ "name": "b5_bridge_column",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: wave 3 of the Frontier sweep, three Grauwolf standing in single file on the west road until the Juggernaut is within 450 m (group trigger_m), then walking the route once over the Ash river bridge (group route, once). Clears waves 1 and 2, parks the Juggernaut 230 m east of the bridge, logs where the units are. tools/bot_run.sh b5_bridge_column",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 21.0,
+   "call": "report_legion",
+   "args": [
+    "waiting"
+   ]
+  },
+  {
+   "at": 22.0,
+   "call": "park_at",
+   "args": [
+    230.0,
+    -250.0,
+    270.0
+   ]
+  },
+  {
+   "at": 22.1,
+   "call": "follow_mech",
+   "args": []
+  },
+  {
+   "at": 30,
+   "call": "report_legion",
+   "args": [
+    "t30"
+   ]
+  },
+  {
+   "at": 30.1,
+   "shot": "column-t30"
+  },
+  {
+   "at": 38,
+   "call": "report_legion",
+   "args": [
+    "t38"
+   ]
+  },
+  {
+   "at": 38.1,
+   "shot": "column-t38"
+  },
+  {
+   "at": 46,
+   "call": "report_legion",
+   "args": [
+    "t46"
+   ]
+  },
+  {
+   "at": 46.1,
+   "shot": "column-t46"
+  },
+  {
+   "at": 54,
+   "call": "report_legion",
+   "args": [
+    "t54"
+   ]
+  },
+  {
+   "at": 54.1,
+   "shot": "column-t54"
+  },
+  {
+   "at": 62,
+   "call": "report_legion",
+   "args": [
+    "t62"
+   ]
+  },
+  {
+   "at": 62.1,
+   "shot": "column-t62"
+  },
+  {
+   "at": 64,
+   "quit": true
+  }
+ ]
+}

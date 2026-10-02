@@ -1,0 +1,143 @@
+{
+ "name": "b5_bridge_drop",
+ "map": "big_map",
+ "_about": "Lane B5 part 3: the Grauwolf column of wave 3 is on the Ash river bridge when a scripted HE hit (3 rounds) breaks the 5th bearing from the west end: what happens to the units on the spans that drop. Camera at the side viewpoint. tools/bot_run.sh b5_bridge_drop",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 1.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 3.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 12.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 22.0,
+   "call": "park_at",
+   "args": [
+    230.0,
+    -250.0,
+    270.0
+   ]
+  },
+  {
+   "at": 22.1,
+   "call": "look_from",
+   "args": [
+    "bridge_side"
+   ]
+  },
+  {
+   "at": 34,
+   "call": "report_legion",
+   "args": [
+    "pre34"
+   ]
+  },
+  {
+   "at": 38,
+   "call": "report_legion",
+   "args": [
+    "pre38"
+   ]
+  },
+  {
+   "at": 41,
+   "call": "report_legion",
+   "args": [
+    "pre41"
+   ]
+  },
+  {
+   "at": 41.2,
+   "shot": "before-drop"
+  },
+  {
+   "at": 41.5,
+   "call": "blast_bridge_bearing",
+   "args": [
+    4,
+    3
+   ]
+  },
+  {
+   "at": 43,
+   "call": "report_legion",
+   "args": [
+    "post43"
+   ]
+  },
+  {
+   "at": 43.1,
+   "shot": "after-t43"
+  },
+  {
+   "at": 45,
+   "call": "report_legion",
+   "args": [
+    "post45"
+   ]
+  },
+  {
+   "at": 45.1,
+   "shot": "after-t45"
+  },
+  {
+   "at": 48,
+   "call": "report_legion",
+   "args": [
+    "post48"
+   ]
+  },
+  {
+   "at": 48.1,
+   "shot": "after-t48"
+  },
+  {
+   "at": 52,
+   "call": "report_legion",
+   "args": [
+    "post52"
+   ]
+  },
+  {
+   "at": 52.1,
+   "shot": "after-t52"
+  },
+  {
+   "at": 58,
+   "call": "report_legion",
+   "args": [
+    "post58"
+   ]
+  },
+  {
+   "at": 58.1,
+   "shot": "after-t58"
+  },
+  {
+   "at": 58.5,
+   "call": "report_bridge",
+   "args": [
+    "end"
+   ]
+  },
+  {
+   "at": 60,
+   "quit": true
+  }
+ ]
+}

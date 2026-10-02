@@ -79,6 +79,11 @@ func test_missions_resolve_against_the_registries() -> void:
 			for g: Dictionary in w["groups"]:
 				assert_true(Registry.has_entry("enemies", str(g["enemy"])), id + " enemy " + str(g["enemy"]))
 				assert_has(m["areas"], str(g["area"]), id + " area " + str(g["area"]))
+				for stop: Variant in g.get("route", []):
+					if stop is Array:
+						assert_eq((stop as Array).size(), 2, id + " route point is [x, z]")
+					else:
+						assert_has(m["areas"], str(stop), id + " route stop " + str(stop))
 	assert_eq(Mission.for_map("small_map"), "ashen_first_contact", "Ashen valley has its mission")
 	assert_eq(Mission.for_map("test_range"), "", "the test range has none")
 
@@ -184,3 +189,59 @@ func test_an_alerted_wave_without_track_s_forgets_after_its_memory() -> void:
 	await physics_frames(2400)
 	var brain := (m.units[0] as LegionMech).get_node("Brain") as LegionBrain
 	assert_gt(brain.contact_age_s, 15.0, "the call-in fades (contact age %.1f s)" % brain.contact_age_s)
+
+
+func test_a_group_with_a_route_patrols_between_its_stops() -> void:
+	level.mech.global_position = Vector3(0.0, 3.2, 1100.0)  # far out of sight: they patrol, not hunt
+	var m := _mission(
+		{
+			"areas": {"start": {"at": [0.0, -400.0], "radius_m": 10.0}, "mid": {"at": [60.0, -420.0], "radius_m": 5.0}, "end": {"at": [120.0, -400.0], "radius_m": 5.0}},
+			"waves": [{"objective": "column", "groups": [{"enemy": "ameise", "count": 2, "area": "start", "route": ["mid", [120.0, -400.0]]}]}],
+		}
+	)
+	await physics_frames(10)
+	for u: LegionMech in m.units:
+		var brain := u.get_node("Brain") as LegionBrain
+		assert_eq(brain._route.size(), 2, "the route is the two stops, not a random loop")
+		assert_almost_eq(brain._route[0].x, 60.0, 0.01, "first stop: the middle area's centre")
+		assert_almost_eq(brain._route[1].z, -400.0, 0.01, "second stop: an [x, z] point")
+	await physics_frames(3000)  # 25 s at 120 Hz
+	var a: LegionMech = m.units[0]
+	assert_gt(a.global_position.x, 15.0, "walking along it (x %.0f)" % a.global_position.x)
+
+
+func _column(extra: Dictionary) -> Mission:
+	var g := {"enemy": "ameise", "count": 1, "area": "start", "route": [[60.0, -400.0], [120.0, -400.0]]}
+	g.merge(extra)
+	return _mission({"areas": {"start": {"at": [0.0, -400.0], "radius_m": 0.5}}, "waves": [{"objective": "column", "groups": [g]}]})
+
+
+func test_a_column_with_trigger_m_waits_until_the_juggernaut_is_near() -> void:
+	level.mech.global_position = Vector3(0.0, 3.2, 1100.0)
+	var m := _column({"trigger_m": 300.0})
+	await physics_frames(1200)  # 10 s
+	var u: LegionMech = m.units[0]
+	assert_lt(absf(u.global_position.x), 5.0, "it stands on the road while the Juggernaut is 1500 m away (x %.0f)" % u.global_position.x)
+	level.mech.global_position = Vector3(0.0, 3.2, -300.0)  # 100 m off
+	await physics_frames(1500)
+	assert_gt(u.global_position.x, 15.0, "and marches once it is near (x %.0f)" % u.global_position.x)
+
+
+func test_a_once_route_stops_at_its_last_stop() -> void:
+	level.mech.global_position = Vector3(0.0, 3.2, 1100.0)
+	var m := _column({"once": true})
+	await physics_frames(5700)  # 47 s: 120 m at 4 m/s takes 30, a loop back would have it near x 60 by now
+	var u: LegionMech = m.units[0]
+	assert_between(u.global_position.x, 110.0, 130.0, "it ends up at the last stop and stays (x %.0f)" % u.global_position.x)
+
+
+func test_a_marching_column_ignores_the_juggernaut_until_the_end_of_its_route() -> void:
+	level.mech.global_position = Vector3(60.0, 3.2, -330.0)  # 70 m off the road, well inside sight
+	var m := _column({"once": true, "trigger_m": 500.0})
+	await physics_frames(1800)  # 15 s
+	var u: LegionMech = m.units[0]
+	var brain := u.get_node("Brain") as LegionBrain
+	assert_eq(brain.state, "patrol", "on the march it does not attack what it sees")
+	assert_gt(u.global_position.x, 15.0, "and keeps walking (x %.0f)" % u.global_position.x)
+	await physics_frames(3600)  # to the end of the route
+	assert_ne(brain.state, "patrol", "at the end of the route it fights")

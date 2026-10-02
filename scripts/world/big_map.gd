@@ -311,7 +311,9 @@ func look_at_place(kit_id: String, index: int = 0, side_m: float = 9.0, up_m: fl
 ## Bot hook: how much of the first bridge still stands (into the bot log).
 func report_bridge(label: String) -> void:
 	for b: Destructible in bridges:
-		print("big_map %s: bridge %s integrity %.2f, %d of %d pieces gone, %d anchors listed" % [label, b.get_meta("bridge", "?"), b.integrity(), b.gone.size(), b.pieces.size(), b.listed.size()])
+		var along := -b.global_transform.basis.x.normalized()  # the bridge runs along its local +X
+		var far := b.global_position - along * float(b.over.get("length_m", 0.0))
+		print("big_map %s: bridge %s integrity %.2f, %d of %d pieces gone, %d anchors listed, from %s to %s" % [label, b.get_meta("bridge", "?"), b.integrity(), b.gone.size(), b.pieces.size(), b.listed.size(), str(b.global_position.round()), str(far.round())])
 
 
 ## Bot hook: the Juggernaut `distance_m` downhill of (x, z), facing straight up the slope there, gun

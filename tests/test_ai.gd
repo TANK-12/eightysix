@@ -334,6 +334,19 @@ func test_a_hunting_unit_stays_inside_its_area_and_off_the_shelf() -> void:
 	assert_gt(far_z, -50.0, "it stays inside its area")
 
 
+## Lane B5 part 3: the big map's river and lakes. Ground more than ai.max_wade_m under the water line is
+## not ground a unit walks into (a column on the Ash river bridge was seen wading the river beside it).
+func test_a_unit_does_not_walk_into_deep_water_but_fords_shallow_water() -> void:
+	var u := _unit("grauwolf", Vector3(0, 0, 0), Vector3(0, 0, -1))
+	var b := _brain(u)
+	await physics_frames(60)
+	assert_true(b.walkable_ahead(Vector3(0, 0, -1), 30.0), "dry ground")
+	b.water_y = 0.3  # the ground is 0.3 m under water: a ford
+	assert_true(b.walkable_ahead(Vector3(0, 0, -1), 30.0), "a ford is walked")
+	b.water_y = 3.0  # 3 m under
+	assert_false(b.walkable_ahead(Vector3(0, 0, -1), 30.0), "deep water is not")
+
+
 ## Part 4 (seen on screen after 010: a Löwe spawned beside a ruin climbed it nose-up): hunting a
 ## target behind a hip-high U of ruin walls it walks into, a Löwe stays on the ground and finds its
 ## way out and round (it gets closer to the target), not stuck in the U.
