@@ -7,6 +7,12 @@ extends RefCounted
 const MAX_DECALS := 64
 const MAX_CASINGS := 24
 const MAX_DEBRIS := 16
+## Bullet holes in the ground have their own cap, so a long 12.7 mm burst never wipes the shells' scorch marks.
+const MAX_MARKS := 48
+## Bullets (every round that is neither a shell nor a 57 mm dart: the 12.7 mm pair at ~16 rounds a second and
+## the Legion's machine guns) reuse a ring of this many emitters per kind instead of making new nodes per round,
+## and light nothing. Emerson's note 8 (2026-10-02): 12.7 mm ground hits made lag spikes (Medium 44 -> 19 fps).
+const BULLET_POOL := 32
 ## Render layer 20 holds every mech's meshes: ground decals skip it (so a gouge never paints the feet
 ## standing in it) and hull scorch marks use only it.
 const MECH_LAYER := 1 << 19
@@ -17,6 +23,8 @@ const COCKPIT_SHELL_LAYER := 1 << 9
 const MECH_LAYERS := MECH_LAYER | COCKPIT_SHELL_LAYER
 
 static var _decals: Array = []
+static var _marks: Array = []
+static var _pools := {}  # pool kind -> {"nodes": Array, "next": int}
 static var _casings: Array = []
 static var _debris: Array = []
 static var _scorch_tex: Texture2D
@@ -273,6 +281,8 @@ static func impact(parent: Node, pos: Vector3, normal: Vector3, metal: bool, big
 	var dust := hit_dust()
 	var linger := dust_linger(dust)
 	var boom := 1.6 if big else 1.0
+	if not big and not heavy:
+		return bullet_hit(parent, pos, normal, metal)
 	if metal:
 		made.append(sparks(parent, pos, normal, int(34 * boom), 18.0 * boom, 70.0))
 		made.append(flash_light(parent, pos + normal * 0.4, Color(1.0, 0.75, 0.45), 6.0 * boom, 9.0 * boom, 0.15))
@@ -292,6 +302,96 @@ static func impact(parent: Node, pos: Vector3, normal: Vector3, metal: bool, big
 		made.append(clods(parent, pos, normal, 0.6 * kick))
 		made.append(smoke(parent, pos, normal, mini(int(10 * sqrt(kick)), 40), 2.2 * kick, Color(0.42, 0.37, 0.3, 0.65), 2.6 * linger, 5.0 * sqrt(kick)))
 	return made
+
+
+## A bullet's hit: a few sparks and a puff of dust or smoke sized for a 10-45 g round (about a metre, not a
+## shell's column), still scaled by the Hit dust setting. Both come from the bullet pools: no new nodes, no light.
+static func bullet_hit(parent: Node, pos: Vector3, normal: Vector3, metal: bool) -> Array:
+	var dust := hit_dust()
+	var spark := _pooled("bullet_spark", parent, _bullet_sparks)
+	spark.initial_velocity_max = 16.0 if metal else 9.0
+	spark.initial_velocity_min = spark.initial_velocity_max * 0.4
+	spark.spread = 70.0 if metal else 45.0
+	_emit(spark, pos, normal)
+	var puff := _pooled("bullet_puff", parent, _bullet_puff)
+	(puff.mesh as QuadMesh).size = Vector2.ONE * (0.45 if metal else 0.8) * dust
+	puff.lifetime = (0.9 if metal else 1.4) * dust_linger(dust)
+	puff.initial_velocity_max = 3.0 * sqrt(dust)
+	puff.initial_velocity_min = puff.initial_velocity_max * 0.3
+	var colour := Color(0.25, 0.24, 0.23, 0.55) if metal else Color(0.5, 0.45, 0.38, 0.6)
+	puff.color_ramp.set_color(0, colour)
+	puff.color_ramp.set_color(1, Color(colour, 0.0))
+	_emit(puff, pos, normal)
+	return [spark, puff]
+
+
+## The next emitter in pool `kind` under `parent`, made by `make` the first time (or after the old one went
+## with its level). Round-robin: past BULLET_POOL live hits the oldest puff restarts early.
+static func _pooled(kind: String, parent: Node, make: Callable) -> CPUParticles3D:
+	if not _pools.has(kind):
+		_pools[kind] = {"nodes": [], "next": 0}
+	var pool: Dictionary = _pools[kind]
+	var nodes: Array = pool["nodes"]
+	var i: int = pool["next"]
+	pool["next"] = (i + 1) % BULLET_POOL
+	var old: Variant = nodes[i] if i < nodes.size() else null
+	if is_instance_valid(old) and (old as Node).get_parent() == parent:
+		return old as CPUParticles3D
+	var p: CPUParticles3D = make.call()
+	p.one_shot = true
+	p.emitting = false
+	p.set_meta("fx", kind)
+	parent.add_child(p)
+	if i < nodes.size():
+		nodes[i] = p
+	else:
+		nodes.append(p)
+	return p
+
+
+static func _emit(p: CPUParticles3D, pos: Vector3, dir: Vector3) -> void:
+	p.global_position = pos
+	_orient_up(p, dir)
+	p.restart()
+
+
+static func _bullet_sparks() -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	var streak := BoxMesh.new()
+	streak.size = Vector3(0.02, 0.2, 0.02)
+	streak.material = spark_material()
+	p.mesh = streak
+	p.amount = 8
+	p.lifetime = 0.4
+	p.explosiveness = 0.95
+	p.particle_flag_align_y = true
+	p.direction = Vector3.UP
+	p.gravity = Vector3(0, -14.0, 0)
+	p.scale_amount_min = 0.5
+	p.scale_amount_max = 1.1
+	p.color = Color(1.0, 0.8, 0.45)
+	return p
+
+
+static func _bullet_puff() -> CPUParticles3D:
+	var p := CPUParticles3D.new()
+	var quad := QuadMesh.new()
+	quad.material = smoke_material()
+	p.mesh = quad
+	p.amount = 5
+	p.explosiveness = 0.9
+	p.direction = Vector3.UP
+	p.spread = 35.0
+	p.damping_min = 1.5
+	p.damping_max = 3.0
+	p.gravity = Vector3(0, 0.4, 0)
+	var grow := Curve.new()
+	grow.add_point(Vector2(0.0, 0.4))
+	grow.add_point(Vector2(1.0, 1.5))
+	p.scale_amount_curve = grow
+	p.color_ramp = Gradient.new()
+	p.angle_max = 360.0
+	return p
 
 
 ## A high-explosive shell's fireball: hot quads that swell and burn out in a third of a second, and its flash.
@@ -376,7 +476,10 @@ static func decal(parent: Node, pos: Vector3, normal: Vector3, size: float, goug
 		x = up.cross(Vector3.FORWARD if absf(up.z) < 0.9 else Vector3.RIGHT)
 	x = x.normalized()
 	d.global_transform = Transform3D(Basis(x, up, x.cross(up)), pos)
-	_keep(_decals, d, MAX_DECALS)
+	if size < 0.6:
+		_keep(_marks, d, MAX_MARKS)
+	else:
+		_keep(_decals, d, MAX_DECALS)
 	return d
 
 

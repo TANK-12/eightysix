@@ -1,0 +1,24 @@
+{
+ "name": "v14_spawn_fx",
+ "map": "small_map",
+ "_about": "Version 014, Emerson's note 11: walk away from the spawn (the origin), turn back to face it and fire both guns; the shots look at the spawn for stray sparks or smoke. tools/bot_run.sh v14_spawn_fx",
+ "steps": [
+  {"at": 0.05, "setting": "gameplay.squad_size", "value": 0.0},
+  {"at": 0.5, "wait": "level"},
+  {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 0.7, "setting": "controls.sprint_mode", "value": "hold"},
+  {"at": 3.0, "shot": "spawn-before"},
+  {"at": 3.5, "press": "sprint", "strength": 1.0, "for": 5.0},
+  {"at": 3.6, "press": "move_forward", "strength": 1.0, "for": 5.0},
+  {"at": 10.0, "press": "turn_right", "strength": 1.0, "for": 3.5},
+  {"at": 15.0, "shot": "facing-spawn"},
+  {"at": 15.5, "press": "fire_sub", "strength": 1.0, "for": 2.5},
+  {"at": 16.2, "shot": "sub-firing"},
+  {"at": 17.0, "shot": "sub-firing-2"},
+  {"at": 18.5, "press": "fire_main", "strength": 1.0, "for": 0.2},
+  {"at": 18.6, "shot": "main-0.1"},
+  {"at": 18.8, "shot": "main-0.3"},
+  {"at": 19.3, "shot": "main-0.8"},
+  {"at": 21.0, "quit": true}
+ ]
+}

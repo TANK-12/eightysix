@@ -1,0 +1,55 @@
+{
+ "name": "v14_mg_lag",
+ "map": "small_map",
+ "_about": "Version 014, Emerson's note 8: frame time while the 12.7 mm sub-guns hit the ground. 6 s standing, then 10 s firing with the body tilted down. Compare before/after in one sitting: tools/bot_run.sh v14_mg_lag --preset=medium",
+ "steps": [
+  {
+   "at": 0.05,
+   "setting": "gameplay.squad_size",
+   "value": 0.0
+  },
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 4.0,
+   "measure": 5.0,
+   "label": "still"
+  },
+  {
+   "at": 10.8,
+   "shot": "tilted"
+  },
+  {
+   "at": 9.5,
+   "press": "aim_down",
+   "strength": 1.0,
+   "for": 0.25
+  },
+  {
+   "at": 11.0,
+   "press": "fire_sub",
+   "strength": 1.0,
+   "for": 12.0
+  },
+  {
+   "at": 12.0,
+   "measure": 10.0,
+   "label": "mg_ground"
+  },
+  {
+   "at": 16.0,
+   "shot": "mg_ground"
+  },
+  {
+   "at": 24.0,
+   "quit": true
+  }
+ ]
+}

@@ -20,6 +20,7 @@ var gravity := 9.81
 var push_scale := 4.0
 var traveled_m := 0.0
 var _tracer: MeshInstance3D
+static var _tracer_meshes := {}  # Vector2(length, width) -> BoxMesh, shared by every round of that size
 
 
 static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionary, owner_node: Node, scale: float, skip: Array[RID]) -> Projectile:
@@ -43,16 +44,19 @@ static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionar
 
 func _build_tracer(length: float, width: float = 0.07) -> void:
 	_tracer = MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(width, width, length)
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = Color(1.0, 0.62, 0.3)
-	mat.emission_enabled = true
-	mat.emission = Color(1.0, 0.5, 0.2)
-	mat.emission_energy_multiplier = 8.0
-	box.material = mat
-	_tracer.mesh = box
+	var key := Vector2(length, width)
+	if not _tracer_meshes.has(key):
+		var box := BoxMesh.new()
+		box.size = Vector3(width, width, length)
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_color = Color(1.0, 0.62, 0.3)
+		mat.emission_enabled = true
+		mat.emission = Color(1.0, 0.5, 0.2)
+		mat.emission_energy_multiplier = 8.0
+		box.material = mat
+		_tracer_meshes[key] = box
+	_tracer.mesh = _tracer_meshes[key]
 	_tracer.position = Vector3(0, 0, length * 0.5)
 	_tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_tracer)
@@ -125,6 +129,7 @@ func _impact(hit: Dictionary) -> void:
 	var metal := target != null or (collider is Node and (collider as Node).is_in_group("mechs"))
 	CombatFx.impact(world, point, normal, metal, blast_r > 0.0, float(info["projectile_kg"]) >= 1.0)
 	if not metal:
-		CombatFx.decal(world, point, normal, (1.6 + blast_r * 0.5) * (sqrt(CombatFx.blast_size()) if blast_r > 0.0 else 1.0))
+		var shell := blast_r > 0.0 or float(info["projectile_kg"]) >= 1.0
+		CombatFx.decal(world, point, normal, (1.6 + blast_r * 0.5) * (sqrt(CombatFx.blast_size()) if blast_r > 0.0 else 1.0) if shell else 0.4)
 	impacted.emit(info)
 	queue_free()

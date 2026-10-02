@@ -95,3 +95,25 @@ func test_effects_are_look_only() -> void:
 	for nodes: Array in [_made(3.0, 3.0, false, true), _made(3.0, 3.0, true, true), _made(3.0, 3.0, false, false)]:
 		for n: Node in nodes:
 			assert_false(n is PhysicsBody3D or n is Area3D, "%s is not a body or area: no extra damage or push" % n.name)
+
+
+## Emerson's note 8 (2026-10-02): 12.7 mm hits on the ground made huge lag spikes. A bullet's hit reuses pooled
+## emitters (no new nodes past the pool, no light) and its dust is sized for a bullet, well under a dart's.
+func test_bullet_hits_reuse_a_pool_and_light_nothing() -> void:
+	for i in 200:
+		CombatFx.impact(holder, Vector3(i, 0, 0), Vector3.UP, i % 3 == 0, false, false)
+	assert_lt(holder.get_child_count(), 2 * CombatFx.BULLET_POOL + 1, "200 bullets make no more than the two pools")
+	for n: Node in holder.get_children():
+		assert_false(n is OmniLight3D, "a bullet's hit lights nothing")
+	var last := CombatFx.impact(holder, Vector3(5, 0, 5), Vector3.UP, false, false, false)
+	assert_true((last[1] as CPUParticles3D).emitting, "a reused puff plays again")
+	assert_almost_eq((last[1] as Node3D).global_position.x, 5.0, 0.01, "at the new hit, not where it last played")
+
+
+func test_a_bullet_puff_is_far_smaller_than_a_dart_kick() -> void:
+	Settings.set_value("fx.blast_size", 1.6, false)
+	Settings.set_value("fx.hit_dust", 1.6, false)
+	var bullet := CombatFx.impact(holder, Vector3.ZERO, Vector3.UP, false, false, false)
+	var dart := CombatFx.impact(holder, Vector3.ZERO, Vector3.UP, false, false, true)
+	assert_lt(_biggest_quad(bullet), _biggest_quad(dart) * 0.5, "a 45 g bullet raises under half a 1.2 kg dart's dust")
+	assert_lt(_longest_life(bullet), 2.5, "and it settles in a couple of seconds")

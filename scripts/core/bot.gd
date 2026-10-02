@@ -306,7 +306,7 @@ func _on_frame_pre_draw() -> void:
 	(_measure["gpu"] as Array).append(RenderingServer.viewport_get_measured_render_time_gpu(rid))
 
 
-## Average fps, the 1% low (fps over the slowest 1% of frames) and the worst frame.
+## Average fps, the 1% low (fps over the slowest 1% of frames), the worst frame and the count of hitches.
 static func frame_stats(frames: Array, label: String) -> Dictionary:
 	if frames.is_empty():
 		return {"label": label, "frames": 0}
@@ -323,6 +323,11 @@ static func frame_stats(frames: Array, label: String) -> Dictionary:
 		slow_total += float(sorted[sorted.size() - 1 - i])
 	var p1_low: float = slow_total / slow_count
 	var worst: float = sorted[sorted.size() - 1]
+	# Hitches: frames over 50 ms (under 20 fps for that frame), the lag spikes a player feels.
+	var hitches := 0
+	for f: float in frames:
+		if f > 0.05:
+			hitches += 1
 	return {
 		"label": label,
 		"frames": frames.size(),
@@ -331,6 +336,7 @@ static func frame_stats(frames: Array, label: String) -> Dictionary:
 		"frame_ms_avg": snappedf(avg_ms, 0.01),
 		"p1_low_fps": snappedf(1.0 / maxf(p1_low, 0.0001), 0.1),
 		"min_fps": snappedf(1.0 / maxf(worst, 0.0001), 0.1),
+		"hitches_over_50ms": hitches,
 	}
 
 
