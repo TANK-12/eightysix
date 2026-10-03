@@ -70,15 +70,18 @@ float stretch(float m) {
 }
 
 struct Cell {
+	bool near;
 	vec2 a;
 	vec2 b;
 	float f;
 };
 
-Cell cell_of(float k) {
+Cell cell_of(float k, float dist_m) {
 	float l = k * 14.0;
 	float f = fract(l);
 	Cell c;
+	// beyond about 70 m tiling cannot be told from the haze: one fetch is enough
+	c.near = dist_m < 70.0;
 	c.a = sin(vec2(3.0, 7.0) * floor(l + 0.5));
 	c.b = sin(vec2(3.0, 7.0) * floor(l));
 	c.f = min(f, 1.0 - f) * 2.0;
@@ -90,7 +93,7 @@ vec4 cell_mix(vec4 a, vec4 b, float f) {
 }
 
 // (a function cannot take the samplers: they differ in filter and hint)
-#define SAMPLE_NT(t, uv, c, dx, dy) cell_mix(textureGrad(t, (uv) + c.a, dx, dy), textureGrad(t, (uv) + c.b, dx, dy), c.f)
+#define SAMPLE_NT(t, uv, c, dx, dy) (c.near ? cell_mix(textureGrad(t, (uv) + c.a, dx, dy), textureGrad(t, (uv) + c.b, dx, dy), c.f) : textureGrad(t, (uv) + c.a, dx, dy))
 
 // The texture at its own scale with its brightness varied by the coarse noise already sampled (v in 0..1).
 #define TWO_SCALE(t, uv, v, c, dx, dy) (SAMPLE_NT(t, uv, c, dx, dy).rgb * mix(0.6, 1.4, v))
@@ -112,7 +115,7 @@ void fragment() {
 	float m5 = texture(macro, wp.xz * 2.3 + 0.41).r;
 	float m6 = texture(macro, wp.xz * 0.037 + 0.9).r;
 	float mid = mix(0.62, 1.38, stretch(m3)) * mix(0.8, 1.2, stretch(m6)) * mix(0.86, 1.14, stretch(m4)) * mix(0.94, 1.06, m5);
-	Cell cl = cell_of(texture(macro, wp.xz * 0.043 + 0.77).r);
+	Cell cl = cell_of(texture(macro, wp.xz * 0.043 + 0.77).r, length(wp - CAMERA_POSITION_WORLD));
 	vec2 dg = dFdx(wp.xz);
 	vec2 dh = dFdy(wp.xz);
 	float slope = 1.0 - wn.y;
