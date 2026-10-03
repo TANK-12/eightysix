@@ -52,16 +52,25 @@ def shade(h: np.ndarray, step: float) -> Image.Image:
     light = np.array([-0.5, -0.5, 0.7]) / np.linalg.norm([-0.5, -0.5, 0.7])
     lit = np.clip(n @ light, 0, 1)
     tint = (h - h.min()) / max(float(np.ptp(h)), 1e-3)
-    rgb = np.dstack([0.35 + 0.5 * tint, 0.45 + 0.35 * tint, 0.3 + 0.2 * tint]) * lit[..., None]
+    rgb = (
+        np.dstack([0.35 + 0.5 * tint, 0.45 + 0.35 * tint, 0.3 + 0.2 * tint])
+        * lit[..., None]
+    )
     return Image.fromarray((np.clip(rgb, 0, 1) * 255).astype(np.uint8))
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("tile", type=Path)
     ap.add_argument("out", type=Path)
-    ap.add_argument("--size", type=int, default=4096, help="crop edge in metres (1 m pixels)")
-    ap.add_argument("--points", type=int, default=2049, help="heightmap points per side")
+    ap.add_argument(
+        "--size", type=int, default=4096, help="crop edge in metres (1 m pixels)"
+    )
+    ap.add_argument(
+        "--points", type=int, default=2049, help="heightmap points per side"
+    )
     ap.add_argument("--centre", default="highest")
     ap.add_argument("--offset", default="0,0")
     ap.add_argument("--source", default="")
@@ -77,7 +86,9 @@ def main() -> None:
     dx, dz = (int(v) for v in a.offset.split(","))
     part = crop(dem, (int(col) + dx, int(row) + dz), a.size)
     if np.isnan(part).any():
-        raise SystemExit("the crop reaches the tile's no-data edge: move it with --offset")
+        raise SystemExit(
+            "the crop reaches the tile's no-data edge: move it with --offset"
+        )
     h = resample(part, a.points)
     h -= h.min()
     a.out.mkdir(parents=True, exist_ok=True)
