@@ -36,6 +36,8 @@ var _meshes: Dictionary = {}  # damage key -> [MeshInstance3D] (the visible part
 var _skid_sparks: Dictionary = {}  # leg name -> CPUParticles3D
 var _skid_live_s: Dictionary = {}  # leg name -> seconds its skid particles stay alive after stopping
 var _gouge_s := 0.0
+var _cockpit_shell: Array[GeometryInstance3D] = []  # the parts the first-person camera does not draw
+var _in_cockpit := false
 var _sub_side := 0  # which arm fires next: 0 left, 1 right
 var _sub_dir: Array[Vector3] = [Vector3.FORWARD, Vector3.FORWARD]  # each arm's aim, body frame
 
@@ -73,18 +75,34 @@ func _ready() -> void:
 
 
 ## Puts every mesh of the mech (the skinned model loads in setup, so after the tree settles) on
-## CombatFx.MECH_LAYER, except where the mech's "cockpit_show" lists parts (lane A4 part 5, Emerson's note 6):
-## then everything not listed goes on CombatFx.COCKPIT_SHELL_LAYER, which the first-person camera leaves
-## out, since it sits inside the pod and saw only the back of the hull around the pilot (a layer test is
-## "shares any layer with the camera's mask", so a part cannot be on both). Only the player's own mech: the
-## wingmen are seen from outside and stay whole (Emerson's note 13, they looked "cooked" from the cockpit).
+## CombatFx.MECH_LAYER, except where the mech's "cockpit_hide" lists parts (lane A4 part 5, Emerson's note 6,
+## reworked in R3): the pod shell the pilot's eye sits inside (canopy, tub, side panels) goes on
+## CombatFx.COCKPIT_SHELL_LAYER, which the first-person camera leaves out; every other part, the hull, legs,
+## sub-arms and gun, is drawn from the cockpit (a layer test is "shares any layer with the camera's mask", so a
+## part cannot be on both). Only the player's own mech: the wingmen are seen from outside and stay whole
+## (Emerson's note 13, they looked "cooked" from the cockpit).
 func _tag_mech_layer() -> void:
-	var show: Array = (mech.get("def") as Dictionary).get("cockpit_show", []) if mech.get("is_player") else []
+	var hide: Array = (mech.get("def") as Dictionary).get("cockpit_hide", []) if mech.get("is_player") else []
+	_cockpit_shell.clear()
 	for node: Node in mech.find_children("*", "GeometryInstance3D", true, false):
 		if node is Decal or node.get_parent() == self:
 			continue
-		var shell := not show.is_empty() and not _under_any(node, show)
+		var shell := _under_any(node, hide)
 		(node as VisualInstance3D).layers = CombatFx.COCKPIT_SHELL_LAYER if shell else CombatFx.MECH_LAYER
+		if shell:
+			_cockpit_shell.append(node as GeometryInstance3D)
+	set_cockpit_view(_in_cockpit)
+
+
+## The first-person camera calls this as it moves into and out of the pod. The shell is hidden from that camera, but
+## a part off the camera's layers still casts its shadow, which would lay the canopy's shadow over the hull around
+## the pilot; so while the camera is inside, the shell casts none.
+func set_cockpit_view(inside: bool) -> void:
+	_in_cockpit = inside
+	var mode := GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if inside else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	for mi: GeometryInstance3D in _cockpit_shell:
+		if is_instance_valid(mi):
+			mi.cast_shadow = mode
 
 
 ## Whether `node` or any node above it up to the mech is named in `names`.

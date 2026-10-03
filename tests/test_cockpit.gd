@@ -1,8 +1,11 @@
 extends "res://tests/lib/test_case.gd"
-## Lane A4 part 5 (Emerson's note 6, "first-person view is broken"): the cockpit camera sits inside the
-## pod, where it saw only the back of the hull around the pilot (a dark tunnel, images/267). It now draws
-## just the parts mechs.json "cockpit_show" names (the barrel and the sub-arms); every other camera
-## still draws the whole mech. A layer test is "shares any layer with the camera's mask".
+## Lane A4 part 5 (Emerson's note 6, "first-person view is broken"), reworked in R3 (Emerson after 014: "the
+## first-person model is still bad; I want the whole mech to still be there"). The cockpit camera sits at the
+## pilot's seat inside the pod, which saw only the back of the hull around the pilot (a dark tunnel, images/267).
+## The fix in A4 part 5 drew just the barrel and the sub-arms, which left a spike and two dark blobs (images/462).
+## Now it draws the whole mech except the pod shell around the eye, the parts mechs.json "cockpit_hide" names
+## (canopy, tub, side panels), and that shell casts no shadow while the eye is inside.
+## Every other camera still draws the whole mech. A layer test is "shares any layer with the camera's mask".
 
 var ground: StaticBody3D
 var mech: RigidBody3D
@@ -43,19 +46,66 @@ func _meshes() -> Array:
 	return out
 
 
-func test_the_first_person_view_draws_only_the_gun_and_the_sub_arms() -> void:
-	var show: Array = (mech.get("def") as Dictionary).get("cockpit_show", [])
-	assert_gt(show.size(), 0, "the Juggernaut lists what the cockpit view draws")
+func _drawn_from_cockpit() -> Array:
 	cam.set("view", "cockpit")
 	cam.call("_process", 0.0)
 	var drawn: Array = []
 	for mi: MeshInstance3D in _meshes():
 		if mi.layers & cam.cull_mask != 0:
-			drawn.append(str(mi.name))
-	drawn.sort()
-	var want := show.duplicate()
-	want.sort()
-	assert_eq(drawn, want, "only the listed parts reach the cockpit camera, not the canopy, tub, hull or legs")
+			drawn.append(mi)
+	return drawn
+
+
+func test_the_first_person_view_draws_everything_but_the_pod_shell() -> void:
+	var hide: Array = (mech.get("def") as Dictionary).get("cockpit_hide", [])
+	assert_gt(hide.size(), 0, "the Juggernaut lists the pod shell the cockpit view leaves out")
+	var drawn_names: Array = []
+	for mi: MeshInstance3D in _drawn_from_cockpit():
+		drawn_names.append(str(mi.name))
+	for part: String in hide:
+		assert_false(drawn_names.has(part), "%s (the pod shell) is not drawn from the pilot's seat" % part)
+	for part: String in ["JG2_barrel", "JG2_subarm_L", "JG2_subarm_R", "JG2_flank_L", "JG2_flank_R", "JG2_visor", "JG2_eye", "JG2_dart_L", "JG2_coxa_FL", "JG2_receiver"]:
+		assert_true(drawn_names.has(part), "%s is drawn from the pilot's seat" % part)
+	var all := _meshes().size()
+	assert_lt(hide.size(), all / 4, "only a few parts are cut (%d of %d)" % [hide.size(), all])
+
+
+func test_no_drawn_part_touches_the_eye_or_the_near_plane() -> void:
+	var eye: Array = (mech.get("def") as Dictionary).get("cameras", {}).get("cockpit", [0.0, 0.0, 0.0])
+	var eye_local := Vector3(eye[0], eye[1], eye[2])
+	var inv := mech.global_transform.affine_inverse()
+	var nearest := 1e9
+	var who := ""
+	for mi: MeshInstance3D in _drawn_from_cockpit():
+		if mi.mesh == null or not str(mi.name).begins_with("JG2_"):
+			continue
+		for i in mi.mesh.get_surface_count():
+			for p: Vector3 in mi.mesh.surface_get_arrays(i)[Mesh.ARRAY_VERTEX]:
+				var d := ((inv * mi.global_transform) * p).distance_to(eye_local)
+				if d < nearest:
+					nearest = d
+					who = str(mi.name)
+	assert_gt(nearest, 0.3, "the nearest drawn vertex is %.2f m from the eye (%s), well past the near plane" % [nearest, who])
+	assert_gt(nearest, cam.near * 4.0, "...and several near-plane lengths away, so nothing clips at the eye")
+
+
+func test_the_pod_shell_casts_no_shadow_while_the_eye_is_inside() -> void:
+	var hide: Array = (mech.get("def") as Dictionary).get("cockpit_hide", [])
+	var shell: Array = []
+	for mi: MeshInstance3D in _meshes():
+		if hide.has(str(mi.name)):
+			shell.append(mi)
+	assert_gt(shell.size(), 0, "the shell parts are in the model")
+	for mi: MeshInstance3D in shell:
+		assert_eq(mi.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "%s casts a shadow from outside" % mi.name)
+	cam.set("view", "cockpit")
+	cam.call("_process", 0.0)
+	for mi: MeshInstance3D in shell:
+		assert_eq(mi.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "%s casts no shadow from the pilot's seat" % mi.name)
+	cam.set("view", "third")
+	cam.call("_process", 0.0)
+	for mi: MeshInstance3D in shell:
+		assert_eq(mi.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "%s casts its shadow again outside" % mi.name)
 
 
 func test_every_other_view_still_draws_the_whole_mech() -> void:

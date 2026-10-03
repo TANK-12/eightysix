@@ -17,6 +17,7 @@ var _skip: Array[RID] = []  # the followed mech's own bodies, left out of the ca
 ## The gunner's optics (Emerson's note 20 after 012): index into camera.third_person.optics_steps; 0 is no optics.
 var zoom_i := 0
 var _last_zoom_i := 1
+var _inside := false  # the eye is in the pod: the mech's pod shell is not drawn and casts no shadow
 
 
 func _ready() -> void:
@@ -31,6 +32,7 @@ func _ready() -> void:
 func follow(node: Node3D) -> void:
 	target = node
 	_started = false
+	_inside = false
 	_skip = _own_rids()
 	if node.has_signal("landed"):
 		node.connect("landed", func(impact: float) -> void: add_shake(clampf(impact / 12.0, 0.1, 1.0)))
@@ -101,7 +103,13 @@ func _process(delta: float) -> void:
 	var jitter := Vector3(_noise.get_noise_2d(_shake_t * 60.0, 0.0), _noise.get_noise_2d(0.0, _shake_t * 60.0), 0.0) * _shake * 0.35
 
 	var optics := zoom_i > 0
-	cull_mask = 0xFFFFF & ~CombatFx.COCKPIT_SHELL_LAYER if view == "cockpit" or optics else 0xFFFFF
+	var inside := view == "cockpit" or optics
+	cull_mask = 0xFFFFF & ~CombatFx.COCKPIT_SHELL_LAYER if inside else 0xFFFFF
+	if inside != _inside:
+		_inside = inside
+		var pod := target.get_node_or_null("Combat")
+		if pod != null:
+			pod.call("set_cockpit_view", inside)
 	if optics:
 		# Down the 57 mm's bore from the cockpit: the middle of the view is where the gun points.
 		var eye_at: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])

@@ -1,0 +1,73 @@
+{
+ "name": "r3_cockpit_range",
+ "map": "test_range",
+ "_about": "R3 (cockpit with the whole mech drawn): cockpit view standing, walking, firing the 57 mm and the 12.7 mm, turning, then the chase camera for comparison. tools/bot_run.sh r3_cockpit_range",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "cockpit"
+  },
+  {
+   "at": 2.0,
+   "shot": "stand"
+  },
+  {
+   "at": 2.5,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 2.5
+  },
+  {
+   "at": 4.2,
+   "shot": "walk"
+  },
+  {
+   "at": 5.5,
+   "press": "fire_main",
+   "strength": 1.0,
+   "for": 0.1
+  },
+  {
+   "at": 5.53,
+   "shot": "fire-57"
+  },
+  {
+   "at": 7.5,
+   "press": "fire_sub",
+   "strength": 1.0,
+   "for": 1.5
+  },
+  {
+   "at": 8.2,
+   "shot": "fire-12-7"
+  },
+  {
+   "at": 10.0,
+   "press": "turn_left",
+   "strength": 0.6,
+   "for": 0.7
+  },
+  {
+   "at": 11.5,
+   "shot": "turned"
+  },
+  {
+   "at": 12.0,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 13.5,
+   "shot": "third-standing"
+  },
+  {
+   "at": 14.0,
+   "quit": true
+  }
+ ]
+}

@@ -551,7 +551,7 @@ across it (far-hill vertices one and two cells inside the edge skipped the edge 
   0.849, front flip 0.601). Verified: 17 tests in test_leg_gap, test_juggernaut's straight-leg check, bot jg_check
   (images/290) and b4_grime (images/292, ends upright after 114 s of galloping and turning).
 - **Cockpit view** (note 6): it was a dark tunnel (the eye is inside the canopy). The first-person camera now draws only
-  the barrel and sub-arms (`mechs.json` `cockpit_show`, render layers in `CombatFx`). Verified: test_cockpit 3/3,
+  the barrel and sub-arms (`mechs.json` `cockpit_show`, render layers in `CombatFx`; replaced by `cockpit_hide` in R3, below). Verified: test_cockpit 3/3,
   bot `a4p5_cockpit` (images/267 before, 282 after).
 - **HUD** (note 7): one status block (speed, gait, speed bar, leg pips, attitude ball, jump charge ring), corner
   brackets, heading chip. Verified on screen: bot `a4p5_hud` (images/289), before images/265.
@@ -666,3 +666,13 @@ sweeps a sphere and rises over the mech when boxed in (test_camera_collision); F
 Settings > Shell tracers. **Verified:** `tools/run_tests.sh` 396 passed, 0 failed, no script errors (2026-10-03);
 bot shots images/447-471; scoreboard row 2026-10-03. **Not done:** ricochet/near-miss, aim measured, first-person look
 (`~/Forge/sessions/juggernaut-alpha/2026-10-03-v015-brief.md`). Details: `results/V014.md`. Version 014 saved from d16fa79.
+
+### 2026-10-03 · R3 · Relay 34 (hey) · first person with the whole mech
+The cockpit camera (the pilot's seat, body (0, 0.33, -0.22)) sits inside the closed pod, so 014 drew only the barrel and
+sub-arms (a spike and two dark blobs). `mechs.json` `cockpit_hide` now lists just the pod shell around the eye (canopy,
+tub, side panels, lower side plates); everything else is drawn from the cockpit, and `MechCombat.set_cockpit_view` stops
+that shell casting shadows while the camera is inside. **Verified:** test_cockpit 9/9 (shell hidden, 10 named parts
+drawn, nearest drawn vertex 0.44 m from the eye, shadow off inside and back on outside), test_optics, test_models,
+test_juggernaut, test_damage, test_move_hints, test_hangar green; bot shots before images/481-482, after 497/499/501.
+**Not verified:** shadow shimmer in motion. test_squad's squad_size default check fails on this machine (4 vs 2), not
+from this change. Details: `~/Forge/sessions/juggernaut-alpha/results/R3.md`.
