@@ -44,7 +44,6 @@ func _init(parent: Node, weather: String) -> void:
 	env.fog_aerial_perspective = 0.55
 	env.fog_sky_affect = 0.35
 	env.volumetric_fog_length = 180.0
-	env.volumetric_fog_ambient_inject = 0.4
 	env.volumetric_fog_anisotropy = 0.45
 	env.ssao_radius = 1.8
 	env.ssao_intensity = 1.8
@@ -94,6 +93,11 @@ func apply(id: String) -> void:
 	env.ambient_light_energy = float(w.get("ambient_energy", 0.85))
 	env.tonemap_exposure = float(w.get("exposure", 1.0))
 	env.tonemap_white = float(w.get("white", 1.0))
+	# lane LOOK2: AgX ignores tonemap_white; its own white point (Godot default 16.29) is for HDR scenes far brighter
+	# than ours, so sunlit ground topped out near 170 of 255 and the picture read as washed out
+	env.tonemap_agx_white = float(w.get("agx_white", 16.29))
+	env.tonemap_agx_contrast = float(w.get("agx_contrast", 1.25))
+	env.volumetric_fog_ambient_inject = float(w.get("volumetric_ambient_inject", 0.4))
 	# lane B4 part 3: only light above the threshold blooms (the sun disc, muzzle flashes, fire)
 	env.glow_intensity = float(w.get("glow_intensity", 0.3))
 	env.glow_hdr_threshold = float(w.get("glow_threshold", 1.4))

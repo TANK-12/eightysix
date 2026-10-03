@@ -72,7 +72,7 @@
       "shadow_filter": 2,
       "shadow_distance": 160,
       "sdfgi": false,
-      "ssao": false,
+      "ssao": true,
       "ssao_quality": "low",
       "ssil": false,
       "ssr": false,

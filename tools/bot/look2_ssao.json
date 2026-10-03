@@ -1,0 +1,117 @@
+{
+ "name": "look2_ssao",
+ "map": "small_map",
+ "_about": "Lane LOOK2: score_look with screen-space ambient occlusion forced on (setting graphics.ssao), to measure its cost per preset against score_look on the same preset.",
+ "steps": [
+  {
+   "at": 0.05,
+   "setting": "gameplay.squad_size",
+   "value": 0.0,
+   "_why": "like-for-like with rows before lane A5: the squad is measured by a5_fps_0 / a5_fps_2"
+  },
+  {
+   "at": 0.0,
+   "setting": "graphics.ssao",
+   "value": true
+  },
+  {
+   "at": 0.0,
+   "setting": "controls.sprint_mode",
+   "value": "hold"
+  },
+  {
+   "at": 0.0,
+   "wait": "level"
+  },
+  {
+   "at": 2.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 3.2,
+   "shot": "score-start"
+  },
+  {
+   "at": 3.6,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 4.8,
+   "shot": "score-town"
+  },
+  {
+   "at": 5.2,
+   "call": "look_from",
+   "args": [
+    "river"
+   ]
+  },
+  {
+   "at": 6.4,
+   "shot": "score-river"
+  },
+  {
+   "at": 6.800000000000001,
+   "call": "look_from",
+   "args": [
+    "bridge"
+   ]
+  },
+  {
+   "at": 8.0,
+   "shot": "score-bridge"
+  },
+  {
+   "at": 8.4,
+   "call": "look_from",
+   "args": [
+    "mast"
+   ]
+  },
+  {
+   "at": 9.6,
+   "shot": "score-mast"
+  },
+  {
+   "at": 10.0,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 11.0,
+   "measure": 5.0,
+   "label": "view"
+  },
+  {
+   "at": 16.5,
+   "call": "follow_mech"
+  },
+  {
+   "at": 17.3,
+   "shot": "score-mech"
+  },
+  {
+   "at": 17.6,
+   "press": "move_forward",
+   "strength": 1.0,
+   "for": 9.0
+  },
+  {
+   "at": 19.3,
+   "measure": 6.0,
+   "label": "walk"
+  },
+  {
+   "at": 26.8,
+   "quit": true
+  }
+ ]
+}

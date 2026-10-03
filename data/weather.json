@@ -1,5 +1,5 @@
 {
-  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd). glow_intensity and glow_threshold (lane B4 part 3): how much light above the threshold blooms; Emerson found the sun far too bloomy at 0.5 with everything blooming.",
+  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd). glow_intensity and glow_threshold (lane B4 part 3): how much light above the threshold blooms; Emerson found the sun far too bloomy at 0.5 with everything blooming. Lane LOOK2 (2026-10-03, the washed-out fix): agx_white and agx_contrast drive the AgX tonemapper (white is only read by the older tonemappers; AgX's own default white of 16.29 left sunlit ground near 140 of 255), volumetric_ambient_inject is how much sky light the volumetric fog picks up (0.4 before: a milky veil over every distance). Measure with tools/histogram.py.",
   "entries": {
     "golden_afternoon": {
       "label": "Golden afternoon",
@@ -43,19 +43,19 @@
         0.58,
         0.52
       ],
-      "fog_density": 0.0004,
-      "volumetric_density": 0.0012,
-      "ambient_energy": 0.6,
-      "exposure": 1.0,
+      "fog_density": 0.0003,
+      "volumetric_density": 0.0008,
+      "ambient_energy": 0.45,
+      "exposure": 1.5,
       "white": 1.0,
       "sun_scatter": 0.08,
       "height_fog_top_m": 12.0,
-      "height_fog_density": 0.006,
+      "height_fog_density": 0.003,
       "fog_sky_affect": 0.2,
       "volumetric_anisotropy": 0.3,
       "grade": {
         "contrast": 1.14,
-        "saturation": 1.02,
+        "saturation": 1.04,
         "shadow_shift": [
           -0.012,
           0.002,
@@ -69,7 +69,10 @@
         "strength": 1.0
       },
       "glow_intensity": 0.3,
-      "glow_threshold": 1.4
+      "glow_threshold": 1.4,
+      "agx_white": 6.0,
+      "agx_contrast": 1.75,
+      "volumetric_ambient_inject": 0.15
     },
     "overcast_morning": {
       "label": "Overcast morning",
@@ -113,13 +116,13 @@
         0.63,
         0.66
       ],
-      "fog_density": 0.00045,
-      "volumetric_density": 0.0035,
-      "ambient_energy": 0.85,
-      "exposure": 1.0,
+      "fog_density": 0.00035,
+      "volumetric_density": 0.0018,
+      "ambient_energy": 0.65,
+      "exposure": 1.3,
       "grade": {
         "contrast": 1.06,
-        "saturation": 0.9,
+        "saturation": 1.0,
         "shadow_shift": [
           -0.008,
           0.004,
@@ -132,9 +135,12 @@
         ]
       },
       "height_fog_top_m": 14.0,
-      "height_fog_density": 0.01,
+      "height_fog_density": 0.005,
       "glow_intensity": 0.25,
-      "glow_threshold": 1.4
+      "glow_threshold": 1.4,
+      "agx_white": 5.0,
+      "agx_contrast": 1.75,
+      "volumetric_ambient_inject": 0.2
     },
     "clear_noon": {
       "label": "Clear noon",
@@ -178,13 +184,13 @@
         0.72,
         0.8
       ],
-      "fog_density": 0.00025,
-      "volumetric_density": 0.0015,
-      "ambient_energy": 0.9,
-      "exposure": 0.95,
+      "fog_density": 0.00018,
+      "volumetric_density": 0.0009,
+      "ambient_energy": 0.6,
+      "exposure": 1.3,
       "grade": {
         "contrast": 1.05,
-        "saturation": 0.95,
+        "saturation": 1.08,
         "shadow_shift": [
           -0.006,
           0.0,
@@ -197,7 +203,10 @@
         ]
       },
       "glow_intensity": 0.25,
-      "glow_threshold": 1.5
+      "glow_threshold": 1.5,
+      "agx_white": 6.0,
+      "agx_contrast": 1.85,
+      "volumetric_ambient_inject": 0.15
     },
     "dusk_haze": {
       "label": "Dusk haze",
@@ -242,12 +251,12 @@
         0.4
       ],
       "fog_density": 0.0007,
-      "volumetric_density": 0.005,
-      "ambient_energy": 0.7,
-      "exposure": 1.1,
+      "volumetric_density": 0.003,
+      "ambient_energy": 0.55,
+      "exposure": 1.5,
       "grade": {
         "contrast": 1.1,
-        "saturation": 0.95,
+        "saturation": 0.9,
         "shadow_shift": [
           -0.01,
           -0.004,
@@ -261,9 +270,12 @@
       },
       "sun_scatter": 0.45,
       "height_fog_top_m": 10.0,
-      "height_fog_density": 0.015,
+      "height_fog_density": 0.008,
       "glow_intensity": 0.35,
-      "glow_threshold": 1.2
+      "glow_threshold": 1.2,
+      "agx_white": 5.5,
+      "agx_contrast": 1.65,
+      "volumetric_ambient_inject": 0.2
     },
     "storm_grey": {
       "label": "Storm grey",
@@ -308,12 +320,12 @@
         0.5
       ],
       "fog_density": 0.0012,
-      "volumetric_density": 0.007,
-      "ambient_energy": 1.0,
-      "exposure": 1.15,
+      "volumetric_density": 0.004,
+      "ambient_energy": 0.8,
+      "exposure": 1.4,
       "grade": {
         "contrast": 1.1,
-        "saturation": 0.75,
+        "saturation": 0.85,
         "shadow_shift": [
           -0.006,
           0.004,
@@ -326,7 +338,10 @@
         ]
       },
       "glow_intensity": 0.2,
-      "glow_threshold": 1.4
+      "glow_threshold": 1.4,
+      "agx_white": 4.5,
+      "agx_contrast": 1.55,
+      "volumetric_ambient_inject": 0.25
     },
     "frontier_morning": {
       "label": "Frontier morning",
@@ -370,19 +385,19 @@
         0.64,
         0.66
       ],
-      "fog_density": 0.0004,
-      "volumetric_density": 0.0015,
-      "ambient_energy": 0.7,
-      "exposure": 1.0,
+      "fog_density": 0.00028,
+      "volumetric_density": 0.0008,
+      "ambient_energy": 0.5,
+      "exposure": 1.25,
       "white": 1.0,
       "sun_scatter": 0.08,
       "height_fog_top_m": 14.0,
-      "height_fog_density": 0.008,
+      "height_fog_density": 0.004,
       "fog_sky_affect": 0.2,
       "volumetric_anisotropy": 0.3,
       "grade": {
         "contrast": 1.12,
-        "saturation": 1.0,
+        "saturation": 1.04,
         "shadow_shift": [
           -0.02,
           0.012,
@@ -396,7 +411,10 @@
         "strength": 1.0
       },
       "glow_intensity": 0.3,
-      "glow_threshold": 1.4
+      "glow_threshold": 1.4,
+      "agx_white": 6.0,
+      "agx_contrast": 1.7,
+      "volumetric_ambient_inject": 0.15
     }
   }
 }
