@@ -19,7 +19,7 @@ var life_s := 4.0
 var gravity := 9.81
 var push_scale := 4.0
 var traveled_m := 0.0
-var _tracer: MeshInstance3D
+var _tracers: Array = []  # [MeshInstance3D, length, behind] per streak, grown from the muzzle by _grow_tracers()
 static var _tracer_meshes := {}  # Vector3(length, width, glow) -> BoxMesh, shared by every round of that look
 
 
@@ -47,12 +47,13 @@ static func spawn(world: Node, from: Vector3, vel: Vector3, round_def: Dictionar
 	elif style != "off":
 		p._build_tracer(length, width)
 	p._face()
+	p._grow_tracers()
 	return p
 
 
 ## A glowing box behind the round, `length` long, starting `behind` metres back; `glow` scales its emission.
 func _build_tracer(length: float, width: float = 0.07, glow: float = 1.0, behind: float = 0.0) -> void:
-	_tracer = MeshInstance3D.new()
+	var tracer := MeshInstance3D.new()
 	var key := Vector3(length, width, glow)
 	if not _tracer_meshes.has(key):
 		var box := BoxMesh.new()
@@ -69,10 +70,25 @@ func _build_tracer(length: float, width: float = 0.07, glow: float = 1.0, behind
 			mat.albedo_color.a = 0.35
 		box.material = mat
 		_tracer_meshes[key] = box
-	_tracer.mesh = _tracer_meshes[key]
-	_tracer.position = Vector3(0, 0, behind + length * 0.5)
-	_tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(_tracer)
+	tracer.mesh = _tracer_meshes[key]
+	tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(tracer)
+	_tracers.append([tracer, length, behind])
+
+
+## A streak only covers the path the round has really flown: drawn at full length from the first
+## frame, it stuck out behind the muzzle through and behind the mech (Emerson after 014: "I can see
+## the start behind the mech", the shells' light out the back). Each streak grows from the muzzle
+## until it reaches its length.
+func _grow_tracers() -> void:
+	for t: Array in _tracers:
+		var mi := t[0] as MeshInstance3D
+		var length := float(t[1])
+		var behind := float(t[2])
+		var shown := clampf(traveled_m - behind, 0.0, length)
+		mi.visible = shown > 0.01
+		mi.scale = Vector3(1.0, 1.0, maxf(shown / length, 0.001))
+		mi.position = Vector3(0, 0, behind + shown * 0.5)
 
 
 func _face() -> void:
@@ -98,6 +114,7 @@ func _physics_process(delta: float) -> void:
 	global_position = to
 	velocity = s[1]
 	_face()
+	_grow_tracers()
 
 
 func _impact(hit: Dictionary) -> void:

@@ -174,3 +174,29 @@ func test_shell_tracers_follow_the_setting() -> void:
 	assert_almost_eq(float(bright.max()) / float(normal[0]), 3.0, 0.01, "the bright head is three times as thick")
 	assert_eq(_tracers(dart, "off").size(), 0, "off: none")
 	assert_eq(_tracers(ball, "off").size(), 1, "a 12.7 mm bullet keeps its tracer whatever the setting")
+
+
+## Emerson after 014: "I can see the start [of the MG bullets] behind the mech", and the shells'
+## light out the back. A streak only covers the path a round has flown: none behind the muzzle on
+## the first frame, and each grows to its full length as the round flies.
+func test_tracers_never_reach_behind_the_muzzle() -> void:
+	for ammo: Dictionary in [Registry.entry("weapons", "mg_12_7")["ammo"]["ball"], Registry.entry("weapons", "gun_57mm")["ammo"]["apfsds"]]:
+		var muzzle := Vector3(3, 2, 1)
+		var vel := Vector3(0.3, 0.05, -1).normalized() * float(ammo["muzzle_m_s"])
+		var p := Projectile.spawn(holder, muzzle, vel, ammo, null, 1.0, [])
+		var meshes := p.find_children("*", "MeshInstance3D", true, false)
+		assert_gt(meshes.size(), 0, "%s has a tracer" % ammo["label"])
+		for frame in 12:
+			var flown := (p.global_position - muzzle).dot(vel.normalized())
+			for m: MeshInstance3D in meshes:
+				if not m.visible:
+					continue
+				var tail := m.global_transform * Vector3(0, 0, ((m.mesh as BoxMesh).size.z) * 0.5)
+				var behind_muzzle := (tail - muzzle).dot(vel.normalized())
+				assert_gt(behind_muzzle, -0.05, "%s frame %d: the streak ends at or past the muzzle (%.2f m)" % [ammo["label"], frame, behind_muzzle])
+				assert_lt(behind_muzzle, flown + 0.05, "and behind the round")
+			await physics_frames(1)
+		var full := meshes.filter(func(m: MeshInstance3D) -> bool: return m.visible and is_equal_approx(m.scale.z, 1.0))
+		assert_gt(full.size(), 0, "%s: after 12 ticks a streak is at full length" % ammo["label"])
+		if is_instance_valid(p):
+			p.free()
