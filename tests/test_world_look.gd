@@ -111,6 +111,36 @@ func test_look_bots_ask_only_for_known_viewpoints() -> void:
 		assert_gt(n, 8, pair[0] + " has at least nine views")
 
 
+# Lane R1: every map's ground is the one shared shader (the test range and the rough bench used a plain noise
+# shader before), the maps without a splat image get a plain one (no road, mud or scorch), and the ground bots
+# of every map only ask for viewpoints that map has.
+func test_every_ground_shares_the_shader_and_the_r1_bots_have_their_views() -> void:
+	var ground := _uniforms("res://assets/kit/shaders/ground.gdshader")
+	for id: String in ["test_range", "test_bench_rough"]:
+		var entry := Registry.entry("maps", id)
+		for u: String in entry.get("palette", {}).get("ground", {}):
+			assert_true(u in ground, "%s palette: ground has no uniform %s" % [id, u])
+		var mat := GroundLook.material(entry, -1000.0)
+		assert_eq(mat.shader, GroundLook.SHADER, id + " ground uses ground.gdshader")
+		var splat := mat.get_shader_parameter("splat") as Texture2D
+		assert_eq(splat.get_image().get_pixel(0, 0), Color(0, 0, 0, 0), id + " has no road, mud or scorch painted")
+	for pair: Array in [
+		["r1_ground_small", "small_map"],
+		["r1_ground_big", "big_map"],
+		["r1_ground_range", "test_range"],
+		["r1_ground_bench_flat", "test_bench_flat"],
+		["r1_ground_bench_rough", "test_bench_rough"],
+	]:
+		var bot: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bot/%s.json" % pair[0]))
+		var views: Dictionary = Registry.entry("maps", str(pair[1])).get("viewpoints", {})
+		var n := 0
+		for step: Dictionary in bot["steps"]:
+			if step.get("call", "") == "look_from":
+				n += 1
+				assert_true(views.has(str(step["args"][0])), "%s: viewpoint %s" % [pair[0], step["args"][0]])
+		assert_eq(n, 6, pair[0] + " looks from six views")
+
+
 func test_shrub_keeps_its_leaf_clusters() -> void:
 	var shrub := Kit.build("shrub", 3)
 	var mesh: ArrayMesh = (shrub.get_node("Mesh") as MeshInstance3D).mesh

@@ -27,9 +27,9 @@ All ambientCG, CC0, 1K JPG (color, normal GL, roughness, and ambient occlusion w
 | `assets/kit/textures/plaster/` | Plaster007 (+ AO): cracked, stained plaster | https://ambientcg.com/a/Plaster007 | CC0 |
 | `assets/kit/textures/concrete_stained/` | Concrete036: weathered, stained concrete | https://ambientcg.com/a/Concrete036 | CC0 |
 | `assets/kit/textures/concrete_dark/` | Concrete044D (+ AO): dark, pitted concrete | https://ambientcg.com/a/Concrete044D | CC0 |
-| `assets/kit/textures/dirt/` | Ground106: brown dirt with litter | https://ambientcg.com/a/Ground106 | CC0 |
+| `assets/kit/textures/dirt_g105/` | Ground105, 2K JPG (color, normal GL; lane R1): dry, strata-cracked earth, the ground's base | https://ambientcg.com/a/Ground105 | CC0 |
 | `assets/kit/textures/grass_turf/` | Grass004: short turf | https://ambientcg.com/a/Grass004 | CC0 |
-| `assets/kit/textures/stones/` | Ground108: dirt with stones and rubble | https://ambientcg.com/a/Ground108 | CC0 |
+| `assets/kit/textures/stones_g112/` | Ground112, 2K JPG (color, normal GL; lane R1): grey dirt with pebbles and rubble | https://ambientcg.com/a/Ground112 | CC0 |
 | `assets/kit/textures/moss_ground/` | Ground037: mossy ground | https://ambientcg.com/a/Ground037 | CC0 |
 | `assets/kit/textures/gravel/` | Gravel043: fine grey gravel (roads) | https://ambientcg.com/a/Gravel043 | CC0 |
 | `assets/kit/textures/rust_paint/` | Metal046B: rusted, chipped dark paint | https://ambientcg.com/a/Metal046B | CC0 |

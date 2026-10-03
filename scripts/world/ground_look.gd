@@ -9,19 +9,21 @@ const TEX := "res://assets/kit/textures/"
 
 ## shader uniform -> texture folder (color.jpg, normal.jpg)
 const SETS := {
-	"ground": "dirt",
+	"ground": "dirt_g105",
 	"turf": "grass_turf",
-	"stone": "stones",
+	"stone": "stones_g112",
 	"road": "gravel",
 	"rock": "rock",
 	"town": "concrete_dark",
 }
 
 
-## The material for one map entry (`water_level`: where the shore turns to wet mud).
+## The material for one map entry (`water_level`: where the shore turns to wet mud). Without a splat
+## image of its own (the test range and the test benches) the ground is plain: no road, mud or scorch.
 static func material(entry: Dictionary, water_level: float) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()
 	mat.shader = SHADER
+	mat.set_shader_parameter("splat", _plain_splat())
 	for prefix: String in SETS:
 		mat.set_shader_parameter(prefix + "_col", load(TEX + str(SETS[prefix]) + "/color.jpg"))
 		mat.set_shader_parameter(prefix + "_nrm", load(TEX + str(SETS[prefix]) + "/normal.jpg"))
@@ -33,3 +35,12 @@ static func material(entry: Dictionary, water_level: float) -> ShaderMaterial:
 		mat.set_shader_parameter(uniform, Color(float(v[0]), float(v[1]), float(v[2])) if v is Array else v)
 	Kit.apply_palette(palette.get("kit", {}))
 	return mat
+
+
+static var _plain: ImageTexture
+
+
+static func _plain_splat() -> ImageTexture:
+	if _plain == null:
+		_plain = ImageTexture.create_from_image(Image.create_empty(2, 2, false, Image.FORMAT_RGBA8))
+	return _plain

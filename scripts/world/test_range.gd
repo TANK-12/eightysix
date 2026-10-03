@@ -9,12 +9,12 @@ const SEED := 8606
 const ROCKS := 46
 const MECH_ID := "juggernaut_m2"
 const HUD_SCRIPT := preload("res://scripts/ui/test_hud.gd")
-const TERRAIN_SHADER := preload("res://assets/shaders/terrain.gdshader")
 
 var grid := PackedFloat32Array()
 var mech: RigidBody3D
 var camera: Camera3D
 var hud: CanvasLayer
+var view_camera: Camera3D
 
 
 func _ready() -> void:
@@ -44,6 +44,42 @@ func capture_mouse() -> void:
 
 func ground_height(x: float, z: float) -> float:
 	return TerrainGen.height_at(grid, SIZE_M, x, z)
+
+
+## Bot hooks (lane R1, as the two maps have): park a still camera at one of the map entry's viewpoints,
+## `eye` and `look` in metres with "rel_eye" / "rel_look" as heights above the ground there; show_hud
+## hides every HUD layer; follow_mech() gives the chase camera back.
+func look_from(viewpoint: String) -> void:
+	var v: Dictionary = Registry.entry("maps", _map_id()).get("viewpoints", {}).get(viewpoint, {})
+	if v.is_empty():
+		push_warning("test_range: no viewpoint '%s'" % viewpoint)
+		return
+	if view_camera == null:
+		view_camera = Camera3D.new()
+		view_camera.fov = 62.0
+		view_camera.add_to_group("game_camera")
+		add_child(view_camera)
+	var eye := Vector3(float(v["eye"][0]), float(v["eye"][1]), float(v["eye"][2]))
+	var look := Vector3(float(v["look"][0]), float(v["look"][1]), float(v["look"][2]))
+	eye.y = ground_height(eye.x, eye.z) + float(v.get("rel_eye", 2.0))
+	look.y = ground_height(look.x, look.z) + float(v.get("rel_look", 0.0))
+	view_camera.global_position = eye
+	view_camera.look_at(look, Vector3.UP)
+	view_camera.current = true
+
+
+func follow_mech() -> void:
+	camera.current = true
+
+
+func show_hud(on: bool) -> void:
+	for n: Node in get_children():
+		if n is CanvasLayer:
+			(n as CanvasLayer).visible = on
+
+
+func _map_id() -> String:
+	return "test_range"
 
 
 func _build_environment() -> void:
@@ -99,11 +135,7 @@ func _build_terrain() -> void:
 	var mesh_node := MeshInstance3D.new()
 	mesh_node.name = "Terrain"
 	mesh_node.mesh = TerrainGen.build_mesh(grid, SIZE_M)
-	var mat := ShaderMaterial.new()
-	mat.shader = TERRAIN_SHADER
-	mat.set_shader_parameter("noise_tex", _noise_texture(false, 0.012))
-	mat.set_shader_parameter("noise_normal", _noise_texture(true, 0.03))
-	mesh_node.material_override = mat
+	mesh_node.material_override = GroundLook.material(Registry.entry("maps", _map_id()), -1000.0)
 	add_child(mesh_node)
 	var body := StaticBody3D.new()
 	body.name = "TerrainBody"

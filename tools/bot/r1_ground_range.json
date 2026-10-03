@@ -1,0 +1,102 @@
+{
+ "name": "r1_ground_range",
+ "map": "test_range",
+ "_about": "Lane R1: the ground from the chase camera at spawn, then at walking height and 30 m up at three spots. tools/bot_run.sh r1_ground_<map> --preset=high",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 3.0,
+   "shot": "chase_spawn"
+  },
+  {
+   "at": 3.8,
+   "call": "look_from",
+   "args": [
+    "r1_walk_a"
+   ]
+  },
+  {
+   "at": 5.1,
+   "shot": "r1_walk_a"
+  },
+  {
+   "at": 5.8,
+   "call": "look_from",
+   "args": [
+    "r1_up_a"
+   ]
+  },
+  {
+   "at": 7.1,
+   "shot": "r1_up_a"
+  },
+  {
+   "at": 7.8,
+   "call": "look_from",
+   "args": [
+    "r1_walk_b"
+   ]
+  },
+  {
+   "at": 9.1,
+   "shot": "r1_walk_b"
+  },
+  {
+   "at": 9.799999999999999,
+   "call": "look_from",
+   "args": [
+    "r1_up_b"
+   ]
+  },
+  {
+   "at": 11.1,
+   "shot": "r1_up_b"
+  },
+  {
+   "at": 11.799999999999999,
+   "call": "look_from",
+   "args": [
+    "r1_walk_c"
+   ]
+  },
+  {
+   "at": 13.1,
+   "shot": "r1_walk_c"
+  },
+  {
+   "at": 13.799999999999999,
+   "call": "look_from",
+   "args": [
+    "r1_up_c"
+   ]
+  },
+  {
+   "at": 15.1,
+   "shot": "r1_up_c"
+  },
+  {
+   "at": 16.299999999999997,
+   "quit": true
+  }
+ ]
+}

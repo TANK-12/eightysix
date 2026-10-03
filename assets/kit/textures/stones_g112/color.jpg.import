@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://4vp1dkcrxyfq"
-path.s3tc="res://.godot/imported/roughness.jpg-76d2de50b1fb1c1d5f1c2cee63c1553f.s3tc.ctex"
-path.etc2="res://.godot/imported/roughness.jpg-76d2de50b1fb1c1d5f1c2cee63c1553f.etc2.ctex"
+uid="uid://baclv0nq1eoj5"
+path.s3tc="res://.godot/imported/color.jpg-56b568040351a8774d9655c6c3c98d48.s3tc.ctex"
+path.etc2="res://.godot/imported/color.jpg-56b568040351a8774d9655c6c3c98d48.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/kit/textures/dirt/roughness.jpg"
-dest_files=["res://.godot/imported/roughness.jpg-76d2de50b1fb1c1d5f1c2cee63c1553f.s3tc.ctex", "res://.godot/imported/roughness.jpg-76d2de50b1fb1c1d5f1c2cee63c1553f.etc2.ctex"]
+source_file="res://assets/kit/textures/stones_g112/color.jpg"
+dest_files=["res://.godot/imported/color.jpg-56b568040351a8774d9655c6c3c98d48.s3tc.ctex", "res://.godot/imported/color.jpg-56b568040351a8774d9655c6c3c98d48.etc2.ctex"]
 
 [params]
 

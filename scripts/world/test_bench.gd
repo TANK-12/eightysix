@@ -5,7 +5,7 @@ extends "res://scripts/world/test_range.gd"
 ## Settings bench.design says, and the physics mode is switched to the test bench for as long as the
 ## map is open (the setting you had comes back when you leave). Sizes and counts: data/bench.json "grounds".
 
-const GROUND_COLOUR := Color(0.5, 0.5, 0.48)
+const GROUND_COLOUR := Color(0.72, 0.72, 0.7)
 
 @export var map_id := "test_bench_flat"
 
@@ -41,6 +41,10 @@ func _exit_tree() -> void:
 		Settings.set_value("gameplay.physics_mode", _mode_before, false)
 
 
+func _map_id() -> String:
+	return map_id
+
+
 func ground_height(x: float, z: float) -> float:
 	if map_id == "test_bench_rough":
 		return TerrainGen.height_at(grid, size_m, x, z)
@@ -56,13 +60,19 @@ func _spawn_mech() -> void:
 	add_child(mech)
 
 
-func _surface_material(tex_freq: float, tint: Color) -> StandardMaterial3D:
+## A kit texture set (assets/kit/textures/<folder>) projected from all three sides, `tile_m` metres a tile.
+func _surface_material(folder: String, tint: Color, tile_m: float) -> StandardMaterial3D:
+	var dir := "res://assets/kit/textures/" + folder + "/"
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = tint
-	mat.albedo_texture = _noise_texture(false, tex_freq)
-	mat.roughness = 0.9
+	mat.albedo_texture = load(dir + "color.jpg")
+	mat.normal_enabled = true
+	mat.normal_texture = load(dir + "normal.jpg")
+	mat.roughness = 1.0
 	mat.uv1_triplanar = true
-	mat.uv1_scale = Vector3(0.2, 0.2, 0.2)
+	mat.uv1_world_triplanar = true
+	mat.uv1_scale = Vector3.ONE / tile_m
+	mat.uv1_triplanar_sharpness = 4.0
 	return mat
 
 
@@ -90,7 +100,7 @@ func _solid(at: Vector3, size: Vector3, rot: Vector3, mat: Material, layer: int 
 ## fifth), and two ramps of ramp_deg, one up and one down, ahead of the spawn.
 func _build_flat() -> void:
 	var slab := Vector3(size_m, 2.0, size_m)
-	_solid(Vector3(0.0, -1.0, 0.0), slab, Vector3.ZERO, _surface_material(0.02, GROUND_COLOUR))
+	_solid(Vector3(0.0, -1.0, 0.0), slab, Vector3.ZERO, _surface_material("concrete_stained", GROUND_COLOUR, 4.0))
 	var paint := StandardMaterial3D.new()
 	paint.albedo_color = Color(0.92, 0.9, 0.82)
 	paint.roughness = 0.8
@@ -106,7 +116,7 @@ func _build_flat() -> void:
 	var ramp_deg := float(spec.get("ramp_deg", 8.0))
 	var ramp_len := 40.0
 	var rise := sin(deg_to_rad(ramp_deg)) * ramp_len
-	var ramp_mat := _surface_material(0.03, Color(0.58, 0.5, 0.36))
+	var ramp_mat := _surface_material("concrete_stained", Color(0.8, 0.7, 0.52), 3.0)
 	_solid(Vector3(-24.0, rise * 0.5 - 0.1, -60.0), Vector3(16.0, 1.0, ramp_len), Vector3(deg_to_rad(ramp_deg), 0.0, 0.0), ramp_mat)
 	_solid(Vector3(24.0, rise * 0.5 - 0.1, -60.0), Vector3(16.0, 1.0, ramp_len), Vector3(-deg_to_rad(ramp_deg), 0.0, 0.0), ramp_mat)
 
@@ -146,7 +156,7 @@ func _build_rough() -> void:
 	var mesh_node := MeshInstance3D.new()
 	mesh_node.name = "Terrain"
 	mesh_node.mesh = TerrainGen.build_mesh(grid, size_m)
-	mesh_node.material_override = _surface_material(0.012, Color(0.5, 0.47, 0.42))
+	mesh_node.material_override = GroundLook.material(Registry.entry("maps", map_id), -1000.0)
 	add_child(mesh_node)
 	var body := StaticBody3D.new()
 	body.name = "TerrainBody"
@@ -163,7 +173,7 @@ func _build_rough() -> void:
 func _build_steps() -> void:
 	var count := int(spec.get("steps", 5))
 	var rise := float(spec.get("step_height_m", 0.35))
-	var mat := _surface_material(0.05, Color(0.55, 0.54, 0.5))
+	var mat := _surface_material("concrete_stained", Color(0.78, 0.76, 0.72), 3.0)
 	for i in count:
 		var top := rise * (i + 1)
 		var z := -50.0 - 6.0 * i
@@ -173,7 +183,7 @@ func _build_steps() -> void:
 func _build_boulders() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(spec.get("seed", 8620))
-	var mat := _surface_material(0.05, Color(0.46, 0.44, 0.41))
+	var mat := _surface_material("rock", Color(0.7, 0.68, 0.64), 3.0)
 	var count := int(spec.get("boulders", 40))
 	var placed := 0
 	while placed < count:

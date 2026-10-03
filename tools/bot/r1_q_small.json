@@ -1,0 +1,76 @@
+{
+ "name": "r1_q_small",
+ "map": "small_map",
+ "_about": "Lane R1 quick look while tuning the ground.",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 3.0,
+   "call": "look_from",
+   "args": [
+    "r1_walk_a"
+   ]
+  },
+  {
+   "at": 4.3,
+   "shot": "r1_walk_a"
+  },
+  {
+   "at": 5.0,
+   "call": "look_from",
+   "args": [
+    "r1_walk_b"
+   ]
+  },
+  {
+   "at": 6.3,
+   "shot": "r1_walk_b"
+  },
+  {
+   "at": 7.0,
+   "call": "look_from",
+   "args": [
+    "r1_walk_c"
+   ]
+  },
+  {
+   "at": 8.3,
+   "shot": "r1_walk_c"
+  },
+  {
+   "at": 9.0,
+   "call": "look_from",
+   "args": [
+    "r1_up_b"
+   ]
+  },
+  {
+   "at": 10.3,
+   "shot": "r1_up_b"
+  },
+  {
+   "at": 11.5,
+   "quit": true
+  }
+ ]
+}

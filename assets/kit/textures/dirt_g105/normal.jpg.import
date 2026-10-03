@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1ralnb7goobh"
-path.s3tc="res://.godot/imported/normal.jpg-2afa0b92bdf18055d02229399cf4d9e8.s3tc.ctex"
-path.etc2="res://.godot/imported/normal.jpg-2afa0b92bdf18055d02229399cf4d9e8.etc2.ctex"
+uid="uid://d20c4r17i7c1s"
+path.s3tc="res://.godot/imported/normal.jpg-d3c7efb0e312aa54d12042ebf1490703.s3tc.ctex"
+path.etc2="res://.godot/imported/normal.jpg-d3c7efb0e312aa54d12042ebf1490703.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/kit/textures/stones/normal.jpg"
-dest_files=["res://.godot/imported/normal.jpg-2afa0b92bdf18055d02229399cf4d9e8.s3tc.ctex", "res://.godot/imported/normal.jpg-2afa0b92bdf18055d02229399cf4d9e8.etc2.ctex"]
+source_file="res://assets/kit/textures/dirt_g105/normal.jpg"
+dest_files=["res://.godot/imported/normal.jpg-d3c7efb0e312aa54d12042ebf1490703.s3tc.ctex", "res://.godot/imported/normal.jpg-d3c7efb0e312aa54d12042ebf1490703.etc2.ctex"]
 
 [params]
 

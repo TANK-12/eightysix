@@ -26,9 +26,9 @@ uniform sampler2D road_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D town_col : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D town_nrm : hint_normal, filter_linear_mipmap, repeat_enable;
 uniform sampler2D macro : hint_default_white, filter_linear_mipmap, repeat_enable;
-uniform float ground_scale = 0.4;
+uniform float ground_scale = 0.25;
 uniform float turf_scale = 0.8;
-uniform float stone_scale = 0.35;
+uniform float stone_scale = 0.22;
 uniform float road_scale = 0.5;
 uniform vec3 stone_tint : source_color = vec3(0.9, 0.86, 0.8);
 // how much of the ground is turf (0 none, 1 nearly all) and how much of the dirt is stony
@@ -46,11 +46,11 @@ uniform vec3 rock_tint : source_color = vec3(0.86, 0.84, 0.8);
 uniform float water_level = 0.0;
 // lane B4 part 3: the pebble detail read as grain, worst under a low sun and in motion. Near the camera
 // it keeps this share of its contrast, falling to detail_far by detail_fade_m; the normal map likewise.
-uniform float detail_near = 0.75;
-uniform float detail_far = 0.35;
-uniform float detail_fade_m = 45.0;
-uniform float relief_near = 0.7;
-uniform float relief_far = 0.25;
+uniform float detail_near = 1.0;
+uniform float detail_far = 0.7;
+uniform float detail_fade_m = 90.0;
+uniform float relief_near = 1.0;
+uniform float relief_far = 0.5;
 
 varying vec3 wp;
 varying vec3 wn;
@@ -60,11 +60,40 @@ void vertex() {
 	wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }
 
-// The texture at its own scale, its brightness varied by the coarse noise already sampled (v in 0..1): the
-// tiling is hidden without a second fetch of the texture.
-vec3 two_scale(sampler2D t, vec2 uv, float v) {
-	return texture(t, uv).rgb * mix(0.6, 1.4, v);
+// Lane R1: the texture sampled so that its tiling cannot be found. The plane is cut into patches by a slow
+// noise (k, 0..1); each patch reads the texture shifted by its own offset, and the two nearest patches are
+// blended where they meet, weighted so the sharper one wins (a plain blend of two uncorrelated samples goes
+// grey). Two fetches, with the screen-space slopes of the unshifted uv (dx, dy) so the mip level is right.
+// the fractal noise sits close to 0.5 (its spread is about 0.12): stretched to use the whole 0..1 range
+float stretch(float m) {
+	return clamp((m - 0.5) * 2.6 + 0.5, 0.0, 1.0);
 }
+
+struct Cell {
+	vec2 a;
+	vec2 b;
+	float f;
+};
+
+Cell cell_of(float k) {
+	float l = k * 14.0;
+	float f = fract(l);
+	Cell c;
+	c.a = sin(vec2(3.0, 7.0) * floor(l + 0.5));
+	c.b = sin(vec2(3.0, 7.0) * floor(l));
+	c.f = min(f, 1.0 - f) * 2.0;
+	return c;
+}
+
+vec4 cell_mix(vec4 a, vec4 b, float f) {
+	return mix(a, b, smoothstep(0.2, 0.8, f - 0.1 * (a.r + a.g + a.b - b.r - b.g - b.b)));
+}
+
+// (a function cannot take the samplers: they differ in filter and hint)
+#define SAMPLE_NT(t, uv, c, dx, dy) cell_mix(textureGrad(t, (uv) + c.a, dx, dy), textureGrad(t, (uv) + c.b, dx, dy), c.f)
+
+// The texture at its own scale with its brightness varied by the coarse noise already sampled (v in 0..1).
+#define TWO_SCALE(t, uv, v, c, dx, dy) (SAMPLE_NT(t, uv, c, dx, dy).rgb * mix(0.6, 1.4, v))
 
 // the texture's own detail pulled toward its mean colour by k (1 keeps it all): the grain fix of lane B4
 vec3 detail(sampler2D t, vec3 c, float k) {
@@ -77,21 +106,30 @@ void fragment() {
 	float m1 = texture(macro, wp.xz * 0.0021).r;
 	float m2 = texture(macro, wp.xz * 0.017 + 0.3).r;
 	float m3 = texture(macro, wp.xz * 0.11 + 0.5).r;
+	// the middle scales (metres and decimetres), the ones a 7 m machine actually walks across: patches of
+	// crust and damp, scattered stones. Not tied to any texture's own tile, so they break its repetition.
+	float m4 = texture(macro, wp.xz * 0.55 + 0.13).r;
+	float m5 = texture(macro, wp.xz * 2.3 + 0.41).r;
+	float m6 = texture(macro, wp.xz * 0.037 + 0.9).r;
+	float mid = mix(0.62, 1.38, stretch(m3)) * mix(0.8, 1.2, stretch(m6)) * mix(0.86, 1.14, stretch(m4)) * mix(0.94, 1.06, m5);
+	Cell cl = cell_of(texture(macro, wp.xz * 0.043 + 0.77).r);
+	vec2 dg = dFdx(wp.xz);
+	vec2 dh = dFdy(wp.xz);
 	float slope = 1.0 - wn.y;
 	float far = smoothstep(4.0, detail_fade_m, length(wp - CAMERA_POSITION_WORLD));
 	float keep = mix(detail_near, detail_far, far);
 
 	// dirt, with stones coming through in patches
 	vec2 guv = wp.xz * ground_scale;
-	vec3 dirt = detail(ground_col, two_scale(ground_col, guv, m2), keep) * dry_tint;
+	vec3 dirt = detail(ground_col, TWO_SCALE(ground_col, guv, m2, cl, dg * ground_scale, dh * ground_scale), keep) * dry_tint * mid;
 	vec2 suv = wp.xz * stone_scale;
-	float stony = smoothstep(0.5, 0.8, m2 * 0.7 + m3 * 0.5 + (1.0 - stone_amount) * -0.35) * stone_amount * 1.6;
+	float stony = smoothstep(0.5, 0.8, m2 * 0.7 + m3 * 0.5 + (m4 - 0.5) * 0.35 + (1.0 - stone_amount) * -0.35) * stone_amount * 1.6;
 	stony = clamp(stony + smoothstep(0.1, 0.3, slope) * 0.4, 0.0, 1.0);
-	vec3 nrm = texture(ground_nrm, guv).rgb;
+	vec3 nrm = SAMPLE_NT(ground_nrm, guv, cl, dg * ground_scale, dh * ground_scale).rgb;
 	vec3 col = dirt;
 	if (stony > 0.01) {
-		vec3 stones = detail(stone_col, two_scale(stone_col, suv, m3), keep) * stone_tint;
-		nrm = mix(nrm, texture(stone_nrm, suv).rgb, stony);
+		vec3 stones = detail(stone_col, TWO_SCALE(stone_col, suv, m3, cl, dg * stone_scale, dh * stone_scale), keep) * stone_tint * mid;
+		nrm = mix(nrm, SAMPLE_NT(stone_nrm, suv, cl, dg * stone_scale, dh * stone_scale).rgb, stony);
 		col = mix(dirt, stones, stony);
 	}
 	// close up a finer pass of the dirt's own grain, so near ground is crisp rather than smooth
@@ -108,9 +146,10 @@ void fragment() {
 	green *= 0.55 + 0.45 * smoothstep(0.25, 0.6, m3);
 	if (green > 0.01) {
 		vec2 tuv = wp.xz * turf_scale;
-		vec3 turf = detail(turf_col, two_scale(turf_col, tuv, m3), keep) * mix(grass_tint, dead_tint, smoothstep(0.35, 0.7, m2 * 0.6 + m3 * 0.5));
+		vec3 turf = detail(turf_col, TWO_SCALE(turf_col, tuv, m3, cl, dg * turf_scale, dh * turf_scale), keep) * mix(grass_tint, dead_tint, smoothstep(0.35, 0.7, m2 * 0.6 + m3 * 0.5 + (m4 - 0.5) * 0.3)) * mid;
+		turf = mix(vec3(dot(turf, vec3(0.333))), turf, 0.8);
 		col = mix(col, turf, green);
-		nrm = mix(nrm, texture(turf_nrm, tuv).rgb, green);
+		nrm = mix(nrm, SAMPLE_NT(turf_nrm, tuv, cl, dg * turf_scale, dh * turf_scale).rgb, green);
 	}
 	float rough = mix(0.95, 0.88, green);
 
@@ -124,12 +163,14 @@ void fragment() {
 	}
 
 	// roads: packed gravel, paler and flatter
-	float road = s.r;
+	// ragged edges: the painted road is pushed in and out by the mid noise, so dirt and turf creep onto it
+	float road = smoothstep(0.3, 0.7, s.r + (m4 - 0.5) * 0.55 + (m5 - 0.5) * 0.3) * smoothstep(0.02, 0.2, s.r);
 	if (road > 0.01) {
 		vec2 ruv = wp.xz * road_scale;
-		vec3 gravel = detail(road_col, texture(road_col, ruv).rgb, keep) * road_tint * (0.9 + 0.2 * m3) * 1.7;
+		vec3 gravel = detail(road_col, TWO_SCALE(road_col, ruv, m4, cl, dg * road_scale, dh * road_scale), keep) * road_tint * 1.6;
+		gravel *= mix(0.72, 1.0, smoothstep(0.35, 1.0, s.r));
 		col = mix(col, gravel, road);
-		nrm = mix(nrm, texture(road_nrm, ruv).rgb, road * 0.7);
+		nrm = mix(nrm, SAMPLE_NT(road_nrm, ruv, cl, dg * road_scale, dh * road_scale).rgb, road * 0.8);
 		rough = mix(rough, 0.97, road);
 	}
 
