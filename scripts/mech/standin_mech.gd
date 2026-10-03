@@ -311,8 +311,8 @@ func _read_input(dt: float) -> void:
 		if not charging:
 			charging = true
 			charge_s = 0.0
-			Rumble.play("jump_charge")
 		charge_s += dt
+		Rumble.play("jump_charge")
 	if _jump_was_held and not jump_held and charging:
 		_release_jump()
 	_jump_was_held = jump_held
@@ -775,10 +775,10 @@ func _update_slide(v: Vector3, dt: float) -> void:
 	slide_amount = move_toward(slide_amount, want, rate * dt)
 	var was := skidding
 	skidding = slide_amount > 0.3
-	if is_player and skidding != was:
+	if is_player:
 		if skidding:
 			Rumble.play("skid")
-		else:
+		elif was:
 			Rumble.stop("skid")
 
 
