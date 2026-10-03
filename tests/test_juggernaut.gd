@@ -192,11 +192,16 @@ func test_cockpit_camera_uses_the_real_socket() -> void:
 	tree.root.add_child(cam)
 	cam.call("follow", mech)
 	cam.set("view", "cockpit")
-	cam.call("_process", 0.0)
-	var eye: Array = (mech.get("def") as Dictionary).get("cameras", {}).get("cockpit")
-	assert_not_null(eye, "juggernaut_m2 has a generated cockpit socket")
-	var expected: Vector3 = mech.global_transform * Vector3(eye[0], eye[1], eye[2])
-	assert_almost_eq(cam.global_position, expected, 0.3, "camera sits at model2's real cockpit socket, not a placeholder")
+	# Settings > Gameplay > Cockpit view from: the front optical sensor (default, Emerson after 015: the
+	# pilot seat under the gun was "really close") or the pilot seat; both are model2's generated sockets.
+	for pick: String in ["eye", "cockpit"]:
+		Settings.set_value("gameplay.cockpit_eye", pick, false)
+		cam.call("_process", 0.0)
+		var eye: Array = (mech.get("def") as Dictionary).get("cameras", {}).get(pick)
+		assert_not_null(eye, "juggernaut_m2 has a generated %s socket" % pick)
+		var expected: Vector3 = mech.global_transform * Vector3(eye[0], eye[1], eye[2])
+		assert_almost_eq(cam.global_position, expected, 0.3, "camera sits at model2's real %s socket, not a placeholder" % pick)
+	Settings.reset_all_quietly()
 	cam.free()
 
 

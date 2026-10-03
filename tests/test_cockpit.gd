@@ -64,15 +64,14 @@ func test_the_first_person_view_draws_everything_but_the_pod_shell() -> void:
 		drawn_names.append(str(mi.name))
 	for part: String in hide:
 		assert_false(drawn_names.has(part), "%s (the pod shell) is not drawn from the pilot's seat" % part)
-	for part: String in ["JG2_barrel", "JG2_subarm_L", "JG2_subarm_R", "JG2_flank_L", "JG2_flank_R", "JG2_visor", "JG2_eye", "JG2_dart_L", "JG2_coxa_FL", "JG2_receiver"]:
+	for part: String in ["JG2_barrel", "JG2_subarm_L", "JG2_subarm_R", "JG2_flank_L", "JG2_flank_R", "JG2_dart_L", "JG2_coxa_FL", "JG2_receiver"]:
 		assert_true(drawn_names.has(part), "%s is drawn from the pilot's seat" % part)
 	var all := _meshes().size()
 	assert_lt(hide.size(), all / 4, "only a few parts are cut (%d of %d)" % [hide.size(), all])
 
 
 func test_no_drawn_part_touches_the_eye_or_the_near_plane() -> void:
-	var eye: Array = (mech.get("def") as Dictionary).get("cameras", {}).get("cockpit", [0.0, 0.0, 0.0])
-	var eye_local := Vector3(eye[0], eye[1], eye[2])
+	var eye_local: Vector3 = load("res://scripts/camera/chase_camera.gd").eye_point(mech)
 	var inv := mech.global_transform.affine_inverse()
 	var nearest := 1e9
 	var who := ""

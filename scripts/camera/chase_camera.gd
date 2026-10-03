@@ -112,17 +112,17 @@ func _process(delta: float) -> void:
 			pod.call("set_cockpit_view", inside)
 	if optics:
 		# Down the 57 mm's bore from the cockpit: the middle of the view is where the gun points.
-		var eye_at: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])
+		var eye_at := eye_point(target)
 		var combat := target.get_node_or_null("Combat")
 		var bore: Vector3 = combat.call("gun_direction") if combat != null else -body_xf.basis.z
 		fov = Settings.get_f("gameplay.fov_cockpit") / zoom()
-		global_position = body_xf * Vector3(eye_at[0], eye_at[1], eye_at[2])
+		global_position = body_xf * eye_at
 		look_at(global_position + bore, body_xf.basis.y if absf(bore.dot(body_xf.basis.y)) < 0.99 else Vector3.UP)
 		return
 	if view == "cockpit":
-		var eye: Array = target.get("def").get("cameras", {}).get("cockpit", [0.0, 0.4, -1.5])
+		var eye := eye_point(target)
 		fov = Settings.get_f("gameplay.fov_cockpit")
-		global_transform = body_xf * Transform3D(Basis.IDENTITY, Vector3(eye[0], eye[1], eye[2]))
+		global_transform = body_xf * Transform3D(Basis.IDENTITY, eye)
 		global_position += global_transform.basis * jitter * Settings.get_f("gameplay.head_bob")
 		return
 
@@ -209,3 +209,11 @@ func _own_rids() -> Array[RID]:
 	for n: Node in target.find_children("*", "CollisionObject3D", true, false):
 		out.append((n as CollisionObject3D).get_rid())
 	return out
+
+## Where the first-person eye sits on `mech`, in its body frame: the camera socket Settings > Gameplay >
+## Cockpit view from picks (mechs.json "cameras"; Emerson after 015: from the pilot seat under the gun the
+## view was "really close"), the pilot seat if the mech has no such socket.
+static func eye_point(mech: Node) -> Vector3:
+	var cams: Dictionary = mech.get("def").get("cameras", {})
+	var e: Array = cams.get(Settings.get_s("gameplay.cockpit_eye"), cams.get("cockpit", [0.0, 0.4, -1.5]))
+	return Vector3(e[0], e[1], e[2])

@@ -184,7 +184,8 @@
           {"label": "Views", "items": [
             {"key": "gameplay.default_view", "label": "Starting view", "type": "choice", "options": [["third", "Third person"], ["cockpit", "Cockpit"]], "default": "third", "help": "Which view a mission starts in."},
             {"key": "gameplay.fov_third", "label": "Third-person field of view", "type": "slider", "min": 55.0, "max": 100.0, "step": 1.0, "format": "deg", "default": 70.0, "help": "Vertical field of view."},
-            {"key": "gameplay.fov_cockpit", "label": "Cockpit field of view", "type": "slider", "min": 65.0, "max": 110.0, "step": 1.0, "format": "deg", "default": 85.0, "help": "Vertical field of view inside the cockpit."}
+            {"key": "gameplay.fov_cockpit", "label": "Cockpit field of view", "type": "slider", "min": 65.0, "max": 110.0, "step": 1.0, "format": "deg", "default": 85.0, "help": "Vertical field of view inside the cockpit."},
+            {"key": "gameplay.cockpit_eye", "label": "Cockpit view from", "type": "choice", "options": [["eye", "Optical sensor (front)"], ["cockpit", "Pilot seat (under the gun)"]], "default": "eye", "help": "A Juggernaut pilot sees out through the optical sensor at the front of the pod. The pilot seat sits under the 57 mm, so the barrel and front plates fill the view."}
           ]},
           {"label": "Feel", "items": [
             {"key": "gameplay.camera_distance", "label": "Camera distance", "type": "slider", "min": 0.7, "max": 1.6, "step": 0.05, "format": "x", "default": 1.0, "help": "How far behind the Juggernaut the camera sits."},

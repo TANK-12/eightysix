@@ -349,3 +349,48 @@ func test_the_line_follows_the_darts_arc_in_flight() -> void:
 	assert_lt(off, 0.05, "the drawn line lies on the flown path (%.3f m off)" % off)
 	assert_gt(drawn.distance_to(Geometry3D.get_closest_point_to_segment(drawn, path[0], path[path.size() - 1])), 0.05, "not on the straight chord")
 	assert_lt(WireAnchor.along(PackedVector3Array([Vector3.ZERO, Vector3(10, 0, 0), Vector3(10, 10, 0)]), 0.75).distance_to(Vector3(10, 5, 0)), 0.001, "along() walks by length")
+
+
+## Emerson after 015: "it stays in place and we keep travelling". In flight the launcher's end of the
+## line moves with the mech; the dart's end stays on the dart.
+func test_the_flying_line_stays_on_the_launcher_when_the_mech_moves() -> void:
+	var path := PackedVector3Array([Vector3.ZERO, Vector3(0, 0, -5), Vector3(0, 0, -10)])
+	var out := WireAnchor.dragged(path, Vector3(4, 0, 0))
+	assert_lt(out[0].distance_to(Vector3(4, 0, 0)), 0.001, "the line starts at the launcher now")
+	assert_lt(out[2].distance_to(path[2]), 0.001, "and ends on the dart")
+	assert_lt(out[1].distance_to(Vector3(2, 0, -5)), 0.001, "half way along, half the launcher's move")
+
+
+## The dart stays in what it bit: a body that moves carries the anchor, and the cable pulls it back.
+func test_the_anchor_rides_on_a_moving_body() -> void:
+	await physics_frames(240)
+	var rb := RigidBody3D.new()
+	rb.collision_layer = 1 | 64
+	rb.mass = 200.0
+	var cs := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(6, 3, 2)
+	cs.shape = box
+	rb.add_child(cs)
+	rb.position = Vector3(0, 1.5, -25)
+	tree.root.add_child(rb)
+	blocks.append(rb)
+	await physics_frames(10)
+	_aim_at(Vector3(0, 1.5, -24))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 1.5, -24))
+	combat.anchor.fire()
+	for i in 120:
+		await physics_frames(1)
+		if combat.anchor.state != WireAnchor.State.FLYING:
+			break
+	assert_eq(combat.anchor.state, WireAnchor.State.ATTACHED, "the dart bites the box")
+	var bit_at: Vector3 = combat.anchor.anchor_point
+	rb.global_position += Vector3(3, 0, 0)
+	await physics_frames(2)
+	var moved: Vector3 = combat.anchor.anchor_point - bit_at
+	assert_almost_eq(moved.x, 3.0, 0.3, "the anchor moved with the box (%.2f m)" % moved.x)
+	combat.anchor.set("reel", -1)
+	var z0 := rb.global_position.z
+	await physics_frames(120)
+	assert_gt(rb.global_position.z - z0, 0.05, "reeling in pulls the light box toward the mech (%.2f m)" % (rb.global_position.z - z0))

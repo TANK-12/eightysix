@@ -1023,6 +1023,8 @@
       ],
       "mass_source": "/home/ejb/Models/juggernaut/model2/realistic_mass/realistic_mass.json (mk2_m37_shin_tube.blend via measure_blend.py; reasoned estimates, not sourced): 5354 kg combat loaded",
       "cockpit_hide": [
+        "JG2_eye",
+        "JG2_visor",
         "JG2_canopy",
         "JG2_pod_tub",
         "JG2_sidepanel_L",

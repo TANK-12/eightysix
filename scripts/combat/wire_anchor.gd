@@ -57,6 +57,10 @@ var _arc_mat: StandardMaterial3D
 var _rope: Array[MeshInstance3D] = []
 var _dart: MeshInstance3D
 var _dart_path := PackedVector3Array()  # where the dart has flown this shot: the line lies along it
+## What the dart bit and where in it: the anchor rides on that body (a walking Legion, a falling
+## slab) instead of hanging in the air where the body was when it hit (Emerson after 015).
+var _anchor_body: Node3D = null
+var _anchor_local := Vector3.ZERO
 
 
 ## Settings > Gameplay > Physics > Winch size (Emerson after 014: "I want the winch 40 percent
@@ -374,6 +378,7 @@ func release() -> void:
 	if state == State.IDLE:
 		return
 	state = State.IDLE
+	_anchor_body = null
 	tension = 0.0
 	_rope_speed = 0.0
 	reel = 0
@@ -384,9 +389,12 @@ func release() -> void:
 	released.emit()
 
 
-func _attach() -> void:
+func _attach(body: Node3D = null) -> void:
 	state = State.ATTACHED
 	anchor_point = _dart_to
+	_anchor_body = body
+	if body != null:
+		_anchor_local = body.global_transform.affine_inverse() * anchor_point
 	rope_len = (mech.global_transform * socket_local).distance_to(anchor_point)
 	var parent := mech.get_parent()
 	CombatFx.sparks(parent, anchor_point, (mech.global_position - anchor_point).normalized(), 16, 10.0)
@@ -425,7 +433,7 @@ func _fly_dart(delta: float) -> void:
 		_dart_to = hit["position"]
 		var body := hit["collider"] as CollisionObject3D
 		if body != null and (body.collision_layer & SURFACE_MASK) != 0:
-			_attach()
+			_attach(body)
 		else:
 			CombatFx.sparks(mech.get_parent(), _dart_pos, hit["normal"], 8, 6.0)
 			release()
@@ -439,6 +447,9 @@ func _fly_dart(delta: float) -> void:
 
 
 func _pull(delta: float) -> void:
+	_follow_anchor()
+	if state != State.ATTACHED:
+		return
 	var xf := mech.global_transform
 	var socket_w := xf * socket_local
 	var d := anchor_point - socket_w
@@ -479,7 +490,7 @@ func _pull(delta: float) -> void:
 	var c := 2.0 * float(_g.get("damping_ratio", 0.4)) * sqrt(k * m)
 	var com_w := xf * mech.center_of_mass
 	var v_socket := mech.linear_velocity + mech.angular_velocity.cross(socket_w - com_w)
-	var want := k * stretch - c * v_socket.dot(n)
+	var want := k * stretch - c * (v_socket - _anchor_velocity()).dot(n)
 	# Snaps only on a sustained overload (snap_after_s): a one-tick spike at the bottom of a hard
 	# swing would make the cable a coin toss for the player.
 	if want > float(def.get("cable_break_n", 170000.0)):
@@ -492,8 +503,31 @@ func _pull(delta: float) -> void:
 	tension = maxf(want, 0.0)
 	var arm := socket_w - mech.global_position  # the real socket: the pull turns the body as well
 	mech.apply_force(n * tension, arm)
+	# The cable pulls both ends: a body the dart bit gets the same tension back toward the mech.
+	var rb := _anchor_body as RigidBody3D
+	if rb != null:
+		rb.apply_force(-n * tension, anchor_point - rb.global_position)
 	if mech.get("is_player"):
 		Rumble.play("grapple_tension")
+
+
+## Moves the anchor with the body the dart bit; lets go if that body is gone (destroyed, freed).
+func _follow_anchor() -> void:
+	if _anchor_body == null:
+		return
+	if not is_instance_valid(_anchor_body) or not _anchor_body.is_inside_tree():
+		release()
+		return
+	anchor_point = _anchor_body.global_transform * _anchor_local
+
+
+## How fast the anchor point moves, so the cable's damping works on the stretch rate between its ends.
+func _anchor_velocity() -> Vector3:
+	var rb := _anchor_body as RigidBody3D
+	if rb != null:
+		return rb.linear_velocity + rb.angular_velocity.cross(anchor_point - rb.global_transform * rb.center_of_mass)
+	var cb := _anchor_body as CharacterBody3D
+	return cb.velocity if cb != null else Vector3.ZERO
 
 
 func _snap(socket_w: Vector3) -> void:
@@ -526,9 +560,9 @@ func _process(_delta: float) -> void:
 	if state == State.FLYING and _dart_path.size() > 1:
 		# Emerson after 014, "the grapple should arc": in flight the line is not a straight bar to the
 		# dart; it lies along the arc the dart has flown (paid out behind it), from the launcher's
-		# socket now to the dart now.
-		var path := _dart_path.duplicate()
-		path[0] = from
+		# socket now to the dart now. Emerson after 015: it stayed where it was flown while the mech
+		# drove on, so the launcher now drags the line with it (see dragged()).
+		var path := dragged(_dart_path, from)
 		path.append(to)
 		for i in ROPE_SEGMENTS:
 			var p := along(path, float(i + 1) / ROPE_SEGMENTS)
@@ -540,6 +574,25 @@ func _process(_delta: float) -> void:
 		var p := from.lerp(to, t) + Vector3.DOWN * sag * 4.0 * t * (1.0 - t)
 		_place_segment(_rope[i], prev, p)
 		prev = p
+
+
+## The flown path with the launcher's end moved to `socket_now`: the line by the launcher goes where
+## the launcher goes, the dart's end stays on the dart, and in between the shift fades by length, so
+## the line keeps its arc but never hangs behind a moving mech.
+static func dragged(path: PackedVector3Array, socket_now: Vector3) -> PackedVector3Array:
+	var out := path.duplicate()
+	if path.size() < 2:
+		return out
+	var total := 0.0
+	for i in range(1, path.size()):
+		total += path[i].distance_to(path[i - 1])
+	var shift := socket_now - path[0]
+	var s := 0.0
+	for i in path.size():
+		if i > 0:
+			s += path[i].distance_to(path[i - 1])
+		out[i] = path[i] + shift * (1.0 - (s / total if total > 0.0 else 1.0))
+	return out
 
 
 ## The point a fraction `f` (0..1) of the way along polyline `path` by length.
