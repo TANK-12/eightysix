@@ -229,3 +229,22 @@ func test_turning_rumble_off_mid_loop_goes_quiet() -> void:
 		Rumble.play("skid")
 		await tree.process_frame
 	assert_eq(_last_kind(), "stop")
+
+
+func test_losing_window_focus_keeps_the_pad_quiet_while_the_cause_goes_on() -> void:
+	var owner_node := Owner.new()
+	tree.root.add_child(owner_node)
+	await _frames(10)
+	assert_eq(_last_kind(), "start")
+	Rumble.notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT)
+	await _frames(30)
+	assert_eq(_last_kind(), "stop", "a skid or a taut wire in the background must not buzz the pad")
+	Rumble.log.clear()
+	Rumble.play("fire_main")
+	await _frames(10)
+	assert_eq(_starts().size(), 0, "nothing reaches the pad while unfocused")
+	Rumble.notification(Node.NOTIFICATION_APPLICATION_FOCUS_IN)
+	await _frames(3)
+	assert_eq(_last_kind(), "start", "back on focus")
+	owner_node.queue_free()
+	await _frames(5)

@@ -9,7 +9,9 @@ extends Node
 ## - a looping pattern lives only while its cause keeps calling play() (the owner refreshes it every
 ##   frame; it lapses `hold_ms` after the last call), so a freed mech, a released wire or a missed
 ##   stop() cannot leave it running; it also has a hard `max_s`;
-## - loops are dropped on pause and on losing window focus; stop_all() silences at once.
+## - loops are dropped on pause; while the window is out of focus nothing reaches the pad (the
+##   game runs on, so a skid or a taut wire would otherwise restart its loop next frame);
+##   stop_all() silences at once.
 ## A play() or stop() takes effect on the same frame (flushed at the end of it), not the next.
 
 const SEND_CEIL_S := 0.3
@@ -33,6 +35,7 @@ var _on := false
 var _sent := Vector2.ZERO
 var _sent_until := 0.0
 var _queued := false
+var _focused := true
 
 
 func _ready() -> void:
@@ -164,7 +167,7 @@ func _flush() -> void:
 		strong = maxf(strong, step["strong"])
 		next = minf(next, float(p["left"]))
 	var want := Vector2(weak, strong)
-	if want.x <= 0.0005 and want.y <= 0.0005:
+	if not _focused or (want.x <= 0.0005 and want.y <= 0.0005):
 		if _on:
 			_on = false
 			_sent = Vector2.ZERO
@@ -210,7 +213,12 @@ func _on_pad_changed(_device: int, _connected: bool) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+			_focused = false
 		stop_all()
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		_focused = true
+		_sent_until = 0.0
 	elif what == NOTIFICATION_PREDELETE:
 		for pad in Input.get_connected_joypads():
 			Input.stop_joy_vibration(pad)
