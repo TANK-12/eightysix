@@ -23,6 +23,29 @@ const SURFACE_FACTOR := 1.8
 const Z_MAX := 12.0
 
 
+## Whitham's far-field N-wave of a supersonic body (diameter `d_m`, length `l_m`, Mach `mach`):
+## the peak overpressure, Pa, at miss distance `x_m`. dp / P0 = 0.53 (M^2 - 1)^(1/8) d / (x^(3/4) l^(1/4)).
+## A 120 mm dart (0.03 m x 0.7 m, Mach 4.8) at 3.5 m: about 1 kPa. Zero at or under the speed of sound.
+static func nwave_pa(mach: float, d_m: float, l_m: float, x_m: float) -> float:
+	if mach <= 1.0 or d_m <= 0.0 or l_m <= 0.0:
+		return 0.0
+	return P0 * 0.53 * pow(mach * mach - 1.0, 0.125) * d_m / (pow(maxf(x_m, 0.1), 0.75) * pow(l_m, 0.25))
+
+
+## The N-wave's length in time, s: T = 1.82 M x^(1/4) d / (c (M^2 - 1)^(3/8) l^(1/4)), c = 343 m/s
+## (0.36 ms for the 120 mm dart at 3.5 m).
+static func nwave_s(mach: float, d_m: float, l_m: float, x_m: float) -> float:
+	if mach <= 1.0 or d_m <= 0.0 or l_m <= 0.0:
+		return 0.0
+	return 1.82 * mach * pow(maxf(x_m, 0.1), 0.25) * d_m / (343.0 * pow(mach * mach - 1.0, 0.375) * pow(l_m, 0.25))
+
+
+## The push half of the N-wave on one square metre facing it, Pa s: the positive triangle, dp T / 4
+## (the pull half that follows takes the same back).
+static func nwave_push_pa_s(mach: float, d_m: float, l_m: float, x_m: float) -> float:
+	return nwave_pa(mach, d_m, l_m, x_m) * nwave_s(mach, d_m, l_m, x_m) * 0.25
+
+
 ## Side-on peak overpressure, Pa, at `r_m` from `tnt_kg` in free air.
 static func overpressure_pa(r_m: float, tnt_kg: float) -> float:
 	var z := scaled(r_m, tnt_kg)

@@ -405,6 +405,8 @@ func _on_node_added(node: Node) -> void:
 		b.mouse_entered.connect(_hover.bind(b))
 	elif node.has_signal("impacted") and node is Node3D:
 		node.connect("impacted", _on_impact)
+		if node.has_signal("skipped"):
+			node.connect("skipped", _on_impact)
 	elif node.has_signal("stepped") and node is RigidBody3D and not node.has_node("MechSounds"):
 		var ms := MechSounds.new()
 		ms.name = "MechSounds"
@@ -428,7 +430,7 @@ func _on_impact(info: Dictionary) -> void:
 		if kg >= float(rule["min_kg"]):
 			bang = str(rule["sound"])
 			break
-	if bang != "":
+	if bang != "" and not bool(info.get("skip", false)):
 		play(bang, at)
 		play(str(sounds.get("impact", "impact_dirt")), at, -8.0)
 	else:

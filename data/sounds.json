@@ -2452,6 +2452,30 @@
           "files": []
         }
       ]
+    },
+    "near_miss_crack": {
+      "label": "A round cracks past you",
+      "files": [
+        "res://assets/audio/lib/near_miss_crack/1_snd_bulletcrackle.ogg"
+      ],
+      "bus": "impacts",
+      "volume_db": 0.0,
+      "pitch_jitter": 0.08,
+      "unit_size": 6.0,
+      "max_distance_m": 60.0,
+      "attenuation": "inverse",
+      "delay_by_distance": false,
+      "choice": "oga_various-sound-effects-0_snd_bulletcrackle",
+      "choices": [
+        {
+          "id": "oga_various-sound-effects-0_snd_bulletcrackle",
+          "label": "bullet crackle (Opengameart, various sound effects 0)",
+          "files": [
+            "res://assets/audio/lib/near_miss_crack/1_snd_bulletcrackle.ogg"
+          ],
+          "licence": "CC0"
+        }
+      ]
     }
   },
   "weapons": {

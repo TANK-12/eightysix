@@ -217,7 +217,21 @@
     "sub_barrel_m": 0.6,
     "projectile_life_s": 4.0,
     "tracer_len_m": 9.0,
-    "gouge_every_s": 0.12
+    "gouge_every_s": 0.12,
+    "grounds": {
+      "_about": "Version 015 (Emerson's note 7 after 012, skipping shells): per ground (Sfx.surface_of names). A round skips when its grazing angle is under its ammo's ricochet.max_deg x hardness. On the bounce the speed into the ground comes back x restitution and Coulomb friction takes friction x (1 + restitution) x that speed off the speed along the ground (an impulse model: the round can only lose energy). Reasoned figures, not measured: rounds skip off soft earth only at a few degrees and off rock and steel at far steeper angles.",
+      "dirt": {"hardness": 0.4, "restitution": 0.1, "friction": 0.5},
+      "rock": {"hardness": 0.85, "restitution": 0.3, "friction": 0.35},
+      "metal": {"hardness": 1.0, "restitution": 0.35, "friction": 0.25}
+    },
+    "near_miss": {
+      "_about": "Version 015: a supersonic round passing within within_m of the player's mech (not his own) cracks: Whitham's N-wave peak from Blast.nwave_pa sets the crack's loudness and the camera shake (shake_max at shake_ref_pa). Its push on the mech is the positive phase's impulse over the side the mech shows (side_area_m2); it is applied only above push_floor_ns, which no passing round reaches (a 120 mm dart at 2 m: under 3 N s on 5.5 t).",
+      "within_m": 8.0,
+      "shake_ref_pa": 2000.0,
+      "shake_max": 0.6,
+      "side_area_m2": 22.0,
+      "push_floor_ns": 50.0
+    }
   },
   "damage": {
     "ricochet_fraction": 0.15,

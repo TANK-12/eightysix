@@ -1,5 +1,5 @@
 {
-  "_about": "Weapons, one entry each, for the player and the Legion. \"mount\": \"fixed_forward\" with \"traverse_deg\": 0 means no independent tracking: the body turns to aim (physics supplement, point 2). \"recoil_impulse_ns\" is the fallback figure; when the ammo gives \"propellant_kg\" the recoil is worked out per shot as projectile momentum plus propellant gas momentum (gas at \"gas_speed_factor\" x muzzle speed, the usual 1.5 for high-velocity guns), with no game-mode scale (lane A3 part 4, Emerson: real physics only). \"muzzle_brake\": false on the 57 mm (a brake would take off about a third). \"round_kg\" is one complete round; each shot takes it off the mech's mass. \"tnt_kg\" on an explosive round is its filler as TNT: the burst pushes what is near it (scripts/combat/blast.gd), so a near miss shoves from real blast physics (lane A4 part 2 replaced the supplement's draft \"wake\" figures). All figures are lane A1 drafts for A3/A4 to tune.",
+  "_about": "Weapons, one entry each, for the player and the Legion. \"mount\": \"fixed_forward\" with \"traverse_deg\": 0 means no independent tracking: the body turns to aim (physics supplement, point 2). \"recoil_impulse_ns\" is the fallback figure; when the ammo gives \"propellant_kg\" the recoil is worked out per shot as projectile momentum plus propellant gas momentum (gas at \"gas_speed_factor\" x muzzle speed, the usual 1.5 for high-velocity guns), with no game-mode scale (lane A3 part 4, Emerson: real physics only). \"muzzle_brake\": false on the 57 mm (a brake would take off about a third). \"round_kg\" is one complete round; each shot takes it off the mech's mass. \"tnt_kg\" on an explosive round is its filler as TNT: the burst pushes what is near it (scripts/combat/blast.gd), so a near miss shoves from real blast physics (lane A4 part 2 replaced the supplement's draft \"wake\" figures). An ammo entry may carry diameter_m and length_m (the flying body: a passing supersonic round cracks, scripts/combat/blast.gd nwave_pa) and a ricochet block (the round skips off the ground at a grazing angle under max_deg x the ground hardness, tuning combat.grounds; it leaves no slower than min_exit_m_s or it stops; at most max_skips times; fuzed HE and HEAT burst instead, so they have none). All figures are lane A1 drafts for A3/A4 to tune.",
   "entries": {
     "gun_57mm": {
       "label": "57 mm smoothbore gun",
@@ -14,10 +14,10 @@
       "cycle_s": 0.9,
       "default_ammo": "apfsds",
       "ammo": {
-        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "propellant_kg": 1.6, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02},
-        "heat": {"label": "HEAT", "projectile_kg": 2.7, "propellant_kg": 1.2, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08},
-        "he": {"label": "HE", "projectile_kg": 2.7, "propellant_kg": 1.1, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "tnt_kg": 0.3, "drag_per_s": 0.1},
-        "heavy": {"label": "Heavy AP (overcharged)", "projectile_kg": 4.0, "propellant_kg": 2.4, "muzzle_m_s": 1100.0, "damage": 1510, "penetration_mm": 140, "drag_per_s": 0.03, "_about": "Lane A4, Emerson 2026-10-01: a round with more kick and more damage. More recoil can only come from more momentum out of the muzzle: a 4 kg full-calibre tungsten shot on a 2.4 kg overcharge (a longer, hotter case that would wear the barrel faster; wear not modelled yet). 2.4 MJ at the muzzle against the APFSDS 1.4 MJ, so damage 1510 (the same 625 a megajoule); a fat slug at 1100 m/s goes through less armour than the long rod (140 mm). Recoil about 8,400 N s against 5,600: the 5.6 t mech kicks back about 1.5 m/s."}
+        "apfsds": {"label": "APFSDS", "projectile_kg": 1.2, "propellant_kg": 1.6, "muzzle_m_s": 1550.0, "damage": 900, "penetration_mm": 180, "drag_per_s": 0.02, "diameter_m": 0.022, "length_m": 0.45, "ricochet": {"max_deg": 20.0, "min_exit_m_s": 150.0, "max_skips": 2}},
+        "heat": {"label": "HEAT", "projectile_kg": 2.7, "propellant_kg": 1.2, "muzzle_m_s": 900.0, "damage": 1200, "penetration_mm": 220, "blast_radius_m": 2.5, "drag_per_s": 0.08, "diameter_m": 0.057, "length_m": 0.25},
+        "he": {"label": "HE", "projectile_kg": 2.7, "propellant_kg": 1.1, "muzzle_m_s": 800.0, "damage": 500, "blast_radius_m": 6.0, "tnt_kg": 0.3, "drag_per_s": 0.1, "diameter_m": 0.057, "length_m": 0.25},
+        "heavy": {"label": "Heavy AP (overcharged)", "projectile_kg": 4.0, "propellant_kg": 2.4, "muzzle_m_s": 1100.0, "damage": 1510, "penetration_mm": 140, "drag_per_s": 0.03, "_about": "Lane A4, Emerson 2026-10-01: a round with more kick and more damage. More recoil can only come from more momentum out of the muzzle: a 4 kg full-calibre tungsten shot on a 2.4 kg overcharge (a longer, hotter case that would wear the barrel faster; wear not modelled yet). 2.4 MJ at the muzzle against the APFSDS 1.4 MJ, so damage 1510 (the same 625 a megajoule); a fat slug at 1100 m/s goes through less armour than the long rod (140 mm). Recoil about 8,400 N s against 5,600: the 5.6 t mech kicks back about 1.5 m/s.", "diameter_m": 0.057, "length_m": 0.2, "ricochet": {"max_deg": 15.0, "min_exit_m_s": 150.0, "max_skips": 2}}
       },
       "recoil_impulse_ns": 5600.0,
       "gas_speed_factor": 1.5,
@@ -38,7 +38,7 @@
       "reload_s": 3.0,
       "cycle_s": 0.06,
       "ammo": {
-        "ball": {"label": "Ball", "projectile_kg": 0.045, "propellant_kg": 0.015, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20, "drag_per_s": 0.15, "tracer_len_m": 6.0, "tracer_w_m": 0.06}
+        "ball": {"label": "Ball", "projectile_kg": 0.045, "propellant_kg": 0.015, "muzzle_m_s": 890.0, "damage": 40, "penetration_mm": 20, "drag_per_s": 0.15, "tracer_len_m": 6.0, "tracer_w_m": 0.06, "diameter_m": 0.0127, "length_m": 0.058, "ricochet": {"max_deg": 18.0, "min_exit_m_s": 80.0, "max_skips": 1}}
       },
       "default_ammo": "ball",
       "recoil_impulse_ns": 60.0,
@@ -84,8 +84,8 @@
       "cycle_s": 6.0,
       "default_ammo": "apfsds",
       "ammo": {
-        "apfsds": {"label": "APFSDS", "projectile_kg": 7.0, "muzzle_m_s": 1650.0, "damage": 4000, "penetration_mm": 550, "drag_per_s": 0.02},
-        "he": {"label": "HE (multi-purpose)", "projectile_kg": 13.5, "muzzle_m_s": 1140.0, "damage": 2500, "penetration_mm": 450, "blast_radius_m": 5.0, "tnt_kg": 2.0, "drag_per_s": 0.06}
+        "apfsds": {"label": "APFSDS", "projectile_kg": 7.0, "muzzle_m_s": 1650.0, "damage": 4000, "penetration_mm": 550, "drag_per_s": 0.02, "diameter_m": 0.03, "length_m": 0.7, "ricochet": {"max_deg": 20.0, "min_exit_m_s": 150.0, "max_skips": 2}},
+        "he": {"label": "HE (multi-purpose)", "projectile_kg": 13.5, "muzzle_m_s": 1140.0, "damage": 2500, "penetration_mm": 450, "blast_radius_m": 5.0, "tnt_kg": 2.0, "drag_per_s": 0.06, "diameter_m": 0.12, "length_m": 0.5}
       },
       "recoil_impulse_ns": 18000.0,
       "_about_wake": "Lane A4 part 2: the A1 draft 'wake' (90 kN s sideways, 60 kN m s spin) is gone because nothing real makes it. A passing 120 mm dart's shock (Whitham's N-wave) is about 1 kPa over 0.36 ms at 3.5 m and pushes then pulls by the same amount: under 1 N s on the Juggernaut's whole side. The shove of a near miss comes from an HE shell bursting beside you, worked out from its filler (tnt_kg) by scripts/combat/blast.gd. The HE round is M830-class HEAT-MP: 13.5 kg at 1140 m/s, about 1.8 kg of Comp B (2.0 kg TNT equivalent). The Löwe's brain loads HE for a moving target and APFSDS for a still or close one."
@@ -99,7 +99,7 @@
       "magazine": 250,
       "reload_s": 4.0,
       "cycle_s": 0.08,
-      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 18, "penetration_mm": 8}},
+      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 18, "penetration_mm": 8, "diameter_m": 0.0078, "length_m": 0.03, "ricochet": {"max_deg": 18.0, "min_exit_m_s": 80.0, "max_skips": 1}}},
       "default_ammo": "ball"
     },
     "grauwolf_blade": {
@@ -130,7 +130,7 @@
       "magazine": 150,
       "reload_s": 4.0,
       "cycle_s": 0.09,
-      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 12, "penetration_mm": 6}},
+      "ammo": {"ball": {"label": "Ball", "projectile_kg": 0.01, "muzzle_m_s": 850.0, "damage": 12, "penetration_mm": 6, "diameter_m": 0.0078, "length_m": 0.03, "ricochet": {"max_deg": 18.0, "min_exit_m_s": 80.0, "max_skips": 1}}},
       "default_ammo": "ball"
     }
   }
