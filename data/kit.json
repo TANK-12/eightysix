@@ -7,6 +7,8 @@
       "params": {"base_scale": 0.45, "coat_scale": 0.5, "coat_amount": 0.2, "streaks": 0.6, "base_dirt": 0.6, "soot": 0.3, "relief": 0.8}},
     "brick": {"shader": "masonry", "tex": {"base_col": "brick_worn/color.jpg", "base_nrm": "brick_worn/normal.jpg", "base_rgh": "brick_worn/roughness.jpg", "base_ao": "brick_worn/ao.jpg", "coat_col": "plaster/color.jpg", "coat_nrm": "plaster/normal.jpg"},
       "params": {"base_scale": 0.9, "coat_scale": 0.5, "coat_amount": 0.5, "streaks": 0.45, "base_dirt": 0.55, "soot": 0.25, "relief": 1.0}},
+    "roof_slate": {"shader": "masonry", "tex": {"base_col": "roof_slate/color.jpg", "base_nrm": "roof_slate/normal.jpg", "base_rgh": "roof_slate/roughness.jpg", "base_ao": "roof_slate/ao.jpg", "coat_col": "plaster/color.jpg", "coat_nrm": "plaster/normal.jpg"}, "params": {"base_scale": 0.45, "coat_amount": 0.0, "streaks": 0.25, "base_dirt": 0.0, "soot": 0.2, "relief": 0.8, "dado_m": -5.0}},
+    "roof_clay": {"shader": "masonry", "tex": {"base_col": "roof_clay/color.jpg", "base_nrm": "roof_clay/normal.jpg", "base_rgh": "roof_clay/roughness.jpg", "base_ao": "roof_clay/ao.jpg", "coat_col": "plaster/color.jpg", "coat_nrm": "plaster/normal.jpg"}, "params": {"base_scale": 0.45, "coat_amount": 0.0, "streaks": 0.3, "base_dirt": 0.0, "soot": 0.25, "relief": 0.8, "dado_m": -5.0}},
     "brass": {"albedo": [0.78, 0.6, 0.3], "metallic": 1.0, "roughness": 0.32},
     "brass_spent": {"albedo": [0.55, 0.42, 0.24], "metallic": 1.0, "roughness": 0.55},
     "shell_steel": {"albedo": [0.2, 0.21, 0.19], "metallic": 0.7, "roughness": 0.45},

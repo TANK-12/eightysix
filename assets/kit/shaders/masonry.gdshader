@@ -30,10 +30,16 @@ uniform float streaks = 0.45;
 uniform float base_dirt = 0.55;
 uniform vec3 dirt_col : source_color = vec3(0.3, 0.24, 0.18);
 uniform float soot = 0.25;
+// many buildings in one mesh (BigCity, real towns from OpenStreetMap): each vertex carries its building's
+// foot in UV2 (x, z) and UV.x (height), so colours still differ from building to building, and UV.y the
+// storey height (m) for a grid of dark window panes on the walls (0: none)
+uniform bool batched = false;
+uniform float window_every_m = 3.1;
 
 varying vec3 wp;
 varying vec3 wn;
 varying vec3 origin;
+varying float storey;
 
 float hash11(float p) {
 	p = fract(p * 0.1031);
@@ -52,6 +58,11 @@ void vertex() {
 	wp = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	origin = MODEL_MATRIX[3].xyz;
+	storey = 0.0;
+	if (batched) {
+		origin = vec3(UV2.x, UV.x, UV2.y);
+		storey = UV.y;
+	}
 }
 
 void fragment() {
@@ -115,6 +126,18 @@ void fragment() {
 	float splash = base_dirt * (1.0 - smoothstep(0.0, 1.1 + 0.6 * m_mid, height));
 	b = mix(b, dirt_col * (0.8 + 0.4 * m_fine), splash * 0.65);
 	b *= 1.0 - soot * smoothstep(0.55, 0.9, m_big) * smoothstep(1.0, 4.0, height);
+
+	if (storey > 0.5 && an.y < 0.5) {
+		float along = axis == 0 ? wp.z : wp.x;
+		float fl = (height - 0.5) / storey;
+		float wx = fract(along / window_every_m + building * 3.0);
+		float wy = fract(fl);
+		float pane = step(0.3, wx) * step(wx, 0.7) * step(0.3, wy) * step(wy, 0.78) * step(0.0, fl);
+		b = mix(b, vec3(0.02, 0.025, 0.03) + 0.04 * m_fine, pane);
+		rough = mix(rough, 0.3, pane);
+		tn = mix(tn, vec3(0.0, 0.0, 1.0), pane);
+		ao *= 1.0 - 0.3 * pane;
+	}
 
 	vec3 n = wn;
 	float k = relief * (1.0 - coat * 0.35);

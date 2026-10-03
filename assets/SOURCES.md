@@ -33,3 +33,14 @@ All ambientCG, CC0, 1K JPG (color, normal GL, roughness, and ambient occlusion w
 | `assets/kit/textures/moss_ground/` | Ground037: mossy ground | https://ambientcg.com/a/Ground037 | CC0 |
 | `assets/kit/textures/gravel/` | Gravel043: fine grey gravel (roads) | https://ambientcg.com/a/Gravel043 | CC0 |
 | `assets/kit/textures/rust_paint/` | Metal046B: rusted, chipped dark paint | https://ambientcg.com/a/Metal046B | CC0 |
+
+## Real-place maps, part 2: forest and city (Relay 36, 2026-10-03)
+
+| Folder | What | Source | Licence |
+|---|---|---|---|
+| `assets/kit/textures/roof_slate/` | RoofingTiles013A, 1K JPG (+ AO): grey slate roof | https://ambientcg.com/a/RoofingTiles013A | CC0 |
+| `assets/kit/textures/roof_clay/` | RoofingTiles006, 1K JPG (+ AO): red clay tiles | https://ambientcg.com/a/RoofingTiles006 | CC0 |
+| `assets/trees/fir/bark*.jpg` | a strip of fir_tree_01's trunk bark (1k diffuse + normal GL), cut and mirrored by `tools/maps/tree_textures.py`; the bough card and far billboard are drawn by that script | Poly Haven, https://polyhaven.com/a/fir_tree_01 | CC0 |
+| `assets/maps/allegheny/` | heights: USGS 3DEP 1 m DEM tile USGS_1M_17_x66y462_PA_WesternPA_2019_D20 (Allegheny National Forest, Pennsylvania), resampled to 2 m by `tools/maps/heightmap.py` | U.S. Geological Survey, The National Map, https://apps.nationalmap.gov/downloader/ | public domain |
+| `assets/maps/brilon/` | heights: DGM1 NRW 1 m terrain model, 16 tiles round Brilon (Hochsauerland), resampled to 2 m | Geobasis NRW, https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/ | Datenlizenz Deutschland Zero 2.0 (dl-de/zero-2.0) |
+| `assets/maps/*/osm.json`, `woods.png` | streets, buildings and land use (forest, fields) for Allegheny and Brilon, by `tools/maps/osm_map.py` through the Overpass API | © OpenStreetMap contributors, https://www.openstreetmap.org/copyright | ODbL 1.0 (personal use; credit kept here and in the map descriptions) |
