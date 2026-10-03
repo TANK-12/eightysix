@@ -676,3 +676,14 @@ drawn, nearest drawn vertex 0.44 m from the eye, shadow off inside and back on o
 test_juggernaut, test_damage, test_move_hints, test_hangar green; bot shots before images/481-482, after 497/499/501.
 **Not verified:** shadow shimmer in motion. test_squad's squad_size default check fails on this machine (4 vs 2), not
 from this change. Details: `~/Forge/sessions/juggernaut-alpha/results/R3.md`.
+
+### 2026-10-03 · v015 work · Tetsu (hey) · stopped at 75 % of the 5-hour meter (not saved as a version yet)
+Verified (tests green, 0 SCRIPT ERROR in their logs): main-menu map list fits above the status line and scrolls
+(test_ui 8/8, images/476-480); L2/R2 (Z/C) step the settings' left-column pages; Gameplay > Physics > Winch size
+(default 1.4x, rope sized to it; test_grapple 12/12); tracers grow from the muzzle (were drawn up to 58 m behind it;
+test_combat_fx 12/12); the wire is drawn along the dart's flown arc; rounds skip off the ground at grazing angles and a
+passing supersonic round cracks with shake but no shove (test_ricochet 5/5); real-place terrain from a heightmap and
+the **Palouse grassland** map (USGS lidar round Steptoe Butte, free roam; test_real_maps 2/2, images/505).
+Relay sessions the same day: rumble (R2, fec6d04), first person (R3), ground texture (R1). Full suite not run after
+these; fps of the Palouse not measured on a quiet GPU. Details and next steps:
+`~/Forge/sessions/juggernaut-alpha/results/V015.md`; forest and city maps: `2026-10-03-maps-brief.md` there.
