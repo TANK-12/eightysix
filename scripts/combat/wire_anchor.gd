@@ -28,6 +28,7 @@ const SURFACE_MASK := 64
 var state := State.IDLE
 var mech: RigidBody3D
 var def: Dictionary = {}
+var _base_def: Dictionary = {}  # weapons.json's figures before Winch size
 var sockets: Array = []  # body-frame anchor sockets (left and right)
 var socket_local := Vector3.ZERO
 var anchor_point := Vector3.ZERO
@@ -57,14 +58,45 @@ var _rope: Array[MeshInstance3D] = []
 var _dart: MeshInstance3D
 
 
+## Settings > Gameplay > Physics > Winch size (Emerson after 014: "I want the winch 40 percent
+## stronger, make a slider"): a bigger winch, not a stronger number. Its stall pull and the power it
+## draws scale together. The rope only grows when it must: at 1.4x the 20 mm rope (330 kN) would snap
+## under the winch's own 336 kN stall, so it is sized to break at rope_margin x the stall pull, and a
+## thicker Dyneema rope weighs more per metre in proportion to its strength, so the dart carries it a
+## little less far. Nothing else changes.
+const ROPE_MARGIN := 1.1
+
+
+## `weapon_def` with the winch scaled by `size` (1 = the weapons.json figures) and the rope sized to it.
+static func sized(weapon_def: Dictionary, size: float) -> Dictionary:
+	var out := weapon_def.duplicate()
+	for key: String in ["max_tension_n", "winch_power_w"]:
+		if out.has(key):
+			out[key] = float(out[key]) * size
+	var brk := float(out.get("cable_break_n", 0.0))
+	var need := float(out.get("max_tension_n", 0.0)) * ROPE_MARGIN
+	if brk > 0.0 and need > brk:
+		out["cable_break_n"] = need
+		out["line_kg_per_m"] = float(out.get("line_kg_per_m", 0.0)) * need / brk
+	return out
+
+
 func setup(body: RigidBody3D, weapon_def: Dictionary, socket_list: Array) -> void:
 	mech = body
-	def = weapon_def
+	_base_def = weapon_def
+	def = sized(weapon_def, Settings.get_f("gameplay.winch_size"))
+	if not Settings.changed.is_connected(_on_setting_changed):
+		Settings.changed.connect(_on_setting_changed)
 	sockets = socket_list
 	if sockets.is_empty():
 		sockets = [Vector3(0.0, 0.0, -1.5)]
 	socket_local = sockets[0]
 	_g = Registry.tune("grapple", {})
+
+
+func _on_setting_changed(key: String, value: Variant) -> void:
+	if key == "gameplay.winch_size":
+		def = sized(_base_def, float(value))
 
 
 func _ready() -> void:

@@ -275,3 +275,47 @@ func test_the_preview_arc_shows_screen_sized_dots_even_for_a_near_ledge() -> voi
 	assert_gt(dots, 5, "a line of dots shows on a short throw (%d)" % dots)
 	assert_true(a._arc_mat.fixed_size and a._arc_mat.billboard_mode == BaseMaterial3D.BILLBOARD_ENABLED, "dots face the camera at a fixed screen size")
 	print("    anchor arc: %d dots on a 14 m throw" % dots)
+
+
+## Emerson after 014: a 40 % stronger winch on a slider. The stall pull and power scale; the rope
+## grows (break load and weight together) only when the stall pull would otherwise break it.
+func test_winch_size_scales_the_winch_and_its_rope() -> void:
+	var base: Dictionary = Registry.entry("weapons", "wire_anchor")
+	assert_eq(Settings.get_f("gameplay.winch_size"), 1.4, "40 % stronger by default")
+	assert_almost_eq(float(combat.anchor.def["max_tension_n"]), float(base["max_tension_n"]) * 1.4, 1.0, "stall pull x1.4")
+	assert_almost_eq(float(combat.anchor.def["winch_power_w"]), float(base["winch_power_w"]) * 1.4, 1.0, "power x1.4")
+	for size: float in [0.6, 1.0, 1.4, 2.0]:
+		var d := WireAnchor.sized(base, size)
+		assert_lt(float(d["max_tension_n"]), float(d["cable_break_n"]), "at %.1fx the stall pull stays under the rope's break load" % size)
+	var d14 := WireAnchor.sized(base, 1.4)
+	assert_almost_eq(float(d14["cable_break_n"]) / float(d14["max_tension_n"]), WireAnchor.ROPE_MARGIN, 0.001, "1.4x needs a bigger rope")
+	assert_almost_eq(float(d14["line_kg_per_m"]) / float(base["line_kg_per_m"]), float(d14["cable_break_n"]) / float(base["cable_break_n"]), 0.001, "which weighs more in step with its strength")
+	assert_eq(WireAnchor.sized(base, 1.0), base, "1x is the weapons.json winch and rope")
+	assert_eq(float(WireAnchor.sized(base, 0.6)["cable_break_n"]), float(base["cable_break_n"]), "a smaller winch keeps the rope")
+	Settings.set_value("gameplay.winch_size", 1.0, false)
+	assert_almost_eq(float(combat.anchor.def["max_tension_n"]), float(base["max_tension_n"]), 1.0, "the slider changes it live")
+	assert_almost_eq(float(combat.anchor.def["line_kg_per_m"]), float(base["line_kg_per_m"]), 0.0001, "and the rope with it")
+
+
+## The bigger winch hauls the hanging mech up faster (same pull geometry, 2 s of reeling).
+func test_bigger_winch_lifts_faster() -> void:
+	var lifts: Array[float] = []
+	for size: float in [1.0, 1.4]:
+		if size != 1.0:
+			after_each()
+			before_each()
+		Settings.set_value("gameplay.winch_size", size, false)
+		await physics_frames(240)
+		_block(Vector3(0, 22, -9), Vector3(20, 3, 8), 1 | 64)
+		await physics_frames(2)
+		_aim_at(Vector3(0, 20.4, -8))
+		await physics_frames(30)
+		_aim_at(Vector3(0, 20.4, -8))
+		var y0 := mech.global_position.y
+		assert_true(combat.anchor.fire(), "a dart left (%.1fx)" % size)
+		await physics_frames(60)
+		for i in 240:
+			combat.anchor.reel = -1
+			await physics_frames(1)
+		lifts.append(mech.global_position.y - y0)
+	assert_gt(lifts[1], lifts[0] * 1.1, "1.4x lifts more in 2 s (%.2f m vs %.2f m)" % [lifts[1], lifts[0]])
