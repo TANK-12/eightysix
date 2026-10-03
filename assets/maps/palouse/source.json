@@ -1,0 +1,12 @@
+{
+  "source": "USGS 3DEP 1 m DEM, tile USGS_1M_11_x47y521_WA_FEMAHQ_2018_D18 (public domain), Steptoe Butte, Palouse, Washington",
+  "tile": "palouse_x47y521.tif",
+  "crop_centre_px": [
+    7450,
+    2375
+  ],
+  "size_m": 4096,
+  "points": 2049,
+  "step_m": 2.0,
+  "relief_m": 373.18
+}

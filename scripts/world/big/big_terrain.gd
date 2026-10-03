@@ -46,6 +46,8 @@ var _flats: Array = []  # {c: Vector2, half: Vector2, cos, sin, blend, h}
 var _craters: Array = []  # {c: Vector2, r}
 var _cells := {}  # Vector2i -> {"roads": [], "rivers": [], "lakes": [], "flats": [], "craters": []}
 var _valley_m := 450.0
+var _hm := PackedFloat32Array()  # a real place's heights (terrain.heightmap), metres, row 0 at the north edge
+var _hm_n := 0  # heightmap points per side
 var _valley_keep := 0.2
 
 
@@ -60,6 +62,7 @@ func _init(map_entry: Dictionary) -> void:
 	_valley_m = float(_t.get("valley_m", 450.0))
 	_valley_keep = float(_t.get("valley_keep", 0.2))
 	_setup_noise(int(entry.get("seed", 1)))
+	_load_heightmap()
 	_read_features()
 	_make_bed()
 	for f: Dictionary in _flats:
@@ -299,15 +302,51 @@ func _setup_noise(seed_value: int) -> void:
 	_n_rough.fractal_octaves = 3
 
 
-## The ground before roads, towns and water: hills, ridges and the rim, lowered toward the river.
+## A real place's ground (Emerson 2026-10-03: "get some nice maps downloaded"): terrain.heightmap
+## {"file": res:// path, "points": n} is n x n little-endian float32 heights in metres over the whole
+## map, row 0 at the north (-z) edge, column 0 at the west (-x) edge, made by tools/maps/heightmap.py
+## from a public elevation survey. The noise relief is then left out; the fine roughness, the rim,
+## water, roads and towns still apply on top.
+func _load_heightmap() -> void:
+	var hm: Dictionary = _t.get("heightmap", {})
+	if hm.is_empty():
+		return
+	var f := FileAccess.open(str(hm["file"]), FileAccess.READ)
+	if f == null:
+		push_warning("BigTerrain: no heightmap %s (%s)" % [hm["file"], error_string(FileAccess.get_open_error())])
+		return
+	_hm_n = int(hm["points"])
+	_hm = f.get_buffer(_hm_n * _hm_n * 4).to_float32_array()
+	if _hm.size() != _hm_n * _hm_n:
+		push_warning("BigTerrain: heightmap %s holds %d heights, expected %d" % [hm["file"], _hm.size(), _hm_n * _hm_n])
+		_hm = PackedFloat32Array()
+
+
+## The heightmap at world (x, z), bilinear between its points.
+func _hm_at(x: float, z: float) -> float:
+	var step := size_m / float(_hm_n - 1)
+	var fx := clampf((x + half) / step, 0.0, _hm_n - 1.001)
+	var fz := clampf((z + half) / step, 0.0, _hm_n - 1.001)
+	var xi := int(fx)
+	var zi := int(fz)
+	var i := zi * _hm_n + xi
+	return lerpf(lerpf(_hm[i], _hm[i + 1], fx - xi), lerpf(_hm[i + _hm_n], _hm[i + _hm_n + 1], fx - xi), fz - zi)
+
+
+## The ground before roads, towns and water: hills, ridges and the rim, lowered toward the river
+## (or a real place's heights, when the map has a heightmap).
 func _natural(x: float, z: float, water_d: float) -> float:
 	var b := _n_base.get_noise_2d(x, z) * 0.5 + 0.5
-	var hl := _n_hills.get_noise_2d(x, z) * 0.5 + 0.5
 	var r := _n_ridge.get_noise_2d(x, z) * 0.5 + 0.5
-	var md := _n_mid.get_noise_2d(x, z) * 0.5 + 0.5
-	var relief := b * float(_t.get("base_m", 22.0)) + hl * hl * float(_t.get("hills_m", 60.0)) + r * float(_t.get("ridges_m", 18.0)) * (0.35 + 0.65 * hl)
-	# the ridged hills rise only where the big swells already are: open plains stay open
-	relief += md * md * float(_t.get("mid_m", 0.0)) * smoothstep(0.3, 0.75, hl)
+	var relief := 0.0
+	if not _hm.is_empty():
+		relief = _hm_at(x, z)
+	else:
+		var hl := _n_hills.get_noise_2d(x, z) * 0.5 + 0.5
+		var md := _n_mid.get_noise_2d(x, z) * 0.5 + 0.5
+		relief = b * float(_t.get("base_m", 22.0)) + hl * hl * float(_t.get("hills_m", 60.0)) + r * float(_t.get("ridges_m", 18.0)) * (0.35 + 0.65 * hl)
+		# the ridged hills rise only where the big swells already are: open plains stay open
+		relief += md * md * float(_t.get("mid_m", 0.0)) * smoothstep(0.3, 0.75, hl)
 	relief *= lerpf(_valley_keep, 1.0, smoothstep(0.0, _valley_m, water_d))
 	var h := float(_t.get("floor_m", 1.6)) + relief
 	var rim_w := float(_t.get("rim_width_m", 320.0))

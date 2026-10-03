@@ -6,6 +6,9 @@ extends Node3D
 ## as on the small map; look_from("<viewpoint>") parks a camera for check screenshots.
 
 const MAP_ID := "big_map"
+## The streamed map this scene plays: the one picked (any maps.json entry whose scene is this one, such
+## as a real place built from a heightmap), else MAP_ID for tests and bot runs that load the scene.
+var map_id := MAP_ID
 const MECH_ID := "juggernaut_m2"
 const HUD_SCRIPT := preload("res://scripts/ui/test_hud.gd")
 const WATER_SHADER := preload("res://assets/kit/shaders/water.gdshader")
@@ -34,7 +37,10 @@ var build_ms := {}
 
 
 func _ready() -> void:
-	entry = Registry.entry("maps", MAP_ID)
+	var picked := Game.pending_map
+	if picked != "" and Registry.has_entry("maps", picked) and str(Registry.entry("maps", picked).get("scene", "")) == scene_file_path:
+		map_id = picked
+	entry = Registry.entry("maps", map_id)
 	var t0 := Time.get_ticks_msec()
 	sky = SmallMapSky.new(self, str(entry.get("weather", "golden_afternoon")))
 	sky.fog_scale = float(entry.get("fog_scale", 1.0))
@@ -68,7 +74,7 @@ func _ready() -> void:
 	if not Bot.active and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	# a real game (started through Game.start_map, not a bot run or a test) plays the map's mission
-	var playing := Game.pending_map == MAP_ID and not Bot.active
+	var playing := Game.pending_map == map_id and not Bot.active
 	Game.register_level(self)
 	if playing and not Game.free_roam:
 		start_mission()
@@ -83,7 +89,7 @@ func _exit_tree() -> void:
 ## starts it (Game.start_map); bot runs call it as {"call": "start_mission"}.
 func start_mission(mission_id: String = "") -> void:
 	if mission == null:
-		mission = MissionRun.start(self, MAP_ID, mission_id)
+		mission = MissionRun.start(self, map_id, mission_id)
 
 
 ## Bot hooks: the Legion's state into the report, a camera beside a unit, the current wave destroyed.

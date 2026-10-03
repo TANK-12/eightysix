@@ -783,6 +783,267 @@
      "fog_scale": 0.35,
      "mission": "frontier_sweep",
      "legion_area_half_m": 1950.0
+    },
+    "palouse": {
+     "label": "Palouse grassland (real place, 4 km)",
+     "blurb": "Rolling wheat hills round Steptoe Butte, Washington: real ground from a 1 m survey. Free roam.",
+     "order": 30,
+     "scene": "res://scenes/levels/big_map.tscn",
+     "status": "alpha",
+     "size_m": 4096,
+     "seed": 3011,
+     "description": "Real terrain (USGS 3DEP 1 m lidar survey, public domain, resampled to 2 m with fine roughness on top): 4 km of the Palouse round Steptoe Butte, a 370 m quartzite peak with a spiral road to its top, over rolling wheat hills with the farm roads graded into them. No Legion yet: free roam. Built by tools/maps/heightmap.py; source in assets/maps/palouse/source.json.",
+     "spawn": {
+      "position": [
+       0.0,
+       0.0,
+       600.0
+      ],
+      "heading_deg": 0.0
+     },
+     "weather": "golden_afternoon",
+     "palette": {
+      "_about": "Palouse grassland (2026-10-03): late-summer wheat stubble and dry grass, warm low sun.",
+      "ground": {
+       "dry_tint": [
+        0.95,
+        0.86,
+        0.66
+       ],
+       "grass_tint": [
+        0.62,
+        0.6,
+        0.32
+       ],
+       "dead_tint": [
+        0.74,
+        0.64,
+        0.4
+       ],
+       "stone_tint": [
+        0.8,
+        0.8,
+        0.78
+       ],
+       "road_tint": [
+        0.72,
+        0.72,
+        0.7
+       ],
+       "mud_tint": [
+        0.36,
+        0.34,
+        0.3
+       ],
+       "grass_amount": 0.55,
+       "stone_amount": 0.55,
+       "contrast": 0.95
+      },
+      "kit": {
+       "brick": {
+        "base_tint": [
+         0.86,
+         0.82,
+         0.82
+        ],
+        "coat_a": [
+         0.8,
+         0.78,
+         0.7
+        ],
+        "coat_b": [
+         0.64,
+         0.72,
+         0.68
+        ],
+        "coat_c": [
+         0.74,
+         0.64,
+         0.56
+        ],
+        "coat_d": [
+         0.66,
+         0.72,
+         0.78
+        ],
+        "dado_col": [
+         0.18,
+         0.22,
+         0.22
+        ]
+       },
+       "foliage": {
+        "colour_a": [
+         0.11,
+         0.16,
+         0.09
+        ],
+        "colour_b": [
+         0.3,
+         0.38,
+         0.2
+        ]
+       },
+       "grass": {
+        "colour_a": [
+         0.15,
+         0.2,
+         0.1
+        ],
+        "colour_b": [
+         0.45,
+         0.5,
+         0.28
+        ]
+       },
+       "concrete": {
+        "base_tint": [
+         0.62,
+         0.64,
+         0.66
+        ],
+        "coat_a": [
+         0.66,
+         0.66,
+         0.6
+        ],
+        "coat_b": [
+         0.5,
+         0.56,
+         0.54
+        ],
+        "coat_c": [
+         0.6,
+         0.55,
+         0.5
+        ],
+        "coat_d": [
+         0.58,
+         0.62,
+         0.68
+        ]
+       }
+      }
+     },
+     "ambience": "wind_loop",
+     "water_level_m": 0.0,
+     "terrain": {
+      "floor_m": 1.6,
+      "base_m": 24.0,
+      "hills_m": 70.0,
+      "ridges_m": 20.0,
+      "rough_m": 0.3,
+      "rim_m": 50.0,
+      "rim_crag_m": 0.0,
+      "rim_width_m": 220.0,
+      "feature_scale": 2.2,
+      "valley_m": 380.0,
+      "valley_keep": 1.0,
+      "bed_blur_cells": 3,
+      "mid_m": 26.0,
+      "mid_frequency": 0.0045,
+      "meander_m": 34.0,
+      "heightmap": {
+       "file": "res://assets/maps/palouse/height.f32",
+       "points": 2049
+      }
+     },
+     "stream": {
+      "_about": "BigStream: tiles of 128 m. fine_rings: tiles each way around every mech that get 1 m ground with a collider; mesh_rings: tiles each way around the camera drawn at 1 m (first) and 2 m (second); the rest is the 8 m overview. keep_rings: extra rings kept before a tile is dropped. builds_per_frame: tiles turned into nodes per frame.",
+      "fine_rings": 1,
+      "mesh_rings": [
+       1,
+       2
+      ],
+      "keep_rings": 1,
+      "builds_per_frame": 2
+     },
+     "rivers": [],
+     "lakes": [],
+     "towns": [],
+     "bridges": [],
+     "roads": [],
+     "crater_fields": [],
+     "backdrop": {
+      "extent_m": 6000.0,
+      "cell_m": 64.0,
+      "start_m": 40.0,
+      "rise_m": 60.0,
+      "ridge_m": 120.0,
+      "colour": [
+       0.42,
+       0.38,
+       0.26
+      ],
+      "seed": 3011
+     },
+     "viewpoints": {
+      "start": {
+       "eye": [
+        0.0,
+        0,
+        640.0
+       ],
+       "look": [
+        0.0,
+        0,
+        560.0
+       ],
+       "rel_eye": 6.0,
+       "rel_look": 3.0
+      },
+      "butte": {
+       "eye": [
+        0.0,
+        0,
+        400.0
+       ],
+       "look": [
+        0.0,
+        0,
+        -1200.0
+       ],
+       "rel_eye": 40.0,
+       "rel_look": 0.0
+      },
+      "hills": {
+       "eye": [
+        600.0,
+        0,
+        900.0
+       ],
+       "look": [
+        -400.0,
+        0,
+        300.0
+       ],
+       "rel_eye": 25.0,
+       "rel_look": 0.0
+      }
+     },
+     "tips": [
+      "The Palouse is real ground: a 1 m lidar survey of the hills round Steptoe Butte, Washington.",
+      "Climb the butte: the spiral road goes all the way to the top."
+     ],
+     "scatter": {
+      "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
+      "grass_per_tile": 7000,
+      "shrub_per_tile": 120,
+      "pebbles_per_tile": 30,
+      "boulders_per_tile": 1,
+      "seed": 3011
+     },
+     "outcrops": {
+      "_about": "Rock outcrops spread over the hills at load (kit outcrop): count tried, size range (m), none near roads, towns or water, on ground no steeper than max_slope_deg.",
+      "count": 25,
+      "size_m": [
+       10.0,
+       26.0
+      ],
+      "max_slope_deg": 28.0,
+      "seed": 3011
+     },
+     "fog_scale": 0.3
     }
   }
 }

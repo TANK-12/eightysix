@@ -1,0 +1,19 @@
+{
+ "name": "maps_palouse",
+ "map": "palouse",
+ "_about": "Real-place maps (2026-10-03): the Palouse grassland from the chase camera at spawn and three viewpoints, with timings in the report. tools/bot_run.sh maps_palouse --preset=medium",
+ "steps": [
+  {"at": 0.5, "wait": "level"},
+  {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 0.6, "setting": "gameplay.move_hints", "value": false},
+  {"at": 0.7, "call": "show_hud", "args": [false]},
+  {"at": 4.0, "shot": "chase_spawn"},
+  {"at": 4.5, "call": "look_from", "args": ["start"]},
+  {"at": 7.0, "shot": "start"},
+  {"at": 7.5, "call": "look_from", "args": ["butte"]},
+  {"at": 10.5, "shot": "butte"},
+  {"at": 11.0, "call": "look_from", "args": ["hills"]},
+  {"at": 14.0, "shot": "hills"},
+  {"at": 14.5, "quit": true}
+ ]
+}
