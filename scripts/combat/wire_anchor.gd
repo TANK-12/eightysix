@@ -44,7 +44,7 @@ var _dart_to := Vector3.ZERO
 var _dart_vel := Vector3.ZERO
 var _dart_s := 0.0  # line paid out behind the dart, m
 var _miss := false
-const ROPE_SEGMENTS := 10
+const ROPE_SEGMENTS := 24
 const ARC_DOTS := 48
 ## Dots spread along the preview path, and their size on screen (fixed_size units: about 10 px at 1080p).
 const ARC_DOTS_AIM := 18
@@ -56,6 +56,7 @@ var _arc_mat: StandardMaterial3D
 
 var _rope: Array[MeshInstance3D] = []
 var _dart: MeshInstance3D
+var _dart_path := PackedVector3Array()  # where the dart has flown this shot: the line lies along it
 
 
 ## Settings > Gameplay > Physics > Winch size (Emerson after 014: "I want the winch 40 percent
@@ -362,6 +363,7 @@ func fire() -> bool:
 	_dart_pos = xf * socket_local
 	_dart_vel = (target["dir"] as Vector3) * launch_speed() + _carry()
 	_dart_s = 0.0
+	_dart_path = PackedVector3Array([_dart_pos])
 	state = State.FLYING
 	if mech.get("is_player"):
 		Rumble.play("fire_sub")
@@ -431,6 +433,7 @@ func _fly_dart(delta: float) -> void:
 	_dart_pos = to
 	_dart_vel = step[1]
 	_dart_s = float(step[2])
+	_dart_path.append(to)
 	if _dart_s >= range_m():
 		release()
 
@@ -489,7 +492,7 @@ func _pull(delta: float) -> void:
 	tension = maxf(want, 0.0)
 	var arm := socket_w - mech.global_position  # the real socket: the pull turns the body as well
 	mech.apply_force(n * tension, arm)
-	if mech.get("is_player") and not Rumble.is_playing("grapple_tension"):
+	if mech.get("is_player"):
 		Rumble.play("grapple_tension")
 
 
@@ -520,11 +523,37 @@ func _process(_delta: float) -> void:
 	if state == State.ATTACHED and rope_len > length:
 		sag = sqrt(3.0 * length * (rope_len - length) / 8.0)
 	var prev := from
+	if state == State.FLYING and _dart_path.size() > 1:
+		# Emerson after 014, "the grapple should arc": in flight the line is not a straight bar to the
+		# dart; it lies along the arc the dart has flown (paid out behind it), from the launcher's
+		# socket now to the dart now.
+		var path := _dart_path.duplicate()
+		path[0] = from
+		path.append(to)
+		for i in ROPE_SEGMENTS:
+			var p := along(path, float(i + 1) / ROPE_SEGMENTS)
+			_place_segment(_rope[i], prev, p)
+			prev = p
+		return
 	for i in ROPE_SEGMENTS:
 		var t := float(i + 1) / ROPE_SEGMENTS
 		var p := from.lerp(to, t) + Vector3.DOWN * sag * 4.0 * t * (1.0 - t)
 		_place_segment(_rope[i], prev, p)
 		prev = p
+
+
+## The point a fraction `f` (0..1) of the way along polyline `path` by length.
+static func along(path: PackedVector3Array, f: float) -> Vector3:
+	var total := 0.0
+	for i in range(1, path.size()):
+		total += path[i].distance_to(path[i - 1])
+	var want := clampf(f, 0.0, 1.0) * total
+	for i in range(1, path.size()):
+		var seg := path[i].distance_to(path[i - 1])
+		if want <= seg and seg > 0.0:
+			return path[i - 1].lerp(path[i], want / seg)
+		want -= seg
+	return path[path.size() - 1]
 
 
 func _place_segment(seg: MeshInstance3D, a: Vector3, b: Vector3) -> void:

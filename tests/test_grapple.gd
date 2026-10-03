@@ -319,3 +319,31 @@ func test_bigger_winch_lifts_faster() -> void:
 			await physics_frames(1)
 		lifts.append(mech.global_position.y - y0)
 	assert_gt(lifts[1], lifts[0] * 1.1, "1.4x lifts more in 2 s (%.2f m vs %.2f m)" % [lifts[1], lifts[0]])
+
+
+## Emerson after 014, "the grapple should arc": in flight the drawn line lies along the dart's own
+## falling path, not a straight bar from the launcher to the dart.
+func test_the_line_follows_the_darts_arc_in_flight() -> void:
+	await physics_frames(240)
+	_aim_at(Vector3(0, 6, -70))
+	await physics_frames(30)
+	_aim_at(Vector3(0, 6, -70))
+	combat.anchor.fire()
+	await physics_frames(50)
+	assert_eq(combat.anchor.state, WireAnchor.State.FLYING, "still flying")
+	await tree.process_frame
+	var path: PackedVector3Array = combat.anchor.get("_dart_path")
+	assert_gt(path.size(), 20, "the flight is recorded")
+	# At 140 m/s the dart drops only a few tenths of a metre over this shot, so the check is that the
+	# drawn line sits on the flown path, not on the straight chord between its ends.
+	var rope: Array = combat.anchor.get("_rope")
+	var drawn := (rope[rope.size() / 2 - 1] as MeshInstance3D).global_position
+	var on_path := WireAnchor.along(path, (float(rope.size() / 2) - 0.5) / rope.size())
+	var chord := path[0].lerp(path[path.size() - 1], (float(rope.size() / 2) - 0.5) / rope.size())
+	assert_gt(on_path.y - chord.y, 0.05, "the flown path bows above the chord (%.2f m)" % (on_path.y - chord.y))
+	var off := INF
+	for i in range(1, path.size()):
+		off = minf(off, drawn.distance_to(Geometry3D.get_closest_point_to_segment(drawn, path[i - 1], path[i])))
+	assert_lt(off, 0.05, "the drawn line lies on the flown path (%.3f m off)" % off)
+	assert_gt(drawn.distance_to(Geometry3D.get_closest_point_to_segment(drawn, path[0], path[path.size() - 1])), 0.05, "not on the straight chord")
+	assert_lt(WireAnchor.along(PackedVector3Array([Vector3.ZERO, Vector3(10, 0, 0), Vector3(10, 10, 0)]), 0.75).distance_to(Vector3(10, 5, 0)), 0.001, "along() walks by length")
