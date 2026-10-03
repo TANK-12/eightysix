@@ -4,6 +4,7 @@
     "test_bench_flat": {
       "squad": false,
       "label": "Test bench: flat pad",
+      "blurb": "Level concrete with range marks: load a design and read its motors. F6 resets, F7 readouts.",
       "order": 91,
       "scene": "res://scenes/levels/test_bench_flat.tscn",
       "status": "alpha",
@@ -18,6 +19,7 @@
     "test_bench_rough": {
       "squad": false,
       "label": "Test bench: rough field",
+      "blurb": "Broken ground for the test bench: does the design keep its feet?",
       "order": 92,
       "scene": "res://scenes/levels/test_bench_rough.tscn",
       "status": "alpha",
@@ -32,6 +34,7 @@
     "test_range": {
       "squad": false,
       "label": "Test range",
+      "blurb": "Rocky proving ground with loose boulders and slabs. Quiet, good for trying moves and guns.",
       "order": 90,
       "scene": "res://scenes/levels/test_range.tscn",
       "status": "throwaway",
@@ -46,6 +49,7 @@
     },
     "small_map": {
       "label": "Ashen valley (small map, about 1 km)",
+      "blurb": "A ruined town on a plateau, a river into a lake, a broken bridge and an old crater field.",
       "order": 10,
       "scene": "res://scenes/levels/small_map.tscn",
       "status": "ready",
@@ -174,6 +178,7 @@
     },
     "big_map": {
      "label": "Sector 86 frontier (big map, about 4 km)",
+     "blurb": "Four kilometres of frontier: Kreuzberg ruins, a village, a rail depot, a farm and the Ash bridge. Frontier sweep mission.",
      "order": 20,
      "scene": "res://scenes/levels/big_map.tscn",
      "status": "alpha",

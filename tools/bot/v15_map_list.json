@@ -1,0 +1,9 @@
+{
+ "name": "v15_map_list",
+ "_about": "Version 015, Emerson after 014: the map list ran off the bottom of the screen under the graphics and controller status line. tools/bot_run.sh v15_map_list (and --size=1280x720 / 1920x1200 for other screens)",
+ "steps": [
+  {"at": 3.5, "call": "open_maps"},
+  {"at": 4.5, "shot": "map-list"},
+  {"at": 5.0, "quit": true}
+ ]
+}

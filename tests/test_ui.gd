@@ -111,3 +111,65 @@ func test_themes_switch_live() -> void:
 	assert_ne(UiTheme.color("accent"), a)
 	assert_ne(tree.root.theme, theme_a)
 	assert_true(tree.root.theme.has_stylebox("normal", "MainMenuButton"))
+
+
+## Emerson after 014: the map list ran off the bottom of the screen under the graphics and
+## controller status line. It must sit on screen, clear of the status line, with every map in it.
+func test_map_list_fits_above_the_status_line() -> void:
+	var menu: Control = (load("res://scenes/ui/main_menu.tscn") as PackedScene).instantiate()
+	tree.root.add_child(menu)
+	await tree.process_frame
+	menu.call("open_maps")
+	await tree.process_frame
+	await tree.process_frame
+	var panel: Control = menu.get("_maps_panel")
+	var status: Label = menu.get("_status")
+	var window := tree.root.get_visible_rect()
+	assert_true(window.encloses(panel.get_global_rect()), "map list on screen (%s)" % str(panel.get_global_rect()))
+	assert_false(panel.get_global_rect().intersects(status.get_global_rect()), "map list clear of the status line")
+	var labels := panel.find_children("*", "Button", true, false).map(func(b: Button) -> String: return b.text)
+	for id in Registry.ids("maps"):
+		assert_true(labels.any(func(t: String) -> bool: return t.begins_with(str(Registry.entry("maps", id).get("label", id)))), "%s listed" % id)
+	assert_true(panel.find_children("*", "Button", true, false).any(func(b: Button) -> bool: return b.has_focus()), "a map has the focus for the pad")
+	menu.free()
+
+
+## L2/R2 (Z/C) step through the pages in the settings' left column like L1/R1 step the sections:
+## one page per pull of the analog trigger, however many motion events the pull sends.
+func test_triggers_step_the_left_column() -> void:
+	var menu: Control = (load("res://scenes/ui/main_menu.tscn") as PackedScene).instantiate()
+	tree.root.add_child(menu)
+	menu.call("open_settings", "graphics", "")
+	await tree.process_frame
+	var screen: Control = menu.get("_settings")
+	var pages: Array = (screen.call("_visible_pages", screen.call("_section", "graphics")) as Array).map(func(p: Dictionary) -> String: return str(p["id"]))
+	assert_gt(pages.size(), 2, "graphics has several pages")
+	assert_eq(screen.get("_page_id"), pages[0])
+	for v: float in [0.2, 0.7, 0.9, 1.0, 0.8]:
+		screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_RIGHT, v))
+	assert_eq(screen.get("_page_id"), pages[1], "one R2 pull = one page down")
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_RIGHT, 0.0))
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_RIGHT, 1.0))
+	assert_eq(screen.get("_page_id"), pages[2], "released and pulled again = the next page")
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_LEFT, 1.0))
+	assert_eq(screen.get("_page_id"), pages[1], "L2 = one page up")
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_LEFT, 0.0))
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_LEFT, 1.0))
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_LEFT, 0.0))
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_LEFT, 1.0))
+	assert_eq(screen.get("_page_id"), pages[-1], "past the top wraps to the last page")
+	assert_eq(screen.get("_section_id"), "graphics", "the section stays")
+	screen.call("_unhandled_input", _trigger(JOY_AXIS_TRIGGER_RIGHT, 0.0))
+	var key := InputEventKey.new()
+	key.physical_keycode = KEY_C
+	key.pressed = true
+	screen.call("_unhandled_input", key)
+	assert_eq(screen.get("_page_id"), pages[0], "C on the keyboard = next page (wraps)")
+	menu.free()
+
+
+func _trigger(axis: JoyAxis, value: float) -> InputEventJoypadMotion:
+	var ev := InputEventJoypadMotion.new()
+	ev.axis = axis
+	ev.axis_value = value
+	return ev

@@ -2,7 +2,7 @@ extends Control
 ## The settings screen, drawn entirely from data/settings.json: section tabs across the top,
 ## the section's pages (sub-menus) on the left, rows in the middle, help on the right.
 ## Every row lines up on the same three columns: name, control, value. Changes apply live.
-## Pad: L1/R1 switch sections, the stick moves, left/right changes a value, Square resets it.
+## Pad: L1/R1 switch sections, L2/R2 the pages in the left column, the stick moves, left/right changes a value, Square resets it.
 
 signal closed
 
@@ -15,6 +15,7 @@ const CAPTURE_TIMEOUT_S := 8.0
 
 var _section_id := ""
 var _page_id := ""
+var _page_held := {}  # page action -> held past its press point (see _page_step)
 var _tabs: HBoxContainer
 var _pages: VBoxContainer
 var _content: VBoxContainer
@@ -103,7 +104,7 @@ func _build_frame() -> void:
 	top.add_child(_tabs)
 	var hint := Label.new()
 	hint.theme_type_variation = "FaintLabel"
-	hint.text = "Q / E  ·  L1 / R1  sections"
+	hint.text = "Q / E  ·  L1 / R1  sections     Z / C  ·  L2 / R2  pages"
 	hint.size_flags_vertical = SIZE_SHRINK_CENTER
 	top.add_child(hint)
 
@@ -582,9 +583,31 @@ func _unhandled_input(event: InputEvent) -> void:
 		var ids: Array = Settings.sections().map(func(s: Dictionary) -> String: return str(s["id"]))
 		var step := 1 if event.is_action_pressed("ui_tab_next") else -1
 		show_page(str(ids[wrapi(ids.find(_section_id) + step, 0, ids.size())]), "")
+	elif _page_step(event, "ui_page_next") or _page_step(event, "ui_page_prev"):
+		get_viewport().set_input_as_handled()
+		var ids: Array = _visible_pages(_section(_section_id)).map(func(p: Dictionary) -> String: return str(p["id"]))
+		var step := 1 if event.is_action("ui_page_next") else -1
+		show_page(_section_id, str(ids[wrapi(ids.find(_page_id) + step, 0, ids.size())]))
 	elif event.is_action_pressed("ui_reset") and _focused_key != "":
 		get_viewport().set_input_as_handled()
 		Settings.reset(_focused_key)
+
+
+## True once per pull of a page action. L2/R2 are analog triggers that send a stream of motion
+## events on the way down, so a pull counts when it passes press_at and the next one only after it
+## has dropped back under release_at (a key press counts once, without its repeats).
+func _page_step(event: InputEvent, action: String) -> bool:
+	if not event.is_action(action) or event.is_echo():
+		return false
+	var strength := event.get_action_strength(action)
+	if bool(_page_held.get(action, false)):
+		if strength < 0.3:
+			_page_held[action] = false
+		return false
+	if strength >= 0.6:
+		_page_held[action] = true
+		return true
+	return false
 
 
 func _on_setting_changed(key: String, _value: Variant) -> void:

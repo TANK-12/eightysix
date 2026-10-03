@@ -3,6 +3,9 @@ extends Control
 ## settings screen on top when opened. Maps come from data/maps.json; planned ones show greyed.
 
 const SETTINGS_SCRIPT := preload("res://scripts/ui/settings_screen.gd")
+## The map card's top edge, and the room it leaves above the bottom of the screen (the status line).
+const MAPS_TOP := 150.0
+const MAPS_BOTTOM_GAP := 130.0
 
 var _backdrop: ColorRect
 var _menu: VBoxContainer
@@ -37,10 +40,25 @@ func open_settings(section_id: String = "", page_id: String = "") -> void:
 func open_maps() -> void:
 	_maps_panel.visible = not _maps_panel.visible
 	if _maps_panel.visible:
-		for child in _maps_panel.get_child(0).get_children():
-			if child is Button and not (child as Button).disabled:
+		_fit_maps_panel()
+		# the first map that can start takes the focus, so a pad lands in the list
+		for child in _maps_panel.find_children("*", "Button", true, false):
+			if not (child as Button).disabled:
 				(child as Button).grab_focus()
 				return
+
+
+## The map card is as tall as its list, up to the room between the top corner marks and the status
+## line (Emerson after 014: it ran off the bottom of the screen under the status text); a longer
+## list scrolls.
+func _fit_maps_panel() -> void:
+	var room := get_viewport_rect().size.y - MAPS_TOP - MAPS_BOTTOM_GAP
+	var scroll := _maps_panel.get_child(0) as ScrollContainer
+	var list := scroll.get_child(0) as Control
+	var frame := _maps_panel.get_combined_minimum_size().y - scroll.get_combined_minimum_size().y
+	scroll.custom_minimum_size.y = minf(list.get_combined_minimum_size().y, room - frame)
+	_maps_panel.offset_bottom = _maps_panel.offset_top
+	_maps_panel.reset_size()
 
 
 func _on_settings_closed() -> void:
@@ -106,15 +124,24 @@ func _build() -> void:
 	_add_entry("Settings", func() -> void: open_settings())
 	_add_entry("Quit to desktop", Game.quit_game)
 
+	# right-hand column, sized to its list by _fit_maps_panel()
 	_maps_panel = PanelContainer.new()
 	_maps_panel.theme_type_variation = "CardPanel"
 	_maps_panel.visible = false
-	_maps_panel.position = Vector2(1060, 330)
-	_maps_panel.custom_minimum_size = Vector2(700, 0)
+	_maps_panel.set_anchors_preset(PRESET_TOP_RIGHT)
+	_maps_panel.offset_left = -900
+	_maps_panel.offset_right = -150
+	_maps_panel.offset_top = MAPS_TOP
+	_maps_panel.grow_horizontal = GROW_DIRECTION_BEGIN
 	add_child(_maps_panel)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	_maps_panel.add_child(scroll)
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 10)
-	_maps_panel.add_child(list)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
 	var head := Label.new()
 	head.text = "Maps"
 	head.theme_type_variation = "HeadingLabel"
@@ -146,7 +173,9 @@ func _build() -> void:
 			free.pressed.connect(func() -> void: Game.start_map(map_id, true))
 			row.add_child(free)
 		var desc := Label.new()
-		desc.text = str(entry.get("description", ""))
+		desc.text = str(entry.get("blurb", entry.get("description", "")))
+		desc.tooltip_text = str(entry.get("description", ""))
+		desc.mouse_filter = Control.MOUSE_FILTER_PASS
 		desc.theme_type_variation = "FaintLabel"
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc.custom_minimum_size.x = 640
