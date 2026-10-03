@@ -260,6 +260,8 @@ func test_aim_assist_nudges_toward_a_marked_point_near_the_aim() -> void:
 
 
 func test_the_preview_arc_shows_screen_sized_dots_even_for_a_near_ledge() -> void:
+	assert_false(Settings.get_b("gameplay.anchor_arc"), "the dots are off by default (Emerson after 015: broken, turn them off)")
+	Settings.set_value("gameplay.anchor_arc", true, false)
 	mech.set("is_player", true)
 	await physics_frames(240)
 	var a := combat.anchor
