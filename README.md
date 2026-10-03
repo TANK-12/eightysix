@@ -687,3 +687,6 @@ the **Palouse grassland** map (USGS lidar round Steptoe Butte, free roam; test_r
 Relay sessions the same day: rumble (R2, fec6d04), first person (R3), ground texture (R1). Full suite not run after
 these; fps of the Palouse not measured on a quiet GPU. Details and next steps:
 `~/Forge/sessions/juggernaut-alpha/results/V015.md`; forest and city maps: `2026-10-03-maps-brief.md` there.
+
+### 2026-10-03 · version 015 saved · Tetsu (hey)
+Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review fix (fec6d04, c297c17), R3's first person (b726b3f). Full suite 427 passed, 0 failed, 0 SCRIPT ERROR (340 s). Note and try-this: `tools/builds.py list`; details `~/Forge/sessions/juggernaut-alpha/results/V015.md`.
