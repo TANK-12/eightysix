@@ -171,12 +171,18 @@ func _process(delta: float) -> void:
 	# look point out to the camera, so the near plane never grazes the terrain; when the room behind is shorter
 	# than min_clear_m (the camera would sit in the hull) it rises over the mech's back instead of being pushed
 	# back out through the hill or wall it just avoided. Legion bodies are not counted: it passes through them.
+	# Relay 38 (Emerson after 015, "the camera keeps slipping through the floor"): aiming down drops the look point
+	# by sin(pitch) x distance, 1.8 m into flat ground at -30 deg with free look down, and a sweep that starts in the
+	# solid stayed there. So the sweep starts from the look point as far as it can be reached in open air from the
+	# mech, and the camera still looks at the real look point.
+	var radius := float(cfg.get("collision_radius_m", 0.5))
 	var clear := float(cfg.get("min_clear_m", 6.0))
-	var final := _swept(_look, _pos, float(cfg.get("collision_radius_m", 0.5)))
+	var start := _swept(_anchor(body_xf, float(cfg.get("look_height_m", 1.5)), radius), _look, radius)
+	var final := _swept(start, _pos, radius)
 	if final.distance_to(body_xf.origin) < clear:
 		var back := Vector3(offset.x, 0.0, offset.z).normalized() * clear * 0.35
 		var over := body_xf.origin + Vector3.UP * clear + back
-		final = _swept(_look, over, float(cfg.get("collision_radius_m", 0.5)))
+		final = _swept(start, over, radius)
 		_pos = final
 	fov = Settings.get_f("gameplay.fov_third")
 	global_position = final + jitter
@@ -201,6 +207,24 @@ func _swept(from: Vector3, to: Vector3, radius: float) -> Vector3:
 	return from + (to - from) * safe[0]
 
 
+## A point at the mech in open air to start the camera sweeps from: above the hull's centre, or the first
+## free spot straight up from it when a roll has put that in a bank or under the mech's own side.
+func _anchor(body_xf: Transform3D, look_height: float, radius: float) -> Vector3:
+	var q := PhysicsShapeQueryParameters3D.new()
+	var ball := SphereShape3D.new()
+	ball.radius = radius
+	q.shape = ball
+	q.collision_mask = 1
+	q.exclude = _skip
+	var space := get_world_3d().direct_space_state
+	for up: float in [look_height, 0.0, look_height * 2.0, look_height * 4.0, look_height * 8.0]:
+		var at := body_xf.origin + Vector3.UP * up
+		q.transform = Transform3D(Basis.IDENTITY, at)
+		if space.intersect_shape(q, 1).is_empty():
+			return at
+	return body_xf.origin + Vector3.UP * look_height
+
+
 ## The followed mech's own bodies (hull and leg hitboxes): the look point sits inside them.
 func _own_rids() -> Array[RID]:
 	var out: Array[RID] = []
@@ -209,6 +233,7 @@ func _own_rids() -> Array[RID]:
 	for n: Node in target.find_children("*", "CollisionObject3D", true, false):
 		out.append((n as CollisionObject3D).get_rid())
 	return out
+
 
 ## Where the first-person eye sits on `mech`, in its body frame: the camera socket Settings > Gameplay >
 ## Cockpit view from picks (mechs.json "cameras"; Emerson after 015: from the pilot seat under the gun the

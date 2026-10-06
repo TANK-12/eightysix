@@ -79,3 +79,27 @@ func test_open_ground_keeps_the_usual_distance() -> void:
 	await _worst(240)
 	var d := cam.global_position.distance_to(mech.global_position)
 	assert_gt(d, 8.0, "with nothing in the way it trails at its set distance (%.1f m)" % d)
+
+
+## Relay 38 (Emerson after 015, "the camera keeps slipping through the floor"): with the mech rolled onto its
+## side or its back and the aim pitched down, the look point drops into the ground; the camera still stays out.
+func _rolled(roll: Basis) -> int:
+	await _setup()
+	mech.freeze = true
+	mech.global_transform = Transform3D(roll, Vector3(0, 1.6, 0))
+	Settings.set_value("controls.mouse_mode", "camera", false)
+	var bad := 0
+	for pitch: float in [-30.0, 0.0, 60.0]:
+		mech.set("look_pitch_deg", pitch)
+		cam.set("_orbit", Vector2(0, -0.5))
+		bad += await _worst(60)
+	Settings.reset_all_quietly()
+	return bad
+
+
+func test_mech_on_its_side_aiming_down() -> void:
+	assert_eq(await _rolled(Basis(Vector3.BACK, PI * 0.5)), 0, "the camera never goes into the ground")
+
+
+func test_mech_on_its_back_aiming_down() -> void:
+	assert_eq(await _rolled(Basis(Vector3.BACK, PI)), 0, "the camera never goes into the ground")

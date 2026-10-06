@@ -180,3 +180,42 @@ func test_side_flip_turns_once_not_seven_times() -> void:
 func test_half_stick_half_a_flip() -> void:
 	var r := await _flip_turns("strafe_left", 2, 0.5)
 	assert_between(float(r[0]), 0.35, 0.7, "about half a roll (%.2f)" % r[0])
+
+
+## Relay 38 (Emerson after 015, "when we roll over sideways or vertically it messes it up and we get clipping"):
+## half a roll or half a flip lands it on its side or its back. Lying there it must not sink into the ground,
+## no leg may pass under it, and it must not shake: back-and-forth changes of spin add up to under 1 rad/s
+## over a second.
+func _lands_and_lies_still(dir: String, axis: int) -> void:
+	var r := await _flip_turns(dir, axis, 0.5)
+	assert_lt(float(r[1]), 0.05, "no foot or shin in the ground in flight or landing (%.2f m)" % r[1])
+	var jitter := 0.0
+	var last := mech.angular_velocity
+	var step := Vector3.ZERO
+	var under := 0.0
+	for i in 120:
+		await physics_frames(1)
+		# Shaking is the spin's change reversing tick to tick; tipping on over from its side onto its back
+		# speeds the spin up smoothly and is not counted.
+		var d := mech.angular_velocity - last
+		if d.dot(step) < 0.0:
+			jitter += minf(d.length(), step.length())
+		step = d
+		last = mech.angular_velocity
+		for leg: Dictionary in mech.get("legs"):
+			for key: String in ["foot_mesh", "lower_mesh"]:
+				var m := leg.get(key) as Node3D
+				if m != null:
+					under = maxf(under, -(m.global_position.y))
+	print("    %s half: up %.2f, hull at %.2f m, jitter %.2f rad/s per s, deepest leg %.2f m" % [dir, mech.global_transform.basis.y.y, mech.global_position.y, jitter, under])
+	assert_gt(mech.global_position.y, 0.3, "the hull rests on the ground, not in it")
+	assert_lt(jitter, 1.0, "it lies still (%.2f rad/s per s)" % jitter)
+	assert_lt(under, 0.05, "no leg in the ground while it lies there (%.2f m)" % under)
+
+
+func test_half_roll_sideways_lands_on_its_side_and_lies_still() -> void:
+	await _lands_and_lies_still("strafe_left", 2)
+
+
+func test_half_flip_end_over_end_lands_and_lies_still() -> void:
+	await _lands_and_lies_still("move_forward", 0)

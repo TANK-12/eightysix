@@ -519,6 +519,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var rest := float(leg["rest_len"]) - crouch_drop - run_drop
 		rest += (tilt + run_tilt) if leg["front"] else -(tilt + run_tilt)
 		var query := PhysicsRayQueryParameters3D.create(cast_w, cast_w - up * (rest + margin), RAY_MASK, [get_rid()])
+		# Relay 38: lying on its back on a heightmap, a hip under the surface saw the ground's underside
+		# (normal pointing down) and two legs flickered loaded, so drive and steadying switched on and off.
+		query.hit_back_faces = false
 		var hit := space.intersect_ray(query)
 		# The long ray only places the feet; a leg carries load (and counts as grounded) when the
 		# ground is within its rest length plus a few centimetres, or, after a launch, only once
@@ -1110,10 +1113,16 @@ func _physics_process(delta: float) -> void:
 		leg["end_local"] = to_local(leg["foot"]) + tilt * (leg["end_offset"] as Vector3)
 		leg["tilt"] = tilt
 	# Second pass: with every foot placed, swivel each knee about its hip-ankle line clear of the other legs.
+	var space := get_world_3d().direct_space_state
+	# The pose set here is drawn after this tick's physics step has moved the body, so the legs are kept out
+	# of the ground where the body will be then (a landing at 8 m/s moves it 7 cm a tick).
+	var spin := angular_velocity * delta
+	var xf_next := Transform3D(xf.basis.rotated(spin.normalized(), spin.length()) if spin.length() > 1e-6 else xf.basis, xf.origin + linear_velocity * delta)
 	for leg: Dictionary in legs:
 		var tilt: Basis = leg["tilt"]
 		var end: Vector3 = leg["end_local"]
-		var pose := MechBuilder.pose_segments(leg, end, tilt, _leg_scale, _knee_swivel(leg, end, delta))
+		var swivel := _knee_swivel(leg, end, delta)
+		var pose := _fold_on_ground(leg, xf_next, space, tilt, swivel, MechBuilder.pose_segments(leg, end, tilt, _leg_scale, swivel))
 		leg["knee_local"] = pose["knee"]
 		leg["ankle_local"] = pose["end"]
 		var upper_xf: Transform3D = pose["upper"]
@@ -1128,6 +1137,76 @@ func _physics_process(delta: float) -> void:
 			hb.transform = lower_xf
 		for hb: Node3D in leg.get("foot_hitboxes", [leg["foot_hitbox"]]):
 			hb.transform = foot_xf
+
+
+## Relay 38 (Emerson after 015: "legs keep slipping through the floor, and when we roll over it clips"): a leg
+## whose bones would pass into the ground (hanging in a roll, the mech lying on its side, a swing cutting
+## through a bump) folds against it like a limp leg. It swings about its hip, in the plane of the leg and the
+## ground's normal, until hip, knee, ankle and sole are all on the open side. The legs' weight is part of the
+## body's mass, and the ground's push on a limp leg is not turned into a force on the body (it would be small:
+## a limp leg yields). Returns the folded pose; leg["foot"] follows it.
+func _fold_on_ground(leg: Dictionary, xf: Transform3D, space: PhysicsDirectSpaceState3D, tilt: Basis, swivel: float, pose: Dictionary) -> Dictionary:
+	var pivot: Vector3 = leg["pivot"]
+	var fold := _t.get("feet", {}) as Dictionary
+	var touch := float(fold.get("fold_touch_m", 0.02))
+	var spare := float(fold.get("fold_clear_m", 0.05))
+	var turn := Basis.IDENTITY  # the swing about the hip so far, in the body frame
+	var reach: Vector3 = (pose["end"] as Vector3) - pivot
+	var geom := leg
+	var folded := false
+	var hip_w := xf * pivot
+	for i in 3:
+		var sole: Vector3 = (pose["end"] as Vector3) - (turn * tilt) * (leg["end_offset"] as Vector3)
+		var pts: Array[Vector3] = [pose["knee"], pose["end"], sole]
+		var worst := touch
+		var hit_at := Vector3.ZERO
+		var normal := Vector3.ZERO
+		for p: Vector3 in pts:
+			# From the hip (inside the hull, so in open air): a ray that starts under a heightmap's surface
+			# passes out through it unseen, so bone-to-bone rays missed an ankle hanging below a buried knee.
+			var b := xf * p
+			var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(hip_w, b, RAY_MASK, [get_rid()]))
+			if hit.is_empty():
+				continue
+			var n: Vector3 = hit["normal"]
+			var depth := ((hit["position"] as Vector3) - b).dot(n)
+			if depth > worst:
+				worst = depth
+				hit_at = hit["position"]
+				normal = n
+		if normal == Vector3.ZERO:
+			break
+		# The whole leg turns as one about the hip (knee bend and foot with it) towards the ground's normal, by
+		# the least angle that puts knee, ankle and sole on the open side of the ground's plane at the deepest hit.
+		var n_l := (xf.basis.inverse() * normal).normalized()
+		var on := xf.affine_inverse() * hit_at
+		var axis := ((pose["end"] as Vector3) - pivot).cross(n_l)
+		if axis.length() < 0.001:
+			axis = ((pose["knee"] as Vector3) - pivot).cross(n_l)
+		if axis.length() < 0.001:
+			break  # the leg points straight into the ground: no swing about the hip lifts it
+		axis = axis.normalized()
+		var best := 0.0
+		var best_clear := -INF
+		for step in range(1, 61):
+			var r := Basis(axis, PI * step / 60.0)
+			var clear := INF
+			for p: Vector3 in pts:
+				clear = minf(clear, (pivot + r * (p - pivot) - on).dot(n_l))
+			if clear > best_clear:
+				best_clear = clear
+				best = PI * step / 60.0
+			if clear >= spare:
+				break
+		turn = Basis(axis, best) * turn
+		if not folded:
+			geom = leg.duplicate()
+		geom["pole"] = turn * (leg["pole"] as Vector3)
+		pose = MechBuilder.pose_segments(geom, pivot + turn * reach, turn * tilt, _leg_scale, swivel)
+		folded = true
+	if folded:
+		leg["foot"] = global_transform * ((pose["end"] as Vector3) - (turn * tilt) * (leg["end_offset"] as Vector3))
+	return pose
 
 
 ## Where a hanging foot is in the body frame: its stance spot swung about the leg's hip pivot by the

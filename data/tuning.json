@@ -27,7 +27,9 @@
       "yaw_lead_deg": 90.0
     },
     "feet": {
-      "_about": "Lane A2 part 4: a planted foot tilts to lie flat on the ground under its sole, at most max_tilt_deg; a planted foot more than reseat_m above or below where the ground now is under its sole takes a step to re-seat (as after a landing).",
+      "_about": "Lane A2 part 4: a planted foot tilts to lie flat on the ground under its sole, at most max_tilt_deg; a planted foot more than reseat_m above or below where the ground now is under its sole takes a step to re-seat (as after a landing). Relay 38: a leg whose knee, ankle or sole would end more than fold_touch_m inside the ground (hanging in a roll, lying on its side, a swing through a bump) swings about its hip like a limp leg until all three are fold_clear_m clear of the ground's plane (standin_mech.gd _fold_on_ground).",
+      "fold_touch_m": 0.01,
+      "fold_clear_m": 0.05,
       "max_tilt_deg": 25.0,
       "stride_half_min_m": 0.45,
       "stride_half_max_m": 1.1,
