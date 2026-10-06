@@ -25,6 +25,9 @@ All ambientCG, CC0, 1K JPG (color, normal GL, roughness, and ambient occlusion w
 |---|---|---|---|
 | `assets/kit/textures/brick_worn/` | Bricks094 (+ AO): worn, uneven red brick | https://ambientcg.com/a/Bricks094 | CC0 |
 | `assets/kit/textures/plaster/` | Plaster007 (+ AO): cracked, stained plaster | https://ambientcg.com/a/Plaster007 | CC0 |
+| `assets/kit/textures/plaster_white/` | white_plaster_rough_01 (1k: diffuse, normal GL, roughness, AO): rough white render, for the city's facade walls (facade.gdshader) | Poly Haven, https://polyhaven.com/a/white_plaster_rough_01 | CC0 |
+| `assets/kit/textures/plaster_yellow/` | yellow_plaster (1k: diffuse, normal GL, roughness, AO): painted yellow render, for the city's facade walls (facade.gdshader) | Poly Haven, https://polyhaven.com/a/yellow_plaster | CC0 |
+| `assets/kit/textures/plaster_damaged/` | damaged_plaster (1k: diffuse, normal GL, roughness, AO): render broken off to the brick, for the city's facade walls (facade.gdshader) | Poly Haven, https://polyhaven.com/a/damaged_plaster | CC0 |
 | `assets/kit/textures/concrete_stained/` | Concrete036: weathered, stained concrete | https://ambientcg.com/a/Concrete036 | CC0 |
 | `assets/kit/textures/concrete_dark/` | Concrete044D (+ AO): dark, pitted concrete | https://ambientcg.com/a/Concrete044D | CC0 |
 | `assets/kit/textures/dirt_g105/` | Ground105, 2K JPG (color, normal GL; lane R1): dry, strata-cracked earth, the ground's base | https://ambientcg.com/a/Ground105 | CC0 |

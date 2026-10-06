@@ -1,0 +1,21 @@
+{
+ "name": "maps_brilon",
+ "map": "brilon",
+ "_about": "Real-place maps part 2 (2026-10-06): the town of Brilon from the chase camera at spawn and three viewpoints; fps measured in the chase view and down a street. tools/bot_run.sh maps_brilon --preset=medium",
+ "steps": [
+  {"at": 0.5, "wait": "level"},
+  {"at": 0.6, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 0.6, "setting": "gameplay.move_hints", "value": false},
+  {"at": 0.7, "call": "show_hud", "args": [false]},
+  {"at": 4.0, "shot": "chase_spawn"},
+  {"at": 4.5, "measure": 8.0, "label": "chase"},
+  {"at": 13.0, "call": "look_from", "args": ["start"]},
+  {"at": 15.5, "shot": "start"},
+  {"at": 16.0, "call": "look_from", "args": ["over_town"]},
+  {"at": 18.5, "shot": "over_town"},
+  {"at": 19.0, "call": "look_from", "args": ["street"]},
+  {"at": 21.5, "shot": "street"},
+  {"at": 22.0, "measure": 6.0, "label": "street"},
+  {"at": 28.5, "quit": true}
+ ]
+}

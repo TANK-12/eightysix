@@ -49,6 +49,7 @@ var _valley_m := 450.0
 var _hm := PackedFloat32Array()  # a real place's heights (terrain.heightmap), metres, row 0 at the north edge
 var _hm_n := 0  # heightmap points per side
 var _valley_keep := 0.2
+static var _osm_cache := {}
 
 
 func _init(map_entry: Dictionary) -> void:
@@ -492,6 +493,13 @@ func _read_features() -> void:
 			var f := {"a": pts[i], "b": pts[i + 1], "half_w": float(road.get("width_m", 8.0)) * 0.5, "bridged": bool(road.get("bridged", false))}
 			_roads.append(f)
 			_index("roads", f, _seg_box(pts[i], pts[i + 1]), float(f["half_w"]) + maxf(ROAD_SHOULDER_M, BRIDGE_REACH_M if f["bridged"] else 0.0))
+	# a real place's streets (osm.json from tools/maps/osm_map.py), already at the width the map wants
+	for road: Dictionary in BigTerrain.osm(str(entry.get("osm", {}).get("file", ""))).get("roads", []):
+		var pts := _points(road["points"])
+		for i in pts.size() - 1:
+			var f := {"a": pts[i], "b": pts[i + 1], "half_w": float(road.get("width_m", 6.0)) * 0.5, "bridged": false}
+			_roads.append(f)
+			_index("roads", f, _seg_box(pts[i], pts[i + 1]), float(f["half_w"]) + ROAD_SHOULDER_M)
 	for rv: Dictionary in entry.get("rivers", []):
 		var pts := _points(rv["points"])
 		for i in pts.size() - 1:
@@ -519,6 +527,21 @@ func _read_features() -> void:
 		var f := {"c": Vector2(float(cr[0]), float(cr[1])), "r": float(cr[2])}
 		_craters.append(f)
 		_index("craters", f, Rect2(f["c"], Vector2.ZERO), float(f["r"]) * 1.9)
+
+
+## A real place's OpenStreetMap layer (osm.json: roads and buildings) as a Dictionary, read once per
+## file; {} when the map has none.
+static func osm(path: String) -> Dictionary:
+	if path == "":
+		return {}
+	if not _osm_cache.has(path):
+		var text := FileAccess.get_file_as_string(path)
+		var data: Variant = JSON.parse_string(text) if text != "" else null
+		if not data is Dictionary:
+			push_warning("BigTerrain: cannot read %s" % path)
+			data = {}
+		_osm_cache[path] = data
+	return _osm_cache[path]
 
 
 ## A field's craters, [x, z, r] each: spread at random (its own seed) over its rectangle, none on a

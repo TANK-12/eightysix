@@ -1082,6 +1082,691 @@
       "seed": 3011
      },
      "fog_scale": 0.3
+    },
+    "allegheny": {
+     "label": "Allegheny forest (real place, 4 km)",
+     "blurb": "Wooded ridges and hollows of the Allegheny National Forest, Pennsylvania: a 1 m survey under fir forest, with lanes for a mech. Free roam.",
+     "order": 31,
+     "scene": "res://scenes/levels/big_map.tscn",
+     "status": "alpha",
+     "size_m": 4096,
+     "seed": 3021,
+     "description": "Real terrain (USGS 3DEP 1 m lidar survey, public domain, resampled to 2 m): 4 km of the Allegheny plateau in north-west Pennsylvania, steep wooded ridges cut by hollows, with the real roads and a hamlet's houses from OpenStreetMap. About a hundred thousand firs stand at least 6.6 m apart, so the Juggernaut always finds a lane; trunks block a mech. Built by tools/maps/heightmap.py and osm_map.py; source in assets/maps/allegheny/source.json.",
+     "spawn": {
+      "position": [
+       264.9,
+       0.0,
+       -557.7
+      ],
+      "heading_deg": 0.0
+     },
+     "weather": "overcast_morning",
+     "palette": {
+      "_about": "Allegheny forest (2026-10-03): needle litter and moss under the firs, grey overcast light.",
+      "ground": {
+       "dry_tint": [
+        0.62,
+        0.56,
+        0.46
+       ],
+       "grass_tint": [
+        0.42,
+        0.5,
+        0.3
+       ],
+       "dead_tint": [
+        0.5,
+        0.42,
+        0.3
+       ],
+       "stone_tint": [
+        0.8,
+        0.8,
+        0.78
+       ],
+       "road_tint": [
+        0.72,
+        0.72,
+        0.7
+       ],
+       "mud_tint": [
+        0.36,
+        0.34,
+        0.3
+       ],
+       "grass_amount": 0.45,
+       "stone_amount": 0.55,
+       "contrast": 1.0
+      },
+      "kit": {
+       "brick": {
+        "base_tint": [
+         0.86,
+         0.82,
+         0.82
+        ],
+        "coat_a": [
+         0.8,
+         0.78,
+         0.7
+        ],
+        "coat_b": [
+         0.64,
+         0.72,
+         0.68
+        ],
+        "coat_c": [
+         0.74,
+         0.64,
+         0.56
+        ],
+        "coat_d": [
+         0.66,
+         0.72,
+         0.78
+        ],
+        "dado_col": [
+         0.18,
+         0.22,
+         0.22
+        ]
+       },
+       "foliage": {
+        "colour_a": [
+         0.11,
+         0.16,
+         0.09
+        ],
+        "colour_b": [
+         0.3,
+         0.38,
+         0.2
+        ]
+       },
+       "grass": {
+        "colour_a": [
+         0.15,
+         0.2,
+         0.1
+        ],
+        "colour_b": [
+         0.45,
+         0.5,
+         0.28
+        ]
+       },
+       "concrete": {
+        "base_tint": [
+         0.62,
+         0.64,
+         0.66
+        ],
+        "coat_a": [
+         0.66,
+         0.66,
+         0.6
+        ],
+        "coat_b": [
+         0.5,
+         0.56,
+         0.54
+        ],
+        "coat_c": [
+         0.6,
+         0.55,
+         0.5
+        ],
+        "coat_d": [
+         0.58,
+         0.62,
+         0.68
+        ]
+       }
+      }
+     },
+     "ambience": "wind_loop",
+     "water_level_m": 0.0,
+     "terrain": {
+      "floor_m": 1.6,
+      "base_m": 24.0,
+      "hills_m": 70.0,
+      "ridges_m": 20.0,
+      "rough_m": 0.3,
+      "rim_m": 50.0,
+      "rim_crag_m": 0.0,
+      "rim_width_m": 220.0,
+      "feature_scale": 2.2,
+      "valley_m": 380.0,
+      "valley_keep": 1.0,
+      "bed_blur_cells": 3,
+      "mid_m": 26.0,
+      "mid_frequency": 0.0045,
+      "meander_m": 34.0,
+      "heightmap": {
+       "file": "res://assets/maps/allegheny/height.f32",
+       "points": 2049
+      }
+     },
+     "stream": {
+      "_about": "BigStream: tiles of 128 m. fine_rings: tiles each way around every mech that get 1 m ground with a collider; mesh_rings: tiles each way around the camera drawn at 1 m (first) and 2 m (second); the rest is the 8 m overview. keep_rings: extra rings kept before a tile is dropped. builds_per_frame: tiles turned into nodes per frame.",
+      "fine_rings": 1,
+      "mesh_rings": [
+       1,
+       2
+      ],
+      "keep_rings": 1,
+      "builds_per_frame": 2
+     },
+     "rivers": [],
+     "lakes": [],
+     "towns": [],
+     "bridges": [],
+     "roads": [],
+     "crater_fields": [],
+     "backdrop": {
+      "extent_m": 6000.0,
+      "cell_m": 64.0,
+      "start_m": 40.0,
+      "rise_m": 60.0,
+      "ridge_m": 120.0,
+      "colour": [
+       0.2,
+       0.26,
+       0.18
+      ],
+      "seed": 3021
+     },
+     "viewpoints": {
+      "start": {
+       "eye": [
+        264.9,
+        0,
+        -517.7
+       ],
+       "look": [
+        264.9,
+        0,
+        -597.7
+       ],
+       "rel_eye": 6.0,
+       "rel_look": 3.0
+      },
+      "ridge": {
+       "eye": [
+        -1488.0,
+        0,
+        -90.0
+       ],
+       "look": [
+        0.0,
+        0,
+        0.0
+       ],
+       "rel_eye": 30.0,
+       "rel_look": 0.0
+      },
+      "in_the_trees": {
+       "eye": [
+        300.0,
+        0,
+        -640.0
+       ],
+       "look": [
+        380.0,
+        0,
+        -700.0
+       ],
+       "rel_eye": 3.5,
+       "rel_look": 4.0
+      }
+     },
+     "tips": [
+      "The Allegheny forest is real ground: a 1 m survey of the plateau in north-west Pennsylvania.",
+      "Firs stand at least 6.6 m apart: there is always a lane for the Juggernaut, but trunks stop a mech."
+     ],
+     "scatter": {
+      "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
+      "grass_per_tile": 3500,
+      "shrub_per_tile": 160,
+      "pebbles_per_tile": 30,
+      "boulders_per_tile": 1,
+      "seed": 3021
+     },
+     "outcrops": {
+      "_about": "Rock outcrops spread over the hills at load (kit outcrop): count tried, size range (m), none near roads, towns or water, on ground no steeper than max_slope_deg.",
+      "count": 20,
+      "size_m": [
+       10.0,
+       26.0
+      ],
+      "max_slope_deg": 28.0,
+      "seed": 3021
+     },
+     "fog_scale": 0.3,
+     "osm": {
+      "_about": "OpenStreetMap streets (width x1.3) and buildings, (c) OpenStreetMap contributors, ODbL; made by tools/maps/osm_map.py",
+      "file": "res://assets/maps/allegheny/osm.json"
+     },
+     "forest": {
+      "_about": "BigForest (2026-10-03): fir trees on a jittered grid cell_m apart (jitter keeps at least cell_m*(1-2*jitter) between trunks, so the Juggernaut's 4.9 m stance always has a lane), thinned by density, cleared where the clearing noise is below clearing_cut, off roads, water, slopes over max_slope_deg and spawn_clear_m round the spawn, only where mask is white (osm_map.py woods.png). Near meshes within near_m of the camera (scaled down with foliage density), billboards beyond to far_m.",
+      "cell_m": 11.0,
+      "jitter": 0.2,
+      "density": 0.78,
+      "clearing_frequency": 0.005,
+      "clearing_cut": -0.42,
+      "height_m": [
+       17.0,
+       27.0
+      ],
+      "max_slope_deg": 40.0,
+      "road_clear_m": 4.0,
+      "spawn_clear_m": 30.0,
+      "near_m": 240.0,
+      "far_m": 3600.0,
+      "shadows": true,
+      "tint": [
+       0.9,
+       0.95,
+       0.88
+      ],
+      "whorls": 12,
+      "boughs_per_whorl": 5,
+      "seed": 3021,
+      "mask": "res://assets/maps/allegheny/woods.png"
+     },
+     "city": {
+      "_about": "BigCity: the hamlet's houses from osm.json, mostly intact.",
+      "wall_materials": [
+       "facade_white",
+       "facade_brick",
+       "facade_yellow"
+      ],
+      "heavy_wall_material": "facade_concrete",
+      "ruin_wall_material": "facade_damaged",
+      "ruin_wall_share": 0.5,
+      "props": {
+       "_about": "BigCity props: power poles every pole_every_m along one side of the streets, burnt-out trucks at the kerb (wrecks_per_km), a rubble pile on each flattened house (rubble_max); max caps the total, draw_m their draw range, variants how many of each are built (the rest are copies).",
+       "pole_every_m": 50,
+       "wrecks_per_km": 1.5,
+       "rubble_max": 60,
+       "max": 400,
+       "draw_m": 700,
+       "variants": 3
+      },
+      "roof_material": "roof_slate",
+      "flat_roof_material": "concrete",
+      "ruined_share": 0.25,
+      "flattened_share": 0.04,
+      "ruin_patch_frequency": 0.004,
+      "roof_pitch_deg": 38.0,
+      "gable_max_span_m": 16.0,
+      "gable_max_levels": 3,
+      "chunk_m": 256.0,
+      "draw_m": 2000.0,
+      "concrete_kinds": [
+       "industrial",
+       "commercial",
+       "retail",
+       "warehouse",
+       "school"
+      ],
+      "flat_kinds": [
+       "industrial",
+       "commercial",
+       "retail",
+       "warehouse",
+       "garage",
+       "garages",
+       "shed"
+      ],
+      "seed": 3021
+     }
+    },
+    "brilon": {
+     "label": "Brilon (real town, 2 km)",
+     "blurb": "A real Sauerland town in Germany, its streets widened for mechs and half of it in ruins. Free roam.",
+     "order": 32,
+     "scene": "res://scenes/levels/big_map.tscn",
+     "status": "alpha",
+     "size_m": 2048,
+     "seed": 3031,
+     "description": "Real terrain (DGM1 NRW 1 m terrain model, Geobasis NRW, dl-de/zero-2.0) and the town's real streets and some six thousand buildings from OpenStreetMap: Brilon in the Hochsauerland, Germany. Streets are 1.3x their real width, buildings stand at their mapped storeys, and the fighting left whole quarters ruined. Woods from the map's forest areas. Built by tools/maps/heightmap.py and osm_map.py; source in assets/maps/brilon/source.json.",
+     "spawn": {
+      "position": [
+       7.9,
+       0.0,
+       8.7
+      ],
+      "heading_deg": 0.0
+     },
+     "weather": "overcast_morning",
+     "palette": {
+      "_about": "Brilon (2026-10-03): grey Sauerland morning, slate and clay roofs, wet asphalt.",
+      "ground": {
+       "dry_tint": [
+        0.7,
+        0.68,
+        0.6
+       ],
+       "grass_tint": [
+        0.45,
+        0.55,
+        0.32
+       ],
+       "dead_tint": [
+        0.6,
+        0.55,
+        0.42
+       ],
+       "stone_tint": [
+        0.8,
+        0.8,
+        0.78
+       ],
+       "road_tint": [
+        0.55,
+        0.55,
+        0.56
+       ],
+       "mud_tint": [
+        0.36,
+        0.34,
+        0.3
+       ],
+       "grass_amount": 0.6,
+       "stone_amount": 0.55,
+       "contrast": 1.0
+      },
+      "kit": {
+       "brick": {
+        "base_tint": [
+         0.86,
+         0.82,
+         0.82
+        ],
+        "coat_a": [
+         0.8,
+         0.78,
+         0.7
+        ],
+        "coat_b": [
+         0.64,
+         0.72,
+         0.68
+        ],
+        "coat_c": [
+         0.74,
+         0.64,
+         0.56
+        ],
+        "coat_d": [
+         0.66,
+         0.72,
+         0.78
+        ],
+        "dado_col": [
+         0.18,
+         0.22,
+         0.22
+        ]
+       },
+       "foliage": {
+        "colour_a": [
+         0.11,
+         0.16,
+         0.09
+        ],
+        "colour_b": [
+         0.3,
+         0.38,
+         0.2
+        ]
+       },
+       "grass": {
+        "colour_a": [
+         0.15,
+         0.2,
+         0.1
+        ],
+        "colour_b": [
+         0.45,
+         0.5,
+         0.28
+        ]
+       },
+       "concrete": {
+        "base_tint": [
+         0.62,
+         0.64,
+         0.66
+        ],
+        "coat_a": [
+         0.66,
+         0.66,
+         0.6
+        ],
+        "coat_b": [
+         0.5,
+         0.56,
+         0.54
+        ],
+        "coat_c": [
+         0.6,
+         0.55,
+         0.5
+        ],
+        "coat_d": [
+         0.58,
+         0.62,
+         0.68
+        ]
+       }
+      }
+     },
+     "ambience": "wind_loop",
+     "water_level_m": 0.0,
+     "terrain": {
+      "floor_m": 1.6,
+      "base_m": 24.0,
+      "hills_m": 70.0,
+      "ridges_m": 20.0,
+      "rough_m": 0.3,
+      "rim_m": 40.0,
+      "rim_crag_m": 0.0,
+      "rim_width_m": 160.0,
+      "feature_scale": 2.2,
+      "valley_m": 380.0,
+      "valley_keep": 1.0,
+      "bed_blur_cells": 3,
+      "mid_m": 26.0,
+      "mid_frequency": 0.0045,
+      "meander_m": 34.0,
+      "heightmap": {
+       "file": "res://assets/maps/brilon/height.f32",
+       "points": 1025
+      }
+     },
+     "stream": {
+      "_about": "BigStream: tiles of 128 m. fine_rings: tiles each way around every mech that get 1 m ground with a collider; mesh_rings: tiles each way around the camera drawn at 1 m (first) and 2 m (second); the rest is the 8 m overview. keep_rings: extra rings kept before a tile is dropped. builds_per_frame: tiles turned into nodes per frame.",
+      "fine_rings": 1,
+      "mesh_rings": [
+       1,
+       2
+      ],
+      "keep_rings": 1,
+      "builds_per_frame": 2
+     },
+     "rivers": [],
+     "lakes": [],
+     "towns": [],
+     "bridges": [],
+     "roads": [],
+     "crater_fields": [],
+     "backdrop": {
+      "extent_m": 6000.0,
+      "cell_m": 64.0,
+      "start_m": 40.0,
+      "rise_m": 60.0,
+      "ridge_m": 120.0,
+      "colour": [
+       0.3,
+       0.33,
+       0.25
+      ],
+      "seed": 3031
+     },
+     "viewpoints": {
+      "start": {
+       "eye": [
+        7.9,
+        0,
+        48.7
+       ],
+       "look": [
+        7.9,
+        0,
+        -31.3
+       ],
+       "rel_eye": 6.0,
+       "rel_look": 3.0
+      },
+      "over_town": {
+       "eye": [
+        -130.0,
+        0,
+        724.0
+       ],
+       "look": [
+        0.0,
+        0,
+        0.0
+       ],
+       "rel_eye": 45.0,
+       "rel_look": 0.0
+      },
+      "street": {
+       "eye": [
+        7.9,
+        0,
+        8.7
+       ],
+       "look": [
+        60.0,
+        0,
+        -60.0
+       ],
+       "rel_eye": 4.0,
+       "rel_look": 4.0
+      }
+     },
+     "tips": [
+      "Brilon is a real Sauerland town: its streets and buildings come from OpenStreetMap.",
+      "Streets are 1.3x their real width: room for a Juggernaut, not much more."
+     ],
+     "scatter": {
+      "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
+      "grass_per_tile": 4000,
+      "shrub_per_tile": 60,
+      "pebbles_per_tile": 40,
+      "boulders_per_tile": 0,
+      "seed": 3031
+     },
+     "outcrops": {
+      "_about": "Rock outcrops spread over the hills at load (kit outcrop): count tried, size range (m), none near roads, towns or water, on ground no steeper than max_slope_deg.",
+      "count": 0,
+      "size_m": [
+       10.0,
+       26.0
+      ],
+      "max_slope_deg": 28.0,
+      "seed": 3031
+     },
+     "fog_scale": 0.3,
+     "osm": {
+      "_about": "OpenStreetMap streets (width x1.3) and buildings, (c) OpenStreetMap contributors, ODbL; made by tools/maps/osm_map.py",
+      "file": "res://assets/maps/brilon/osm.json"
+     },
+     "city": {
+      "_about": "BigCity (2026-10-03): every OSM footprint raised to its storeys; ruined_share of houses broken to columns (more where the ruin noise runs hot), flattened_share left as rubble; small rectangular houses take a pitched roof. chunk_m: one mesh and collider per square; draw_m: mesh draw range.",
+      "wall_materials": [
+       "facade_white",
+       "facade_yellow",
+       "facade_slate",
+       "facade_white",
+       "facade_brick"
+      ],
+      "heavy_wall_material": "facade_concrete",
+      "ruin_wall_material": "facade_damaged",
+      "ruin_wall_share": 0.5,
+      "props": {
+       "_about": "BigCity props: power poles every pole_every_m along one side of the streets, burnt-out trucks at the kerb (wrecks_per_km), a rubble pile on each flattened house (rubble_max); max caps the total, draw_m their draw range, variants how many of each are built (the rest are copies).",
+       "pole_every_m": 45,
+       "wrecks_per_km": 4,
+       "rubble_max": 500,
+       "max": 1800,
+       "draw_m": 700,
+       "variants": 3
+      },
+      "roof_material": "roof_clay",
+      "flat_roof_material": "concrete",
+      "ruined_share": 0.45,
+      "flattened_share": 0.08,
+      "ruin_patch_frequency": 0.004,
+      "roof_pitch_deg": 42.0,
+      "gable_max_span_m": 16.0,
+      "gable_max_levels": 4,
+      "chunk_m": 256.0,
+      "draw_m": 1800.0,
+      "concrete_kinds": [
+       "industrial",
+       "commercial",
+       "retail",
+       "warehouse",
+       "school",
+       "apartments",
+       "hospital",
+       "church"
+      ],
+      "flat_kinds": [
+       "industrial",
+       "commercial",
+       "retail",
+       "warehouse",
+       "garage",
+       "garages",
+       "shed",
+       "school",
+       "hospital"
+      ],
+      "seed": 3031
+     },
+     "forest": {
+      "_about": "BigForest (2026-10-03): fir trees on a jittered grid cell_m apart (jitter keeps at least cell_m*(1-2*jitter) between trunks, so the Juggernaut's 4.9 m stance always has a lane), thinned by density, cleared where the clearing noise is below clearing_cut, off roads, water, slopes over max_slope_deg and spawn_clear_m round the spawn, only where mask is white (osm_map.py woods.png). Near meshes within near_m of the camera (scaled down with foliage density), billboards beyond to far_m.",
+      "cell_m": 11.0,
+      "jitter": 0.2,
+      "density": 0.82,
+      "clearing_frequency": 0.005,
+      "clearing_cut": -0.42,
+      "height_m": [
+       17.0,
+       27.0
+      ],
+      "max_slope_deg": 40.0,
+      "road_clear_m": 4.0,
+      "spawn_clear_m": 30.0,
+      "near_m": 240.0,
+      "far_m": 3600.0,
+      "shadows": true,
+      "tint": [
+       0.9,
+       0.95,
+       0.88
+      ],
+      "whorls": 12,
+      "boughs_per_whorl": 5,
+      "seed": 3031,
+      "mask": "res://assets/maps/brilon/woods.png"
+     }
     }
-  }
+}
 }

@@ -15,6 +15,8 @@ const WATER_SHADER := preload("res://assets/kit/shaders/water.gdshader")
 const TEX := "res://assets/kit/textures/"
 const SMALL_MAP := preload("res://scripts/world/small_map.gd")  # its noise textures are shared
 const PLACE_RANGE_M := 900.0  # town pieces beyond this are not drawn
+const BIG_CITY := preload("res://scripts/world/big/big_city.gd")
+const BIG_FOREST := preload("res://scripts/world/big/big_forest.gd")
 
 var entry: Dictionary
 var terrain: BigTerrain
@@ -29,6 +31,9 @@ var mission: Mission
 var grapple_points: Array[Vector3] = []
 var places: Array = []  # every placed kit node
 var bridges: Array[Destructible] = []
+## A real town's buildings (BigCity, the entry's "city" block) and the forest (BigForest, "forest"), or null.
+var city: Node3D
+var forest: Node3D
 ## The Legion's path-finding grid (missions hand it to the units' brains): bridges are corridors that close when a span goes.
 var nav: LegionNav
 var _hill_units: Array[LegionMech] = []
@@ -59,6 +64,10 @@ func _ready() -> void:
 	build_ms["ground"] = Time.get_ticks_msec() - t0
 	t0 = Time.get_ticks_msec()
 	_build_towns()
+	_build_city()
+	build_ms["city"] = Time.get_ticks_msec() - t0
+	_build_forest()
+	build_ms["forest"] = Time.get_ticks_msec() - t0 - int(build_ms["city"])
 	_build_bridges()
 	_build_outcrops()
 	_build_nav()
@@ -210,6 +219,27 @@ func _build_towns() -> void:
 			node.broke.connect(node.sync_anchors.bind(grapple_points).unbind(1))
 			node.collapsed.connect(node.sync_anchors.bind(grapple_points))
 			places.append(node)
+
+
+func _build_city() -> void:
+	if not entry.has("city"):
+		return
+	city = BIG_CITY.new()
+	city.name = "City"
+	add_child(city)
+	city.call("setup", terrain)
+
+
+func _build_forest() -> void:
+	if not entry.has("forest"):
+		return
+	forest = BIG_FOREST.new()
+	forest.name = "Forest"
+	add_child(forest)
+	var avoid := Callable()
+	if city != null:
+		avoid = func(x: float, z: float) -> bool: return bool(city.call("blocked", x, z, 3.0))
+	forest.call("setup", terrain, avoid)
 
 
 ## The map's "bridges" (BigBridges): a kit bridge where a bridged road crosses the river; it breaks

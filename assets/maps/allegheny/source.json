@@ -1,0 +1,18 @@
+{
+  "source": "USGS 3DEP 1 m DEM, tile USGS_1M_17_x66y462_PA_WesternPA_2019_D20 (public domain), Allegheny National Forest, Pennsylvania",
+  "tile": "pa.tif",
+  "crop_centre_px": [
+    2700,
+    2700
+  ],
+  "epsg": 26917,
+  "utm_zone": 17,
+  "centre_utm": [
+    662694.0,
+    4617306.0
+  ],
+  "size_m": 4096,
+  "points": 2049,
+  "step_m": 2.0,
+  "relief_m": 224.3
+}

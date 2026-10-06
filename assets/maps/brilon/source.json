@@ -1,0 +1,35 @@
+{
+  "source": "DGM1 NRW 1 m terrain model, Geobasis NRW (dl-de/zero-2.0), Brilon, Hochsauerland, Germany",
+  "tile": [
+    "dgm1_32_468_5692_1_nw_2021.tif",
+    "dgm1_32_468_5693_1_nw_2021.tif",
+    "dgm1_32_468_5694_1_nw_2021.tif",
+    "dgm1_32_468_5695_1_nw_2021.tif",
+    "dgm1_32_469_5692_1_nw_2021.tif",
+    "dgm1_32_469_5693_1_nw_2021.tif",
+    "dgm1_32_469_5694_1_nw_2021.tif",
+    "dgm1_32_469_5695_1_nw_2021.tif",
+    "dgm1_32_470_5692_1_nw_2021.tif",
+    "dgm1_32_470_5693_1_nw_2021.tif",
+    "dgm1_32_470_5694_1_nw_2021.tif",
+    "dgm1_32_470_5695_1_nw_2021.tif",
+    "dgm1_32_471_5692_1_nw_2021.tif",
+    "dgm1_32_471_5693_1_nw_2021.tif",
+    "dgm1_32_471_5694_1_nw_2021.tif",
+    "dgm1_32_471_5695_1_nw_2021.tif"
+  ],
+  "crop_centre_px": [
+    1931,
+    2093
+  ],
+  "epsg": 25832,
+  "utm_zone": 32,
+  "centre_utm": [
+    469931.0,
+    5693907.0
+  ],
+  "size_m": 2048,
+  "points": 1025,
+  "step_m": 2.0,
+  "relief_m": 102.07
+}
