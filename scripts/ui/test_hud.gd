@@ -6,6 +6,7 @@ extends CanvasLayer
 ## attitude ball and the jump charge as a ring, with lane A3's CombatHud (ammo, range marks, damage
 ## diagram, wire anchor) drawn over it. All drawn in one pass from the mech's telemetry.
 
+const TUTORIAL := preload("res://scripts/ui/tutorial.gd")
 const SHADE := Color(0.0, 0.0, 0.0, 0.55)
 
 var mech: Node3D
@@ -13,6 +14,7 @@ var _root: Control
 var _draw: Control
 var _combat: CombatHud
 var _hints: MoveHints
+var _tutorial: Control  # Tutorial (lane A6 stub), preloaded so a fresh class cache is not needed
 var _main_hit: Dictionary = {}
 var _sub_hit: Dictionary = {}
 var _aim_s := 0.0
@@ -44,6 +46,9 @@ func _ready() -> void:
 
 	_hints = MoveHints.new()
 	_root.add_child(_hints)
+	_tutorial = TUTORIAL.new()
+	_tutorial.call("watch", _hints)
+	_root.add_child(_tutorial)
 	_root.scale = Vector2.ONE * Settings.get_f("gameplay.hud_scale")
 
 

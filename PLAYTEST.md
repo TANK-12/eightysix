@@ -1,13 +1,26 @@
 # Eighty Six: playtest guide
 
-date: 2026-10-01 · for: Emerson · written by lane A4 part 2 (Kenji, relay-12)
+date: 2026-10-01 · for: Emerson · written by lane A4 part 2 (Kenji, relay-12); brought up to date for alpha 0.1
+by lane A6 (Asuka, Relay 51) on 2026-10-07
 
 ## Launch
 
 - **Forge hub:** the Eighty Six tile, **Play**. Or in a terminal: `~/Games/eightysix/tools/play.sh`
   (rebuilds first if the source changed, a few seconds). A saved version: `tools/play.sh --version NNN`
   (`python3 tools/builds.py list` shows each one's note).
-- Main menu, **Deploy**: Ashen valley with its mission, **First contact**. The test range has no mission.
+- Main menu, **Deploy**: Ashen valley with its mission, **First contact**. **Select map** has the rest:
+
+| Map | What it is | Mission |
+|---|---|---|
+| Ashen valley | hand-made 1 km valley, ruined town, river | First contact (below) |
+| Sector 86 frontier | 4 km streamed frontier, four towns, the Ash river bridge, buildings that break | Frontier sweep: the last wave crosses the bridge, drop a span under it (HE on an orange-marked bearing) |
+| Palouse grassland | real place (USGS lidar), rolling wheat hills, 4 km | free roam |
+| Allegheny forest | real place, about 100,000 firs, misty morning, 4 km | free roam |
+| Brilon | real Sauerland town (6,000 houses), gold evening, 2 km | free roam |
+| Test range | flat ground with boulders and slabs | none |
+| Test bench: flat pad / rough field | load a design and read torque, power, heat and failures | none (Settings > Gameplay > Physics > Physics mode: Test bench) |
+
+- **Free roam + Keep exploring:** after a mission ends you can carry on walking the map.
 
 ## The mission: First contact
 
@@ -40,6 +53,10 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 | Third person or cockpit / free look / optics zoom | V / Alt / middle mouse | triangle / R3 / d-pad left |
 | Park: gun raised / lowered (only when you press it) | P | (rebind in Settings > Controls) |
 | Photo mode (time freezes, orbit camera, F12 saves a picture) | O | (from the pause menu) |
+| Optics zoom (1x to 10x) | mouse wheel or + / - | |
+| Handler view (squad map, click to move or attack) / orders 1-4 | Tab / 1 2 3 4 | touchpad / d-pad |
+| Map | M | create |
+| Frame rate counter / screenshot | F3 / F12 | |
 | Pause | Esc | options |
 
 ## What to try
@@ -54,13 +71,30 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 - **Grauwolves:** shoot the rocket pod and it stops firing rockets. Shoot the optic and it sees a third as far.
 - **Heavy AP (T to cycle):** more kick and more damage. Fire it in the air to dodge.
 - Everything from earlier lanes still works: flips, the wire-anchor arc, sprint any way, the slide, photo mode.
+- **Your squad:** Settings > Gameplay > Squad sets how many Spearhead wingmen deploy with you (full physics
+  Juggernauts with AI pilots). Tab opens the Handler view to order them.
+- **Shells you can see:** Settings > Graphics > World detail > Combat effects has the shell tracer and the size of
+  hits and blasts. Shells ricochet off hard ground at a shallow angle and crack past you on a near miss.
 
 ## Settings worth knowing
 
 - Settings > Gameplay > "Damage you take" scales Legion damage (0.25-2x) if the fights are too hard or too easy.
-- Settings > Audio has the sound and music pages (lane B4).
+- Settings > Audio has the sound and music pages: a pick and a level for every sound, and the soundtrack in order.
+- Settings > Gameplay > Juggernaut: finish (field worn by default), emblem, dirt building up over a sortie, and
+  the Legion livery (field worn, night, or the bare export).
+- **Tutorial (new, a stub, off by default):** Settings > Gameplay > Menus and theme > Learning > Tutorial. Seven
+  steps at the top of the screen (walk, gallop, jump, cockpit view, guns), one at a time. You decide whether it
+  stays and what it should teach; the steps are entries in `data/tutorial.json`.
+- Settings > Gameplay > Menus and theme: two themes (Handler console, Spearhead field kit) that switch live.
 
 ## Your notes
 
 Write them in `~/Games/eightysix/NOTES.md` (any form: one line per thing is fine), or tell any Claude
-session "Eighty Six notes: ...". The next track-A session (A5) reads them first.
+session "Eighty Six notes: ...". The next session reads them first.
+
+Still waiting on you (from versions 014/015; nothing is built until you answer):
+1. Legion accuracy: pick one: ranging/tracking error, aim settling time, a Legion accuracy setting, or measure
+   their hit rate first.
+2. "Blades go horizontal in a slide": the sub-arm blades swinging level through a slide like the anime's
+   slide-and-cut, or something else?
+3. Are the spawn-point sparks and the falling through the map gone since 014?

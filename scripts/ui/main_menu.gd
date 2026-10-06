@@ -101,7 +101,7 @@ func _build() -> void:
 	title.add_theme_font_override("font", UiTheme.spaced_font("heading", 6))
 	left.add_child(title)
 	var sub := Label.new()
-	sub.text = "Alpha 0.1  ·  Juggernaut foundation build"
+	sub.text = "Alpha 0.1  ·  Juggernaut field test"
 	sub.theme_type_variation = "DimLabel"
 	left.add_child(sub)
 
@@ -190,9 +190,9 @@ func _build() -> void:
 	_status.modulate = Color(1, 1, 1, 0.6)
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_status.set_anchors_and_offsets_preset(PRESET_BOTTOM_RIGHT)
-	_status.offset_left = -900
+	_status.offset_left = -1150
 	_status.offset_top = -80
-	_status.offset_right = -80
+	_status.offset_right = -150  # clear of the corner bracket, mirroring the prompt's 150 on the left
 	_status.offset_bottom = -44
 	_status.grow_horizontal = GROW_DIRECTION_BEGIN
 	_status.clip_text = true

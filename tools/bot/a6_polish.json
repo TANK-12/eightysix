@@ -1,0 +1,23 @@
+{
+ "name": "a6_polish",
+ "_about": "Lane A6: the main menu in both themes (subtitle, status line clear of the corner bracket), the Learning row, then the test range with the tutorial stub switched on: the welcome step, then the walk step once it moves on. tools/bot_run.sh a6_polish",
+ "steps": [
+  {"at": 0.0, "setting": "interface.theme", "value": "handler_console"},
+  {"at": 0.0, "setting": "gameplay.tutorial", "value": true},
+  {"at": 1.5, "shot": "menu-handler-console"},
+  {"at": 1.7, "setting": "interface.theme", "value": "spearhead_field"},
+  {"at": 2.4, "shot": "menu-spearhead-field"},
+  {"at": 2.6, "goto": "settings:gameplay/interface"},
+  {"at": 3.1, "shot": "settings-interface"},
+  {"at": 3.3, "goto": "menu"},
+  {"at": 4.0, "goto": "map:test_range"},
+  {"at": 4.3, "wait": "level"},
+  {"at": 7.0, "shot": "tutorial-welcome"},
+  {"at": 7.0, "sample": "welcome"},
+  {"at": 11.0, "press": "move_forward", "for": 4.0},
+  {"at": 12.5, "shot": "tutorial-walk"},
+  {"at": 15.5, "shot": "tutorial-run"},
+  {"at": 15.5, "sample": "after-walk"},
+  {"at": 16.0, "quit": true}
+ ]
+}

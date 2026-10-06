@@ -26,6 +26,21 @@ func test_every_item_has_a_default_or_is_an_action() -> void:
 			assert_true(str(it.get("help", "")) != "", key + " has help text")
 
 
+## Lane A6 ("settings lined up"): every row reads like the rest, a label in sentence case and help that ends
+## a sentence, and no work notes (lane names, sessions) leak into what the player sees.
+func test_every_row_is_lined_up() -> void:
+	var jargon := RegEx.create_from_string("\\b(lane [AB]?\\d|Relay|TODO|session)\\b")
+	for key: String in Settings.keys():
+		var it := Settings.item(key)
+		var label := str(it.get("label", ""))
+		assert_ne(label, "", key + " has a label")
+		assert_eq(label.substr(0, 1), label.substr(0, 1).to_upper(), key + " label starts with a capital")
+		var help := str(it.get("help", ""))
+		if help != "":
+			assert_true(help.strip_edges().right(1) in [".", ")", "?", "!"], key + " help ends a sentence")
+		assert_true(jargon.search(label + " " + help) == null, key + " has no work notes in its text")
+
+
 func test_slider_clamps_and_snaps() -> void:
 	Settings.set_value("controls.move_inner", 0.9, false)
 	assert_eq(Settings.get_value("controls.move_inner"), 0.4)

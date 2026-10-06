@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -123,7 +123,14 @@ The "Current state" section may be updated in place, but only to keep it true; t
 - Frame rates on **Ashen valley** (lane B4 end, 1920x1080, off screen, no Blender, no other Godot, sound on): Low
   85.1 / 73.4, Medium 51.5 / 47.7, High 41.1 / 37.9 fps (start viewpoint standing / walking): **all three targets met**
   (60 / 45 / 30). The town street 49 fps on Medium. Doc: `~/Forge/docs/library/juggernaut/2026-10-01-eightysix-scoreboard.md`.
-- Frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
+- **Frame rates, alpha 0.1 (lane A6, 2026-10-07, verified):** `tools/fps_log.py`, test range with the real
+  Juggernaut and every look pass since (LOOK, R1, LOOK2, LOOK3), 1920x1080 native, off screen, Iris Xe, no Blender
+  job, all four presets in one sitting: **Low 66.5 · Medium 58.4 · High 35.2 · Ultra 15.1 fps** average (1 % lows
+  36.6 / 31.0 / 20.2 / 13.3; GPU bound on every preset; Ultra sits on the 15 fps pacing floor, its GPU estimate is
+  9.0). Targets 60 / 45 / 30 / none are met, though since 2026-10-02 they are no longer limits (graphics over frame
+  rate). Logs `logs/fps/20261007-063116-*.json` (the hub's Frame rates panel reads them). Per map figures: LOOK3
+  (Brilon, Allegheny) and MAPS2 in `~/Forge/sessions/juggernaut-alpha/results/`.
+- Older: frame rates (`tools/fps_log.py`, 1080p, test range with the stand-in, off screen, uncapped, Iris Xe,
   no Blender job): Low 96.1 · Medium 54.1 · High 45.8 · Ultra 15.1 fps (targets 60 / 45 / 30 / none: all met).
   High was retuned from measured costs; logs in `logs/fps/`. **Not yet re-measured with the real Juggernaut
   mesh in place of the stand-in** (lane A2 part 2).
@@ -690,3 +697,22 @@ these; fps of the Palouse not measured on a quiet GPU. Details and next steps:
 
 ### 2026-10-03 · version 015 saved · Tetsu (hey)
 Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review fix (fec6d04, c297c17), R3's first person (b726b3f). Full suite 427 passed, 0 failed, 0 SCRIPT ERROR (340 s). Note and try-this: `tools/builds.py list`; details `~/Forge/sessions/juggernaut-alpha/results/V015.md`.
+
+### 2026-10-07 · lane A6 · Asuka (Relay 51, hey) · alpha 0.1: polish, notes, fps, release
+- **Emerson's notes:** the open one in NOTES.md (cockpit one-shot) was already fixed in A4 part 5 (2000 health,
+  checked in data). Three questions from 014/015 still wait on him; they are listed at the end of PLAYTEST.md.
+- **Tutorial stub, off by default:** `data/tutorial.json` (7 steps), `scripts/ui/tutorial.gd` (`Tutorial`), on the
+  field HUD; Settings > Gameplay > Menus and theme > Learning > Tutorial. **Verified:** test_tutorial 4/4 and bot
+  `a6_polish` (images/590, 597: welcome step, then the gallop step once walking).
+- **Settings lined up:** all 138 rows audited; work notes taken out of three player-facing strings; new check
+  `test_settings.gd: test_every_row_is_lined_up`. **Verified:** test_settings 9/9.
+- **Menu polish:** subtitle "Alpha 0.1 · Juggernaut field test"; the status line no longer runs into the corner
+  bracket. **Verified:** images/590, 591.
+- **Bug bash:** bots smoke, a4_mission, maps_palouse, maps_allegheny, maps_brilon, b5_mission (images/589,
+  592-596): all exit 0, 0 bot errors, no SCRIPT ERROR. Bot runs need
+  `LD_LIBRARY_PATH=/tmp/llvm22/usr/lib` until mesa and llvm-libs match again (crew note 770).
+- **fps:** Low 66.5 · Medium 58.4 · High 35.2 · Ultra 15.1 (see Current state). Nothing in A6 costs frames (the
+  tutorial is a 2D panel and off by default), so no before/after pair was needed.
+- **Tests:** 479 passed, 0 failed (verified, full run). Hub tile tagline says Alpha 0.1; hub tests 27/27.
+- **Version 017** saved as alpha 0.1. PLAYTEST.md brought up to date (maps table, new controls, squad,
+  tutorial, open questions). Details: `~/Forge/sessions/juggernaut-alpha/results/A6.md`.

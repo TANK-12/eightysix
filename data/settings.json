@@ -44,7 +44,7 @@
             {"key": "graphics.fog_volume_depth", "label": "Fog detail (depth)", "type": "choice", "options": [[48, "48"], [64, "64"], [96, "96"], [128, "128"]], "default": 64, "preset_field": "fog_volume_depth", "help": "Fog grid slices into the distance."}
           ]},
           {"label": "Sky and glow", "items": [
-            {"key": "graphics.clouds", "label": "Clouds", "type": "choice", "options": [["off", "Off"], ["low", "Low"], ["high", "High"]], "default": "low", "preset_field": "clouds", "help": "Volumetric cloud quality (maps from lane B3 on)."},
+            {"key": "graphics.clouds", "label": "Clouds", "type": "choice", "options": [["off", "Off"], ["low", "Low"], ["high", "High"]], "default": "low", "preset_field": "clouds", "help": "Volumetric cloud quality."},
             {"key": "graphics.glow", "label": "Glow", "type": "toggle", "default": true, "preset_field": "glow", "help": "Bloom on bright muzzle flashes, lamps and the sun."}
           ]}
         ]},
@@ -170,7 +170,7 @@
         {"id": "output", "label": "Output", "groups": [
           {"label": "Output", "items": [
             {"key": "audio.output_device", "label": "Output device", "type": "choice", "options_from": "audio_devices", "default": "Default", "help": "Where the sound goes."},
-            {"key": "audio.speaker_mode", "label": "Listening on", "type": "choice", "options": [["stereo", "Speakers"], ["headphones", "Headphones"], ["tv", "TV"]], "default": "stereo", "help": "Tunes panning and reverb for what you listen on (lane B4)."},
+            {"key": "audio.speaker_mode", "label": "Listening on", "type": "choice", "options": [["stereo", "Speakers"], ["headphones", "Headphones"], ["tv", "TV"]], "default": "stereo", "help": "Tunes panning and reverb for what you listen on."},
             {"key": "audio.dynamic_range", "label": "Dynamic range", "type": "choice", "options": [["full", "Full (cinematic)"], ["night", "Night (quieter peaks)"]], "default": "full", "help": "Night squashes gunfire and explosions so you can keep it quiet."},
             {"key": "audio.mute_unfocused", "label": "Mute when in the background", "type": "toggle", "default": false, "help": "Silence the game when another window has focus."}
           ]}
@@ -229,7 +229,7 @@
             {"key": "gameplay.aim_mode", "label": "Aiming", "type": "choice", "options": [["rate", "Stick sets the rate"], ["angle", "Stick sets the angle"]], "default": "rate", "help": "How up and down on the right stick moves the aim. Rate: holding it keeps tilting until you let go, and the aim stays where you left it. Angle: how far you push is the angle (all the way up is the top of the range, half is half) and letting go springs back level. The mouse works the same in both. Mid-air the body only tilts as far as the swinging legs can turn it."},
             {"key": "gameplay.air_control", "label": "Leg-swing turning in the air", "type": "toggle", "default": true, "help": "In the air the legs swing and tuck to turn the body toward your aim, the way a cat turns as it falls: real physics, so it is slow (4 to 6 degrees a second). Nothing pushes you in flight: steer with the main gun's recoil and the wire anchor. Off keeps the legs still."}
           ]},
-          {"label": "Test bench (lane B6; needs Physics mode: Test bench)", "items": [
+          {"label": "Test bench (needs Physics mode: Test bench)", "items": [
             {"key": "bench.design", "label": "Design on the bench", "type": "choice", "options_from": "bench", "default": "juggernaut_m2", "help": "Which mech the two test bench maps load: a Blender export with the actuator figures from parts.json. Takes effect when a bench map starts."},
             {"key": "bench.failures", "label": "Failures", "type": "toggle", "default": true, "help": "A winding that gets too hot trips its thermal cutout, and a shock load past what a joint can take breaks it until you reset the bench. Off: the torque limits and heat still apply but nothing latches."},
             {"key": "bench.cooling", "label": "Cooling", "type": "slider", "min": 0.25, "max": 2.0, "step": 0.05, "format": "x", "default": 1.0, "help": "Scales how fast the actuators shed heat. Lower makes them overheat sooner."},
@@ -269,7 +269,7 @@
             {"key": "hangar.light", "label": "Hangar lighting", "type": "choice", "options_from": "hangar", "default": "showroom", "help": "The light the Juggernaut is shown in, in the Hangar and behind the main menu. Also changes with Q and E in the Hangar."}
           ]},
           {"label": "Learning", "items": [
-            {"key": "gameplay.tutorial", "label": "Tutorial hints", "type": "toggle", "default": false, "help": "A stub for now: off by default until Emerson decides after testing."}
+            {"key": "gameplay.tutorial", "label": "Tutorial", "type": "toggle", "default": false, "help": "A first stub: seven steps at the top of the screen walk you through moving, the gallop, the jump, the cockpit view and the guns, one at a time. Off by default for now."}
           ]}
         ]}
       ]
