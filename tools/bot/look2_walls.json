@@ -1,0 +1,97 @@
+{
+ "name": "look2_walls",
+ "map": "big_map",
+ "_about": "Lane LOOK2 part 2: the wall and far-rock views of look_big only (street, depot, the Juggernaut beside Kreuzberg and the depot), for quick material passes. tools/bot_run.sh look2_walls",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 1.7,
+   "call": "look_from",
+   "args": [
+    "l_street"
+   ]
+  },
+  {
+   "at": 5.2,
+   "shot": "l_street"
+  },
+  {
+   "at": 5.9,
+   "call": "look_from",
+   "args": [
+    "depot"
+   ]
+  },
+  {
+   "at": 9.4,
+   "shot": "depot"
+  },
+  {
+   "at": 9.7,
+   "call": "follow_mech"
+  },
+  {
+   "at": 10.4,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    0,
+    26
+   ]
+  },
+  {
+   "at": 13.9,
+   "shot": "jg_kreuzberg_a"
+  },
+  {
+   "at": 14.6,
+   "call": "face_building",
+   "args": [
+    "kreuzberg",
+    2,
+    30
+   ]
+  },
+  {
+   "at": 18.1,
+   "shot": "jg_kreuzberg_b"
+  },
+  {
+   "at": 18.8,
+   "call": "face_building",
+   "args": [
+    "depot",
+    0,
+    28
+   ]
+  },
+  {
+   "at": 22.3,
+   "shot": "jg_depot"
+  },
+  {
+   "at": 23.5,
+   "quit": true
+  }
+ ]
+}

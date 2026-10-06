@@ -783,6 +783,8 @@ class Parts:
 	var shapes: Array = []
 	var pieces: Array = []
 	var gone := {}  # piece index -> true: broken off (lane B5), not drawn or collided
+	var boxed := {}  # material -> true: its surface carries the box edge data (see box)
+	var box_log: Array = []  # [material, first vertex, xf, size] per box drawn with edge data
 	var next_piece := 0
 	var hull := PackedVector3Array()
 	var anchors: Array[Vector3] = []
@@ -836,9 +838,19 @@ class Parts:
 		if best_top > -INF:
 			anchors.append(best)
 
-	## A drawn box (flat-shaded, 24 vertices), no collider.
+	## A drawn box (flat-shaded, 24 vertices), no collider. Each face carries, for the masonry
+	## shader's worn edges (lane LOOK2): UV = the vertex's offset from the face centre in metres along
+	## the tangent and binormal, UV2 = the face's half width and half height (m), TANGENT = the face's
+	## first edge direction, COLOR = which of its four edges are open (r -u, g +u, b -v, a +v; filled
+	## in by commit: an edge where another box carries the wall on is closed, so the seams between the
+	## blocks of one wall do not show). Only on surfaces a box started, so other builders' vertices never
+	## mix in.
 	func box(mat: String, xf: Transform3D, size: Vector3) -> void:
+		var edges: bool = count(mat) == 0 or bool(boxed.get(mat, false))
+		boxed[mat] = edges
 		var st := surface(mat)
+		if edges:
+			box_log.append([mat, count(mat), xf, size])
 		var h := size * 0.5
 		var faces := [
 			[Vector3.RIGHT, Vector3.UP, Vector3.BACK],
@@ -857,8 +869,17 @@ class Parts:
 			var vv := v * h
 			var q := [c - uu - vv, c + uu - vv, c + uu + vv, c - uu + vv]
 			var wn := (xf.basis * nrm).normalized()
+			var wu := xf.basis * uu
+			var wv := xf.basis * vv
+			var half := Vector2(wu.length(), wv.length())
+			var corner := [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
 			for k in [0, 2, 1, 0, 3, 2]:
 				st.set_normal(wn)
+				if edges:
+					st.set_color(Color.WHITE)
+					st.set_tangent(Plane(wu.normalized(), 1.0))
+					st.set_uv((corner[k] as Vector2) * half)
+					st.set_uv2(half)
 				st.add_vertex(xf * (q[k] as Vector3))
 		add_count(mat, 36)
 
@@ -878,10 +899,106 @@ class Parts:
 
 	func commit() -> ArrayMesh:
 		var mesh := ArrayMesh.new()
+		var open := _open_edges()
 		for mat: String in tools:
 			var st: SurfaceTool = tools[mat]
 			if mat in smooth:
 				st.generate_normals()
-			st.commit(mesh)
+			if open.has(mat):
+				var arrays := st.commit_to_arrays()
+				var cols: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+				for face: Array in open[mat]:
+					for k in 6:
+						cols[int(face[0]) + k] = face[1]
+				arrays[Mesh.ARRAY_COLOR] = cols
+				mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+			else:
+				st.commit(mesh)
 			mesh.surface_set_material(mesh.get_surface_count() - 1, Kit.material(mat))
 		return mesh
+
+	## For every logged box face whose edges are not all open: material -> [[first vertex, Color of
+	## open flags]] (the face's six vertices share it). Small blocks (rubble) and the undersides keep
+	## every edge open. An edge is closed when a point just past it, a little under
+	## the face, lies inside another drawn box (the wall carries on, or a wall meets it at a corner).
+	func _open_edges() -> Dictionary:
+		var out := {}
+		var n := box_log.size()
+		var inv: Array[Transform3D] = []
+		var half: Array[Vector3] = []
+		var aabbs: Array[AABB] = []
+		for rec: Array in box_log:
+			var xf: Transform3D = rec[2]
+			var h: Vector3 = rec[3] * 0.5
+			inv.append(xf.affine_inverse())
+			half.append(h + Vector3.ONE * 0.01)
+			aabbs.append(xf * AABB(-h, h * 2.0).grow(0.1))
+		var faces := [
+			[Vector3.RIGHT, Vector3.UP, Vector3.BACK],
+			[Vector3.LEFT, Vector3.UP, Vector3.FORWARD],
+			[Vector3.UP, Vector3.BACK, Vector3.RIGHT],
+			[Vector3.DOWN, Vector3.FORWARD, Vector3.RIGHT],
+			[Vector3.BACK, Vector3.UP, Vector3.LEFT],
+			[Vector3.FORWARD, Vector3.UP, Vector3.RIGHT],
+		]
+		# boxes by 2 m grid cell, so each box only meets its neighbours
+		var grid := {}
+		var cells: Array = []
+		for i in n:
+			var lo := (aabbs[i].position / 2.0).floor()
+			var hi := (aabbs[i].end / 2.0).floor()
+			var mine: Array[Vector3i] = []
+			for x in range(int(lo.x), int(hi.x) + 1):
+				for y in range(int(lo.y), int(hi.y) + 1):
+					for z in range(int(lo.z), int(hi.z) + 1):
+						var key := Vector3i(x, y, z)
+						mine.append(key)
+						if not grid.has(key):
+							grid[key] = []
+						grid[key].append(i)
+			cells.append(mine)
+		for i in n:
+			var near: Array[int] = []
+			for key: Vector3i in cells[i]:
+				for j: int in grid[key]:
+					if j != i and not near.has(j) and aabbs[i].intersects(aabbs[j]):
+						near.append(j)
+			var rec: Array = box_log[i]
+			var xf: Transform3D = rec[2]
+			var h: Vector3 = rec[3] * 0.5
+			if near.is_empty() or h.x + h.y + h.z < 0.9:
+				continue
+			for fi in faces.size():
+				var f: Array = faces[fi]
+				var nrm: Vector3 = f[0]
+				var u: Vector3 = f[1]
+				var v: Vector3 = nrm.cross(u)
+				var wn := (xf.basis * nrm).normalized()
+				if wn.y < -0.7:
+					continue
+				# a face against another box is hidden: its edges do not matter
+				if _inside_any(xf * (nrm * h) + wn * 0.03, near, inv, half, aabbs):
+					continue
+				var flags := [1.0, 1.0, 1.0, 1.0]
+				var dirs := [-u, u, -v, v]
+				for e in 4:
+					var d: Vector3 = dirs[e]
+					var mid: Vector3 = xf * (nrm * h + d * h)
+					if _inside_any(mid + (xf.basis * d).normalized() * 0.06 - wn * 0.03, near, inv, half, aabbs):
+						flags[e] = 0.0
+				if flags == [1.0, 1.0, 1.0, 1.0]:
+					continue
+				var mat: String = rec[0]
+				if not out.has(mat):
+					out[mat] = []
+				out[mat].append([int(rec[1]) + fi * 6, Color(flags[0], flags[1], flags[2], flags[3])])
+		return out
+
+	func _inside_any(p: Vector3, near: Array[int], inv: Array[Transform3D], half: Array[Vector3], aabbs: Array[AABB]) -> bool:
+		for j: int in near:
+			if not aabbs[j].has_point(p):
+				continue
+			var l: Vector3 = inv[j] * p
+			if absf(l.x) <= half[j].x and absf(l.y) <= half[j].y and absf(l.z) <= half[j].z:
+				return true
+		return false

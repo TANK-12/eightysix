@@ -6,7 +6,7 @@ const RIM_FALL := 0.25  # how fast (m per m outward) the far hills may fall belo
 ## Far hills beyond a map's edge (lane B4), so the rim is not the end of the world. Visual only: no
 ## collision, no shadows. A grid over the square out to extent_m, minus the playable map, rising from
 ## just under the rim top at the edge to ridges further out; fog does the rest. From the map entry's
-## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed, texture_m, and for the
+## "backdrop" block: {extent_m, cell_m, start_m, rise_m, ridge_m, colour, seed, texture_m, relief (the rock normal map's strength), and for the
 ## gorge: gorge_rise_m (how far out a gap in the rim takes to climb into the hills), bend_m and
 ## bend_over_m (the rim's shape slides this far sideways over that distance out, so a gorge curves
 ## out of sight instead of running straight into a ramp), water_reach_m (the map's water plane
@@ -74,6 +74,12 @@ static func build(parent: Node3D, entry: Dictionary, rock: Texture2D = null, edg
 		mat.uv1_world_triplanar = true
 		mat.uv1_scale = Vector3.ONE / float(b.get("texture_m", 60.0))
 		mat.albedo_color = mat.albedo_color * 1.6
+		# and its relief at the same scale (lane LOOK2): without it the far hills shaded like smooth plastic
+		var nrm_path := rock.resource_path.get_base_dir().path_join("normal.jpg")
+		if ResourceLoader.exists(nrm_path):
+			mat.normal_enabled = true
+			mat.normal_texture = load(nrm_path)
+			mat.normal_scale = float(b.get("relief", 1.6))
 	mi.material_override = mat
 	parent.add_child(mi)
 	_reach_water(parent, half, float(b.get("water_reach_m", 0.0)))

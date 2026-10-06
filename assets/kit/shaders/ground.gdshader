@@ -51,6 +51,10 @@ uniform float detail_far = 0.7;
 uniform float detail_fade_m = 90.0;
 uniform float relief_near = 1.0;
 uniform float relief_far = 0.5;
+// far rock (lane LOOK2): how much of the cliff-scale texture's own contrast to keep, and how strong the
+// gullies and strata are
+uniform float far_rock_detail = 1.3;
+uniform float far_rock_breakup = 1.0;
 
 varying vec3 wp;
 varying vec3 wn;
@@ -208,13 +212,33 @@ void fragment() {
 		}
 		float top = clamp(wn.y * 1.4 - 0.4, 0.0, 1.0);
 		vec3 r = top > 0.01 ? mix(r_side, texture(rock_col, wp.xz * rock_scale).rgb, top) : r_side;
-		// far rock: the texture's grain turns into a screen-door pattern on distant ridges, so it fades to its mean
+		// far rock: the texture's grain turns into a screen-door pattern on distant ridges, so far away it
+		// gives way to the same rock at a cliff-sized scale (about 90 m a tile, lane LOOK2): big faces, ledges
+		// and cracks in colour and in the normal, where a fade to the mean colour read as smooth grey plastic
 		float rock_far = smoothstep(40.0, 260.0, length(wp - CAMERA_POSITION_WORLD));
-		vec3 r_mean = textureLod(rock_col, vec2(0.5), 9.0).rgb;
-		r = mix(r, r_mean, rock_far * 0.85);
+		if (rock_far > 0.01) {
+			vec3 rb;
+			vec3 nb;
+			if (wx < 0.01) {
+				rb = texture(rock_col, uv_z * 0.07).rgb;
+				nb = texture(rock_nrm, uv_z * 0.07).rgb;
+			} else if (wx > 0.99) {
+				rb = texture(rock_col, uv_x * 0.07).rgb;
+				nb = texture(rock_nrm, uv_x * 0.07).rgb;
+			} else {
+				rb = mix(texture(rock_col, uv_z * 0.07).rgb, texture(rock_col, uv_x * 0.07).rgb, wx);
+				nb = mix(texture(rock_nrm, uv_z * 0.07).rgb, texture(rock_nrm, uv_x * 0.07).rgb, wx);
+			}
+			r = mix(r, detail(rock_col, rb, far_rock_detail), rock_far * 0.85);
+			n_side = mix(n_side, nb, rock_far * 0.85);
+			// gullies: dark streaks running down the steep faces, and horizontal strata, both from the noise
+			float across = mix(wp.x, wp.z, wx);
+			float gully = stretch(texture(macro, vec2(across * 0.011, wp.y * 0.0009 + 0.3)).r);
+			float strata = stretch(texture(macro, vec2(wp.y * 0.035 + m2 * 0.9, 0.61)).r);
+			r *= mix(1.0, mix(0.62, 1.12, gully) * mix(0.86, 1.1, strata), rock_far * far_rock_breakup);
+		}
 		// strata of warm and cool stone broken up by the noise, so a far ridge is not one grey
 		r *= mix(vec3(1.12, 0.98, 0.84), vec3(0.88, 0.96, 1.08), smoothstep(0.3, 0.7, m2 * 0.6 + m3 * 0.5 + wp.y * 0.0015));
-		n_side = mix(n_side, vec3(0.5, 0.5, 1.0), rock_far * 0.8);
 		col = mix(col, r * rock_tint, rockiness);
 		nrm = mix(nrm, n_side, rockiness);
 	}

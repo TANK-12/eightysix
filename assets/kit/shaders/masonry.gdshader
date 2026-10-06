@@ -35,11 +35,28 @@ uniform float soot = 0.25;
 // storey height (m) for a grid of dark window panes on the walls (0: none)
 uniform bool batched = false;
 uniform float window_every_m = 3.1;
+// lane LOOK2: kit boxes carry their face's size (Parts.box), so the edges can wear: a rounded bevel that
+// catches the light, plaster chipped off along the edges, grime in the corners and soot under the broken
+// tops. mortar darkens the joints by the texture's AO (sunlit brick showed none), relief_gain sharpens
+// the texture's relief, colour_spread varies the stone itself from building to building and across the wall.
+uniform float bevel_m = 0.035;
+uniform float edge_wear = 0.8;
+uniform float edge_grime = 0.5;
+uniform float top_soot = 0.55;
+uniform float sill_streaks = 0.45;
+uniform float top_dust = 0.45;
+uniform float mortar = 0.6;
+uniform float relief_gain = 1.7;
+uniform float colour_spread = 1.0;
 
 varying vec3 wp;
 varying vec3 wn;
 varying vec3 origin;
 varying float storey;
+varying vec3 wt;
+varying vec2 face;
+varying vec2 face_half;
+varying vec4 open_edges;
 
 float hash11(float p) {
 	p = fract(p * 0.1031);
@@ -59,6 +76,14 @@ void vertex() {
 	wn = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	origin = MODEL_MATRIX[3].xyz;
 	storey = 0.0;
+	face = UV;
+	face_half = vec2(0.0);
+	wt = vec3(1.0, 0.0, 0.0);
+	open_edges = COLOR;
+	if (!batched && UV2.x > 0.001) {
+		face_half = UV2;
+		wt = normalize((MODEL_MATRIX * vec4(TANGENT, 0.0)).xyz);
+	}
 	if (batched) {
 		origin = vec3(UV2.x, UV.x, UV2.y);
 		storey = UV.y;
@@ -86,7 +111,8 @@ void fragment() {
 
 	vec3 b = texture(base_col, uv * base_scale).rgb * base_tint;
 	b *= 0.88 + 0.24 * panel;
-	float ao = mix(1.0, texture(base_ao, uv * base_scale).r, 0.85);
+	float ao_tex = texture(base_ao, uv * base_scale).r;
+	float ao = mix(1.0, ao_tex, 0.85);
 	float rough = base_rough * texture(base_rgh, uv * base_scale).r;
 	vec3 tn = texture(base_nrm, uv * base_scale).rgb * 2.0 - 1.0;
 
@@ -94,9 +120,37 @@ void fragment() {
 	float m_big = texture(macro, uv * 0.06 + building * 7.0).r;
 	float m_mid = texture(macro, uv * 0.31 + 0.2).r;
 	float m_fine = texture(macro, uv * 1.7).r;
+	// the stone itself: warmer or greyer per building, and a slow tonal drift over the wall
+	b *= mix(vec3(1.0), mix(vec3(1.06, 0.97, 0.9), vec3(0.84, 0.88, 0.94), hash11(building * 29.0 + 1.0)), colour_spread);
+	b *= mix(1.0, 0.78 + 0.44 * m_mid, colour_spread);
+
+	// the face's edges (kit boxes only): metres to the nearest edge, and to the upper edge of a wall face
+	float edge_m = 99.0;
+	float top_m = 99.0;
+	vec3 bevel = vec3(0.0);
+	if (face_half.x > 0.001) {
+		vec3 wb = cross(wn, wt);
+		// a closed edge (the wall carries on in another box) counts as far away
+		vec2 open = vec2(face.x < 0.0 ? open_edges.r : open_edges.g, face.y < 0.0 ? open_edges.b : open_edges.a);
+		vec2 d = face_half - abs(face) + (1.0 - open) * 99.0;
+		edge_m = min(d.x, d.y);
+		// at least a pixel and a half wide, so far edges still catch the light
+		float w = max(bevel_m, 1.5 * length(fwidth(face)));
+		vec2 bv = (1.0 - smoothstep(0.0, w, d)) * sign(face);
+		bevel = wt * bv.x + wb * bv.y;
+		float tu = wt.y;
+		float tv = wb.y;
+		if (abs(tv) > 0.7) {
+			top_m = face.y * sign(tv) > 0.0 ? d.y : 99.0;
+		} else if (abs(tu) > 0.7) {
+			top_m = face.x * sign(tu) > 0.0 ? d.x : 99.0;
+		}
+	}
+	float wear = edge_wear * (1.0 - smoothstep(0.03, 0.1 + 0.35 * m_mid, edge_m + (m_fine - 0.5) * 0.12));
 	float keep = coat_amount * (0.2 + 0.9 * hash11(building * 53.0));
 	float edge = m_big * 0.6 + m_mid * 0.4 + clamp(height * 0.045, 0.0, 0.3) - 0.2 + (m_fine - 0.5) * 0.18;
 	float coat = smoothstep(1.0 - keep - 0.04, 1.0 - keep + 0.04, edge);
+	coat *= 1.0 - wear;
 	vec3 paint = coat_a;
 	float pick = fract(building * 4.0);
 	if (pick > 0.75) {
@@ -112,6 +166,8 @@ void fragment() {
 	float c_lum = dot(c, vec3(0.333));
 	vec3 coated = paint * (0.75 + 0.6 * c_lum) * (0.9 + 0.2 * panel);
 	vec3 ctn = texture(coat_nrm, uv * coat_scale).rgb * 2.0 - 1.0;
+	// mortar joints darker by the texture's AO, where the bare stone shows
+	b *= mix(1.0, ao_tex, mortar * (1.0 - coat));
 	b = mix(b, coated, coat);
 	tn = mix(tn, ctn, coat);
 	rough = mix(rough, 0.85, coat);
@@ -126,6 +182,18 @@ void fragment() {
 	float splash = base_dirt * (1.0 - smoothstep(0.0, 1.1 + 0.6 * m_mid, height));
 	b = mix(b, dirt_col * (0.8 + 0.4 * m_fine), splash * 0.65);
 	b *= 1.0 - soot * smoothstep(0.55, 0.9, m_big) * smoothstep(1.0, 4.0, height);
+	// worn edges: grime along every edge, soot running down from the broken tops (streaky, more on some
+	// buildings than others), dust and grit lying on the tops themselves
+	b *= 1.0 - edge_grime * (1.0 - smoothstep(0.0, 0.3 + 0.5 * m_mid, edge_m)) * (0.4 + 0.6 * m_fine);
+	float st_v = texture(macro, vec2(uv.x * 0.7 + building * 5.0, height * 0.05)).r;
+	float burnt = top_soot * smoothstep(0.25, 0.75, hash11(building * 71.0 + 2.0) * 0.7 + m_big * 0.5);
+	b *= 1.0 - burnt * (1.0 - smoothstep(0.0, 0.4 + 1.6 * st_v, top_m));
+	// rain run off every open top (window sills, broken courses): thin dark streaks down the wall below
+	float run = texture(macro, vec2(uv.x * 2.2 + building * 3.0, height * 0.02)).r;
+	b *= 1.0 - sill_streaks * smoothstep(0.45, 0.75, run) * (1.0 - smoothstep(0.0, 0.5 + 2.5 * st_v, top_m));
+	if (axis == 1 && wn.y > 0.0 && face_half.x > 0.001) {
+		b = mix(b, dirt_col * (0.9 + 0.5 * m_fine), top_dust * smoothstep(0.35, 0.7, m_mid + 0.3 * m_fine));
+	}
 
 	if (storey > 0.5 && an.y < 0.5) {
 		float along = axis == 0 ? wp.z : wp.x;
@@ -140,7 +208,7 @@ void fragment() {
 	}
 
 	vec3 n = wn;
-	float k = relief * (1.0 - coat * 0.35);
+	float k = relief * relief_gain * (1.0 - coat * 0.35);
 	if (axis == 1) {
 		n += vec3(tn.x, 0.0, tn.y) * k;
 	} else if (axis == 0) {
@@ -148,6 +216,7 @@ void fragment() {
 	} else {
 		n += vec3(tn.x, tn.y, 0.0) * k;
 	}
+	n = normalize(n) + bevel * 0.8;
 	NORMAL = normalize((VIEW_MATRIX * vec4(normalize(n), 0.0)).xyz);
 	ALBEDO = b;
 	ROUGHNESS = clamp(rough, 0.35, 1.0);
