@@ -703,7 +703,7 @@ Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review f
   checked in data). Three questions from 014/015 still wait on him; they are listed at the end of PLAYTEST.md.
 - **Tutorial stub, off by default:** `data/tutorial.json` (7 steps), `scripts/ui/tutorial.gd` (`Tutorial`), on the
   field HUD; Settings > Gameplay > Menus and theme > Learning > Tutorial. **Verified:** test_tutorial 4/4 and bot
-  `a6_polish` (images/590, 597: welcome step, then the gallop step once walking).
+  `a6_polish` (images/590, 601: welcome step, then the gallop step once walking).
 - **Settings lined up:** all 138 rows audited; work notes taken out of three player-facing strings; new check
   `test_settings.gd: test_every_row_is_lined_up`. **Verified:** test_settings 9/9.
 - **Menu polish:** subtitle "Alpha 0.1 · Juggernaut field test"; the status line no longer runs into the corner
@@ -714,5 +714,6 @@ Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review f
 - **fps:** Low 66.5 · Medium 58.4 · High 35.2 · Ultra 15.1 (see Current state). Nothing in A6 costs frames (the
   tutorial is a 2D panel and off by default), so no before/after pair was needed.
 - **Tests:** 479 passed, 0 failed (verified, full run). Hub tile tagline says Alpha 0.1; hub tests 27/27.
-- **Version 017** saved as alpha 0.1. PLAYTEST.md brought up to date (maps table, new controls, squad,
+- **Version 017** saved as alpha 0.1 (Linux export from commit 6bc599d, clean tree; **verified** it boots to the
+  menu with 0 errors: `tools/bot_run.sh ... --build`, images/602). PLAYTEST.md brought up to date (maps table, new controls, squad,
   tutorial, open questions). Details: `~/Forge/sessions/juggernaut-alpha/results/A6.md`.
