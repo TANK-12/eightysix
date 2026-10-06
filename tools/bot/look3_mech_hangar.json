@@ -1,0 +1,21 @@
+{
+  "name": "look3_mech_hangar",
+  "_about": "LOOK3 half A: the Juggernaut's finish up close in the Hangar (front three-quarter, the legs and feet close, the rear) under the showroom and work lights, plus the menu showcase. Same views before and after. tools/bot_run.sh look3_mech_hangar",
+  "steps": [
+    {"at": 3.5, "shot": "menu-showcase"},
+    {"at": 4.0, "goto": "hangar"},
+    {"at": 7.0, "call": "set_panels_hidden", "args": [true]},
+    {"at": 7.1, "call": "view", "args": [35.0, -8.0, 8.0]},
+    {"at": 8.5, "shot": "hangar-front"},
+    {"at": 8.6, "call": "view", "args": [20.0, 4.0, 4.5]},
+    {"at": 10.0, "shot": "hangar-legs-close"},
+    {"at": 10.1, "call": "view", "args": [70.0, -20.0, 4.0]},
+    {"at": 11.5, "shot": "hangar-hull-close"},
+    {"at": 11.6, "call": "view", "args": [210.0, -12.0, 8.0]},
+    {"at": 13.0, "shot": "hangar-rear"},
+    {"at": 13.1, "call": "preview_light", "args": ["work_lights"]},
+    {"at": 13.2, "call": "view", "args": [35.0, -8.0, 8.0]},
+    {"at": 14.6, "shot": "hangar-front-work-lights"},
+    {"at": 15.0, "quit": true}
+  ]
+}

@@ -46,8 +46,8 @@ func test_finish_paints_and_the_export_comes_back() -> void:
 	lens.metallic = 0.3
 	var changed := Finish.apply_to([paint, lens], "undertaker_field")
 	assert_true(changed.has(paint), "paint changed")
-	assert_almost_eq(paint.metallic, 0.0, 0.001, "paint is not metal")
-	assert_almost_eq(paint.roughness, 0.64, 0.001)
+	assert_almost_eq(paint.metallic, 1.0, 0.001, "metal where the surface's map shows chips")
+	assert_almost_eq(paint.roughness, 0.64 / Finish.SURFACE_ROUGH_MEAN, 0.001)
 	assert_true(paint.detail_enabled, "grime on")
 	assert_lt(paint.albedo_color.r, 0.95, "tinted off the export's white")
 	assert_almost_eq(lens.metallic, 0.3, 0.001, "a material the finish does not name stays as exported")
@@ -207,7 +207,9 @@ func test_switching_finish_keeps_the_dirt_and_clearing_returns_the_finish() -> v
 	assert_gt(Finish.grime_of(paint), 0.4, "fresh paint's own 0.1 plus the dirt")
 	g.reset()
 	assert_almost_eq(Finish.grime_of(paint), 0.1, 0.0001, "back to the finish's own wear")
-	assert_almost_eq(paint.roughness, float(Registry.entry("finishes", "fresh_paint")["materials"]["JG2_paint"]["roughness"]), 0.0001)
+	var spec: Dictionary = Registry.entry("finishes", "fresh_paint")["materials"]["JG2_paint"]
+	var mean := Finish.SURFACE_ROUGH_MEAN if spec.has("surface") else 1.0
+	assert_almost_eq(paint.roughness, minf(float(spec["roughness"]) / mean, 1.0), 0.0001, "the finish's roughness on its surface's map")
 	g.free()
 
 

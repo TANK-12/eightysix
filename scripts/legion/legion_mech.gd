@@ -80,6 +80,9 @@ var _aim_joints: Dictionary = {}  # kind -> part name (turret_yaw, gun_pitch, la
 var _wreck_s := 0.0
 var _slope_n := Vector3.UP  # the ground's normal under the body, smoothed (see _ground_normal)
 
+static var _livery_mats := {}  # material and height band -> the livery copy every Legion of a kind shares
+static var _livery_on := ""  # the livery those copies wear
+
 
 static func model_data(enemy_def: Dictionary) -> Dictionary:
 	var path := str(enemy_def.get("model", "")).get_basename() + ".json"
@@ -127,6 +130,7 @@ func _setup(id: String) -> void:
 	add_child(model)
 	_index_nodes(model, Transform3D.IDENTITY, true)
 	_add_lite_model()
+	_wire_livery()
 	for p: Dictionary in data.get("parts", []):
 		_parts[str(p["name"])] = p
 	for j: Dictionary in data.get("joints", []):
@@ -166,6 +170,25 @@ func _add_lite_model() -> void:
 	for n: Node in lite.find_children("*", "Node3D", true, false):
 		_lite_nodes[str(n.name)] = n
 	set_lod(lod)
+
+
+## The livery (data/legion_finishes.json, Settings > Gameplay > Legion livery) on the model and its
+## lite twin. Every Legion of a kind shares one set of material copies (one per height band, so grime
+## rises from the feet), so a livery change repaints them all at once.
+func _wire_livery() -> void:
+	var every := func(_m: StandardMaterial3D) -> bool: return true
+	var made := Finish.band_copies(model, _livery_mats, every)
+	if lite != null:
+		made.append_array(Finish.band_copies(lite, _livery_mats, every))
+	Finish.apply_to(made, Settings.get_s("legion.livery"), "legion_finishes")
+	_livery_on = Settings.get_s("legion.livery")
+	Settings.changed.connect(_on_setting_changed)
+
+
+func _on_setting_changed(key: String, value: Variant) -> void:
+	if key == "legion.livery" and str(value) != _livery_on:
+		_livery_on = str(value)
+		Finish.apply_to(_livery_mats.values(), _livery_on, "legion_finishes")
 
 
 ## Where the lite model takes over, metres (0: the full model at every distance).

@@ -1,0 +1,216 @@
+{
+  "_about": "Liveries for the Legion (look part 3), the same fields as data/finishes.json, applied by scripts/legion/legion_mech.gd to every Legion model and its lite twin; Settings > Gameplay > Legion livery (legion.livery) picks one, live. Colours and metal/roughness come from ~/Models/legion/looks.py LIVERIES (Blender linear, converted to sRGB here); keys match the export material names by prefix (LG_shell_night is LG_shell, LG_shell_dark_night is LG_shell_dark). \"export\" is the model as exported. Field shell colours are looks.py's brought up by the chipped_paint map's mean (0.86), so the cream stays cream under the map; bare-metal parts use rough_steel (89% metal in its map), paint uses chipped_paint (10% chips).",
+  "entries": {
+    "legion_field": {
+      "label": "Field worn: dirty cream, chipped to dark metal, red eyes",
+      "order": 1,
+      "materials": {
+        "LG_shell": {
+          "albedo": [
+            0.9,
+            0.88,
+            0.81
+          ],
+          "metallic": 1.0,
+          "roughness": 0.5,
+          "surface": "chipped_paint",
+          "grime": 0.3,
+          "grime_rise": [
+            0.4,
+            0.2
+          ]
+        },
+        "LG_shell_dark": {
+          "albedo": [
+            0.6,
+            0.59,
+            0.55
+          ],
+          "metallic": 1.0,
+          "roughness": 0.55,
+          "surface": "chipped_paint",
+          "grime": 0.3,
+          "grime_rise": [
+            0.4,
+            0.2
+          ]
+        },
+        "LG_joint": {
+          "albedo": [
+            0.152,
+            0.156,
+            0.172
+          ],
+          "metallic": 0.7,
+          "roughness": 0.45,
+          "surface": "powder_coat",
+          "grime": 0.35,
+          "grime_rise": [
+            0.35,
+            0.15
+          ]
+        },
+        "LG_blade": {
+          "albedo": [
+            0.767,
+            0.774,
+            0.786
+          ],
+          "metallic": 1.0,
+          "roughness": 0.3,
+          "surface": "rough_steel",
+          "grime": 0.2,
+          "grime_rise": [
+            0.3,
+            0.1
+          ]
+        },
+        "LG_steel": {
+          "albedo": [
+            0.634,
+            0.634,
+            0.642
+          ],
+          "metallic": 1.0,
+          "roughness": 0.38,
+          "surface": "rough_steel",
+          "grime": 0.3,
+          "grime_rise": [
+            0.3,
+            0.1
+          ]
+        },
+        "LG_gun": {
+          "albedo": [
+            0.206,
+            0.206,
+            0.212
+          ],
+          "metallic": 0.9,
+          "roughness": 0.45,
+          "surface": "rough_steel",
+          "grime": 0.3,
+          "grime_rise": [
+            0.3,
+            0.1
+          ]
+        },
+        "LG_eye": {
+          "albedo": [
+            0.473,
+            0.039,
+            0.039
+          ],
+          "metallic": 0.0,
+          "roughness": 0.05,
+          "emission": [
+            1.0,
+            0.272,
+            0.19
+          ]
+        }
+      }
+    },
+    "legion_night": {
+      "label": "Night: clean liquid-metal silver-blue",
+      "order": 2,
+      "materials": {
+        "LG_shell": {
+          "albedo": [
+            0.748,
+            0.786,
+            0.876
+          ],
+          "metallic": 0.8,
+          "roughness": 0.3,
+          "surface": "rough_steel",
+          "grime": 0.05,
+          "grime_rise": [
+            0.15,
+            0.05
+          ]
+        },
+        "LG_shell_dark": {
+          "albedo": [
+            0.437,
+            0.461,
+            0.556
+          ],
+          "metallic": 0.85,
+          "roughness": 0.34,
+          "surface": "rough_steel",
+          "grime": 0.05,
+          "grime_rise": [
+            0.15,
+            0.05
+          ]
+        },
+        "LG_joint": {
+          "albedo": [
+            0.152,
+            0.156,
+            0.172
+          ],
+          "metallic": 0.7,
+          "roughness": 0.45,
+          "surface": "powder_coat",
+          "grime": 0.1,
+          "grime_rise": [
+            0.15,
+            0.05
+          ]
+        },
+        "LG_blade": {
+          "albedo": [
+            0.906,
+            0.931,
+            0.982
+          ],
+          "metallic": 1.0,
+          "roughness": 0.24,
+          "surface": "rough_steel",
+          "grime": 0.0,
+          "grime_rise": [
+            0.1,
+            0.0
+          ]
+        },
+        "LG_steel": {
+          "albedo": [
+            0.634,
+            0.634,
+            0.642
+          ],
+          "metallic": 1.0,
+          "roughness": 0.38,
+          "surface": "rough_steel",
+          "grime": 0.1,
+          "grime_rise": [
+            0.15,
+            0.05
+          ]
+        },
+        "LG_gun": {
+          "albedo": [
+            0.206,
+            0.206,
+            0.212
+          ],
+          "metallic": 0.9,
+          "roughness": 0.45,
+          "surface": "rough_steel",
+          "grime": 0.1,
+          "grime_rise": [
+            0.15,
+            0.05
+          ]
+        }
+      }
+    },
+    "legion_export": {
+      "label": "Model export (no livery)",
+      "order": 3,
+      "materials": {}
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "look3_mech_cost",
+  "_about": "LOOK3 half A: what the worn mech surfaces cost. A trailing camera on a Legion unit (the player's Juggernaut in view behind it), frame measures with the worn looks (legion_field, undertaker_field), the bare exports (legion_export, factory), then worn again; the settings end where they started. tools/bot_run.sh look3_mech_cost --preset=medium --timeout=90",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.0, "setting": "gameplay.squad_size", "value": 0.0},
+    {"at": 0.0, "setting": "legion.livery", "value": "legion_field"},
+    {"at": 0.0, "setting": "mech.finish", "value": "undertaker_field"},
+    {"at": 0.0, "wait": "level"},
+    {"at": 0.5, "setting": "gameplay.enemy_damage", "value": 0.25},
+    {"at": 1.0, "call": "start_mission"},
+    {"at": 2.0, "call": "watch_legion", "args": [0, 9.0, 3.0]},
+    {"at": 5.0, "measure": 4.0, "label": "worn"},
+    {"at": 9.5, "setting": "legion.livery", "value": "legion_export"},
+    {"at": 9.5, "setting": "mech.finish", "value": "factory"},
+    {"at": 10.5, "measure": 4.0, "label": "export"},
+    {"at": 15.0, "setting": "legion.livery", "value": "legion_field"},
+    {"at": 15.0, "setting": "mech.finish", "value": "undertaker_field"},
+    {"at": 16.0, "measure": 4.0, "label": "worn2"},
+    {"at": 20.5, "quit": true}
+  ]
+}

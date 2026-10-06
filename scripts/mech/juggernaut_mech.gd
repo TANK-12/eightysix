@@ -89,21 +89,11 @@ func _on_setting_changed(key: String, value: Variant) -> void:
 
 ## A per-mech copy of every metal material on the model, so "Metal shine" (mech.shine) can dull or
 ## brighten the finish live: metallic and specular scale with it; 100% is the finish B1 exported.
-func _wire_shine(skin: Node) -> void:
-	var copies := {}
-	for node: Node in skin.find_children("*", "MeshInstance3D", true, false):
-		var mi := node as MeshInstance3D
-		if mi.mesh == null:
-			continue
-		for i in mi.mesh.get_surface_count():
-			var mat := mi.get_active_material(i) as BaseMaterial3D
-			if mat == null or mat.metallic <= 0.0:
-				continue
-			if not copies.has(mat):
-				var dup := mat.duplicate() as BaseMaterial3D
-				copies[mat] = dup
-				_shine_mats.append({"mat": dup, "metallic": mat.metallic, "specular": mat.metallic_specular})
-			mi.set_surface_override_material(i, copies[mat])
+## The copies are made per height band (Finish.band_copies), so grime can rise from the feet.
+func _wire_shine(skin: Node3D) -> void:
+	var metal := func(m: StandardMaterial3D) -> bool: return m.metallic > 0.0
+	for dup: StandardMaterial3D in Finish.band_copies(skin, {}, metal):
+		_shine_mats.append({"mat": dup, "metallic": dup.metallic, "specular": dup.metallic_specular})
 	_apply_finish()
 
 

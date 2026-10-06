@@ -47,3 +47,17 @@ All ambientCG, CC0, 1K JPG (color, normal GL, roughness, and ambient occlusion w
 | `assets/maps/allegheny/` | heights: USGS 3DEP 1 m DEM tile USGS_1M_17_x66y462_PA_WesternPA_2019_D20 (Allegheny National Forest, Pennsylvania), resampled to 2 m by `tools/maps/heightmap.py` | U.S. Geological Survey, The National Map, https://apps.nationalmap.gov/downloader/ | public domain |
 | `assets/maps/brilon/` | heights: DGM1 NRW 1 m terrain model, 16 tiles round Brilon (Hochsauerland), resampled to 2 m | Geobasis NRW, https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/ | Datenlizenz Deutschland Zero 2.0 (dl-de/zero-2.0) |
 | `assets/maps/*/osm.json`, `woods.png` | streets, buildings and land use (forest, fields) for Allegheny and Brilon, by `tools/maps/osm_map.py` through the Overpass API | © OpenStreetMap contributors, https://www.openstreetmap.org/copyright | ODbL 1.0 (personal use; credit kept here and in the map descriptions) |
+
+## Mech surfaces, look part 3 (Relay 40, 2026-10-06)
+
+ambientCG, CC0, 1K JPG (color, normal GL, roughness, metalness, AO where the set has it), fetched by
+`tools/make_mech_textures.py` (`data/mech_surfaces.json`) and rebuilt into `assets/textures/mech/<id>/`
+(desaturated albedo, normal GL, packed ORM). Projected three ways on the Juggernaut and the Legion.
+
+| Folder | What | Source | Licence |
+|---|---|---|---|
+| `assets/textures/mech/chipped_paint/` | PaintedMetal012: worn paint chipped to bare metal | https://ambientcg.com/a/PaintedMetal012 | CC0 |
+| `assets/textures/mech/scratched_metal/` | PaintedMetal002: scratched metal | https://ambientcg.com/a/PaintedMetal002 | CC0 |
+| `assets/textures/mech/powder_coat/` | Metal027: dark powder coat | https://ambientcg.com/a/Metal027 | CC0 |
+| `assets/textures/mech/rough_steel/` | Metal016: rough scratched steel | https://ambientcg.com/a/Metal016 | CC0 |
+| `assets/textures/mech/rusted_paint/` | PaintedMetal014: old paint with rust blooms | https://ambientcg.com/a/PaintedMetal014 | CC0 |

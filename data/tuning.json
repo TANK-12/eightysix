@@ -296,6 +296,10 @@
     "roughness_gain": 0.35,
     "weights": {"JG2_paint": 1.0, "JG2_metal": 0.8, "JG2_frame": 1.2, "JG2_steel": 0.9}
   },
+  "mech_grime_bands": {
+    "_about": "Grime rising from the feet (look part 3, Finish.band_copies): fractions of a mech's rest height, lowest first. A part whose centre sits below heights[0] is band 0 (feet), below heights[1] band 1 (lower legs), the rest band 2 (hull). A finish material's grime_rise lists the grime added per band.",
+    "heights": [0.14, 0.32]
+  },
   "foot_dust": {
     "_about": "Dust thrown by each planted foot at a run (lane B4, scripts/look/foot_dust.gd). Pairs are [at min_speed_m_s, at full_speed_m_s] and blend between. surfaces: how much dust each ground gives (sounds.json surface names; metal is a steel deck or a mech, none). kick_back: how far back against the run the puff leans (0 straight up). camera_fade_m: a puff is clear nearer the camera than the first and full beyond the second. soft_ground_m: how softly it meets the ground. max_live: puffs alive at once, for frame rate.",
     "min_speed_m_s": 6.0,

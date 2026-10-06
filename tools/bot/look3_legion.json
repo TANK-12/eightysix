@@ -1,0 +1,20 @@
+{
+  "name": "look3_legion",
+  "_about": "LOOK3 half A: the mechs outdoors on the small map: the player's Juggernaut on the chase camera, then trailing cameras close on two Legion units. Same views before and after. tools/bot_run.sh look3_legion --timeout=90",
+  "map": "small_map",
+  "steps": [
+    {"at": 0.0, "setting": "gameplay.squad_size", "value": 0.0},
+    {"at": 0.0, "wait": "level"},
+    {"at": 0.5, "setting": "gameplay.enemy_damage", "value": 0.25},
+    {"at": 2.0, "call": "follow_mech"},
+    {"at": 3.0, "shot": "jugg-chase"},
+    {"at": 3.5, "call": "start_mission"},
+    {"at": 4.5, "call": "watch_legion", "args": [0, 9.0, 3.0]},
+    {"at": 8.0, "shot": "legion0-a"},
+    {"at": 11.0, "shot": "legion0-b"},
+    {"at": 11.5, "call": "watch_legion", "args": [1, 7.0, 2.0]},
+    {"at": 15.0, "shot": "legion1-a"},
+    {"at": 18.0, "shot": "legion1-b"},
+    {"at": 18.5, "quit": true}
+  ]
+}

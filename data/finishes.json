@@ -1,5 +1,5 @@
 {
-  "_about": "Paint and wear finishes for the Juggernaut (lane B4), one entry each; Settings > Gameplay > Mech finish picks one (mech.finish). Each entry maps a material name from the game export (JG2_paint, JG2_metal, JG2_frame, JG2_steel) to: albedo (linear 0-1 colour the export's white is tinted to), metallic, roughness (both multiply the export's metal-plate texture), and grime (0 clean to 1 filthy: a mottled dirt layer projected three ways in the part's own space, so it moves with the part). Materials an entry does not name keep the export's look. \"factory\" is the export untouched. Metal shine (mech.shine) then scales metallic on top.",
+  "_about": "Paint and wear finishes for the Juggernaut (lane B4), one entry each; Settings > Gameplay > Mech finish picks one (mech.finish). Each entry maps a material name from the game export (JG2_paint, JG2_metal, JG2_frame, JG2_steel) to: albedo (linear 0-1 colour the export's white is tinted to), metallic, roughness (both multiply the export's metal-plate texture), and grime (0 clean to 1 filthy: a mottled dirt layer projected three ways in the part's own space, so it moves with the part). Materials an entry does not name keep the export's look. \"factory\" is the export untouched. Metal shine (mech.shine) then scales metallic on top. Look part 3: surface names a data/mech_surfaces.json set (real CC0 albedo, normal, occlusion, roughness and metal maps, projected three ways like the grime; with a surface, metallic and roughness scale its maps, so paint at metallic 1.0 is metal only where it is chipped), grime_rise adds grime per height band from the feet up (tuning.json mech_grime_bands), emission (optional) recolours a glow.",
   "entries": {
     "undertaker_field": {
       "label": "Undertaker, field worn",
@@ -11,9 +11,14 @@
             0.72,
             0.66
           ],
-          "metallic": 0.0,
+          "metallic": 1.0,
           "roughness": 0.64,
-          "grime": 0.55
+          "grime": 0.55,
+          "surface": "chipped_paint",
+          "grime_rise": [
+            0.35,
+            0.15
+          ]
         },
         "JG2_metal": {
           "albedo": [
@@ -23,7 +28,12 @@
           ],
           "metallic": 0.55,
           "roughness": 0.55,
-          "grime": 0.45
+          "grime": 0.45,
+          "surface": "rough_steel",
+          "grime_rise": [
+            0.35,
+            0.15
+          ]
         },
         "JG2_frame": {
           "albedo": [
@@ -33,7 +43,12 @@
           ],
           "metallic": 0.35,
           "roughness": 0.62,
-          "grime": 0.5
+          "grime": 0.5,
+          "surface": "powder_coat",
+          "grime_rise": [
+            0.35,
+            0.15
+          ]
         },
         "JG2_steel": {
           "albedo": [
@@ -43,7 +58,12 @@
           ],
           "metallic": 0.8,
           "roughness": 0.42,
-          "grime": 0.3
+          "grime": 0.3,
+          "surface": "rough_steel",
+          "grime_rise": [
+            0.35,
+            0.15
+          ]
         }
       }
     },
@@ -57,9 +77,14 @@
             0.69,
             0.64
           ],
-          "metallic": 0.0,
+          "metallic": 0.15,
           "roughness": 0.5,
-          "grime": 0.1
+          "grime": 0.1,
+          "surface": "scratched_metal",
+          "grime_rise": [
+            0.12,
+            0.04
+          ]
         },
         "JG2_metal": {
           "albedo": [
@@ -69,7 +94,12 @@
           ],
           "metallic": 0.6,
           "roughness": 0.45,
-          "grime": 0.05
+          "grime": 0.05,
+          "surface": "rough_steel",
+          "grime_rise": [
+            0.12,
+            0.04
+          ]
         },
         "JG2_frame": {
           "albedo": [
@@ -79,7 +109,12 @@
           ],
           "metallic": 0.4,
           "roughness": 0.55,
-          "grime": 0.1
+          "grime": 0.1,
+          "surface": "powder_coat",
+          "grime_rise": [
+            0.12,
+            0.04
+          ]
         },
         "JG2_steel": {
           "albedo": [
@@ -89,7 +124,12 @@
           ],
           "metallic": 0.85,
           "roughness": 0.35,
-          "grime": 0.05
+          "grime": 0.05,
+          "surface": "rough_steel",
+          "grime_rise": [
+            0.12,
+            0.04
+          ]
         }
       }
     },
