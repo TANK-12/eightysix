@@ -1100,24 +1100,24 @@
       ],
       "heading_deg": 0.0
      },
-     "weather": "overcast_morning",
+     "weather": "allegheny_mist",
      "palette": {
-      "_about": "Allegheny forest (2026-10-03): needle litter and moss under the firs, grey overcast light.",
+      "_about": "Allegheny forest (2026-10-03): needle litter and moss under the firs, grey overcast light. LOOK3 (2026-10-06): darker, cooler needle litter and moss under the firs (it read orange).",
       "ground": {
        "dry_tint": [
-        0.62,
-        0.56,
-        0.46
+        0.5,
+        0.45,
+        0.37
        ],
        "grass_tint": [
-        0.42,
-        0.5,
-        0.3
+        0.34,
+        0.43,
+        0.25
        ],
        "dead_tint": [
-        0.5,
-        0.42,
-        0.3
+        0.43,
+        0.36,
+        0.27
        ],
        "stone_tint": [
         0.8,
@@ -1130,9 +1130,9 @@
         0.7
        ],
        "mud_tint": [
-        0.36,
-        0.34,
-        0.3
+        0.3,
+        0.28,
+        0.24
        ],
        "grass_amount": 0.45,
        "stone_amount": 0.55,
@@ -1372,7 +1372,13 @@
       "whorls": 12,
       "boughs_per_whorl": 5,
       "seed": 3021,
-      "mask": "res://assets/maps/allegheny/woods.png"
+      "mask": "res://assets/maps/allegheny/woods.png",
+      "look": {
+       "_about": "LOOK3: tree.gdshader uniforms for this forest (BigForest sets each one): variation of the greens per tree, crown_ao (sky light missing inside the crown), translucency (sun through the needles).",
+       "variation": 1.0,
+       "crown_ao": 0.45,
+       "translucency": 0.9
+      }
      },
      "city": {
       "_about": "BigCity: the hamlet's houses from osm.json, mostly intact.",
@@ -1439,7 +1445,7 @@
       ],
       "heading_deg": 0.0
      },
-     "weather": "overcast_morning",
+     "weather": "sauerland_evening",
      "palette": {
       "_about": "Brilon (2026-10-03): grey Sauerland morning, slate and clay roofs, wet asphalt.",
       "ground": {
@@ -1765,7 +1771,13 @@
       "whorls": 12,
       "boughs_per_whorl": 5,
       "seed": 3031,
-      "mask": "res://assets/maps/brilon/woods.png"
+      "mask": "res://assets/maps/brilon/woods.png",
+      "look": {
+       "_about": "LOOK3: tree.gdshader uniforms for this forest (BigForest sets each one): variation of the greens per tree, crown_ao (sky light missing inside the crown), translucency (sun through the needles).",
+       "variation": 1.0,
+       "crown_ao": 0.45,
+       "translucency": 0.9
+      }
      }
     }
 }

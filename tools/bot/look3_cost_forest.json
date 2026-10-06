@@ -1,0 +1,467 @@
+{
+ "name": "look3_cost_forest",
+ "map": "allegheny",
+ "_about": "LOOK3 Half B (2026-10-06): cost of each heavy graphics option, one at a time from the High and the Ultra preset, at a fixed viewpoint (camera still). Each state: pick the base preset, change one field, shot after 3 s, gpu/cpu ms over 4 s. tools/bot_run.sh look3_cost_forest --timeout=420",
+ "steps": [
+  {
+   "at": 0.5,
+   "wait": "level"
+  },
+  {
+   "at": 0.6,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.7,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 1.0,
+   "call": "look_from",
+   "args": [
+    "in_the_trees"
+   ]
+  },
+  {
+   "at": 6.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 9.0,
+   "shot": "high-base"
+  },
+  {
+   "at": 9.4,
+   "measure": 4.0,
+   "label": "high-base"
+  },
+  {
+   "at": 14.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 14.1,
+   "setting": "graphics.sdfgi",
+   "value": true
+  },
+  {
+   "at": 17.0,
+   "shot": "high-sdfgi"
+  },
+  {
+   "at": 17.4,
+   "measure": 4.0,
+   "label": "high-sdfgi"
+  },
+  {
+   "at": 22.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 22.1,
+   "setting": "graphics.ssil",
+   "value": true
+  },
+  {
+   "at": 25.0,
+   "shot": "high-ssil"
+  },
+  {
+   "at": 25.4,
+   "measure": 4.0,
+   "label": "high-ssil"
+  },
+  {
+   "at": 30.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 30.1,
+   "setting": "graphics.ssr",
+   "value": true
+  },
+  {
+   "at": 33.0,
+   "shot": "high-ssr"
+  },
+  {
+   "at": 33.4,
+   "measure": 4.0,
+   "label": "high-ssr"
+  },
+  {
+   "at": 38.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 38.1,
+   "setting": "graphics.volumetric_fog",
+   "value": false
+  },
+  {
+   "at": 41.0,
+   "shot": "high-fog_off"
+  },
+  {
+   "at": 41.4,
+   "measure": 4.0,
+   "label": "high-fog_off"
+  },
+  {
+   "at": 46.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 46.1,
+   "setting": "graphics.fog_volume_size",
+   "value": 128
+  },
+  {
+   "at": 46.1,
+   "setting": "graphics.fog_volume_depth",
+   "value": 96
+  },
+  {
+   "at": 49.0,
+   "shot": "high-fog_128x96"
+  },
+  {
+   "at": 49.4,
+   "measure": 4.0,
+   "label": "high-fog_128x96"
+  },
+  {
+   "at": 54.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 54.1,
+   "setting": "graphics.fog_volume_size",
+   "value": 160
+  },
+  {
+   "at": 54.1,
+   "setting": "graphics.fog_volume_depth",
+   "value": 128
+  },
+  {
+   "at": 57.0,
+   "shot": "high-fog_160x128"
+  },
+  {
+   "at": 57.4,
+   "measure": 4.0,
+   "label": "high-fog_160x128"
+  },
+  {
+   "at": 62.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 62.1,
+   "setting": "graphics.shadow_size",
+   "value": 4096
+  },
+  {
+   "at": 65.0,
+   "shot": "high-shadow_4096"
+  },
+  {
+   "at": 65.4,
+   "measure": 4.0,
+   "label": "high-shadow_4096"
+  },
+  {
+   "at": 70.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 70.1,
+   "setting": "graphics.shadow_size",
+   "value": 8192
+  },
+  {
+   "at": 73.0,
+   "shot": "high-shadow_8192"
+  },
+  {
+   "at": 73.4,
+   "measure": 4.0,
+   "label": "high-shadow_8192"
+  },
+  {
+   "at": 78.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 78.1,
+   "setting": "graphics.shadow_filter",
+   "value": 4
+  },
+  {
+   "at": 81.0,
+   "shot": "high-filter_4"
+  },
+  {
+   "at": 81.4,
+   "measure": 4.0,
+   "label": "high-filter_4"
+  },
+  {
+   "at": 86.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 86.1,
+   "setting": "graphics.shadow_distance",
+   "value": 260
+  },
+  {
+   "at": 89.0,
+   "shot": "high-shadow_260m"
+  },
+  {
+   "at": 89.4,
+   "measure": 4.0,
+   "label": "high-shadow_260m"
+  },
+  {
+   "at": 94.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 94.1,
+   "setting": "graphics.ssao_quality",
+   "value": "high"
+  },
+  {
+   "at": 97.0,
+   "shot": "high-ssao_high"
+  },
+  {
+   "at": 97.4,
+   "measure": 4.0,
+   "label": "high-ssao_high"
+  },
+  {
+   "at": 102.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 102.1,
+   "setting": "graphics.ssao",
+   "value": false
+  },
+  {
+   "at": 105.0,
+   "shot": "high-ssao_off"
+  },
+  {
+   "at": 105.4,
+   "measure": 4.0,
+   "label": "high-ssao_off"
+  },
+  {
+   "at": 110.0,
+   "setting": "graphics.preset",
+   "value": "high"
+  },
+  {
+   "at": 110.1,
+   "setting": "graphics.msaa",
+   "value": "4x"
+  },
+  {
+   "at": 110.1,
+   "setting": "graphics.screen_aa",
+   "value": "off"
+  },
+  {
+   "at": 113.0,
+   "shot": "high-msaa_4x"
+  },
+  {
+   "at": 113.4,
+   "measure": 4.0,
+   "label": "high-msaa_4x"
+  },
+  {
+   "at": 118.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 121.0,
+   "shot": "ultra-base"
+  },
+  {
+   "at": 121.4,
+   "measure": 4.0,
+   "label": "ultra-base"
+  },
+  {
+   "at": 126.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 126.1,
+   "setting": "graphics.sdfgi",
+   "value": false
+  },
+  {
+   "at": 129.0,
+   "shot": "ultra-no_sdfgi"
+  },
+  {
+   "at": 129.4,
+   "measure": 4.0,
+   "label": "ultra-no_sdfgi"
+  },
+  {
+   "at": 134.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 134.1,
+   "setting": "graphics.ssil",
+   "value": false
+  },
+  {
+   "at": 137.0,
+   "shot": "ultra-no_ssil"
+  },
+  {
+   "at": 137.4,
+   "measure": 4.0,
+   "label": "ultra-no_ssil"
+  },
+  {
+   "at": 142.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 142.1,
+   "setting": "graphics.ssr",
+   "value": false
+  },
+  {
+   "at": 145.0,
+   "shot": "ultra-no_ssr"
+  },
+  {
+   "at": 145.4,
+   "measure": 4.0,
+   "label": "ultra-no_ssr"
+  },
+  {
+   "at": 150.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 150.1,
+   "setting": "graphics.msaa",
+   "value": "off"
+  },
+  {
+   "at": 150.1,
+   "setting": "graphics.screen_aa",
+   "value": "fxaa"
+  },
+  {
+   "at": 153.0,
+   "shot": "ultra-no_msaa_fxaa"
+  },
+  {
+   "at": 153.4,
+   "measure": 4.0,
+   "label": "ultra-no_msaa_fxaa"
+  },
+  {
+   "at": 158.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 158.1,
+   "setting": "graphics.shadow_size",
+   "value": 4096
+  },
+  {
+   "at": 161.0,
+   "shot": "ultra-shadow_4096"
+  },
+  {
+   "at": 161.4,
+   "measure": 4.0,
+   "label": "ultra-shadow_4096"
+  },
+  {
+   "at": 166.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 166.1,
+   "setting": "graphics.fog_volume_size",
+   "value": 64
+  },
+  {
+   "at": 166.1,
+   "setting": "graphics.fog_volume_depth",
+   "value": 64
+  },
+  {
+   "at": 169.0,
+   "shot": "ultra-fog_64"
+  },
+  {
+   "at": 169.4,
+   "measure": 4.0,
+   "label": "ultra-fog_64"
+  },
+  {
+   "at": 174.0,
+   "setting": "graphics.preset",
+   "value": "ultra"
+  },
+  {
+   "at": 174.1,
+   "setting": "graphics.ssao_quality",
+   "value": "low"
+  },
+  {
+   "at": 177.0,
+   "shot": "ultra-ssao_low"
+  },
+  {
+   "at": 177.4,
+   "measure": 4.0,
+   "label": "ultra-ssao_low"
+  },
+  {
+   "at": 182.5,
+   "quit": true
+  }
+ ]
+}

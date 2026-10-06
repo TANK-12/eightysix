@@ -7,11 +7,11 @@ extends RefCounted
 ## in world space a burst's first frame drew at the world origin, the map's spawn on the test range and in the
 ## menu (Emerson's note 11 after 012: sparks and smoke at the spawn point; images/467 vs 468).
 
+## Scorch marks and wall cracks kept: Settings > Graphics > World > Scorch marks kept (decal_limit per preset, LOOK3);
+## this is the fallback when that setting is missing.
 const MAX_DECALS := 64
 const MAX_CASINGS := 24
 const MAX_DEBRIS := 16
-## Bullet holes in the ground have their own cap, so a long 12.7 mm burst never wipes the shells' scorch marks.
-const MAX_MARKS := 48
 ## Bullets (every round that is neither a shell nor a 57 mm dart: the 12.7 mm pair at ~16 rounds a second and
 ## the Legion's machine guns) reuse a ring of this many emitters per kind instead of making new nodes per round,
 ## and light nothing. Emerson's note 8 (2026-10-02): 12.7 mm ground hits made lag spikes (Medium 44 -> 19 fps).
@@ -31,6 +31,9 @@ static var _pools := {}  # pool kind -> {"nodes": Array, "next": int}
 static var _casings: Array = []
 static var _debris: Array = []
 static var _scorch_tex: Texture2D
+static var _scorch_nrm: Texture2D
+static var _crack_tex: Texture2D
+static var _crack_nrm: Texture2D
 static var _gouge_tex: Texture2D
 static var _smoke_mat: StandardMaterial3D
 static var _spark_mat: StandardMaterial3D
@@ -108,20 +111,93 @@ static func _radial(size: int, inner: Color, outer: Color) -> GradientTexture2D:
 	return tex
 
 
+## LOOK3: a scorch with a ragged, noisy edge, a charred centre, a ring of thrown soot with rays, and a
+## shallow crater in its normal map; built once (128 px) the first time a shell lands.
 static func scorch_texture() -> Texture2D:
 	if _scorch_tex == null:
-		var g := Gradient.new()
-		g.offsets = PackedFloat32Array([0.0, 0.35, 0.7, 1.0])
-		g.colors = PackedColorArray([Color(0.02, 0.02, 0.02, 0.95), Color(0.06, 0.05, 0.04, 0.85), Color(0.12, 0.1, 0.08, 0.4), Color(0.2, 0.18, 0.15, 0.0)])
-		var tex := GradientTexture2D.new()
-		tex.gradient = g
-		tex.fill = GradientTexture2D.FILL_RADIAL
-		tex.fill_from = Vector2(0.5, 0.5)
-		tex.fill_to = Vector2(1.0, 0.5)
-		tex.width = 128
-		tex.height = 128
-		_scorch_tex = tex
+		_build_mark(false)
 	return _scorch_tex
+
+
+## A wall hit: a chipped pit with cracks running out from it, over a lighter soot ring.
+static func crack_texture() -> Texture2D:
+	if _crack_tex == null:
+		_build_mark(true)
+	return _crack_tex
+
+
+static func _build_mark(cracks: bool) -> void:
+	var n := 128
+	var noise := FastNoiseLite.new()
+	noise.seed = 86 if cracks else 57
+	noise.frequency = 0.06
+	noise.fractal_octaves = 4
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 8601
+	var lines := PackedFloat32Array()
+	lines.resize(n * n)
+	if cracks:
+		for b in 9:
+			var at := Vector2(n * 0.5, n * 0.5)
+			var dir := Vector2.from_angle(TAU * b / 9.0 + rng.randf_range(-0.3, 0.3))
+			var steps := rng.randi_range(22, 52)
+			for s in steps:
+				dir = dir.rotated(rng.randf_range(-0.45, 0.45))
+				at += dir
+				var i := int(at.y) * n + int(at.x)
+				if at.x < 1 or at.y < 1 or at.x >= n - 1 or at.y >= n - 1:
+					break
+				var w := 1.0 - float(s) / steps
+				lines[i] = maxf(lines[i], 0.6 + 0.4 * w)
+				lines[i + 1] = maxf(lines[i + 1], 0.5 * w)
+	var albedo := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var height := PackedFloat32Array()
+	height.resize(n * n)
+	for y in n:
+		for x in n:
+			var p := Vector2(x + 0.5, y + 0.5) / n - Vector2(0.5, 0.5)
+			var r := p.length() * 2.0
+			var wobble := noise.get_noise_2d(x, y)
+			var edge := r + wobble * 0.28
+			var rays := 0.5 + 0.5 * sin(p.angle() * 13.0 + wobble * 6.0)
+			var a := 0.0
+			var c := Color(0.03, 0.025, 0.02)
+			if cracks:
+				var pit := 1.0 - smoothstep(0.08, 0.24, edge)
+				var soot := (1.0 - smoothstep(0.15, 0.85, edge)) * 0.55
+				var line := lines[y * n + x]
+				a = maxf(maxf(pit, soot * (0.6 + 0.4 * rays)), line * (1.0 - smoothstep(0.7, 1.0, r)))
+				c = Color(0.05, 0.045, 0.04).lerp(Color(0.16, 0.14, 0.12), clampf(soot - pit, 0.0, 1.0))
+				height[y * n + x] = -pit * 0.8 - line * 0.5
+			else:
+				var char_ := 1.0 - smoothstep(0.1, 0.45, edge)
+				var ring := (1.0 - smoothstep(0.35, 0.95, edge)) * (0.55 + 0.45 * rays)
+				a = clampf(maxf(char_ * 0.95, ring * 0.8), 0.0, 1.0)
+				c = Color(0.02, 0.018, 0.016).lerp(Color(0.13, 0.11, 0.09), clampf(1.0 - char_ + wobble * 0.3, 0.0, 1.0))
+				height[y * n + x] = -(1.0 - smoothstep(0.0, 0.6, r)) + clampf(1.0 - absf(r - 0.62) * 6.0, 0.0, 1.0) * 0.35
+			albedo.set_pixel(x, y, Color(c, a))
+	var normal := Image.create(n, n, false, Image.FORMAT_RGB8)
+	for y in n:
+		for x in n:
+			var dx := height[y * n + mini(x + 1, n - 1)] - height[y * n + maxi(x - 1, 0)]
+			var dy := height[mini(y + 1, n - 1) * n + x] - height[maxi(y - 1, 0) * n + x]
+			var v := Vector3(-dx * 4.0, -dy * 4.0, 1.0).normalized()
+			normal.set_pixel(x, y, Color(v.x * 0.5 + 0.5, v.y * 0.5 + 0.5, v.z * 0.5 + 0.5))
+	albedo.generate_mipmaps()
+	normal.generate_mipmaps()
+	if cracks:
+		_crack_tex = ImageTexture.create_from_image(albedo)
+		_crack_nrm = ImageTexture.create_from_image(normal)
+	else:
+		_scorch_tex = ImageTexture.create_from_image(albedo)
+		_scorch_nrm = ImageTexture.create_from_image(normal)
+
+
+## How many scorch marks stay (the preset's decal_limit). Bullet holes have their own cap (three quarters as
+## many), so a long 12.7 mm burst never wipes the shells' scorch marks.
+static func decal_limit() -> int:
+	var n := int(Settings.get_f("graphics.decal_limit")) if Settings.has_key("graphics.decal_limit") else MAX_DECALS
+	return n if n > 0 else MAX_DECALS
 
 
 static func gouge_texture() -> Texture2D:
@@ -539,7 +615,14 @@ static func clods(parent: Node, pos: Vector3, normal: Vector3, amount: float) ->
 ## A scorch (or gouge) decal pressed onto whatever is under `pos`, facing out along `normal`.
 static func decal(parent: Node, pos: Vector3, normal: Vector3, size: float, gouge: bool = false, along: Vector3 = Vector3.FORWARD) -> Decal:
 	var d := Decal.new()
-	d.texture_albedo = gouge_texture() if gouge else scorch_texture()
+	# a shell's mark on a wall (anything steeper than 60 degrees) cracks; on the ground it scorches
+	var wall := not gouge and absf(normal.normalized().y) < 0.5 and size >= 0.6
+	if gouge:
+		d.texture_albedo = gouge_texture()
+	else:
+		d.texture_albedo = crack_texture() if wall else scorch_texture()
+		d.texture_normal = _crack_nrm if wall else _scorch_nrm
+		d.normal_fade = 0.3
 	d.size = Vector3(size * (2.5 if gouge else 1.0), size * 0.8, size)
 	d.upper_fade = 0.3
 	d.lower_fade = 0.3
@@ -553,9 +636,9 @@ static func decal(parent: Node, pos: Vector3, normal: Vector3, size: float, goug
 	x = x.normalized()
 	d.global_transform = Transform3D(Basis(x, up, x.cross(up)), pos)
 	if size < 0.6:
-		_keep(_marks, d, MAX_MARKS)
+		_keep(_marks, d, maxi(decal_limit() * 3 / 4, 8))
 	else:
-		_keep(_decals, d, MAX_DECALS)
+		_keep(_decals, d, decal_limit())
 	return d
 
 

@@ -269,6 +269,12 @@ func _material(part: int, albedo: String, normal: String) -> ShaderMaterial:
 	m.set_shader_parameter("near_m", near_m)
 	var tint: Array = cfg.get("tint", [1.0, 1.0, 1.0])
 	m.set_shader_parameter("tint", Color(float(tint[0]), float(tint[1]), float(tint[2])))
+	m.set_shader_parameter("tree_h", TREE_H)
+	# LOOK3: the entry's forest "look" block sets the shader's look uniforms (variation, crown_ao, translucency)
+	var look: Dictionary = cfg.get("look", {})
+	for key: String in look:
+		if not key.begins_with("_"):
+			m.set_shader_parameter(key, look[key])
 	return m
 
 

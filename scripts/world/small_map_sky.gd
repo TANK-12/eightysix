@@ -43,7 +43,6 @@ func _init(parent: Node, weather: String) -> void:
 	env.fog_enabled = true
 	env.fog_aerial_perspective = 0.55
 	env.fog_sky_affect = 0.35
-	env.volumetric_fog_length = 180.0
 	env.volumetric_fog_anisotropy = 0.45
 	env.ssao_radius = 1.8
 	env.ssao_intensity = 1.8
@@ -86,9 +85,13 @@ func apply(id: String) -> void:
 	sky_mat.set_shader_parameter("cloud_lit", _c(w, "cloud_lit"))
 	sky_mat.set_shader_parameter("cloud_shade", _c(w, "cloud_shade"))
 	sky_mat.set_shader_parameter("coverage", float(w.get("cloud_coverage", 0.5)))
+	# LOOK3: a weather made for one map ("fog_unscaled") already has that map's fog, so fog_scale is left out
+	var k := 1.0 if bool(w.get("fog_unscaled", false)) else fog_scale
+	sky_mat.set_shader_parameter("cloud_scale", float(w.get("cloud_scale", 1.0)))
 	env.fog_light_color = _c(w, "fog_colour")
-	env.fog_density = float(w.get("fog_density", 0.001)) * fog_scale
-	env.volumetric_fog_density = float(w.get("volumetric_density", 0.01)) * fog_scale
+	env.fog_density = float(w.get("fog_density", 0.001)) * k
+	env.volumetric_fog_density = float(w.get("volumetric_density", 0.01)) * k
+	env.volumetric_fog_length = float(w.get("volumetric_length_m", 180.0))
 	env.volumetric_fog_albedo = _c(w, "fog_colour").lightened(0.2)
 	env.ambient_light_energy = float(w.get("ambient_energy", 0.85))
 	env.tonemap_exposure = float(w.get("exposure", 1.0))
@@ -104,7 +107,7 @@ func apply(id: String) -> void:
 	# lane B4: sun-lit haze toward the sun, fog that pools in the valley floor, and a film grade
 	env.fog_sun_scatter = float(w.get("sun_scatter", 0.0))
 	env.fog_height = float(w.get("height_fog_top_m", 0.0))
-	env.fog_height_density = float(w.get("height_fog_density", 0.0)) * fog_scale
+	env.fog_height_density = float(w.get("height_fog_density", 0.0)) * k
 	env.fog_sky_affect = float(w.get("fog_sky_affect", 0.35))
 	env.volumetric_fog_anisotropy = float(w.get("volumetric_anisotropy", 0.45))
 	var grade: Dictionary = w.get("grade", {})

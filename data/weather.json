@@ -1,5 +1,5 @@
 {
-  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd). glow_intensity and glow_threshold (lane B4 part 3): how much light above the threshold blooms; Emerson found the sun far too bloomy at 0.5 with everything blooming. Lane LOOK2 (2026-10-03, the washed-out fix): agx_white and agx_contrast drive the AgX tonemapper (white is only read by the older tonemappers; AgX's own default white of 16.29 left sunlit ground near 140 of 255), volumetric_ambient_inject is how much sky light the volumetric fog picks up (0.4 before: a milky veil over every distance). Measure with tools/histogram.py.",
+  "_about": "Weather and light for the maps (lane B3), one entry each. A map names its default in maps.json \"weather\"; level.set_weather(id) switches live. Sun angles in degrees (elevation above the horizon, azimuth clockwise from north). Colours are linear-ish 0-1. cloud_coverage 0 = clear, 1 = overcast; clouds draw at the quality of Settings > Graphics > Clouds. Lane B4 fields (all optional): white (tonemap white point), sun_scatter (haze lit toward the sun), height_fog_top_m and height_fog_density (fog that pools below that height), fog_sky_affect, volumetric_anisotropy, and grade {contrast, saturation, shadow_shift, highlight_shift, strength}: a film grade, shadows and highlights nudged toward a tint (scripts/world/film_grade.gd). glow_intensity and glow_threshold (lane B4 part 3): how much light above the threshold blooms; Emerson found the sun far too bloomy at 0.5 with everything blooming. Lane LOOK2 (2026-10-03, the washed-out fix): agx_white and agx_contrast drive the AgX tonemapper (white is only read by the older tonemappers; AgX's own default white of 16.29 left sunlit ground near 140 of 255), volumetric_ambient_inject is how much sky light the volumetric fog picks up (0.4 before: a milky veil over every distance). Measure with tools/histogram.py. LOOK3 (2026-10-06, Half B): fog_unscaled true marks a weather written for one map, whose fog values are already right for its size (the map's fog_scale is skipped); cloud_scale above 1 draws bigger, fewer cloud forms; volumetric_length_m is how far the volumetric fog (and its light shafts) reaches (180 m default).",
   "entries": {
     "golden_afternoon": {
       "label": "Golden afternoon",
@@ -415,6 +415,159 @@
       "agx_white": 6.0,
       "agx_contrast": 1.7,
       "volumetric_ambient_inject": 0.15
+    },
+    "allegheny_mist": {
+      "label": "Mist in the hollows",
+      "order": 6,
+      "_about": "LOOK3: the Allegheny forest's own morning. A low morning sun (22 deg) from the east-south-east slants through the firs into the volumetric fog (light shafts on Medium and up), mist pools below 90 m in the hollows (the spawn road is at 64 m, the ridges 170-220 m), and the far ridges fade blue-grey.",
+      "sun_elevation_deg": 22.0,
+      "sun_azimuth_deg": 112.0,
+      "sun_energy": 1.9,
+      "sun_colour": [
+        1.0,
+        0.84,
+        0.64
+      ],
+      "sky_top": [
+        0.17,
+        0.29,
+        0.47
+      ],
+      "sky_horizon": [
+        0.66,
+        0.68,
+        0.66
+      ],
+      "ground_colour": [
+        0.14,
+        0.15,
+        0.12
+      ],
+      "cloud_coverage": 0.32,
+      "cloud_scale": 1.8,
+      "cloud_lit": [
+        1.0,
+        0.92,
+        0.8
+      ],
+      "cloud_shade": [
+        0.42,
+        0.46,
+        0.54
+      ],
+      "fog_colour": [
+        0.64,
+        0.68,
+        0.68
+      ],
+      "fog_density": 0.00025,
+      "volumetric_density": 0.0035,
+      "volumetric_length_m": 220.0,
+      "fog_unscaled": true,
+      "ambient_energy": 0.75,
+      "exposure": 1.85,
+      "white": 1.0,
+      "sun_scatter": 0.06,
+      "height_fog_top_m": 90.0,
+      "height_fog_density": 0.0015,
+      "fog_sky_affect": 0.15,
+      "volumetric_anisotropy": 0.5,
+      "grade": {
+        "contrast": 1.1,
+        "saturation": 1.02,
+        "shadow_shift": [
+          -0.016,
+          0.008,
+          0.032
+        ],
+        "highlight_shift": [
+          0.024,
+          0.012,
+          -0.016
+        ],
+        "strength": 1.0
+      },
+      "glow_intensity": 0.22,
+      "glow_threshold": 1.4,
+      "agx_white": 5.5,
+      "agx_contrast": 1.7,
+      "volumetric_ambient_inject": 0.12
+    },
+    "sauerland_evening": {
+      "label": "Sauerland evening",
+      "order": 7,
+      "_about": "LOOK3: Brilon's own light. A low gold sun from the west-south-west rakes down the streets and lights the slate and plaster from the side, long blue shadows, a big broken cloud deck lit gold underneath, warm haze toward the sun and a little haze pooled in the low north of the town.",
+      "sun_elevation_deg": 15.0,
+      "sun_azimuth_deg": 248.0,
+      "sun_energy": 1.75,
+      "sun_colour": [
+        1.0,
+        0.84,
+        0.66
+      ],
+      "sky_top": [
+        0.2,
+        0.33,
+        0.56
+      ],
+      "sky_horizon": [
+        0.8,
+        0.7,
+        0.6
+      ],
+      "ground_colour": [
+        0.16,
+        0.13,
+        0.11
+      ],
+      "cloud_coverage": 0.5,
+      "cloud_scale": 2.2,
+      "cloud_lit": [
+        1.0,
+        0.86,
+        0.7
+      ],
+      "cloud_shade": [
+        0.34,
+        0.36,
+        0.44
+      ],
+      "fog_colour": [
+        0.66,
+        0.62,
+        0.57
+      ],
+      "fog_density": 0.00045,
+      "volumetric_density": 0.003,
+      "fog_unscaled": true,
+      "ambient_energy": 0.45,
+      "exposure": 1.45,
+      "white": 1.0,
+      "sun_scatter": 0.4,
+      "height_fog_top_m": 34.0,
+      "height_fog_density": 0.004,
+      "fog_sky_affect": 0.12,
+      "volumetric_anisotropy": 0.55,
+      "grade": {
+        "contrast": 1.12,
+        "saturation": 1.0,
+        "shadow_shift": [
+          -0.018,
+          0.0,
+          0.035
+        ],
+        "highlight_shift": [
+          0.018,
+          0.008,
+          -0.014
+        ],
+        "strength": 1.0
+      },
+      "glow_intensity": 0.32,
+      "glow_threshold": 1.3,
+      "agx_white": 5.5,
+      "agx_contrast": 1.7,
+      "volumetric_ambient_inject": 0.12
     }
   }
 }

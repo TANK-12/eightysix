@@ -9,6 +9,7 @@
       "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": false,
+      "decal_limit": 24,
       "msaa": "off",
       "screen_aa": "fxaa",
       "shadow_size": 1024,
@@ -37,6 +38,7 @@
       "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": true,
+      "decal_limit": 48,
       "msaa": "off",
       "screen_aa": "fxaa",
       "shadow_size": 2048,
@@ -66,6 +68,7 @@
       "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": true,
+      "decal_limit": 64,
       "msaa": "off",
       "screen_aa": "fxaa",
       "shadow_size": 2048,
@@ -85,7 +88,7 @@
       "anisotropic": 3,
       "foliage_density": 0.85,
       "clouds": "high",
-      "note": "Retuned 2026-09-30 (lane A1) from measured GPU costs on the Iris Xe at 1080p, standing on the test range: SDFGI 20 ms, TAA 5.7, 128x96 fog 5.7, SSR 3.8, 4096 shadows 3.0. Those stay in Ultra. The old High ran 15 fps on the route (target 30). Lane B4 (2026-10-01): SSAO off, measured 9.6 ms at the ruins (29.6 to 40.8 fps, images/132) with no visible difference on this map; Ultra keeps it."
+      "note": "Retuned 2026-09-30 (lane A1) from measured GPU costs on the Iris Xe at 1080p, standing on the test range: SDFGI 20 ms, TAA 5.7, 128x96 fog 5.7, SSR 3.8, 4096 shadows 3.0. Those stay in Ultra. The old High ran 15 fps on the route (target 30). Lane B4 (2026-10-01): SSAO off, measured 9.6 ms at the ruins (29.6 to 40.8 fps, images/132) with no visible difference on this map; Ultra keeps it. LOOK3 Half B (2026-10-06), each option alone from High at 1080p, GPU ms vs base, Brilon street / Allegheny in the trees (images/567, 568): SDFGI +8.1 / +15.5, SSIL -0.4 / +4.6, SSR -2.0 / +1.6, fog 128x96 +1.6 / +6.2, fog 160x128 +4.4 / +20.7, shadows 4096 +2.5 / +6.5, 8192 +15.4 / +36.3, filter 4 +9.1 / +4.3, 260 m +6.9 / -0.7, SSAO high +12.8 / +7.3, SSAO off -3.6 / -6.9, MSAA 4x +15.2 / +13.2. None of them changed the histogram by more than 1 % (white point within 3 of base) except volumetric fog off, which loses the haze the weathers are built on. High stays as it was: the forest runs 25 fps on it (target 30), so nothing is added."
     },
     "ultra": {
       "label": "Ultra",
@@ -95,9 +98,10 @@
       "upscaler": "bilinear",
       "sharpening": 0.0,
       "foot_dust": true,
+      "decal_limit": 128,
       "msaa": "4x",
       "screen_aa": "off",
-      "shadow_size": 8192,
+      "shadow_size": 4096,
       "shadow_filter": 4,
       "shadow_distance": 260,
       "sdfgi": true,
@@ -114,7 +118,7 @@
       "anisotropic": 4,
       "foliage_density": 1.0,
       "clouds": "high",
-      "note": "Lane LOOK (2026-10-02): TAA was the softness Emerson saw. Same view, same machine (images/401-look_aa, tools/sharpness.py, higher = sharper): TAA + MSAA 2x 4.5 (moving 4.3), MSAA 4x alone 15.5 (16.4), MSAA 2x alone 16.0 (16.8), FXAA + MSAA 4x 11.7, FXAA + MSAA 2x 11.9. Frame rate the same in every mode (15.0 fps: SDFGI and the shadows dominate). Ultra is now MSAA 4x with no screen-space AA; TAA stays a setting."
+      "note": "Lane LOOK (2026-10-02): TAA was the softness Emerson saw. Same view, same machine (images/401-look_aa, tools/sharpness.py, higher = sharper): TAA + MSAA 2x 4.5 (moving 4.3), MSAA 4x alone 15.5 (16.4), MSAA 2x alone 16.0 (16.8), FXAA + MSAA 4x 11.7, FXAA + MSAA 2x 11.9. Frame rate the same in every mode (15.0 fps: SDFGI and the shadows dominate). Ultra is now MSAA 4x with no screen-space AA; TAA stays a setting. LOOK3 Half B (2026-10-06): shadows 8192 -> 4096. Same view crops at 1080p show no difference in the forest or the town, and 4096 saves 29 ms GPU among the trees (151.6 -> 122.8 ms; images/568 shots 15 and 20). Kept, because they show: SDFGI (bounce light on shaded facades and the forest floor, 16-23 ms), fog 160x128 (more depth layers between the firs, 21 ms in the forest), MSAA 4x (sharpness, see above). SSIL and SSR are kept but showed nothing on these two maps (wet weathers are where SSR shows)."
     }
   }
 }

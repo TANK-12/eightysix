@@ -12,6 +12,8 @@ uniform vec3 cloud_shade : source_color = vec3(0.42, 0.45, 0.5);
 uniform float coverage = 0.55;
 uniform int quality = 1;
 uniform vec2 wind_offset = vec2(0.0);
+// LOOK3: bigger than 1 makes bigger, fewer cloud forms (weather "cloud_scale")
+uniform float cloud_scale = 1.0;
 uniform sampler2D cloud_noise : filter_linear_mipmap, repeat_enable;
 
 float clouds(vec2 p) {
@@ -36,7 +38,7 @@ void sky() {
 		col += sun * (smoothstep(0.99975, 0.9999, sd) * 6.0 + pow(sd, 90.0) * 0.12 + pow(sd, 7.0) * 0.035);
 	}
 	if (quality > 0 && up > 0.0) {
-		vec2 p = d.xz / (up + 0.1);
+		vec2 p = d.xz / (up + 0.1) / cloud_scale;
 		float c = clouds(p);
 		float lo = 1.0 - coverage;
 		float dens = smoothstep(lo - 0.06, lo + 0.22, c);
