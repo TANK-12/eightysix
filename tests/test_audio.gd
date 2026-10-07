@@ -192,6 +192,11 @@ func test_music_is_found_in_the_game_assets() -> void:
 	assert_true(FileAccess.file_exists(dir.path_join(".gdignore")), "Godot never imports or exports the music")
 	for id in Registry.ids("music"):
 		var path := Music.path_of(id)
+		if str(Registry.entry("music", id).get("set", "")) == "free":
+			# the free tracks ship with the game (Relay 95): imported, so they resolve inside res://
+			assert_eq(path, "res://assets/audio/free/%s.mp3" % id, id + " is an imported game asset")
+			assert_true(ResourceLoader.exists(path), id + " is imported")
+			continue
 		assert_true(path.begins_with(dir), id + " is looked for in assets/audio/86")
 		assert_true(FileAccess.file_exists(path), id + " file is there")
 	assert_gt(Music.album().size(), 40, "the soundtrack album is all there")

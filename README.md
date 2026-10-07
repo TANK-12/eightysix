@@ -23,7 +23,7 @@ Three dated docs in `~/Forge/docs/library/eightysix/`, written for a reader with
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 515 passed, 0 failed (2026-10-07, Relay 56 smoke cost). Before: 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 528 passed, 1 failed (2026-10-08, Relay 95 music; the failure is test_righting's steep-slope second try, in Relay 62's then-uncommitted stand-up work). Before: 515 passed, 0 failed (2026-10-07, Relay 56 smoke cost). Before: 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -32,6 +32,9 @@ Three dated docs in `~/Forge/docs/library/eightysix/`, written for a reader with
   `tools/bot_run.sh combat_check`: the gun, reload, combat HUD, wire anchor swing and recoil dodge
   (latest `images/080-combat_check/`). `tools/bot_run.sh air_check`: tilt-aim, a running jump with air
   control, swinging and pitching in flight and a mid-air shot (latest `images/086-air_check/`).
+- **Music in friends' copies (Relay 95, 2026-10-08).** Share zips never hold the 86 music. They play the player's
+  own music folder (Settings > Audio > Music) or, with none set, three free Kevin MacLeod tracks (CC BY 4.0,
+  `assets/audio/free/`, music.json set "free"); credits on the Music page, in HOW-TO-RUN.txt and assets/SOURCES.md.
 - **Mission and Legion AI (lane A4 part 2, 2026-10-01).** Deploy plays "First contact" on Ashen valley (data/missions.json:
   Ameise scouts, a Grauwolf pack, a Löwe push; objective HUD; win/lose screens with Restart mission). Brains in
   scripts/ai/ (sight, hearing, packs, patrol/alert/attack/retreat). HE shells push by real blast physics
@@ -777,3 +780,37 @@ puffs (`SMOKE_BUDGET`) new clouds thin further, to a quarter at most (`smoke_sha
 - Bot runs currently need `LD_LIBRARY_PATH=/tmp/r56-llvm22/usr/lib` (mesa 26.2.2 wants libLLVM 22, llvm-libs is
   23) until `sudo pacman -Syu`; without it the off-screen mutter does not start.
   Full write-up: `~/Forge/docs/library/forge/2026-10-07-gpu-and-visualiser-lag.md`.
+
+### 2026-10-08 · Relay 95 · Takumi (default, high): music for friends' copies (QUICKSTART item 10)
+Item 10 asked for (a) a music folder picker, (b) a share zip that is safe with no music, (c) HOW-TO-RUN.txt telling
+friends how to add music, and bundled CC tracks only with a named, licensed source. Lane A7 had already built (a)
+and a first (c). This session:
+- **Free tracks:** "Heartbreaking", "Five Armies" and "Clash Defiant" by Kevin MacLeod (incompetech.com, CC BY 4.0),
+  re-encoded to 128 kb/s (10 MB), in `assets/audio/free/` (tracked, imported, so they go into the pck). music.json
+  set `"free"`, each entry with `licence` and `credit`. `Music.album()` is the first set of `ALBUM_SETS` (`ost`,
+  `free`) on disk; the music folder stands in for Soundtrack whenever the 86 set is missing; free tracks are hidden
+  while the soundtrack is there (`_shown`). Fallback order in a share copy: your folder, the free tracks, silence.
+  `fetch_music.py` keeps the free set when it rebuilds music.json.
+- **Only real tracks offered:** music choice lists have `"options_filter": "Music.offers"` (Settings now supports
+  `options_filter: "Autoload.method"`), so a share copy no longer lists 52 dead 86 track names; a saved pick whose
+  file is gone falls back to Soundtrack.
+- **Credits:** a "Free tracks" info row on Settings > Audio > Music; `tools/builds.py` adds a "Music credits:"
+  block (every music.json `credit`) to each HOW-TO-RUN.txt, whose music note now walks a friend through
+  Settings > Audio > Music > Your music folder. assets/SOURCES.md has the table.
+- **Bot:** `GAME_BIN=<binary> tools/bot_run.sh <script> --build` runs any exported build; every report.json has
+  `music` (the track playing at the end).
+- **Critic (opus, fresh context), all fixed:** Settings music rows took ~108 ms per options lookup
+  (has_soundtrack checked every file per option; now once a frame, stops at the first file; test_music 6.8 s -> 1.6 s);
+  your folder standing in for Soundtrack changed song at every menu/explore/combat switch (now carries on, test);
+  a broken file in the folder left the game silent and could be picked again (now skipped, each broken file tried
+  once, test); credits were only in the readme (in-game row added); fetch_music kept anything not from youtu.be
+  (now keeps the "free" set only). Noted, not changed: the choice still reads "Soundtrack, in order" in a friend's
+  copy (help text explains); a broken .ogg prints an engine decode error once (no crash); the installers copy only
+  the game, not HOW-TO-RUN.txt (the in-game row carries the credit).
+- **Verified:** test_music_folder 12/12 (friend's copy via `Music.hide_sets`: free tracks play, folder beats them,
+  carries on, broken file skipped, no music at all = silence for every pick), test_audio 18/18, test_settings 15/15,
+  tools/tests 13/13 + tools/audio 11/11. Real export (`godot --export-release Linux` to /tmp) run off screen with
+  HOME pointed at an empty folder (no ~/Games/eightysix fallback, fresh settings): plays `heartbreaking`, 0 bot errors,
+  Music page with the credits row on screen (`images/643-friend_copy_music/`); the pck holds no assets/audio/86 file.
+  Full suite 528 passed, 1 failed (test_righting, not music: see Current state). Not checked: a real Windows or macOS machine, and listening to the tracks
+  (picked by title and genre; swap any by editing its music.json entry and file).

@@ -4,7 +4,7 @@
 # Off-screen by default: the game runs inside a private headless mutter (GNOME's compositor) with one
 # virtual monitor, on its own D-Bus, so nothing appears on the desktop and no sound plays.
 # --visible opens the window on the desktop instead. --build plays the exported game
-# (build/linux/eightysix.x86_64 from tools/export.sh) instead of the project folder.
+# (build/linux/eightysix.x86_64 from tools/export.sh, or the binary in $GAME_BIN) instead of the project folder.
 # A game that stops writing its heartbeat for 30 s has stalled (seen now and then off screen,
 # cause not found yet): its thread states go to stall.txt and the run is retried once in a new folder.
 # Usage: tools/bot_run.sh <script name, res:// or absolute path> [--visible] [--name=label] [--timeout=S]
@@ -62,7 +62,7 @@ NAME="$(printf '%s' "$NAME" | tr -c 'A-Za-z0-9_-' '-')"
 # as a file path.
 PATH_ARGS=(--path "$ROOT")
 if [ "$BUILD" = 1 ]; then
-	GODOT="$ROOT/build/linux/eightysix.x86_64"
+	GODOT="${GAME_BIN:-$ROOT/build/linux/eightysix.x86_64}"
 	if [ ! -x "$GODOT" ]; then
 		echo "bot_run: no build at $GODOT; run tools/export.sh first" >&2
 		exit 2

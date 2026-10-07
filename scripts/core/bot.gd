@@ -365,6 +365,7 @@ func _finish() -> void:
 	report["finished"] = Time.get_datetime_string_from_system()
 	report["render_scale"] = get_tree().root.scaling_3d_scale
 	report["preset_used"] = Settings.get_s("graphics.preset")
+	report["music"] = Music.track  # the music.json id (or "folder:<file>") playing at the end, "" for silence
 	if _meter != null and is_instance_valid(_meter):
 		report["move"] = _meter.results()
 		var m := FileAccess.open("res://logs/score_move.json", FileAccess.WRITE)

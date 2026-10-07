@@ -167,10 +167,15 @@ func options_for(key: String) -> Array:
 			for device in AudioServer.get_output_device_list():
 				out.append([device, device])
 		var registry_name:
+			# "options_filter": "Autoload.method" offers only the ids that method passes (Music.offers: files on disk)
+			var filter := str(it.get("options_filter", ""))
+			var judge := get_node_or_null("/root/" + filter.get_slice(".", 0)) if filter != "" else null
 			for id in Registry.ids(registry_name):
 				var e := Registry.entry(registry_name, id)
 				# an entry with "show_if": "<setting key>" is offered only while that setting is on
 				if e.has("show_if") and not get_b(str(e["show_if"])):
+					continue
+				if judge != null and not judge.call(filter.get_slice(".", 1), id):
 					continue
 				out.append([id, str(e.get("label", id))])
 	for extra: Array in it.get("extra_options", []):

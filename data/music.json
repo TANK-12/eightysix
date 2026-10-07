@@ -1,5 +1,5 @@
 {
-  "_about": "Music registry, one entry per track (lane B4 fills it). Files live in assets/audio/86/ (personal use only: git-ignored, and its .gdignore keeps Godot from importing or exporting them), so \"path\" is relative to the project folder (an absolute or ~ path also works) and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"assets/audio/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}.",
+  "_about": "Music registry, one entry per track (lane B4 fills it). Files live in assets/audio/86/ (personal use only: git-ignored, and its .gdignore keeps Godot from importing or exporting them), so \"path\" is relative to the project folder (an absolute or ~ path also works) and a missing file is skipped quietly. Entry shape: {\"title\": \"...\", \"path\": \"assets/audio/86/...\", \"language\": \"en\" | \"ja\" | \"none\", \"kind\": \"opening\" | \"ending\" | \"score\", \"loop\": true, \"loop_start_s\": 0, \"loop_end_s\": null, \"use\": [\"menu\", \"combat\", \"explore\"]}. Set \"free\" (Relay 95): royalty-free tracks that ship with the game in assets/audio/free/ (tracked, imported, exported; licence and credit per entry, listed in assets/SOURCES.md). They are the Soundtrack of a copy without the 86 music and no music folder, and hidden otherwise. tools/audio/fetch_music.py keeps them.",
   "entries": {
     "the_answer": {
       "title": "THE ANSWER",
@@ -746,6 +746,54 @@
       ],
       "source": "https://youtu.be/eogBv9Kajk8",
       "show_if": "audio.music_extras"
+    },
+    "heartbreaking": {
+      "title": "Heartbreaking",
+      "label": "Heartbreaking (Kevin MacLeod)",
+      "path": "assets/audio/free/heartbreaking.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "free",
+      "order": 301,
+      "use": [
+        "menu",
+        "explore"
+      ],
+      "source": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Heartbreaking.mp3",
+      "licence": "CC BY 4.0",
+      "credit": "\"Heartbreaking\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
+    },
+    "five_armies": {
+      "title": "Five Armies",
+      "label": "Five Armies (Kevin MacLeod)",
+      "path": "assets/audio/free/five_armies.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "free",
+      "order": 302,
+      "use": [
+        "explore",
+        "combat"
+      ],
+      "source": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Five%20Armies.mp3",
+      "licence": "CC BY 4.0",
+      "credit": "\"Five Armies\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
+    },
+    "clash_defiant": {
+      "title": "Clash Defiant",
+      "label": "Clash Defiant (Kevin MacLeod)",
+      "path": "assets/audio/free/clash_defiant.mp3",
+      "language": "none",
+      "kind": "score",
+      "set": "free",
+      "order": 303,
+      "use": [
+        "combat",
+        "explore"
+      ],
+      "source": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Clash%20Defiant.mp3",
+      "licence": "CC BY 4.0",
+      "credit": "\"Clash Defiant\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
     }
   }
 }

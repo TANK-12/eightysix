@@ -8,6 +8,9 @@ extends Node
 ## Your music folder (lane A7, for friends' copies that ship without the soundtrack): any mp3, ogg or wav in
 ## the folder set in Settings > Audio > Music plays shuffled when a context picks "Your music folder", and
 ## stands in for Soundtrack when the soundtrack files are missing. Its tracks have ids "folder:<file name>".
+## Free tracks (Relay 95, QUICKSTART item 10b): the music.json "free" set (Kevin MacLeod, CC BY 4.0, in
+## assets/audio/free/, imported and exported with the game) is the album of a copy with no soundtrack and no
+## music folder, so a friend's copy is not silent. It is hidden while the soundtrack is there.
 
 const FADE_S := 2.5
 const COMBAT_HOLD_S := 25.0
@@ -16,6 +19,7 @@ const SETTING := {"menu": "audio.music_menu", "explore": "audio.music_explore", 
 const FOLDER_KEY := "audio.music_folder"
 const FOLDER_PREFIX := "folder:"
 const FOLDER_EXTENSIONS := ["mp3", "ogg", "wav"]
+const ALBUM_SETS := ["ost", "free"]  # Soundtrack plays the first of these sets that is on disk
 
 var context := "menu"
 var position_file := "user://music.cfg"  # where Soundtrack remembers its place (tests point it elsewhere)
@@ -25,6 +29,9 @@ var _live := 0
 var _fade := 1.0
 var _combat_t := 0.0
 var _streams := {}
+var hide_sets := PackedStringArray()  # music.json sets treated as missing (tests stand in for a friend's copy)
+var _soundtrack_at := -1  # the frame has_soundtrack() last looked, and what it found then
+var _soundtrack := false
 
 
 func _ready() -> void:
@@ -46,15 +53,43 @@ func _ready() -> void:
 func candidates(ctx: String) -> PackedStringArray:
 	var lang := Settings.get_s("audio.music_language") if Settings.has_key("audio.music_language") else "any"
 	var out := PackedStringArray()
+	var ost := has_soundtrack()
 	for id in Registry.ids("music"):
 		var e := Registry.entry("music", id)
-		if not ctx in e.get("use", []) or not _shown(e):
+		if not ctx in e.get("use", []) or not _shown(e, ost):
 			continue
 		if lang != "any" and str(e.get("language", "none")) not in [lang, "none"]:
 			continue
-		if FileAccess.file_exists(path_of(id)):
+		if has_file(id):
 			out.append(id)
 	return out
+
+
+## Whether the track's file is there to play (a hidden set counts as missing).
+func has_file(id: String) -> bool:
+	if str(_entry(id).get("set", "")) in hide_sets:
+		return false
+	var path := path_of(id)
+	return ResourceLoader.exists(path) if path.begins_with("res://") else FileAccess.file_exists(path)
+
+
+## Whether the 86 soundtrack is on disk (it never is in a share zip). Looked up once a frame: Settings asks
+## for every option of a music list.
+func has_soundtrack() -> bool:
+	var frame := Engine.get_process_frames()
+	if frame != _soundtrack_at or "ost" in hide_sets:
+		_soundtrack_at = frame
+		_soundtrack = false
+		for id in Registry.ids("music"):
+			if str(Registry.entry("music", id).get("set", "")) == "ost" and has_file(id):
+				_soundtrack = true
+				break
+	return _soundtrack
+
+
+## Whether Settings may offer the track: its file is there and it is not hidden (Settings "options_filter").
+func offers(id: String) -> bool:
+	return has_file(id) and _shown(Registry.entry("music", id), has_soundtrack())
 
 
 ## The music folder from the settings ("~" expanded), or "" when none is set or it is gone.
@@ -88,6 +123,8 @@ func path_of(id: String) -> String:
 		return OS.get_environment("HOME") + p.substr(1)
 	if p.is_absolute_path() or p.is_empty():
 		return p
+	if ResourceLoader.exists("res://" + p):
+		return "res://" + p  # imported with the game (the free tracks), so it is in an exported pck too
 	var tries := [
 		ProjectSettings.globalize_path("res://" + p),
 		OS.get_executable_path().get_base_dir().path_join(p),
@@ -99,11 +136,21 @@ func path_of(id: String) -> String:
 	return tries[0]
 
 
-## The soundtrack album in order: the "ost" set by "order", missing files left out.
+## The album Soundtrack plays, in order: the first set of ALBUM_SETS with any file on disk (the 86
+## soundtrack, else the free tracks), missing files left out.
 func album() -> PackedStringArray:
+	for set_name: String in ALBUM_SETS:
+		var tracks := set_tracks(set_name)
+		if not tracks.is_empty():
+			return tracks
+	return PackedStringArray()
+
+
+## The tracks of a music.json set whose files are there, by "order".
+func set_tracks(set_name: String) -> PackedStringArray:
 	var out := PackedStringArray()
 	for id in Registry.ids("music"):
-		if str(Registry.entry("music", id).get("set", "")) == "ost" and FileAccess.file_exists(path_of(id)):
+		if str(Registry.entry("music", id).get("set", "")) == set_name and has_file(id):
 			out.append(id)
 	return out
 
@@ -123,19 +170,22 @@ func album_next(id: String) -> String:
 
 func _want(ctx: String) -> String:
 	var want := Settings.get_s(SETTING[ctx]) if Settings.has_key(SETTING[ctx]) else "ost"
-	if want not in ["ost", "shuffle", "off", "folder"] and (not Registry.has_entry("music", want) or not _shown(Registry.entry("music", want))):
-		return "ost"  # a hidden extra (or a track no longer listed) falls back to the soundtrack
+	if want not in ["ost", "shuffle", "off", "folder"] and (not Registry.has_entry("music", want) or not offers(want)):
+		return "ost"  # a hidden extra, a missing file or a track no longer listed falls back to the soundtrack
 	return want
 
 
-func _shown(e: Dictionary) -> bool:
+## Whether an entry is on show: its "show_if" setting is on, and a free track only without the soundtrack.
+func _shown(e: Dictionary, soundtrack: bool) -> bool:
+	if str(e.get("set", "")) == "free" and soundtrack:
+		return false
 	return not e.has("show_if") or Settings.get_b(str(e["show_if"]))
 
 
-## Whether a context set to `want` plays the music folder: when picked, or for Soundtrack when the
-## soundtrack is missing (`album_size` 0, a friend's copy).
-static func plays_folder(want: String, album_size: int) -> bool:
-	return want == "folder" or (want == "ost" and album_size == 0)
+## Whether a context set to `want` plays the music folder: when picked, or for Soundtrack when the 86
+## soundtrack is missing (a friend's copy; the free tracks play when there is no folder).
+static func plays_folder(want: String, soundtrack: bool) -> bool:
+	return want == "folder" or (want == "ost" and not soundtrack)
 
 
 ## The track `ctx` wants now: the next soundtrack track, the chosen one, a shuffled one, or "" for silence.
@@ -143,8 +193,11 @@ func choose(ctx: String) -> String:
 	var want := _want(ctx)
 	if want == "off":
 		return ""
-	if plays_folder(want, album().size()):
+	if plays_folder(want, has_soundtrack()):
 		var mine := folder_tracks()
+		for id in mine.duplicate():
+			if _streams.has(id) and _streams[id] == null:
+				mine.remove_at(mine.find(id))  # a file that would not load is not tried again
 		if not mine.is_empty():
 			if mine.size() > 1 and track in mine:
 				mine.remove_at(mine.find(track))
@@ -153,7 +206,7 @@ func choose(ctx: String) -> String:
 			return album_next(track)  # no folder (or an empty one): the soundtrack instead
 	if want == "ost":
 		return album_next(track)
-	if want != "shuffle" and FileAccess.file_exists(path_of(want)):
+	if want != "shuffle" and has_file(want):
 		return want
 	var pool := candidates(ctx)
 	if pool.is_empty():
@@ -166,9 +219,10 @@ func choose(ctx: String) -> String:
 func set_context(ctx: String) -> void:
 	if ctx == context and track != "":
 		return
-	var carry_on := (_want(ctx) == "ost" and track in album()) or (_want(ctx) == "folder" and track.begins_with(FOLDER_PREFIX))
+	# the soundtrack (or your folder standing in for it) just keeps playing from menu to field to combat
+	var carry_on := (_want(ctx) == "ost" and track in album()) or (plays_folder(_want(ctx), has_soundtrack()) and track.begins_with(FOLDER_PREFIX))
 	context = ctx
-	if not carry_on:  # the soundtrack just keeps playing from menu to field to combat
+	if not carry_on:
 		play(choose(ctx))
 
 
@@ -179,7 +233,7 @@ func skip() -> void:
 ## Crossfades to `id` ("" fades to silence).
 func play(id: String) -> void:
 	track = id
-	if id != "" and str(_entry(id).get("set", "")) == "ost":
+	if id != "" and str(_entry(id).get("set", "")) in ALBUM_SETS:
 		var cfg := ConfigFile.new()
 		cfg.set_value("ost", "last", id)
 		cfg.save(position_file)
@@ -187,7 +241,11 @@ func play(id: String) -> void:
 	next.stop()
 	if id != "":
 		var stream := _load(id)
-		if stream == null:
+		if stream == null:  # a file that will not load: on to the next pick, each broken file tried once
+			var other := choose(context)
+			if other != id and not (_streams.has(other) and _streams[other] == null):
+				play(other)
+				return
 			track = ""
 		else:
 			next.stream = stream
@@ -201,13 +259,16 @@ func _load(id: String) -> AudioStream:
 	if not _streams.has(id):
 		var path := path_of(id)
 		var s: AudioStream = null
-		match path.get_extension().to_lower():
-			"mp3":
-				s = AudioStreamMP3.load_from_file(path)
-			"ogg":
-				s = AudioStreamOggVorbis.load_from_file(path)
-			"wav":
-				s = AudioStreamWAV.load_from_file(path)
+		if path.begins_with("res://"):
+			s = load(path) as AudioStream
+		else:
+			match path.get_extension().to_lower():
+				"mp3":
+					s = AudioStreamMP3.load_from_file(path)
+				"ogg":
+					s = AudioStreamOggVorbis.load_from_file(path)
+				"wav":
+					s = AudioStreamWAV.load_from_file(path)
 		_streams[id] = s
 	return _streams[id]
 
@@ -250,7 +311,7 @@ func _entry(id: String) -> Dictionary:
 
 
 func _on_setting_changed(key: String, _value: Variant) -> void:
-	if key == FOLDER_KEY and plays_folder(_want(context), album().size()):
+	if key == FOLDER_KEY and plays_folder(_want(context), has_soundtrack()):
 		play(choose(context))
 		return
 	if key == SETTING.get(context, "") or key in ["audio.music_language", "audio.music_extras"]:

@@ -203,6 +203,10 @@ class Builds(unittest.TestCase):
     def test_share_zips_every_platform_with_an_installer(self) -> None:
         self.save()
         self.fake_checkouts()
+        (self.root / "data").mkdir()
+        (self.root / "data" / "music.json").write_text(
+            '{"entries": {"a": {"set": "ost"}, "b": {"credit": "\\"Song\\" by Someone, CC BY 4.0"}}}'
+        )
         zips = self.share_all()
         self.assertEqual(
             [z.name for z in zips],
@@ -235,9 +239,10 @@ class Builds(unittest.TestCase):
             self.assertEqual(mode(z, f"{stem}/install.sh"), 0o755)
             self.assertEqual(mode(z, f"{stem}/HOW-TO-RUN.txt"), 0o644)
             self.assertIn("run it", z.read(f"{stem}/HOW-TO-RUN.txt").decode())
-            self.assertIn(
-                "Your music folder", z.read(f"{stem}/HOW-TO-RUN.txt").decode()
-            )
+            readme = z.read(f"{stem}/HOW-TO-RUN.txt").decode()
+            self.assertIn("Your music folder", readme)
+            self.assertIn("Settings", readme)
+            self.assertIn('Music credits:\n  "Song" by Someone, CC BY 4.0\n', readme)
         stem = zips[1].stem
         with zipfile.ZipFile(zips[1]) as z:
             self.assertEqual(

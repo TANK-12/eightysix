@@ -3,7 +3,8 @@
 
 Personal use only: the files stay outside the repo and are never shipped or shared. Tracks already
 on disk are skipped; a track dropped from the list leaves the registry (its file is reported, not
-removed). Run: tools/audio/fetch_music.py
+removed). The hand-listed "free" set (it ships with the game) is kept. Run:
+tools/audio/fetch_music.py
 """
 
 import json
@@ -21,7 +22,10 @@ def main() -> None:
     out = ROOT / Path(spec["out_dir"]).expanduser()
     out.mkdir(parents=True, exist_ok=True)
     registry = json.loads(MUSIC_JSON.read_text())
-    registry["entries"] = {}
+    # the "free" set is listed by hand (it ships with the game), so it is kept
+    registry["entries"] = {
+        k: e for k, e in registry["entries"].items() if e.get("set") == "free"
+    }
     for track in spec["tracks"]:
         key = re.sub(r"[^a-z0-9]+", "_", track["title"].lower()).strip("_")
         path = out / f"{key}.mp3"

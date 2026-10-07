@@ -61,3 +61,21 @@ ambientCG, CC0, 1K JPG (color, normal GL, roughness, metalness, AO where the set
 | `assets/textures/mech/powder_coat/` | Metal027: dark powder coat | https://ambientcg.com/a/Metal027 | CC0 |
 | `assets/textures/mech/rough_steel/` | Metal016: rough scratched steel | https://ambientcg.com/a/Metal016 | CC0 |
 | `assets/textures/mech/rusted_paint/` | PaintedMetal014: old paint with rust blooms | https://ambientcg.com/a/PaintedMetal014 | CC0 |
+
+## Music that ships with the game (Relay 95, 2026-10-08)
+
+The 86 soundtrack (`assets/audio/86/`) is personal use only and never ships (git-ignored, `.gdignore`, excluded in
+every export preset). So a friend's copy is not silent, three tracks by Kevin MacLeod ship instead: `data/music.json`
+set `"free"`, the Soundtrack of a copy without the 86 music and no music folder of the player's own, hidden while
+the soundtrack is there. Downloaded from incompetech.com (320 kb/s), re-encoded to 128 kb/s MP3 with tags dropped;
+otherwise unchanged. Credit lines live in each music.json entry ("credit") and go into every share zip's
+HOW-TO-RUN.txt (`tools/builds.py` `music_credits`).
+
+| File | Track | Source | Licence |
+|---|---|---|---|
+| `assets/audio/free/heartbreaking.mp3` | "Heartbreaking", 1:36, piano and strings (menus) | Kevin MacLeod, https://incompetech.com/music/royalty-free/mp3-royaltyfree/Heartbreaking.mp3 | CC BY 4.0, http://creativecommons.org/licenses/by/4.0/ |
+| `assets/audio/free/five_armies.mp3` | "Five Armies", 2:36, orchestral (exploring, combat) | Kevin MacLeod, https://incompetech.com/music/royalty-free/mp3-royaltyfree/Five%20Armies.mp3 | CC BY 4.0 |
+| `assets/audio/free/clash_defiant.mp3` | "Clash Defiant", 6:16, orchestral battle (combat, exploring) | Kevin MacLeod, https://incompetech.com/music/royalty-free/mp3-royaltyfree/Clash%20Defiant.mp3 | CC BY 4.0 |
+
+Required credit (one per track): "<Title>" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By
+Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/

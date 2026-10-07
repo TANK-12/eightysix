@@ -97,7 +97,9 @@ and **Main menu**. The objective and how many Legion are left show at the top le
   "squad". Click a "Section › Page" heading to open that page. Escape clears the box.
 - **Your music folder (new):** Settings > Audio > Music > Your music folder picks a folder of your own mp3, ogg or
   wav files; set Main menu, Exploring or In combat to "Your music folder" to shuffle it. A copy of the game
-  without the 86 soundtrack (the share zips) plays this folder instead.
+  without the 86 soundtrack (the share zips) plays this folder instead, or, with no folder set, three free
+  tracks by Kevin MacLeod that ship with the game (CC BY 4.0, credits in assets/SOURCES.md and HOW-TO-RUN.txt).
+  Its music lists only offer tracks that are really there.
 - Settings > Gameplay > "Damage you take" scales Legion damage (0.25-2x) if the fights are too hard or too easy.
 - Settings > Audio has the sound and music pages: a pick and a level for every sound, and the soundtrack in order.
 - Settings > Gameplay > Juggernaut: finish (field worn by default), emblem, dirt building up over a sortie, and

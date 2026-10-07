@@ -9,6 +9,9 @@ and puts the output in the next `images/NNN-<name>/`; `tools/fps_log.py` plays `
 makes) and says whether every Legion unit reached the Juggernaut (exit 1 when one did not).
 `tools/bot_run.sh <name> --build` plays the same script on the exported game (`build/linux/`, from
 `tools/export.sh`), so a build can be checked the same way as the source.
+`GAME_BIN=/path/to/eightysix.x86_64` plays another exported binary instead (Relay 95 ran a share-zip build that way
+with `HOME` pointed at an empty folder, as a friend's machine). Every `report.json` has `music`: the track playing at
+the end ("" for silence).
 
 ```json
 {"name": "smoke", "map": "test_range (optional: start there, clock starts when it is up)",

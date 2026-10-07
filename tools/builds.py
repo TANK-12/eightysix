@@ -423,10 +423,19 @@ def share(
 
 
 MUSIC_NOTE = (
-    "Music: the 86 soundtrack is not included. To hear your own, open Settings > Audio > Music,"
-    " choose Your music folder and pick a folder of mp3, ogg or wav files you own; the game"
-    " shuffles it in place of the soundtrack."
+    "Music: the 86 soundtrack is not included (it is copyrighted). Out of the box the game plays a few"
+    " free tracks instead. To hear your own music: open Settings (from the main menu), go to Audio >"
+    " Music, press Your music folder and pick a folder of mp3, ogg or wav files you own. The game then"
+    " shuffles that folder in place of the soundtrack. For each of Main menu, Exploring and In combat"
+    " you can also pick Your music folder, one track, Shuffle or Off. Backspace on the folder row clears it."
 )
+
+
+def music_credits(root: Path) -> list[str]:
+    """The credit line of every track that ships with the game (data/music.json entries with a "credit")."""
+    path = root / "data" / "music.json"
+    entries = json.loads(path.read_text())["entries"] if path.exists() else {}
+    return [str(e["credit"]) for e in entries.values() if e.get("credit")]
 
 
 def _share_zip(
@@ -436,8 +445,11 @@ def _share_zip(
     zip_path = out_dir / f"{stem}.zip"
     readme = (
         f"Eighty Six {info['game_version']}, version {info['number']:03d} ({info['made']}), "
-        f"{entry['label']}.\n{entry['how_to_run']}\n{MUSIC_NOTE}\n"
+        f"{entry['label']}.\n{entry['how_to_run']}\n\n{MUSIC_NOTE}\n"
     )
+    credits = music_credits(root)
+    if credits:
+        readme += "\nMusic credits:\n" + "".join(f"  {c}\n" for c in credits)
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         if entry["file"].endswith(".zip"):
             # macOS: Godot's own zip holds the .app; its files go in our folder with their modes
