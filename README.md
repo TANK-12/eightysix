@@ -11,6 +11,13 @@ rewrite or delete earlier text. Each session adds a dated entry to the log at th
 changed and what is done, and marks every claim **verified** (with the check that was run) or **reasoned** (not run).
 The "Current state" section may be updated in place, but only to keep it true; the history stays in the log.
 
+## Start here (2026-10-07)
+Three dated docs in `~/Forge/docs/library/eightysix/`, written for a reader with no history:
+- `2026-10-07-guide.md`: how to run, play, build and test it, where everything lives, the tools and skills.
+- `2026-10-07-handoff.md`: every system rated honestly (bare bones / working / almost polished), what is verified
+  and what is only reasoned, every known bug, what waits on Emerson.
+- `2026-10-07-roadmap-to-beta.md`: the milestones from 0.1 to beta, in order of impact, with a rough size each.
+
 ## Current state
 (Kept true by each session; the log below has the history.)
 
