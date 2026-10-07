@@ -88,6 +88,15 @@
       "stiffness": 6.0,
       "damping": 2.2
     },
+    "righting": {
+      "_about": "Emerson 2026-10-07: the stand-up control (action right_mech, U; jump also does it while tipped). Works when the chassis leans past tip_deg and moves slower than max_speed_m_s; lifts at lift_m_s while still past 35 deg, rolls level at up to rate_deg_s, ends within done_deg of level or after max_s.",
+      "tip_deg": 55.0,
+      "max_speed_m_s": 4.0,
+      "lift_m_s": 3.0,
+      "rate_deg_s": 160.0,
+      "done_deg": 10.0,
+      "max_s": 3.0
+    },
     "recover": {
       "_about": "Lane A2 part 3: below 2 grounded legs, drive/turn/steady are off entirely by design (a bad landing angle should punish a jump), so nothing recovered a mech that tipped or wedged against terrain and settled near-still (results/A2.md: long_walk's tries 1 and 2, against a slab corner and a rock). stuck_speed_m_s tells a real fall (still moving) apart from stuck (not); stuck_delay_s must pass before ramp_s brings in _steady's proportional righting torque and an unstick_accel_m_s2 shove. Checked and deliberately not covered: a mech that stays fully grounded but rams an obstacle -- calibrated against the same slab -- was not actually stuck, plain reverse already frees it since drive/turn are never disabled while on_ground.",
       "stuck_speed_m_s": 1.0,

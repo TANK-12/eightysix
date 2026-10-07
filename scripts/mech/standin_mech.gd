@@ -95,6 +95,9 @@ var _body_tuck := 0.0
 var _stance_inertia := Vector3.ZERO
 var _swing_w := Vector2.ZERO
 var _swing_dir := Vector2.ZERO
+## Righting (Emerson 2026-10-07: "flip the mech back upright when it ends up on its side or back"):
+## seconds left of a stand-up the pilot asked for (U key, or jump while tipped); 0 when none is running.
+var righting_s := 0.0
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -307,6 +310,11 @@ func _read_input(dt: float) -> void:
 	elif Input.is_action_just_pressed("crouch"):
 		_crouch_toggled = not _crouch_toggled
 	var jump_held := Input.is_action_pressed("jump")
+	if Input.is_action_just_pressed("right_mech") or (Input.is_action_just_pressed("jump") and is_tipped()):
+		start_righting()
+	if is_tipped() or righting_s > 0.0:
+		jump_held = false  # on its side the jump button stands it up, it does not charge a jump
+		charging = false
 	if jump_held and not airborne:
 		if not charging:
 			charging = true
@@ -608,6 +616,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			_tuck_body(state, dt, false)
 	_air_drag(state, v)
 	_keel(state, w)
+	_right_itself(state, dt)
 	_pitch_aim(dt)
 
 
@@ -761,6 +770,56 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	var damping := float(u.get("keep_damping", 4.0)) * (1.0 + fast * float(u.get("run_damping_boost", 0.0)))
 	var accel := (axis.normalized() * push - spin * damping) * factor
 	state.apply_torque(accel * inertia.x)
+
+
+## True when the chassis leans more than righting.tip_deg from world up (on its side, back or nose).
+func is_tipped() -> bool:
+	var r: Dictionary = _t.get("righting", {})
+	var tip := deg_to_rad(float(r.get("tip_deg", 55.0)))
+	return global_transform.basis.y.angle_to(Vector3.UP) > tip
+
+
+## Starts a stand-up if the mech is tipped and not flying fast (a flip in the air is left alone).
+## Returns whether one started.
+func start_righting() -> bool:
+	var r: Dictionary = _t.get("righting", {})
+	if righting_s > 0.0 or not is_tipped():
+		return false
+	if linear_velocity.length() > float(r.get("max_speed_m_s", 4.0)):
+		return false
+	righting_s = float(r.get("max_s", 3.0))
+	return true
+
+
+## The stand-up itself: the legs shove the chassis up off the ground (righting.lift_m_s, only while
+## it is still well over) and roll it back to level about the shortest axis, keeping its heading, at
+## up to righting.rate_deg_s. Ends once it is within righting.done_deg of level (the springs and the
+## keel take over from there) or after righting.max_s. Velocities are set, not forces, so it works the
+## same for every mech's mass; collisions still apply, so it cannot stand up through a wall.
+func _right_itself(state: PhysicsDirectBodyState3D, dt: float) -> void:
+	if righting_s <= 0.0:
+		return
+	righting_s = maxf(righting_s - dt, 0.0)
+	var r: Dictionary = _t.get("righting", {})
+	var basis := state.transform.basis.orthonormalized()
+	var up := basis.y
+	var lean := up.angle_to(Vector3.UP)
+	if lean < deg_to_rad(float(r.get("done_deg", 10.0))):
+		righting_s = 0.0
+		state.angular_velocity *= 0.2
+		_aim_yaw = _yaw_of(basis)
+		return
+	var axis := up.cross(Vector3.UP)
+	if axis.length() < 0.001:
+		axis = -basis.z  # exactly upside down: roll over sideways, about the nose
+		axis.y = 0.0
+		if axis.length() < 0.01:
+			axis = Vector3.RIGHT
+	var rate := deg_to_rad(float(r.get("rate_deg_s", 160.0)))
+	state.angular_velocity = axis.normalized() * minf(rate, lean * 4.0)
+	var v := state.linear_velocity
+	var lift := float(r.get("lift_m_s", 3.0)) if lean > deg_to_rad(35.0) else 0.0
+	state.linear_velocity = Vector3(v.x * 0.9, maxf(v.y, lift), v.z * 0.9)
 
 
 ## The slide (lane A3 part 4, Emerson: "a slide button that is somehow directional... the momentum

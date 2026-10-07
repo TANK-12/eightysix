@@ -45,6 +45,8 @@
       "standard": {"keys": ["key:C"], "pad": ["joy:circle"]}},
     "park": {"label": "Park (gun raised / lowered)", "group": "Movement", "context": ["field"],
       "all": {"keys": ["key:P"], "pad": []}},
+    "right_mech": {"label": "Stand back up (when tipped over)", "group": "Movement", "context": ["field"],
+      "all": {"keys": ["key:U"], "pad": []}},
 
     "fire_main": {"label": "Fire 57 mm gun", "group": "Combat", "context": ["field"], "analog": true,
       "standard": {"keys": ["mouse:left"], "pad": ["joy:r2"]},

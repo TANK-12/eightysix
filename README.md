@@ -717,3 +717,18 @@ Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review f
 - **Version 017** saved as alpha 0.1 (Linux export from commit 6bc599d, clean tree; **verified** it boots to the
   menu with 0 errors: `tools/bot_run.sh ... --build`, images/602). PLAYTEST.md brought up to date (maps table, new controls, squad,
   tutorial, open questions). Details: `~/Forge/sessions/juggernaut-alpha/results/A6.md`.
+
+### 2026-10-07 · Relay 58 · Toru: stand back up
+- Emerson: "add a way to flip the mech back upright when it ends up on its side or back". New action
+  `right_mech` (**U**, Movement group, rebindable); on the pad, **jump** (cross) does it while tipped, and no longer
+  charges a jump then. Works when the chassis leans past 55 deg and moves under 4 m/s (a flip in the air is left
+  alone): the legs shove it up at 3 m/s and it rolls level about the shortest axis at up to 160 deg/s, keeping its
+  heading; ends within 10 deg of level or after 3 s. Code: `standin_mech.gd` `is_tipped`, `start_righting`,
+  `_right_itself` (velocities set, so every mech's mass rights the same; collisions still apply). Numbers:
+  `data/tuning.json` standin.righting. Works with Balance assist on or off.
+- **Verified:** `tests/test_righting.gd` 4/4 on the Juggernaut: rolled over 136 deg, up in 0.95 s; on its back
+  161 deg, up in 1.10 s; both 1 deg two seconds later; jump while tipped stands it up without charging; U upright
+  does nothing. test_controls 8/8, test_settings 15/15, test_flip 11/11, test_ui 8/8, test_mech 14/14,
+  test_juggernaut 27/27. Full suite 509 passed, 2 failed: test_resonance_blade (task 54's unfinished blade) and
+  test_ui, which was this change's first, longer label pushing Back off the bindings page; label shortened, test_ui
+  8/8 after. Not checked: a live playthrough on rough terrain (no GPU run in this session).

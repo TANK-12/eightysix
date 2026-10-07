@@ -53,6 +53,7 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 | Third person or cockpit / free look / optics zoom | V / Alt / middle mouse | triangle / R3 / d-pad left |
 | Park: gun raised / lowered (only when you press it) | P | (rebind in Settings > Controls) |
 | Photo mode (time freezes, orbit camera, F12 saves a picture) | O | (from the pause menu) |
+| Stand back up when on its side or back (jump on the pad does it too while tipped) | U | cross (jump) |
 | Optics zoom (1x to 10x) | mouse wheel or + / - | |
 | Handler view (squad map, click to move or attack) / orders 1-4 | Tab / 1 2 3 4 | touchpad / d-pad |
 | Map | M | create |
