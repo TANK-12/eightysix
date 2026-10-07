@@ -16,6 +16,13 @@ const MAX_DEBRIS := 16
 ## the Legion's machine guns) reuse a ring of this many emitters per kind instead of making new nodes per round,
 ## and light nothing. Emerson's note 8 (2026-10-02): 12.7 mm ground hits made lag spikes (Medium 44 -> 19 fps).
 const BULLET_POOL := 32
+## Smoke and dust are big see-through quads, and on the Iris Xe their cost is fill: every layer of every puff is
+## blended over every pixel it covers (task 56, 2026-10-07: an HE hit every 0.5 s took the GPU from 17 to 40 ms a
+## frame, 54 ms with the camera in the cloud). Each cloud is drawn with SMOKE_THIN of the puffs it asks for, each
+## puff a little bigger and more opaque so the cloud covers the same; past SMOKE_BUDGET puffs alive in the scene,
+## new clouds thin further (to a quarter at most) the same way.
+const SMOKE_THIN := 0.5
+const SMOKE_BUDGET := 260
 ## Render layer 20 holds every mech's meshes: ground decals skip it (so a gouge never paints the feet
 ## standing in it) and hull scorch marks use only it.
 const MECH_LAYER := 1 << 19
@@ -40,6 +47,7 @@ static var _spark_mat: StandardMaterial3D
 static var _brass_mat: StandardMaterial3D
 static var _fire_mat: StandardMaterial3D
 static var _clod_mat: StandardMaterial3D
+static var _smoke_live := 0
 
 
 ## Settings > Graphics > World detail > Combat effects (Emerson, 2026-10-02). Both are look only: a blast's
@@ -78,7 +86,8 @@ static func smoke_material() -> StandardMaterial3D:
 	if _smoke_mat == null:
 		_smoke_mat = StandardMaterial3D.new()
 		_smoke_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		_smoke_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+		# Lit at the corners, not per pixel: a soft puff looks the same and the cloud costs 5 ms less (task 56).
+		_smoke_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 		_smoke_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 		_smoke_mat.vertex_color_use_as_albedo = true
 		_smoke_mat.albedo_texture = _radial(64, Color(1, 1, 1, 1), Color(1, 1, 1, 0))
@@ -286,11 +295,17 @@ static func smoke_emitter(amount: int, size: float, color: Color, life: float = 
 	var p := CPUParticles3D.new()
 	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	p.local_coords = true
+	var keep := smoke_share(amount, _smoke_live)
+	var n := maxi(roundi(amount * keep), 1)
+	keep = float(n) / maxf(amount, 1.0)
+	color.a = thinned_alpha(color.a, keep)
 	var quad := QuadMesh.new()
-	quad.size = Vector2.ONE * size
+	quad.size = Vector2.ONE * size * (1.25 if keep < 1.0 else 1.0)
 	quad.material = smoke_material()
 	p.mesh = quad
-	p.amount = maxi(amount, 1)
+	p.amount = n
+	p.tree_entered.connect(func() -> void: _smoke_live += n)
+	p.tree_exiting.connect(func() -> void: _smoke_live -= n)
 	p.lifetime = life
 	p.one_shot = true
 	p.emitting = false
@@ -318,6 +333,22 @@ static func smoke_emitter(amount: int, size: float, color: Color, life: float = 
 	p.angle_min = 0.0
 	p.angle_max = 360.0
 	return p
+
+
+## The share of a cloud's `amount` puffs to draw with `live` smoke puffs already in the scene (see SMOKE_THIN).
+static func smoke_share(amount: int, live: int) -> float:
+	var share := SMOKE_THIN
+	if live + amount * share > SMOKE_BUDGET:
+		share *= clampf(float(SMOKE_BUDGET - live) / (amount * share), 0.5, 1.0)
+	return share
+
+
+## The opacity that keeps a cloud as dense with `keep` of its puffs: n puffs of alpha a stacked cover
+## 1 - (1 - a)^n, so a share k of them need 1 - (1 - a)^(1 / k).
+static func thinned_alpha(alpha: float, keep: float) -> float:
+	if keep >= 1.0:
+		return alpha
+	return minf(1.0 - pow(1.0 - clampf(alpha, 0.0, 0.99), 1.0 / keep), 0.95)
 
 
 ## Adds a one-shot emitter built off-tree, places it and starts it; it frees itself after `seconds`.

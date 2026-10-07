@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 515 passed, 0 failed (2026-10-07, Relay 56 smoke cost). Before: 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -752,3 +752,21 @@ Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review f
   by ground triangles, the long blade key label widened Settings, zero "bests", bot wins written into the
   player's records, and a kill cam anchors warning. Details: `~/Forge/sessions/juggernaut-alpha/results/A7.md`.
 - **Version 018** saved from this commit. Not checked: a long live playthrough on the bigger maps.
+
+### 2026-10-07 · Relay 56 part 1 · Momo: cheaper smoke
+Emerson: smoke lagged the game and slowed the world. Cause: shell, hit and wreck smoke is big see-through quads
+(an HE hit at the default 1.6x Hit dust makes about 72 puffs, 4-7 m across) and on the Iris Xe every layer is
+blended over every pixel it covers; past 1/15 s a frame the 120 Hz physics runs out of its 8 steps and the world
+slows. Fix in `CombatFx.smoke_emitter` (`scripts/combat/combat_fx.gd`), look only: each cloud draws half its puffs
+(`SMOKE_THIN`), each 1.25x bigger and more opaque so the cloud covers the same (`thinned_alpha`); past 260 live
+puffs (`SMOKE_BUDGET`) new clouds thin further, to a quarter at most (`smoke_share`); smoke is lit per vertex.
+- **Verified:** bot `tools/bot/smoke_cost.json` (`tools/bot_run.sh smoke_cost --preset=medium`; an HE hit every
+  0.5 s via `fx_demo`, then with the camera in the cloud), two runs each in one sitting, old images/613 and 616,
+  new 619 and 620. GPU ms the smoke adds: barrage +23.5 -> +9.9 (21.7-23.2 -> 37 fps), in the cloud +41.5 -> +18.7
+  (16.1-17.0 -> 27 fps); main-thread CPU 8.3 -> 5.7 and 10.7 -> 6.7 ms. Screenshots side by side: same clouds, a
+  touch lumpier up close. `tests/test_smoke_cost.gd` 4/4, full suite 515 passed, 0 failed.
+- Not done on purpose: no new quality setting (thinning helps every preset; Hit dust already sizes smoke), no
+  `fixed_fps` on emitters (no interpolation for CPUParticles3D in 4.7, and the CPU was not the bound).
+- Bot runs currently need `LD_LIBRARY_PATH=/tmp/r56-llvm22/usr/lib` (mesa 26.2.2 wants libLLVM 22, llvm-libs is
+  23) until `sudo pacman -Syu`; without it the off-screen mutter does not start.
+  Full write-up: `~/Forge/docs/library/forge/2026-10-07-gpu-and-visualiser-lag.md`.
