@@ -13,6 +13,7 @@ signal unit_destroyed(unit: LegionMech)
 signal ended(won: bool)
 
 const TRACK_EVERY_S := 4.0
+const SORTIE_LOG := preload("res://scripts/mission/sortie_log.gd")
 const COLUMN_GAP_M := 14.0  # a routed group spawns in single file this far apart (more than the AI's keep-apart distance)
 
 var id := ""
@@ -29,6 +30,10 @@ var objective := ""
 ## The last hits the player took: [seconds, ammo, shooter enemy id, damage dealt, part] (newest last).
 var player_hits: Array = []
 var hits_taken := 0
+## The after-action numbers (lane A7): shots, hits, parts shot off, kills, damage taken; `report` holds
+## its finish() once the mission ends (grade and personal bests included).
+var sortie := SORTIE_LOG.new()
+var report: Dictionary = {}
 var _wave_s := 0.0
 var _track_in := 0.0  # seconds to the next tracking call (wave "track_s")
 var _next_in := -1.0
@@ -64,6 +69,8 @@ static func start_in(level_node: Node3D, mission_id: String) -> Mission:
 
 func _ready() -> void:
 	add_to_group("mission")
+	if Bot.active:  # bot runs win in seconds; keep their records out of the player's
+		sortie.records_file = "user://bot_records.cfg"
 	_rng.seed = hash(id)
 	player = level.get("mech") as RigidBody3D
 	var combat: Object = player.get_meta("combat") if player != null and player.has_meta("combat") else null
@@ -73,6 +80,7 @@ func _ready() -> void:
 		combat.connect("destroyed", _on_player_destroyed)
 	if combat != null and combat.has_signal("hit_taken"):
 		combat.connect("hit_taken", _on_player_hit)
+	sortie.start(player)
 	_start_wave(0)
 
 
@@ -217,6 +225,7 @@ func _spawn(enemy_id: String, area: Dictionary, members: Array, index: int, rout
 		if Registry.has_entry("maps", map_id):
 			brain.area_half_m = float(Registry.entry("maps", map_id).get("legion_area_half_m", INF))
 		members.append(brain)
+	sortie.watch_unit(u)  # first, so the log has the kill before a last kill ends the mission
 	u.destroyed.connect(_on_unit_destroyed.bind(u))
 	level.add_child(u)
 	return u
@@ -277,6 +286,7 @@ func _on_player_hit(key: String, dealt: float, info: Dictionary) -> void:
 	var shooter: Variant = info.get("shooter")
 	var who := str((shooter as LegionMech).enemy_id) if shooter is LegionMech and is_instance_valid(shooter) else ""
 	hits_taken += 1
+	sortie.took(dealt)
 	player_hits.append([snappedf(elapsed_s, 0.1), str(info.get("ammo", "")), who, snappedf(dealt, 1.0), key])
 	if player_hits.size() > 40:
 		player_hits.pop_front()
@@ -293,6 +303,7 @@ func _end(won: bool) -> void:
 	_next_in = -1.0
 	objective = "Mission complete" if won else "Juggernaut lost"
 	objective_changed.emit(objective)
+	report = sortie.finish(id, won, elapsed_s, float(def.get("par_s", SORTIE_LOG.DEFAULT_PAR_S)))
 	ended.emit(won)
 
 
@@ -318,6 +329,7 @@ func summary() -> Dictionary:
 		"time_s": snappedf(elapsed_s, 0.1),
 		"player_hits": hits_taken,
 		"squad": squad_report(),
+		"report": report,
 	}
 
 

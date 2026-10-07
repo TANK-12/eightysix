@@ -40,6 +40,7 @@ var damage: DamageModel
 var weapons: Dictionary = {}  # weapon id -> WeaponState
 var is_player := false
 var dead := false
+var last_shooter: Node = null  # who fired the hit being taken (set before its damage, so part_lost/destroyed can read it)
 ## What the brain asks for: horizontal velocity (world, m/s), the way to face (world, flat) and
 ## the point the turret or launcher should aim at (null: rest).
 var move_goal := Vector3.ZERO
@@ -1035,6 +1036,8 @@ func take_hit(info: Dictionary) -> Dictionary:
 	var point: Vector3 = info.get("point", global_position)
 	if not damage.has(key):
 		key = nearest_key(point)
+	var shooter: Variant = info.get("shooter")
+	last_shooter = shooter if shooter is Node and is_instance_valid(shooter) else null
 	var r := damage.hit(key, float(info.get("damage", 0.0)), float(info.get("penetration_mm", 0.0)))
 	var weak: Dictionary = _weak.get(key, {})
 	if bool(r["penetrated"]) and float(weak.get("to_hull", 0.0)) > 0.0 and key != "hull":

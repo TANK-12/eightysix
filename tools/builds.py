@@ -422,6 +422,13 @@ def share(
     return [out_dir / path.name for path in made]
 
 
+MUSIC_NOTE = (
+    "Music: the 86 soundtrack is not included. To hear your own, open Settings > Audio > Music,"
+    " choose Your music folder and pick a folder of mp3, ogg or wav files you own; the game"
+    " shuffles it in place of the soundtrack."
+)
+
+
 def _share_zip(
     root: Path, info: dict, platform: str, entry: dict, src: Path, out_dir: Path
 ) -> Path:
@@ -429,7 +436,7 @@ def _share_zip(
     zip_path = out_dir / f"{stem}.zip"
     readme = (
         f"Eighty Six {info['game_version']}, version {info['number']:03d} ({info['made']}), "
-        f"{entry['label']}.\n{entry['how_to_run']}\n"
+        f"{entry['label']}.\n{entry['how_to_run']}\n{MUSIC_NOTE}\n"
     )
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         if entry["file"].endswith(".zip"):

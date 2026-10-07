@@ -171,6 +171,29 @@ func legion_lod(metres: float) -> void:
 		(n as LegionMech).set_lod(metres)
 
 
+## Bot hook (lane A7): stand Legion unit `index` of the wave just ahead of the player's blade tips,
+## facing the Juggernaut with its brain off, so a run can show the resonance blade tuning and striking.
+func legion_to_blades(index: int = 0, gap_m: float = 1.5) -> void:
+	var combat := mech.get_node_or_null("Combat") as MechCombat if mech != null else null
+	if mission == null or mission.units.is_empty() or combat == null or combat.blade == null:
+		push_warning("small_map: no Legion or no blade for legion_to_blades")
+		return
+	var u := mission.units[clampi(index, 0, mission.units.size() - 1)] as LegionMech
+	var brain := u.get_node_or_null("Brain")
+	if brain != null:
+		brain.process_mode = Node.PROCESS_MODE_DISABLED
+	var fwd := -mech.global_transform.basis.z
+	fwd.y = 0.0
+	var at := combat.blade.tip() + fwd.normalized() * gap_m
+	u.global_position = Vector3(at.x, ground_height(at.x, at.z) + 0.6, at.z)
+	u.linear_velocity = Vector3.ZERO
+	u.angular_velocity = Vector3.ZERO
+	u.move_goal = Vector3.ZERO  # the body walks on the brain's last ask without this
+	u.face_dir = (mech.global_position - u.global_position) * Vector3(1, 0, 1)
+	u.aim_point = null
+	u.look_at(Vector3(mech.global_position.x, u.global_position.y, mech.global_position.z), Vector3.UP)
+
+
 ## Bot hook (lane A4): destroy the mission's current wave so a run can reach the later ones.
 func clear_wave() -> void:
 	if mission != null:
@@ -463,3 +486,4 @@ static func _noise(normal: bool, frequency: float, seed_value: int) -> NoiseText
 		tex.as_normal_map = true
 		tex.bump_strength = 4.0
 	return tex
+

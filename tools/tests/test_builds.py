@@ -235,6 +235,9 @@ class Builds(unittest.TestCase):
             self.assertEqual(mode(z, f"{stem}/install.sh"), 0o755)
             self.assertEqual(mode(z, f"{stem}/HOW-TO-RUN.txt"), 0o644)
             self.assertIn("run it", z.read(f"{stem}/HOW-TO-RUN.txt").decode())
+            self.assertIn(
+                "Your music folder", z.read(f"{stem}/HOW-TO-RUN.txt").decode()
+            )
         stem = zips[1].stem
         with zipfile.ZipFile(zips[1]) as z:
             self.assertEqual(

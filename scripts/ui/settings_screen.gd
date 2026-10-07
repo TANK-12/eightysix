@@ -12,6 +12,8 @@ const VALUE_W := 150
 const KEY_SLOT_W := 170
 const PAD_SLOT_W := 240
 const CAPTURE_TIMEOUT_S := 8.0
+const SEARCH := preload("res://scripts/ui/settings_search.gd")
+const SEARCH_W := 340
 
 var _section_id := ""
 var _page_id := ""
@@ -31,11 +33,14 @@ var _capture: Control = null
 var _capture_info: Dictionary = {}
 var _capture_left := 0.0
 var _click_back: Dictionary = {}  # setting key -> the last left click on that selector was on its "‹" half
+var _search: LineEdit
+var _query := ""  # what the search box holds; not empty: the card lists matches instead of a page
 
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	add_to_group("settings_screen")
 	_build_frame()
 	Settings.changed.connect(_on_setting_changed)
 	Controls.bindings_changed.connect(_on_bindings_changed)
@@ -53,11 +58,20 @@ func show_page(section_id: String, page_id: String) -> void:
 	if page_id == "" or not visible.any(func(p: Dictionary) -> bool: return p["id"] == page_id):
 		page_id = str(visible[0]["id"])
 	_page_id = page_id
+	_query = ""
+	if _search != null:
+		_search.text = ""
 	_rebuild_tabs()
 	_rebuild_pages()
 	_rebuild_content()
 	_show_first_help()
 	_focus_first_row.call_deferred()
+
+
+## Fills the search box with `text` and lists what matches, as typing does (the bot and tests use it).
+func search(text: String) -> void:
+	_search.text = text
+	_on_search_changed(text)
 
 
 func close() -> void:
@@ -102,6 +116,14 @@ func _build_frame() -> void:
 	_tabs.size_flags_horizontal = SIZE_EXPAND_FILL
 	_tabs.alignment = BoxContainer.ALIGNMENT_BEGIN
 	top.add_child(_tabs)
+	_search = LineEdit.new()
+	_search.placeholder_text = "Search settings   (Ctrl+F)"
+	_search.custom_minimum_size = Vector2(SEARCH_W, 44)
+	_search.size_flags_vertical = SIZE_SHRINK_CENTER
+	_search.clear_button_enabled = true
+	_search.text_changed.connect(_on_search_changed)
+	_search.gui_input.connect(_search_input)
+	top.add_child(_search)
 	var hint := Label.new()
 	hint.theme_type_variation = "FaintLabel"
 	hint.text = "Q / E  ·  L1 / R1  sections     Z / C  ·  L2 / R2  pages"
@@ -209,6 +231,9 @@ func _rebuild_content() -> void:
 		child.get_parent().remove_child(child)
 		child.queue_free()
 	_rows.clear()
+	if _query != "":
+		_rebuild_results()
+		return
 	var page := _page(_section_id, _page_id)
 	var first := true
 	for group: Dictionary in page.get("groups", []):
@@ -230,6 +255,62 @@ func _rebuild_content() -> void:
 			else:
 				_add_row(it)
 	_scroll.scroll_vertical = 0
+
+
+## The card while searching: a line saying how many match, then the matches under their
+## "Section › Page" (a button that opens that page), each a working row so it can be changed here.
+func _rebuild_results() -> void:
+	var found: Array = SEARCH.find(_query)
+	var count := _label(_content, "GroupLabel", "")
+	count.custom_minimum_size.y = 40
+	if _query.strip_edges().length() < SEARCH.MIN_CHARS:
+		count.text = "Keep typing…"
+		return
+	if found.is_empty():
+		count.text = "Nothing matches “%s”" % _query.strip_edges()
+		var tip := _label(_content, "DimLabel", "Try one word, such as fog, mouse, music, squad or jump.")
+		tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		return
+	count.text = "%d %s for “%s”" % [found.size(), "match" if found.size() == 1 else "matches", _query.strip_edges()]
+	var paths: Array = []
+	for r: Dictionary in found:
+		if not r["path"] in paths:
+			paths.append(r["path"])
+	for path: String in paths:
+		var first: Dictionary = found.filter(func(r: Dictionary) -> bool: return r["path"] == path)[0]
+		var go := Button.new()
+		go.text = path + "   ›"
+		go.theme_type_variation = "PageButton"
+		go.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		go.focus_mode = FOCUS_NONE
+		go.tooltip_text = "Open this page"
+		go.pressed.connect(show_page.bind(str(first["section"]), str(first["page"])))
+		_content.add_child(go)
+		for r: Dictionary in found:
+			if r["path"] != path:
+				continue
+			if r["kind"] == "action":
+				_add_keybind_row(str(r["action"]), str(r["scheme"]))
+			else:
+				_add_row(Settings.item(str(r["key"])))
+		var gap := Control.new()
+		gap.custom_minimum_size.y = 10
+		_content.add_child(gap)
+
+
+func _on_search_changed(text: String) -> void:
+	_query = text.strip_edges()
+	_rebuild_content()
+
+
+## Escape in the box clears it, or when it is empty moves to the first row; Down moves to the first row.
+func _search_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("ui_down"):
+		if event.is_action_pressed("ui_cancel") and _search.text != "":
+			search("")
+		else:
+			_focus_first_row()
+		accept_event()
 
 
 # --- rows ---------------------------------------------------------------------------------------
@@ -286,6 +367,12 @@ func _make_control(it: Dictionary) -> Control:
 			sel.pressed.connect(_on_selector_pressed.bind(key))
 			sel.gui_input.connect(_selector_input.bind(key))
 			return sel
+		"folder":
+			var pick := Button.new()
+			pick.clip_text = true
+			pick.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			pick.pressed.connect(_pick_folder.bind(key))
+			return pick
 		"button":
 			var b := Button.new()
 			b.text = str(it.get("button_text", "Run"))
@@ -317,11 +404,16 @@ func _refresh_row(key: String) -> void:
 			(control as HSlider).set_value_no_signal(float(value))
 		"choice":
 			(control as Button).text = "‹   %s   ›" % Settings.label_for(key, value)
+		"folder":
+			(control as Button).text = Settings.label_for(key, value) if str(value) != "" else "Choose a folder…"
 	var value_label: Label = r["value"]
 	if value != null and str(it.get("type", "")) == "slider":
 		value_label.text = Settings.label_for(key, value)
 	elif value != null and str(it.get("type", "")) == "toggle":
 		value_label.text = "On" if bool(value) else "Off"
+	elif value != null and str(it.get("type", "")) == "folder" and str(value) != "":
+		var n := Music.folder_tracks().size() if key == Music.FOLDER_KEY else 0
+		value_label.text = "%d %s" % [n, "track" if n == 1 else "tracks"]
 	else:
 		value_label.text = ""
 	if value != null and not Settings.is_default(key):
@@ -369,6 +461,22 @@ func _cycle(key: String, direction: int) -> void:
 			index = i
 	index = wrapi(index + direction, 0, options.size())
 	Settings.set_value(key, options[index][0])
+
+
+## A folder setting's button: the folder dialog, opened at the current folder (or ~/Music).
+func _pick_folder(key: String) -> void:
+	var dialog := FileDialog.new()
+	dialog.file_mode = FileDialog.FILE_MODE_OPEN_DIR
+	dialog.access = FileDialog.ACCESS_FILESYSTEM
+	dialog.title = str(Settings.item(key).get("label", "Choose a folder"))
+	var start := Settings.get_s(key)
+	if start == "" or not DirAccess.dir_exists_absolute(start):
+		start = OS.get_environment("HOME").path_join("Music")
+	dialog.current_dir = start
+	dialog.dir_selected.connect(func(dir: String) -> void: Settings.set_value(key, dir))
+	dialog.visibility_changed.connect(func() -> void: if not dialog.visible: dialog.queue_free())
+	add_child(dialog)
+	dialog.popup_centered_ratio(0.7)
 
 
 ## Cross, Enter or a click: forward, or back when the click landed on the "‹" half.
@@ -429,31 +537,37 @@ func _add_keybinds(scheme: String) -> void:
 			var g := _label(_content, "AccentLabel", group)
 			g.custom_minimum_size.y = 36
 			g.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		var row := PanelContainer.new()
-		row.theme_type_variation = "RowPanel"
-		_content.add_child(row)
-		var line := HBoxContainer.new()
-		line.add_theme_constant_override("separation", 12)
-		row.add_child(line)
-		var name := _label(line, "", str(info.get("label", action)))
-		name.custom_minimum_size.x = LABEL_W - 14
-		name.size_flags_vertical = SIZE_SHRINK_CENTER
-		var b := Controls.bindings(action, scheme)
-		for slot_def: Array in [["keys", 0], ["keys", 1], ["pad", 0]]:
-			var slot := str(slot_def[0])
-			var index := int(slot_def[1])
-			var list: Array = b[slot]
-			var binding := str(list[index]) if index < list.size() else ""
-			var btn := Button.new()
-			btn.theme_type_variation = "SlotButton"
-			btn.custom_minimum_size.x = PAD_SLOT_W if slot == "pad" else KEY_SLOT_W
-			btn.set_meta("binding", [action, scheme, binding])
-			btn.text = Controls.binding_label(binding)
-			btn.clip_text = true
-			btn.pressed.connect(_start_capture.bind(action, scheme, slot, index))
-			btn.focus_entered.connect(_on_slot_focus.bind(row, action, scheme, binding, true))
-			btn.focus_exited.connect(_on_slot_focus.bind(row, action, scheme, binding, false))
-			line.add_child(btn)
+		_add_keybind_row(action, scheme)
+
+
+## One action's row of the bindings table: its name, two key slots and the pad slot.
+func _add_keybind_row(action: String, scheme: String) -> void:
+	var info := Controls.action_info(action)
+	var row := PanelContainer.new()
+	row.theme_type_variation = "RowPanel"
+	_content.add_child(row)
+	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", 12)
+	row.add_child(line)
+	var name := _label(line, "", str(info.get("label", action)))
+	name.custom_minimum_size.x = LABEL_W - 14
+	name.size_flags_vertical = SIZE_SHRINK_CENTER
+	var b := Controls.bindings(action, scheme)
+	for slot_def: Array in [["keys", 0], ["keys", 1], ["pad", 0]]:
+		var slot := str(slot_def[0])
+		var index := int(slot_def[1])
+		var list: Array = b[slot]
+		var binding := str(list[index]) if index < list.size() else ""
+		var btn := Button.new()
+		btn.theme_type_variation = "SlotButton"
+		btn.custom_minimum_size.x = PAD_SLOT_W if slot == "pad" else KEY_SLOT_W
+		btn.set_meta("binding", [action, scheme, binding])
+		btn.text = Controls.binding_label(binding)
+		btn.clip_text = true
+		btn.pressed.connect(_start_capture.bind(action, scheme, slot, index))
+		btn.focus_entered.connect(_on_slot_focus.bind(row, action, scheme, binding, true))
+		btn.focus_exited.connect(_on_slot_focus.bind(row, action, scheme, binding, false))
+		line.add_child(btn)
 
 
 func _on_slot_focus(row: PanelContainer, action: String, scheme: String, binding: String, has_focus: bool) -> void:
@@ -575,6 +689,13 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _capture != null:
 		return
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		var k := event as InputEventKey
+		if (k.ctrl_pressed and k.physical_keycode == KEY_F) or k.physical_keycode == KEY_SLASH:
+			get_viewport().set_input_as_handled()
+			_search.grab_focus()
+			_search.select_all()
+			return
 	if event.is_action_pressed("ui_back") or event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		close()
@@ -615,6 +736,12 @@ func _on_setting_changed(key: String, _value: Variant) -> void:
 	for page: Dictionary in _section(_section_id).get("pages", []):
 		if str(page.get("visible_if", "")) == key:
 			_rebuild_pages()
+	if _query != "":
+		for it: Dictionary in Settings.keys().map(func(k: String) -> Dictionary: return Settings.item(k)):
+			if str(it.get("visible_if", "")) == key:
+				_rebuild_content()
+				return
+		return
 	for r: Dictionary in _rows.values():
 		if str(r["item"].get("visible_if", "")) == key:
 			_rebuild_content()

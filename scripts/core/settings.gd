@@ -150,6 +150,8 @@ func sanitise(key: String, value: Variant) -> Variant:
 				if _same(option[0], value):
 					return option[0]
 			return null
+		"folder":
+			return str(value).strip_edges()
 		_:
 			return value
 
@@ -188,6 +190,12 @@ func label_for(key: String, value: Variant) -> String:
 			return str(value)
 		"slider":
 			return format_number(float(value), str(it.get("format", "float")))
+		"folder":
+			var home := OS.get_environment("HOME")
+			var path := str(value)
+			if path == "":
+				return "None chosen"
+			return "~" + path.substr(home.length()) if home != "" and path.begins_with(home) else path
 		_:
 			return str(value)
 

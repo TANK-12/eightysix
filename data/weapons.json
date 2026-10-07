@@ -70,7 +70,21 @@
       "mount": "fixed_forward",
       "length_m": 2.2,
       "damage": 1600,
-      "swing_s": 0.6
+      "swing_s": 0.6,
+      "_resonance": "Lane A7: the player's Juggernaut Model 2 strikes with its two forward blades (jg2_blade_l / _r) through scripts/combat/resonance_blade.gd. Hold Blade with a Legion part within reach_m of the tip and the meter fills over tune_s; it stays full (tuned) for tuned_window_s, then drifts back down to half over drift_s. The strike does damage x (1 + resonance_damage_x x resonance) at penetration_mm + resonance_penetration_mm x resonance.",
+      "tip": [0.0, -0.3, -3.4],
+      "reach_m": 3.0,
+      "face_deg": 60.0,
+      "tune_s": 1.2,
+      "tuned_window_s": 0.5,
+      "drift_s": 1.0,
+      "resonance_damage_x": 2.0,
+      "penetration_mm": 250,
+      "resonance_penetration_mm": 600,
+      "cooldown_s": 0.9,
+      "lunge_m_s": 1.2,
+      "push_kg": 300,
+      "push_m_s": 14.0
     },
     "lowe_120mm": {
       "label": "Löwe 120 mm gun",

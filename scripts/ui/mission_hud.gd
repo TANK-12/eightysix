@@ -2,9 +2,11 @@ class_name MissionHud
 extends CanvasLayer
 ## The mission's objective at the top left (lane A4 part 2): what to do, the wave and how many Legion
 ## are left, and a banner across the top for a moment whenever the objective changes. When the
-## mission ends it opens the end screen (MissionEnd).
+## mission ends it opens the end screen (MissionEnd). Lane A7: it also starts the Handler radio
+## (HandlerRadio) and, on a win, the final-kill cam (kill_cam.gd) before the end screen.
 
 const BANNER_S := 3.5
+const KILL_CAM := preload("res://scripts/camera/kill_cam.gd")
 
 var mission: Mission
 var _root: Control
@@ -12,12 +14,19 @@ var _objective: Label
 var _count: Label
 var _banner: Label
 var _banner_s := 0.0
+var radio: HandlerRadio
+var kill_cam: Node3D  # the final-kill cam while it runs
+var _last_kill: LegionMech
 
 
 func watch(m: Mission) -> void:
 	mission = m
 	m.objective_changed.connect(_on_objective)
 	m.ended.connect(_on_ended)
+	m.unit_destroyed.connect(func(u: LegionMech) -> void: _last_kill = u)
+	radio = HandlerRadio.new()
+	add_child(radio)
+	radio.watch(m)
 	_on_objective(m.objective)
 
 
@@ -78,7 +87,25 @@ func _on_objective(text: String) -> void:
 
 func _on_ended(won: bool) -> void:
 	_count.text = "%d Legion destroyed in %s" % [mission.kills, MissionEnd.clock(mission.elapsed_s)]
+	if won and Settings.get_b("gameplay.kill_cam") and _last_kill != null and is_instance_valid(_last_kill) and mission.level != null:
+		kill_cam = KILL_CAM.new()
+		mission.level.add_child(kill_cam)
+		var viewer := mission.player.global_position if mission.player != null else _last_kill.global_position + Vector3.BACK * 20.0
+		kill_cam.call("begin", _last_kill, viewer, kill_caption(_last_kill, viewer))
+		kill_cam.connect("finished", _open_end.bind(won, 0.3))
+	else:
+		_open_end(won, MissionEnd.DELAY_S)
+
+
+## "Final kill  ·  Löwe  ·  412 m"
+static func kill_caption(unit: LegionMech, viewer: Vector3) -> String:
+	var label := str(Registry.entry("enemies", unit.enemy_id).get("label", "Legion"))
+	return "Final kill  ·  %s  ·  %d m" % [label, roundi(unit.global_position.distance_to(viewer))]
+
+
+func _open_end(won: bool, delay_s: float) -> void:
 	var end := MissionEnd.new()
 	end.won = won
 	end.summary = mission.summary()
+	end.set("_left", delay_s)
 	add_child(end)

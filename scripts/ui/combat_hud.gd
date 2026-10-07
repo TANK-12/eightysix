@@ -66,6 +66,26 @@ func _draw() -> void:
 		_draw_anchor(cam)
 	if cam != null and cam.has_method("zoom") and float(cam.call("zoom")) > 1.0:
 		_draw_optics(cam)
+	if combat.blade != null and (combat.blade.charging or combat.blade._flash > 0.0):
+		_draw_blade()
+
+
+## The resonance blade (lane A7): a ring round the reticle that fills as the blades tune, "tuned" when
+## full, and a flash on the strike.
+func _draw_blade() -> void:
+	var b := combat.blade
+	var c := size * 0.5
+	var font := UiTheme.font("mono")
+	var r := 58.0
+	var full := b.resonance >= 1.0
+	var col := UiTheme.color("good") if full else UiTheme.color("accent")
+	draw_arc(c, r, 0.0, TAU, 64, Color(UiTheme.color("line"), 0.6), 2.0, true)
+	if b.charging:
+		draw_arc(c, r, -PI * 0.5, -PI * 0.5 + TAU * b.resonance, 64, col, 5.0, true)
+		var text := "tuned, release" if full else ("resonance %d %%" % roundi(b.resonance * 100.0) if b.target != null else "blade: no Legion in reach")
+		draw_string(font, c + Vector2(-120.0, r + 26.0), text, HORIZONTAL_ALIGNMENT_CENTER, 240, 15, col if b.target != null else UiTheme.color("text_dim"))
+	else:
+		draw_arc(c, r + 6.0, 0.0, TAU, 64, Color(col, b._flash), 3.0 + 8.0 * b._flash, true)
 
 
 ## The gunner's optics (Emerson's note 20 after 012): a round sight with a crosshair on the bore, the

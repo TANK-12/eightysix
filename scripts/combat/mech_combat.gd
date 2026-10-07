@@ -29,6 +29,8 @@ var anchor: WireAnchor
 var climb: MechClimb
 var last_shot: Projectile
 var shots_fired := 0
+var blade: ResonanceBlade  # the forward blades (lane A7), null on a mech without them
+var blade_strikes := 0
 var last_recoil := Vector3.ZERO
 var _c: Dictionary = {}
 var _colliders: Dictionary = {}  # damage key -> [CollisionShape3D]
@@ -70,6 +72,10 @@ func _ready() -> void:
 	climb = MechClimb.new()
 	climb.name = "Climb"
 	add_child(climb)
+	if ResonanceBlade.fits(def):
+		blade = ResonanceBlade.new()
+		blade.name = "Blade"
+		add_child(blade)
 	_build_skid_fx()
 	_tag_mech_layer.call_deferred()
 

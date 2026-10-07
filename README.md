@@ -16,7 +16,7 @@ The "Current state" section may be updated in place, but only to keep it true; t
 
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
-- Tests: `tools/run_tests.sh` 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
+- Tests: `tools/run_tests.sh` 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
   `python3 -m unittest discover -s tools/tests` 6 passed.
 - Check runs: `tools/bot_run.sh smoke` plays menus, every settings page, loading, the range (walk, charge
   jump, run, skid), pause, off screen on the real GPU; screenshots in `images/NNN-smoke/`.
@@ -732,3 +732,23 @@ Commit 912acf5 with R1's ground (46231f7, 51f2ea8), R2's rumble and its review f
   test_juggernaut 27/27. Full suite 509 passed, 2 failed: test_resonance_blade (task 54's unfinished blade) and
   test_ui, which was this change's first, longer label pushing Back off the bindings page; label shortened, test_ui
   8/8 after. Not checked: a live playthrough on rough terrain (no GPU run in this session).
+
+### 2026-10-07 · lane A7 · Emi, Tsubaki, Izumi (Relay 54, hey) · six new features
+- **Settings search:** a box at the top of Settings (Ctrl+F or /) lists every setting and key binding that matches
+  as you type, each one a working row under a "Section › Page" button. `scripts/ui/settings_search.gd`.
+- **Your music folder:** Settings > Audio > Music > Your music folder (mp3, ogg, wav), a "Your music folder" choice
+  per context, and it stands in for the soundtrack in copies without it (share zip readme says so).
+- **After-action card:** shots, hits, accuracy, parts shot off, your kills and longest, damage taken, grade S to D,
+  personal bests per mission (`scripts/mission/sortie_log.gd`; bot runs keep theirs in `user://bot_records.cfg`).
+- **Handler radio:** the Handler calls waves, kills, parts off, the Löwe ranging, hits, the win or loss
+  (`scripts/ui/radio.gd`, `data/radio.json`); Settings > Gameplay > HUD > Handler radio.
+- **Final-kill cam:** quarter-speed swing round the last wreck behind letterbox bars with a caption, then the end
+  card; skippable; Settings > Gameplay > Camera > Final kill cam (`scripts/camera/kill_cam.gd`).
+- **Resonance blade:** hold **X** with a Legion unit at the blade tips to tune (ring yellow, then green), release to
+  strike for up to 3x damage at 850 mm (`scripts/combat/resonance_blade.gd`, weapons.json "hf_blade").
+- **Verified:** tests test_settings_search 5/5, test_music_folder 4/4, test_after_action 6/6, test_radio 4/4,
+  test_kill_cam 4/4, test_resonance_blade 5/5; full suite 511 passed, 0 failed. Bot `a7_features`, images/607:
+  all six on screen, exit 0, 0 errors. The bot runs found five bugs, all fixed: the blade's reach query was filled
+  by ground triangles, the long blade key label widened Settings, zero "bests", bot wins written into the
+  player's records, and a kill cam anchors warning. Details: `~/Forge/sessions/juggernaut-alpha/results/A7.md`.
+- **Version 018** saved from this commit. Not checked: a long live playthrough on the bigger maps.

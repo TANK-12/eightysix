@@ -1,0 +1,163 @@
+{
+ "name": "a7_features",
+ "_about": "Lane A7: the six new features. Settings search typing 'fog' and 'jump', the music page with Your music folder, then First contact on Ashen valley: the Handler radio calling the first wave, the resonance blade tuning on an Ameise stood at the tips and the strike, the waves cleared for the final-kill cam and the end card with grade and personal bests. tools/bot_run.sh a7_features No wingmen: they shell the Ameise at the blades before the blades can tune. The bot clock runs on game time, so in the kill cam's quarter-speed slow motion 0.25 s of script is 1 real second.",
+ "steps": [
+  {
+   "at": 1.0,
+   "goto": "settings:graphics/quality"
+  },
+  {
+   "at": 1.6,
+   "call": "search",
+   "group": "settings_screen",
+   "args": [
+    "fog"
+   ]
+  },
+  {
+   "at": 2.2,
+   "shot": "settings-search-fog"
+  },
+  {
+   "at": 2.4,
+   "call": "search",
+   "group": "settings_screen",
+   "args": [
+    "jump"
+   ]
+  },
+  {
+   "at": 3.0,
+   "shot": "settings-search-jump"
+  },
+  {
+   "at": 3.2,
+   "call": "search",
+   "group": "settings_screen",
+   "args": [
+    ""
+   ]
+  },
+  {
+   "at": 3.4,
+   "goto": "settings:audio/music"
+  },
+  {
+   "at": 4.0,
+   "shot": "settings-music-folder"
+  },
+  {
+   "at": 4.2,
+   "goto": "menu"
+  },
+  {
+   "at": 4.8,
+   "setting": "gameplay.default_view",
+   "value": "third"
+  },
+  {
+   "at": 4.8,
+   "setting": "gameplay.kill_cam",
+   "value": true
+  },
+  {
+   "at": 4.8,
+   "setting": "gameplay.handler_radio",
+   "value": true
+  },
+  {
+   "at": 4.8,
+   "setting": "gameplay.squad_size",
+   "value": 0
+  },
+  {
+   "at": 5.0,
+   "goto": "map:small_map"
+  },
+  {
+   "at": 5.3,
+   "wait": "level"
+  },
+  {
+   "at": 7.0,
+   "call": "start_mission"
+  },
+  {
+   "at": 8.6,
+   "shot": "radio-first-wave"
+  },
+  {
+   "at": 9.0,
+   "call": "legion_to_blades",
+   "args": [
+    0
+   ]
+  },
+  {
+   "at": 10.0,
+   "press": "blade"
+  },
+  {
+   "at": 10.75,
+   "shot": "blade-tuning"
+  },
+  {
+   "at": 11.45,
+   "shot": "blade-tuned"
+  },
+  {
+   "at": 11.6,
+   "release": "blade"
+  },
+  {
+   "at": 11.7,
+   "shot": "blade-strike"
+  },
+  {
+   "at": 12.4,
+   "shot": "blade-after"
+  },
+  {
+   "at": 13.0,
+   "call": "report_legion",
+   "args": [
+    "after-blade"
+   ]
+  },
+  {
+   "at": 13.5,
+   "call": "clear_wave"
+  },
+  {
+   "at": 21.0,
+   "call": "clear_wave"
+  },
+  {
+   "at": 30.5,
+   "call": "clear_wave"
+  },
+  {
+   "at": 30.75,
+   "shot": "kill-cam"
+  },
+  {
+   "at": 31.1,
+   "shot": "kill-cam-late"
+  },
+  {
+   "at": 37.5,
+   "shot": "end-card"
+  },
+  {
+   "at": 37.7,
+   "call": "report_legion",
+   "args": [
+    "end"
+   ]
+  },
+  {
+   "at": 38.5,
+   "quit": true
+  }
+ ]
+}

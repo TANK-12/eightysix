@@ -60,6 +60,8 @@
     "cycle_ammo": {"label": "Next ammunition type", "group": "Combat", "context": ["field"],
       "standard": {"keys": ["key:T"], "pad": ["joy:dpad_right"]},
       "hardcore": {"keys": ["key:T"], "pad": ["joy:dpad_right"]}},
+    "blade": {"label": "Resonance blade (hold, then release)", "group": "Combat", "context": ["field"],
+      "all": {"keys": ["key:X"], "pad": []}},
 
     "grapple_fire": {"label": "Fire wire anchor / let go", "group": "Wire anchors", "context": ["field"],
       "standard": {"keys": ["key:F"], "pad": ["joy:l1"]}},

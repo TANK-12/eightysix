@@ -3,6 +3,8 @@
   "entries": {
     "fire_main": {"category": "weapons", "steps": [{"weak": 0.55, "strong": 1.0, "ms": 70}, {"weak": 0.25, "strong": 0.55, "ms": 110}, {"weak": 0.05, "strong": 0.2, "ms": 160}]},
     "fire_sub": {"category": "weapons", "steps": [{"weak": 0.35, "strong": 0.1, "ms": 35}]},
+    "blade_tuned": {"category": "weapons", "steps": [{"weak": 0.25, "strong": 0.0, "ms": 30}, {"weak": 0.0, "strong": 0.0, "ms": 40}, {"weak": 0.25, "strong": 0.0, "ms": 30}]},
+    "blade_strike": {"category": "weapons", "steps": [{"weak": 0.8, "strong": 0.9, "ms": 60}, {"weak": 0.3, "strong": 0.4, "ms": 120}]},
     "reload_done": {"category": "weapons", "steps": [{"weak": 0.3, "strong": 0.0, "ms": 40}, {"weak": 0.0, "strong": 0.0, "ms": 50}, {"weak": 0.45, "strong": 0.15, "ms": 60}]},
     "footstep": {"category": "movement", "steps": [{"weak": 0.05, "strong": 0.22, "ms": 70}]},
     "jump_charge": {"category": "movement", "loop": true, "max_s": 4, "steps": [{"weak": 0.08, "strong": 0.12, "ms": 90}, {"weak": 0.04, "strong": 0.18, "ms": 90}]},

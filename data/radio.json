@@ -1,0 +1,51 @@
+{
+  "_about": "Handler radio (lane A7): what the Handler says over the Para-RAID during a mission, shown as subtitles at the top left (Settings > Gameplay > HUD > Handler radio; size, box and speaker name from Settings > Accessibility > Subtitles). scripts/ui/radio.gd picks one line at random per event. Placeholders: {callsign} {count} {enemies} {enemy} {distance} {bearing}. An event may have priority (higher cuts the queue), cooldown_s (quiet that long after it plays) and once (only the first time per mission). Part events look up part.<damage key> first (wp_rocket_pod, wp_optic_sensor, wp_turret_ring, wp_rear_deck), then part.<kind> (leg, weapon, weak). A new line is one entry here.",
+  "speaker": "Handler One",
+  "callsign": "Undertaker",
+  "events": {
+    "wave_first": {"priority": 2, "lines": [
+      "Undertaker, Handler One. Para-RAID is up. {count} contacts ahead: {enemies}. Nearest bearing {bearing}.",
+      "Handler One to Undertaker, I have you. {enemies} out there, bearing {bearing}. Good hunting."
+    ]},
+    "wave": {"priority": 2, "lines": [
+      "More Legion inbound: {enemies}. Nearest bearing {bearing}, {distance} m.",
+      "New contacts, Undertaker. {enemies}, bearing {bearing}."
+    ]},
+    "wave_last": {"priority": 2, "lines": [
+      "That's the last of them: {enemies}. Bearing {bearing}. Finish it.",
+      "Big one inbound, Undertaker. {enemies}. Don't stand still."
+    ]},
+    "wave_cleared": {"priority": 1, "lines": [
+      "Sector clear for now. Reload while you can.",
+      "Wave down. Catch your breath, more are coming."
+    ]},
+    "kill": {"cooldown_s": 3.0, "lines": [
+      "Splash one {enemy}.",
+      "{enemy} down. Nice work.",
+      "Confirmed, that {enemy} is scrap.",
+      "Good kill, Undertaker."
+    ]},
+    "kill_long": {"priority": 1, "lines": [
+      "{enemy} down at {distance} m. That's one hell of a shot.",
+      "{distance} metres! Remind me never to be a {enemy} near you."
+    ]},
+    "part.wp_rocket_pod": {"lines": ["Rocket pod's gone. That Grauwolf can't fire rockets now."]},
+    "part.wp_optic_sensor": {"lines": ["You took its eye out. It's half blind now.", "Optic destroyed. It sees a third as far."]},
+    "part.wp_turret_ring": {"lines": ["Turret ring hit! That went straight into the hull."]},
+    "part.wp_rear_deck": {"lines": ["Rear deck hit, right through the engine."]},
+    "part.leg": {"cooldown_s": 6.0, "lines": ["Leg off. It's limping.", "That's a leg gone. It won't catch you now."]},
+    "part.weak": {"cooldown_s": 6.0, "lines": ["Knee joint hit. It's losing that leg."]},
+    "part.weapon": {"lines": ["Its weapons are out of action."]},
+    "lowe_fired": {"priority": 1, "cooldown_s": 25.0, "lines": [
+      "The Löwe is ranging you. Keep moving!",
+      "120 mm, Undertaker! Change direction, don't give it a lead."
+    ]},
+    "hit_heavy": {"cooldown_s": 15.0, "lines": ["You're hit. Check your damage.", "Heavy hit on the Juggernaut. Get to cover."]},
+    "armour_low": {"priority": 2, "once": true, "lines": ["Armour under a third, Undertaker. Break line of sight and fight from cover."]},
+    "won": {"priority": 3, "lines": [
+      "All Legion destroyed. Good work, Undertaker. Come home.",
+      "Sector clear. That's the mission. Handler One out."
+    ]},
+    "lost": {"priority": 3, "lines": ["Undertaker? Undertaker, respond! ... Juggernaut signal lost."]}
+  }
+}

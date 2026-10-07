@@ -48,12 +48,13 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 | Crouch and brace (during a charged jump: flip, about one turn with the stick fully pushed; in the air: tuck) | C | circle |
 | Fire 57 mm gun | left mouse | R2 |
 | Sub-arm guns | right mouse | R1 |
+| Resonance blade: hold to tune on a Legion unit at the blade tips, release to strike | X | (rebind in Settings > Controls) |
 | Reload / next ammo type | R / T | square / d-pad right |
 | Wire anchor fire, let go / reel in / pay out | F / G / B | L1 / d-pad up / d-pad down |
 | Third person or cockpit / free look / optics zoom | V / Alt / middle mouse | triangle / R3 / d-pad left |
 | Park: gun raised / lowered (only when you press it) | P | (rebind in Settings > Controls) |
-| Photo mode (time freezes, orbit camera, F12 saves a picture) | O | (from the pause menu) |
 | Stand back up when on its side or back (jump on the pad does it too while tipped) | U | cross (jump) |
+| Photo mode (time freezes, orbit camera, F12 saves a picture) | O | (from the pause menu) |
 | Optics zoom (1x to 10x) | mouse wheel or + / - | |
 | Handler view (squad map, click to move or attack) / orders 1-4 | Tab / 1 2 3 4 | touchpad / d-pad |
 | Map | M | create |
@@ -74,11 +75,29 @@ and **Main menu**. The objective and how many Legion are left show at the top le
 - Everything from earlier lanes still works: flips, the wire-anchor arc, sprint any way, the slide, photo mode.
 - **Your squad:** Settings > Gameplay > Squad sets how many Spearhead wingmen deploy with you (full physics
   Juggernauts with AI pilots). Tab opens the Handler view to order them.
+- **The resonance blade (new):** walk up until a Legion unit is at the tips of the two forward blades and
+  hold X. A ring fills over 1.2 s (yellow), turns green ("tuned, release") and holds for half a second;
+  release then and the blades lunge in for up to 3x damage at 850 mm penetration, enough for a Löwe's front
+  plate. Release early and it barely scratches; hold too long and the tune drifts back to half.
+- **Final-kill cam (new):** the last Legion of a mission goes down in quarter-speed slow motion with the camera
+  swinging round the wreck ("Final kill · Ameise · 451 m"). Enter or Escape skips it. Settings > Gameplay >
+  Camera > Final kill cam.
+- **Handler radio (new):** the Handler calls the waves (how many, what, which bearing), your kills and long
+  shots, the parts you shoot off and what that does, the Löwe ranging you. Top left, typed out. Settings >
+  Gameplay > HUD > Handler radio; text size under Accessibility > Subtitles.
+- **After-action card (new):** the end card grades the sortie S to D (accuracy, armour left, time, parts shot
+  off) and marks your personal bests per mission (score, time, accuracy, longest kill).
 - **Shells you can see:** Settings > Graphics > World detail > Combat effects has the shell tracer and the size of
   hits and blasts. Shells ricochet off hard ground at a shallow angle and crack past you on a near miss.
 
 ## Settings worth knowing
 
+- **Search (new):** type in the box at the top of Settings (Ctrl+F or / jumps there) and the page becomes the
+  list of every setting and key binding that matches, each one working right there; "fog", "jump", "music",
+  "squad". Click a "Section › Page" heading to open that page. Escape clears the box.
+- **Your music folder (new):** Settings > Audio > Music > Your music folder picks a folder of your own mp3, ogg or
+  wav files; set Main menu, Exploring or In combat to "Your music folder" to shuffle it. A copy of the game
+  without the 86 soundtrack (the share zips) plays this folder instead.
 - Settings > Gameplay > "Damage you take" scales Legion damage (0.25-2x) if the fights are too hard or too easy.
 - Settings > Audio has the sound and music pages: a pick and a level for every sound, and the soundtrack in order.
 - Settings > Gameplay > Juggernaut: finish (field worn by default), emblem, dirt building up over a sortie, and
