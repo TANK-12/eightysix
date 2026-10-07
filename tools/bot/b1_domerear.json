@@ -1,0 +1,99 @@
+{
+  "name": "b1_domerear",
+  "_about": "Lane B1 part 6: the Juggernaut's canopy dome rear (rolled rim, slatted flank grille, finned rear vents) in the Hangar. Hangar yaw 0 looks at the rear, 180 at the front. tools/bot_run.sh b1_domerear --preset=high",
+  "steps": [
+    {
+      "at": 3.5,
+      "goto": "hangar"
+    },
+    {
+      "at": 6.5,
+      "call": "set_panels_hidden",
+      "args": [
+        true
+      ]
+    },
+    {
+      "at": 6.6,
+      "call": "view",
+      "args": [
+        330.0,
+        -6.0,
+        4.6
+      ]
+    },
+    {
+      "at": 8.0,
+      "shot": "rear-quarter-a"
+    },
+    {
+      "at": 8.1,
+      "call": "view",
+      "args": [
+        30.0,
+        -6.0,
+        4.6
+      ]
+    },
+    {
+      "at": 9.5,
+      "shot": "rear-quarter-b"
+    },
+    {
+      "at": 9.6,
+      "call": "view",
+      "args": [
+        300.0,
+        -12.0,
+        4.2
+      ]
+    },
+    {
+      "at": 11.0,
+      "shot": "flank-rear-a"
+    },
+    {
+      "at": 11.1,
+      "call": "view",
+      "args": [
+        60.0,
+        -12.0,
+        4.2
+      ]
+    },
+    {
+      "at": 12.5,
+      "shot": "flank-rear-b"
+    },
+    {
+      "at": 12.6,
+      "call": "view",
+      "args": [
+        0.0,
+        -2.0,
+        5.0
+      ]
+    },
+    {
+      "at": 14.0,
+      "shot": "rear-low"
+    },
+    {
+      "at": 14.1,
+      "call": "view",
+      "args": [
+        150.0,
+        -14.0,
+        5.0
+      ]
+    },
+    {
+      "at": 15.5,
+      "shot": "front-quarter"
+    },
+    {
+      "at": 16.0,
+      "quit": true
+    }
+  ]
+}
