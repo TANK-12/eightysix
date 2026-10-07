@@ -1,7 +1,7 @@
 {
-  "_about": "The Hangar (scripts/ui/hangar_stage.gd): the room the Juggernaut is shown in, on the Hangar screen and behind the main menu. \"entries\" are light presets, one each: pick one in the Hangar (Q / E or the buttons) or in Settings > Gameplay > Menus and theme. A preset has \"background\" (the colour behind the room, only seen through the door gap), \"ambient\" {color, energy}, \"exposure\", optional \"fog\" {color, density}, optional \"grade\" (shadow_shift / highlight_shift, see weather.json) and \"lights\": each {kind: spot | omni | sun, at: [x, y, z] metres with the mech standing at the origin and facing -z, look: [x, y, z] (spot and sun), color, energy, range (spot and omni), angle (spot, degrees), shadow: true | false, lamp: true draws a glowing fixture at that position}. Keep shadows to one or two lights per preset: the Iris Xe pays for each. \"stage\" holds the room and the cameras (metres, degrees); \"slots\" name the loadout slots on the Hangar screen; \"groups\" sort parts by kind in the parts list; \"menu\" is the slow sway behind the main menu (the Juggernaut stands to the right of the buttons; shift_x is how far, as a share of the picture width).",
+  "_about": "The Hangar (scripts/ui/hangar_stage.gd): the room the Juggernaut is shown in, on the Hangar screen and behind the main menu. \"entries\" are light presets, one each: pick one in the Hangar (Q / E or the buttons) or in Settings > Gameplay > Menus and theme. A preset has \"background\" (the colour behind the room, only seen through the door gap), \"ambient\" {color, energy}, \"exposure\", optional \"fog\" {color, density}, optional \"grade\" (shadow_shift / highlight_shift, see weather.json) and \"lights\": each {kind: spot | omni | sun, at: [x, y, z] metres with the mech standing at the origin and facing -z, look: [x, y, z] (spot and sun), color, energy, range (spot and omni), angle (spot, degrees), shadow: true | false, lamp: true draws a glowing fixture at that position}. Keep shadows to one or two lights per preset: the Iris Xe pays for each. \"stage\" holds the room and the cameras (metres, degrees); \"slots\" name the loadout slots on the Hangar screen; \"groups\" sort parts by kind in the parts list; \"menu\" is the slow sway behind the main menu (the Juggernaut stands to the right of the buttons; shift_x is how far, as a share of the picture width). Alpha 0.1.1: optional \"volumetric\" {density, albedo, anisotropy, length_m} hangs a haze in the air so spot cones show as beams (only with Settings > Graphics > Volumetric fog on); stage.room.floor_roughness sets the floor sheen (screen-space reflections follow the graphics preset).",
   "stage": {
-    "room": {"width_m": 40.0, "length_m": 52.0, "height_m": 15.0},
+    "room": {"width_m": 40.0, "length_m": 52.0, "height_m": 15.0, "floor_roughness": 0.38},
     "orbit": {
       "min_distance_m": 3.5,
       "max_distance_m": 24.0,
@@ -31,12 +31,7 @@
     "shift_x": 0.2,
     "fov_deg": 42.0
   },
-  "slots": {
-    "main_gun": "Main gun",
-    "sub_left": "Left sub-arm",
-    "sub_right": "Right sub-arm",
-    "sub_guns": "Sub-arm guns"
-  },
+  "slots": {"main_gun": "Main gun", "sub_left": "Left sub-arm", "sub_right": "Right sub-arm", "sub_guns": "Sub-arm guns"},
   "groups": {
     "body": {"label": "Body and cockpit", "order": 1, "kinds": ["chassis", "armour", "cockpit", "sensor", "other"]},
     "legs": {"label": "Legs", "order": 2, "kinds": ["leg_upper", "leg_lower", "foot", "joint"]},
@@ -48,17 +43,30 @@
     "showroom": {
       "label": "Showroom",
       "order": 10,
-      "description": "A warm key from above and in front, a cold rim from behind: the film look.",
+      "description": "A warm key from above and in front, a cold rim from behind, work lamps pooling on a sealed floor and a light haze in the air: the film look.",
       "background": "#05060a",
-      "ambient": {"color": "#2a3140", "energy": 0.9},
-      "exposure": 1.0,
+      "ambient": {"color": "#2c3442", "energy": 0.7},
+      "exposure": 1.45,
       "grade": {"shadow_shift": [-0.01, 0.0, 0.025], "highlight_shift": [0.02, 0.008, -0.012], "strength": 1.0},
       "lights": [
-        {"kind": "spot", "at": [-7.0, 12.0, -10.0], "look": [0.0, 1.8, 0.0], "color": "#ffe6c4", "energy": 15.37, "range": 40.0, "angle": 34.0, "shadow": true},
-        {"kind": "spot", "at": [9.0, 8.0, 12.0], "look": [0.0, 2.0, 0.0], "color": "#8fb4ff", "energy": 7.71, "range": 40.0, "angle": 38.0, "shadow": true},
+        {"kind": "spot", "at": [-7.0, 12.0, -10.0], "look": [0.0, 1.8, 0.0], "color": "#ffe6c4", "energy": 24.0, "range": 40.0, "angle": 34.0, "shadow": true},
+        {"kind": "spot", "at": [9.0, 8.0, 12.0], "look": [0.0, 2.0, 0.0], "color": "#a8c2ff", "energy": 12.0, "range": 40.0, "angle": 38.0, "shadow": true},
         {"kind": "spot", "at": [10.0, 5.0, -9.0], "look": [0.0, 1.5, 0.0], "color": "#ffd9a8", "energy": 2.66, "range": 40.0, "angle": 45.0, "shadow": false},
-        {"kind": "omni", "at": [0.0, 6.0, 0.0], "color": "#a8b4c8", "energy": 0.38, "range": 20.0, "shadow": false}
-      ]
+        {"kind": "spot", "at": [7.0, 4.5, 11.0], "look": [0.0, 1.6, 0.0], "color": "#ffe4c4", "energy": 7.0, "range": 30.0, "angle": 42.0, "shadow": false},
+        {"kind": "omni", "at": [0.0, 6.0, 0.0], "color": "#a8b4c8", "energy": 0.38, "range": 20.0, "shadow": false},
+        {"kind": "spot", "at": [-10, 13.6, -9], "look": [-10, 0.0, -9], "color": "#fff0d8", "energy": 5.0, "range": 22.0, "angle": 32.0, "shadow": false, "lamp": true},
+        {"kind": "spot", "at": [10, 13.6, -9], "look": [10, 0.0, -9], "color": "#fff0d8", "energy": 5.0, "range": 22.0, "angle": 32.0, "shadow": false, "lamp": true},
+        {"kind": "spot", "at": [-10, 13.6, 9], "look": [-10, 0.0, 9], "color": "#fff0d8", "energy": 5.0, "range": 22.0, "angle": 32.0, "shadow": false, "lamp": true},
+        {"kind": "spot", "at": [10, 13.6, 9], "look": [10, 0.0, 9], "color": "#fff0d8", "energy": 5.0, "range": 22.0, "angle": 32.0, "shadow": false, "lamp": true},
+        {"kind": "spot", "at": [-12, 0.4, -24.5], "look": [-12, 11, -26], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [12, 0.4, -24.5], "look": [12, 11, -26], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [0, 0.4, -24.5], "look": [0, 11, -26], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [-19, 0.4, -12], "look": [-20, 11, -12], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [19, 0.4, -12], "look": [20, 11, -12], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [-19, 0.4, 10], "look": [-20, 11, 10], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false},
+        {"kind": "spot", "at": [19, 0.4, 10], "look": [20, 11, 10], "color": "#ffd2a0", "energy": 3.2, "range": 16.0, "angle": 40.0, "shadow": false}
+      ],
+      "volumetric": {"density": 0.0035, "albedo": "#c9ced8", "anisotropy": 0.55}
     },
     "work_lights": {
       "label": "Work lights",
@@ -87,7 +95,8 @@
         {"kind": "spot", "at": [-12.0, 9.0, 4.0], "look": [0.0, 1.8, 0.0], "color": "#d6e6ff", "energy": 17.11, "range": 45.0, "angle": 26.0, "shadow": true, "lamp": true},
         {"kind": "spot", "at": [12.0, 9.0, -5.0], "look": [0.0, 1.8, 0.0], "color": "#d6e6ff", "energy": 17.11, "range": 45.0, "angle": 26.0, "shadow": true, "lamp": true},
         {"kind": "omni", "at": [0.0, 12.0, 0.0], "color": "#ff3b2a", "energy": 0.08, "range": 25.0, "shadow": false}
-      ]
+      ],
+      "volumetric": {"density": 0.007, "albedo": "#b9c4d6", "anisotropy": 0.6}
     },
     "dawn_door": {
       "label": "Dawn at the door",
@@ -102,7 +111,8 @@
         {"kind": "sun", "look": [0.5, -0.22, -1.0], "at": [0.0, 0.0, 0.0], "color": "#ffb070", "energy": 3.0, "shadow": true},
         {"kind": "spot", "at": [-8.0, 6.0, -12.0], "look": [0.0, 1.8, 0.0], "color": "#ffc89a", "energy": 9.0, "range": 40.0, "angle": 40.0, "shadow": false},
         {"kind": "omni", "at": [0.0, 7.0, -4.0], "color": "#9ab0d0", "energy": 0.22, "range": 20.0, "shadow": false}
-      ]
+      ],
+      "volumetric": {"density": 0.005, "albedo": "#e6d2bc", "anisotropy": 0.7}
     },
     "emergency": {
       "label": "Emergency amber",

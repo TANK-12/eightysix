@@ -1,0 +1,56 @@
+{
+ "name": "a011_skycost",
+ "_about": "Alpha 0.1.1: sky cost on a sky-heavy view (Palouse 'hills', a third of the frame is sky). Two 6 s measures. tools/bot_run.sh a011_skycost --preset=high",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "gameplay.squad_size",
+   "value": 0.0
+  },
+  {
+   "at": 0.0,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.2,
+   "goto": "map:palouse"
+  },
+  {
+   "at": 0.4,
+   "wait": "level"
+  },
+  {
+   "at": 0.5,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 1.0,
+   "call": "look_from",
+   "args": [
+    "hills"
+   ]
+  },
+  {
+   "at": 5.0,
+   "shot": "hills"
+  },
+  {
+   "at": 5.5,
+   "measure": 6.0,
+   "label": "hills-a"
+  },
+  {
+   "at": 12.0,
+   "measure": 6.0,
+   "label": "hills-b"
+  },
+  {
+   "at": 18.5,
+   "quit": true
+  }
+ ]
+}

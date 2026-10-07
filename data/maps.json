@@ -93,7 +93,7 @@
         "kit": {
           "brick": {"base_tint": [1.0, 0.9, 0.82], "coat_a": [0.9, 0.82, 0.62], "coat_b": [0.78, 0.8, 0.68], "coat_c": [0.86, 0.66, 0.5], "coat_d": [0.78, 0.8, 0.82], "dado_col": [0.24, 0.3, 0.28]},
           "foliage": {"colour_a": [0.2, 0.22, 0.09], "colour_b": [0.5, 0.5, 0.22]},
-          "grass": {"colour_a": [0.22, 0.22, 0.1], "colour_b": [0.62, 0.55, 0.3]},
+          "grass": {"colour_a": [0.3, 0.26, 0.12], "colour_b": [0.8, 0.7, 0.44]},
           "concrete": {"base_tint": [0.74, 0.72, 0.68], "coat_a": [0.8, 0.74, 0.62], "coat_b": [0.66, 0.7, 0.64], "coat_c": [0.74, 0.58, 0.46], "coat_d": [0.74, 0.75, 0.76]}
         }
       },
@@ -164,7 +164,7 @@
         [80, -402, 15.0], [-152, -382, 12.0], [382, 392, 16.0], [404, 214, 12.0], [392, -24, 14.0], [-182, 404, 10.0],
         [-262, -330, 13.0], [330, -330, 17.0]
       ],
-      "scatter": {"boulders": 240, "debris": 90, "pebbles_per_chunk": 10, "shrubs_per_chunk": 70, "grass_per_chunk": 1400},
+      "scatter": {"boulders": 240, "debris": 90, "pebbles_per_chunk": 10, "shrubs_per_chunk": 70, "grass_per_chunk": 2400},
       "mist": [
         {"at": [214, -200], "size_m": [70, 10, 260]},
         {"at": [200, 60], "size_m": [70, 10, 220]},
@@ -233,7 +233,7 @@
       "kit": {
        "brick": {"base_tint": [0.86, 0.82, 0.82], "coat_a": [0.8, 0.78, 0.7], "coat_b": [0.64, 0.72, 0.68], "coat_c": [0.74, 0.64, 0.56], "coat_d": [0.66, 0.72, 0.78], "dado_col": [0.18, 0.22, 0.22]},
        "foliage": {"colour_a": [0.11, 0.16, 0.09], "colour_b": [0.3, 0.38, 0.2]},
-       "grass": {"colour_a": [0.15, 0.2, 0.1], "colour_b": [0.45, 0.5, 0.28]},
+       "grass": {"colour_a": [0.17, 0.22, 0.1], "colour_b": [0.55, 0.58, 0.3]},
        "concrete": {"base_tint": [0.62, 0.64, 0.66], "coat_a": [0.66, 0.66, 0.6], "coat_b": [0.5, 0.56, 0.54], "coat_c": [0.6, 0.55, 0.5], "coat_d": [0.58, 0.62, 0.68]}
       }
      },
@@ -802,7 +802,7 @@
      ],
      "scatter": {
       "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
-      "grass_per_tile": 5200,
+      "grass_per_tile": 8000,
       "shrub_per_tile": 300,
       "pebbles_per_tile": 48,
       "boulders_per_tile": 4,
@@ -924,14 +924,14 @@
        },
        "grass": {
         "colour_a": [
-         0.15,
-         0.2,
-         0.1
+         0.34,
+         0.28,
+         0.13
         ],
         "colour_b": [
-         0.45,
-         0.5,
-         0.28
+         0.84,
+         0.72,
+         0.46
         ]
        },
        "concrete": {
@@ -1065,7 +1065,7 @@
      ],
      "scatter": {
       "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
-      "grass_per_tile": 7000,
+      "grass_per_tile": 11000,
       "shrub_per_tile": 120,
       "pebbles_per_tile": 30,
       "boulders_per_tile": 1,
@@ -1185,14 +1185,14 @@
        },
        "grass": {
         "colour_a": [
-         0.15,
-         0.2,
-         0.1
+         0.14,
+         0.21,
+         0.09
         ],
         "colour_b": [
-         0.45,
-         0.5,
-         0.28
+         0.46,
+         0.56,
+         0.26
         ]
        },
        "concrete": {
@@ -1326,7 +1326,7 @@
      ],
      "scatter": {
       "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
-      "grass_per_tile": 3500,
+      "grass_per_tile": 5000,
       "shrub_per_tile": 160,
       "pebbles_per_tile": 30,
       "boulders_per_tile": 1,
@@ -1530,13 +1530,13 @@
        },
        "grass": {
         "colour_a": [
-         0.15,
-         0.2,
+         0.16,
+         0.24,
          0.1
         ],
         "colour_b": [
-         0.45,
          0.5,
+         0.6,
          0.28
         ]
        },
@@ -1671,7 +1671,7 @@
      ],
      "scatter": {
       "_about": "Per 128 m tile (lane B5, BigScatter): grass, shrubs and pebbles as MultiMeshes, boulders as solid bodies. seed shifts every tile's pattern.",
-      "grass_per_tile": 4000,
+      "grass_per_tile": 6000,
       "shrub_per_tile": 60,
       "pebbles_per_tile": 40,
       "boulders_per_tile": 0,

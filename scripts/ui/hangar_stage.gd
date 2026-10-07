@@ -55,6 +55,10 @@ func _ready() -> void:
 	_env.glow_enabled = Settings.get_b("graphics.glow")
 	_env.glow_intensity = 0.5
 	_env.glow_hdr_threshold = 1.6
+	# alpha 0.1.1: the floor's sheen shows the mech in reflection where the preset has screen-space reflections
+	_env.ssr_enabled = Settings.get_b("graphics.ssr")
+	_env.ssr_max_steps = 48
+	_env.ssr_fade_in = 0.2
 	_env_node = WorldEnvironment.new()
 	_env_node.environment = _env
 	add_child(_env_node)
@@ -367,6 +371,16 @@ func set_light(id: String) -> String:
 	if _env.fog_enabled:
 		_env.fog_light_color = Color(str(fog.get("color", "#101820")))
 		_env.fog_density = float(fog.get("density", 0.01))
+	# alpha 0.1.1: a light haze in the air so the spot cones show as beams ("volumetric": {density, albedo,
+	# anisotropy}); only where Settings > Graphics has volumetric fog on
+	var haze: Dictionary = def.get("volumetric", {})
+	_env.volumetric_fog_enabled = not haze.is_empty() and Settings.get_b("graphics.volumetric_fog")
+	if _env.volumetric_fog_enabled:
+		_env.volumetric_fog_density = float(haze.get("density", 0.01))
+		_env.volumetric_fog_albedo = Color(str(haze.get("albedo", "#ffffff")))
+		_env.volumetric_fog_anisotropy = float(haze.get("anisotropy", 0.6))
+		_env.volumetric_fog_length = float(haze.get("length_m", 48.0))
+		_env.volumetric_fog_ambient_inject = 0.0
 	var grade: Dictionary = def.get("grade", {})
 	if grade.is_empty():
 		_env.adjustment_enabled = false
@@ -449,7 +463,7 @@ func _build_room() -> void:
 	_room = Node3D.new()
 	_room.name = "Room"
 	add_child(_room)
-	var floor_mat := _concrete(Color(0.55, 0.56, 0.58), 0.62, Vector3(w, l, 1.0) / 6.0)
+	var floor_mat := _concrete(Color(0.55, 0.56, 0.58), float(room_cfg.get("floor_roughness", 0.62)), Vector3(w, l, 1.0) / 6.0)
 	var wall_mat := _concrete(Color(0.34, 0.36, 0.39), 0.85, Vector3(l, h, 1.0) / 6.0)
 	var steel := StandardMaterial3D.new()
 	steel.albedo_color = Color(0.2, 0.21, 0.23)

@@ -88,6 +88,7 @@ func apply(id: String) -> void:
 	# LOOK3: a weather made for one map ("fog_unscaled") already has that map's fog, so fog_scale is left out
 	var k := 1.0 if bool(w.get("fog_unscaled", false)) else fog_scale
 	sky_mat.set_shader_parameter("cloud_scale", float(w.get("cloud_scale", 1.0)))
+	sky_mat.set_shader_parameter("sky_saturation", float(w.get("sky_saturation", 1.3)))
 	env.fog_light_color = _c(w, "fog_colour")
 	env.fog_density = float(w.get("fog_density", 0.001)) * k
 	env.volumetric_fog_density = float(w.get("volumetric_density", 0.01)) * k

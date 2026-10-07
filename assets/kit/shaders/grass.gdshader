@@ -21,7 +21,8 @@ void vertex() {
 
 void fragment() {
 	vec3 c = mix(colour_a, colour_b, clamp(tone * 0.7 + tip * 0.45, 0.0, 1.0));
-	ALBEDO = c * mix(0.45, 1.0, tip);
+	// alpha 0.1.1: roots only a little darker (0.45 read as black sticks against the sunlit ground)
+	ALBEDO = c * mix(0.62, 1.0, tip);
 	ROUGHNESS = 0.9;
 	BACKLIGHT = c * 0.35;
 }

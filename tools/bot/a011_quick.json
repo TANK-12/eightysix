@@ -1,0 +1,91 @@
+{
+ "name": "a011_quick",
+ "_about": "Alpha 0.1.1 look iteration: four outdoor views on two maps (Palouse start and hills, small map chase and town). Shots only. tools/bot_run.sh a011_quick --preset=high",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "gameplay.squad_size",
+   "value": 0.0
+  },
+  {
+   "at": 0.0,
+   "setting": "gameplay.move_hints",
+   "value": false
+  },
+  {
+   "at": 0.2,
+   "goto": "map:palouse"
+  },
+  {
+   "at": 0.4,
+   "wait": "level"
+  },
+  {
+   "at": 0.5,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 3.5,
+   "shot": "palouse-chase"
+  },
+  {
+   "at": 3.7,
+   "call": "look_from",
+   "args": [
+    "start"
+   ]
+  },
+  {
+   "at": 5.7,
+   "shot": "palouse-start"
+  },
+  {
+   "at": 5.9,
+   "call": "look_from",
+   "args": [
+    "hills"
+   ]
+  },
+  {
+   "at": 7.9,
+   "shot": "palouse-hills"
+  },
+  {
+   "at": 8.2,
+   "goto": "map:small_map"
+  },
+  {
+   "at": 8.4,
+   "wait": "level"
+  },
+  {
+   "at": 8.5,
+   "call": "show_hud",
+   "args": [
+    false
+   ]
+  },
+  {
+   "at": 11.5,
+   "shot": "small-chase"
+  },
+  {
+   "at": 11.7,
+   "call": "look_from",
+   "args": [
+    "town"
+   ]
+  },
+  {
+   "at": 13.7,
+   "shot": "small-town"
+  },
+  {
+   "at": 14.2,
+   "quit": true
+  }
+ ]
+}

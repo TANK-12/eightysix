@@ -46,7 +46,7 @@
     },
     "grass": {
       "label": "Grass clump", "kind": "plant", "builder": "grass", "material": "grass",
-      "size_m": [0.35, 0.8], "blades": 12, "collision": "none", "order": 21
+      "size_m": [0.35, 0.85], "blades": 18, "spread_m": 0.26, "blade_width_m": [0.022, 0.04], "collision": "none", "order": 21
     },
     "round_57mm": {
       "label": "57 mm round", "kind": "ammo", "builder": "lathe", "segments": 18,

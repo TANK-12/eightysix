@@ -1,0 +1,157 @@
+{
+ "name": "a011_hangar",
+ "_about": "Alpha 0.1.1: the Hangar and the menu showcase under each light preset (showroom views front, legs, hull, rear; then work lights, floodlit night, dawn door from the front). tools/bot_run.sh a011_hangar --preset=high",
+ "steps": [
+  {
+   "at": 3.5,
+   "shot": "menu-showcase"
+  },
+  {
+   "at": 4.0,
+   "goto": "hangar"
+  },
+  {
+   "at": 7.0,
+   "call": "set_panels_hidden",
+   "args": [
+    true
+   ]
+  },
+  {
+   "at": 7.05,
+   "call": "preview_light",
+   "args": [
+    "showroom"
+   ]
+  },
+  {
+   "at": 7.1,
+   "call": "view",
+   "args": [
+    35.0,
+    -8.0,
+    8.0
+   ]
+  },
+  {
+   "at": 8.5,
+   "shot": "showroom-front"
+  },
+  {
+   "at": 8.7,
+   "call": "view",
+   "args": [
+    20.0,
+    4.0,
+    4.5
+   ]
+  },
+  {
+   "at": 10.1,
+   "shot": "showroom-legs-close"
+  },
+  {
+   "at": 10.299999999999999,
+   "call": "view",
+   "args": [
+    70.0,
+    -20.0,
+    4.0
+   ]
+  },
+  {
+   "at": 11.7,
+   "shot": "showroom-hull-close"
+  },
+  {
+   "at": 11.899999999999999,
+   "call": "view",
+   "args": [
+    210.0,
+    -12.0,
+    8.0
+   ]
+  },
+  {
+   "at": 13.299999999999999,
+   "shot": "showroom-rear"
+  },
+  {
+   "at": 13.499999999999998,
+   "call": "view",
+   "args": [
+    150.0,
+    -10.0,
+    14.0
+   ]
+  },
+  {
+   "at": 14.899999999999999,
+   "shot": "showroom-wide"
+  },
+  {
+   "at": 15.099999999999998,
+   "call": "preview_light",
+   "args": [
+    "work_lights"
+   ]
+  },
+  {
+   "at": 15.149999999999999,
+   "call": "view",
+   "args": [
+    35.0,
+    -8.0,
+    8.0
+   ]
+  },
+  {
+   "at": 16.599999999999998,
+   "shot": "work_lights-front"
+  },
+  {
+   "at": 16.799999999999997,
+   "call": "preview_light",
+   "args": [
+    "floodlit_night"
+   ]
+  },
+  {
+   "at": 16.849999999999998,
+   "call": "view",
+   "args": [
+    35.0,
+    -8.0,
+    8.0
+   ]
+  },
+  {
+   "at": 18.299999999999997,
+   "shot": "floodlit_night-front"
+  },
+  {
+   "at": 18.499999999999996,
+   "call": "preview_light",
+   "args": [
+    "dawn_door"
+   ]
+  },
+  {
+   "at": 18.549999999999997,
+   "call": "view",
+   "args": [
+    35.0,
+    -8.0,
+    8.0
+   ]
+  },
+  {
+   "at": 19.999999999999996,
+   "shot": "dawn_door-front"
+  },
+  {
+   "at": 20.499999999999996,
+   "quit": true
+  }
+ ]
+}

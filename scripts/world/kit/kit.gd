@@ -353,9 +353,9 @@ static func _grass(parts: Parts, e: Dictionary, rng: RandomNumberGenerator) -> v
 	var st := parts.surface(str(e.get("material", "grass")))
 	for b in int(e.get("blades", 9)):
 		var ang := rng.randf() * TAU
-		var root := Vector3(cos(ang), 0.0, sin(ang)) * rng.randf_range(0.0, 0.18)
+		var root := Vector3(cos(ang), 0.0, sin(ang)) * rng.randf_range(0.0, float(e.get("spread_m", 0.18)))
 		var lean := Vector3(cos(ang + rng.randf_range(-0.6, 0.6)), 0.0, sin(ang + rng.randf_range(-0.6, 0.6)))
-		var side := Vector3(-sin(ang), 0.0, cos(ang)) * rng.randf_range(0.018, 0.03)
+		var side := Vector3(-sin(ang), 0.0, cos(ang)) * _range(e, "blade_width_m", rng, 0.024)
 		var bh := h * rng.randf_range(0.6, 1.15)
 		var tone := rng.randf()
 		# lane LOOK: two segments that bend over toward the tip (a quad and a triangle) instead of one straight spike
