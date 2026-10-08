@@ -1,5 +1,5 @@
 ; Engine configuration file.
-; Eighty Six 0.1 alpha. Registries live in data/*.json; see README.md.
+; Eighty Six 0.1 alpha. Registries live in data/*.json; see DEVLOG.md.
 
 config_version=5
 
