@@ -11,16 +11,24 @@ rewrite or delete earlier text. Each session adds a dated entry to the log at th
 changed and what is done, and marks every claim **verified** (with the check that was run) or **reasoned** (not run).
 The "Current state" section may be updated in place, but only to keep it true; the history stays in the log.
 
-## Start here (2026-10-07)
-Three dated docs in `~/Forge/docs/library/eightysix/`, written for a reader with no history:
+## Start here (2026-10-08)
+Five dated docs in `~/Forge/docs/library/eightysix/`, written for a reader with no history:
 - `2026-10-07-guide.md`: how to run, play, build and test it, where everything lives, the tools and skills.
 - `2026-10-07-handoff.md`: every system rated honestly (bare bones / working / almost polished), what is verified
   and what is only reasoned, every known bug, what waits on Emerson.
 - `2026-10-07-roadmap-to-beta.md`: the milestones from 0.1 to beta, in order of impact, with a rough size each.
+- `2026-10-08-spec-and-roadmap-to-complete.md` (Relay 97): the whole game at 1.0: the story M0 to M12 and its
+  tones, every feature with its gap and priority, phases 0.1.2 to 1.0, decisions D1 to D13. Research only.
+- `2026-10-08-aaa-plan-and-engine-portability.md` (Relay 101), its companion: what of the work carries over to
+  Unity or Unreal (measured), a bake-off before any switch, engine-neutral rules, the story deeper, the tone as a
+  sensory grammar, AAA features and measurable polish targets, the order of work, decisions D14 to D20.
 
 ## Current state
 (Kept true by each session; the log below has the history.)
 
+- **Plans, research only (2026-10-08):** the spec to 1.0 (Relay 97) and its companion, the AAA plan and engine
+  portability (Relay 101), both in Start here. The game stays in Godot until a bake-off on the new PC (D14's default in
+  the companion, not yet Emerson's decision); until then new work favours engine-neutral pieces (its step N1).
 - Lane A1 (foundation) **done** 2026-09-30 (part 2). Lane A2 (locomotion) **done** 2026-09-30 (parts 1-4). Lane A3
   (combat, grapple, climbing, damage) part 1 **done** 2026-09-30: see `~/Forge/sessions/juggernaut-alpha/results/A3.md`.
 - Tests: `tools/run_tests.sh` 528 passed, 1 failed (2026-10-08, Relay 95 music; the failure is test_righting's steep-slope second try, in Relay 62's then-uncommitted stand-up work). Before: 515 passed, 0 failed (2026-10-07, Relay 56 smoke cost). Before: 511 passed, 0 failed (2026-10-07, lane A7, version 018). Before: 479 passed, 0 failed (2026-10-07, lane A6, alpha 0.1, version 017). Before: 396 passed, 0 failed (2026-10-03, version 014). Before: 265 passed, 0 failed (2026-10-02, end of A4 part 5 (Kaede, relay-16); a few minutes earlier 259 passed, 1 failed: `test_scripts` on another session's unfinished `big_map.gd`). Before: 229 passed, 0 failed (2026-10-02, A4 part 4 (Tetsu/Ren, ejb-3e), with B5's big map tests in the tree). Before: 205 passed, 0 failed (2026-10-01, end of A4 part 3 (Ami/Tetsu, ejb-a4)). Before: 194 passed, 0 failed (A4 part 3, the two flaky AI tests fixed, see the log). Before: 191 passed, 1 failed (2026-10-01, A4 part 2 (Kenji): the 1 was a Löwe first-round test made honest by ranging, rewritten after and passing 3 of 3 alone; full rerun left for the version save). Before: 190 passed, 1 failed (2026-10-01, end of B4 sound part 2 (Noa); the 1 is test_ai, A4 part 2 in progress). Before: `tools/run_tests.sh` 170 passed, 5 failed (2026-10-01, end of lane B4 part 2: the 5 are the audio session's uncommitted work (3), A4's Legion (1) and an order-dependent `test_grapple` ledge climb that passes alone; `tools/tests` 16 passed). End of lane B4 part 1: 149 passed, 0 failed. `python3 -m unittest discover -s tools/audio` 6 passed. After photo mode: 148 passed. After A3 part 5: 145 passed, 0 failed. After A3 part 4: 135 passed, 0 failed. Earlier: 120 passed, 0 failed (2026-09-30, after A3 part 3). Earlier: 79 passed, 0 failed (headless, `--fixed-fps 120`); tool tests
@@ -814,3 +822,20 @@ and a first (c). This session:
   Music page with the credits row on screen (`images/643-friend_copy_music/`); the pck holds no assets/audio/86 file.
   Full suite 528 passed, 1 failed (test_righting, not music: see Current state). Not checked: a real Windows or macOS machine, and listening to the tracks
   (picked by title and genre; swap any by editing its music.json entry and file).
+
+### 2026-10-08 · Relay 101 · Umi, Mei, Kenji (default, max): AAA plan and engine portability (docs only)
+Research and planning; no game file changed. `~/Forge/docs/library/eightysix/2026-10-08-aaa-plan-and-engine-portability.md`,
+the companion to Relay 97's spec. Measured what carries over to another engine: about three GDScript code lines in four call
+no Godot function (15 % name a Godot class or idiom, 18 to 26 % counting calls on engine objects); the Blender sources, glb
+models with their JSON sidecars, textures, sounds, bot timelines and the map and image Python tools (not the build tools)
+are engine-neutral, and the maps and 27 data files need a one-time conversion (339 Godot paths become asset IDs); the feel
+(tuned on Jolt at 120 Hz) and the look are what a port rebuilds. Port estimates: Unity 28 to 44 sessions, Unreal 32 to 52,
+only to get back to today's game. Advice: no switch on a hunch; a 7 to 9 session bake-off on the new PC (Godot measured
+there first, then the Brilon slice in Unreal 5.8) with five pass-or-fail gates fixed in advance; Unity not recommended.
+Also: engine-neutral rules (step N1), arcs, setups and payoffs, M0 to M2 minute by minute, the night talks in canon order,
+the base room by room, the tone as a sensory grammar, 16 AAA features, 32 polish targets with checks, decisions D14 to D20
+(D16: the Para-RAID ignores distance in canon, so the spec's radio static does not fit).
+**Verified:** section 2's counts (re-run 2026-10-08), the repo facts the critics named (re-checked with grep and
+scripts), the canon quotes (the 86 wiki's API). **Reasoned:** every estimate, the engine advice, sections 9 to 15.
+**Not checked:** Unity and Unreal (nothing installed or run), the new PC, playing the game. Critics: three rounds of Opus
+critic agents made 34 findings; 33 fixed, one correct as written; all listed in the doc's section 17.
