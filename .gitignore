@@ -11,3 +11,34 @@ assets/models/**/*.jpg
 __pycache__/
 # Emerson's 86 music: personal use only, never in the repo or a share zip
 assets/audio/86/*.mp3
+
+# node tooling
+node_modules/
+
+# secrets: keep them in these files, never committed
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# python
+*.pyc
+.venv/
+.pytest_cache/
+.pyright/
+
+# Godot editor and export leftovers
+.godot/
+.nomedia
+export_credentials.cfg
+*.translation
+*.zip
+
+# editor / OS junk
+*.swp
+*~
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
