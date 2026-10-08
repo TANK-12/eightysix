@@ -89,13 +89,21 @@
       "damping": 2.2
     },
     "righting": {
-      "_about": "Emerson 2026-10-07: the stand-up control (action right_mech, U; jump also does it while tipped). Works when the chassis leans past tip_deg and moves slower than max_speed_m_s; lifts at lift_m_s while still past 35 deg, rolls level at up to rate_deg_s, ends within done_deg of level or after max_s.",
+      "_about": "Emerson 2026-10-07: the stand-up control (action right_mech, U; jump also does it while tipped), done by the legs since the evening of 2026-10-07 (no velocities set). swing_max_deg is measured: at 120-150 the hips could not get a foot far enough under the body and it rolled over its back and stalled like a beetle; at 165 (the legs reach almost straight up over the back, as a spider's do) it stands in 1.2-1.7 s. Works when the chassis leans past tip_deg and moves slower than max_speed_m_s. Each leg plants on ground within its reach, inside swing_max_deg of its belly (at most inward_deg across under the chassis; it probes the most downward way and probe_tilt_deg and twice that either way along the roll), and, its hip motor holding the leg as a lever, the ground pushes that foot the way that turns the body most inside the foot's friction cone foot_mu: at most leg_push_g x its share of the weight, fading over the last 30 percent of the leg's stretch. Pinned, the paddling legs can shove it along the ground a few metres; it stays over and gives up. Rolls toward level at up to rate_deg_s (gain_per_s x the lean, so it slows near level), ends within done_deg of level once its spin is under done_spin_deg_s (the legs brake the roll) or gives up after max_s. A second try is allowed while it slides faster than max_speed_m_s if ground was within ground_m under its centre of mass at some moment in the last ground_window_s (sliding or tumbling down a slope on its back is not a flip in the air; tumbling down a 30 degree slope it bounces 2-5 m clear for a moment, measured 2026-10-08).",
       "tip_deg": 55.0,
       "max_speed_m_s": 4.0,
-      "lift_m_s": 3.0,
       "rate_deg_s": 160.0,
+      "gain_per_s": 6.0,
+      "leg_push_g": 2.5,
+      "foot_mu": 0.8,
+      "swing_max_deg": 165.0,
+      "inward_deg": 20.0,
+      "probe_tilt_deg": 30.0,
       "done_deg": 10.0,
-      "max_s": 3.0
+      "done_spin_deg_s": 30.0,
+      "ground_m": 2.5,
+      "ground_window_s": 0.5,
+      "max_s": 4.0
     },
     "recover": {
       "_about": "Lane A2 part 3: below 2 grounded legs, drive/turn/steady are off entirely by design (a bad landing angle should punish a jump), so nothing recovered a mech that tipped or wedged against terrain and settled near-still (results/A2.md: long_walk's tries 1 and 2, against a slab corner and a rock). stuck_speed_m_s tells a real fall (still moving) apart from stuck (not); stuck_delay_s must pass before ramp_s brings in _steady's proportional righting torque and an unstick_accel_m_s2 shove. Checked and deliberately not covered: a mech that stays fully grounded but rams an obstacle -- calibrated against the same slab -- was not actually stuck, plain reverse already frees it since drive/turn are never disabled while on_ground.",

@@ -1,0 +1,20 @@
+{
+  "name": "righting",
+  "_about": "Relay 62 (Emerson 2026-10-07: righting by the legs, not magic): tip the player mech onto its back, then U. Shots through the stand-up show the legs planting and pushing it over. tools/bot_run.sh righting",
+  "map": "test_range",
+  "steps": [
+    {"at": 0.5, "wait": "level"},
+    {"at": 2.5, "call": "rotate_z", "group": "player_mech", "args": [2.8]},
+    {"at": 5.0, "shot": "on-its-back"},
+    {"at": 5.0, "sample": "tipped"},
+    {"at": 5.1, "press": "right_mech", "strength": 1.0, "for": 0.1},
+    {"at": 5.4, "shot": "legs-plant"},
+    {"at": 5.8, "shot": "pushing-over"},
+    {"at": 6.2, "shot": "over-the-top"},
+    {"at": 6.6, "shot": "legs-under"},
+    {"at": 7.2, "shot": "up"},
+    {"at": 8.5, "shot": "standing"},
+    {"at": 8.5, "sample": "after"},
+    {"at": 9.0, "quit": true}
+  ]
+}

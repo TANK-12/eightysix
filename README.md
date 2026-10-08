@@ -789,6 +789,53 @@ puffs (`SMOKE_BUDGET`) new clouds thin further, to a quarter at most (`smoke_sha
   23) until `sudo pacman -Syu`; without it the off-screen mutter does not start.
   Full write-up: `~/Forge/docs/library/forge/2026-10-07-gpu-and-visualiser-lag.md`.
 
+### 2026-10-07 · Relay 62 · Tetsu (default, inline): the legs stand it up
+Emerson asked whether the stand-up (Relay 58) was physically sound: it set lift and roll velocities. Now the legs
+do it with forces only (`standin_mech.gd` `_right_itself`, `_leg_pushes`, `_lying_on_ground`; numbers
+`data/tuning.json` standin.righting). Each tick of a stand-up every leg probes for ground within its reach inside
+the cone its hip can swing to (165 deg from straight down out of the belly, never more than 20 deg across under the
+chassis; the most downward way, and 30 / 60 deg either way along the roll). The hip motor holds the leg as a lever,
+so the ground pushes that foot whichever way turns the body most inside the foot's friction cone (mu 0.8, cut by
+the roll plane so nothing slews the chassis), at most 2.5x the leg's share of the weight, fading over the last 30 %
+of its stretch; the force acts at the foot. Only legs that roll it the way it has to go push; near level they brake
+it, and it ends within 10 deg of level once the spin is under 30 deg/s (or gives up after 4 s). The roll axis
+follows the body each tick; which way to go is settled at the first push by which way the legs can drive it: mostly
+on its back the short way would need a foot across over the back, so it goes over the back and onto the other side,
+like a beetle (past 90 deg it keeps that way; nearer level always the short way). Stages come from that geometry,
+not a script. Balance assist (keel, recover) stands aside while the legs work. U / jump-while-tipped, the rebind and
+the 55 deg start rule are unchanged; the 4 m/s rule now lets a second try through when it lies on the ground (a ray
+from its centre of mass finds ground within 2.5 m), so a mech sliding down a slope on its back can try again.
+- Tuning found by measuring (scratch probes, deleted): at a 120-150 deg hip swing no foot got under the high-riding
+  body (centre of mass 1.3 m up on its back) and it rolled over its back and stalled; at 165 it stands every time.
+  Stronger legs did not help (2.5x to 6x was worse). Roll gain 6/s (4 gave 2.3-3.1 s). A planted-foot model (feet stay
+  until out of reach, then a 0.3 s step) was tried and backed out: 2-4 s stand-ups and it still skated.
+- Critic (opus, fresh context) found, fixed: a roll axis fixed in the world drifted off as the body turned, so mixed
+  tumbles (roll 140 + pitch 40, end over end) never stood (now follows the body, test added); a second try was
+  refused while sliding down a slope (ground check, test added); the push was clipped to the friction cone before
+  the roll-axis part was removed (could hold more sideways than mu allows; now cut cone, done right); it handed off
+  still spinning 65-107 deg/s (now braked to under 30). Not fixed, noted: no hip torque cap and the bench mode's joint
+  limit is not applied to the push; the push starts the tick ground is found, before the drawn foot arrives; while
+  nothing is in reach it keeps probing (40 rays a tick, up to 4 s); the stand-in mech (bench option) was seen failing
+  from its back in the critic's run and is not tested here; the tests check legs push and with no strength it stays
+  down, not that the force acts at the foot.
+- **Verified:** `tests/test_righting.gd` 12/12 (twice, same numbers): rolled over (136 deg) up in 1.48 s, back
+  (161 deg) 2.22 s, nose (87 deg) 2.03 s, roll 140 + pitch 40 tumble 3.11 s, 20 deg slope (134 deg) 1.77 s first try;
+  30 deg slope downhill: first try fails as it slides, the second press is taken and it ends at 24 deg (standing on
+  the slope); with Balance assist on it still stands from its back; leg strength 0 stays down; pushing feet are on
+  the ground; pinned under a slab it stays over, gives up, is never thrown up (< 3 m/s) and the paddling legs shove
+  it about 3-7 m along; jump while tipped and U upright as before. Real game, off screen, Balance assist on (default):
+  bot `tools/bot/righting.json` (`tools/bot_run.sh righting`) tips the player mech to 138.6 deg roll and presses U:
+  `images/622-righting/sheet.png` shows legs up, legs reaching and planting, the roll over, legs under, standing; the
+  after sample reads roll 0.0, pitch 0.9, 4 legs grounded, 0 errors (621 is the first, pre-critic run).
+- **Finished and committed by Relay 110 (Kiko, 2026-10-08).** The one failing case (`test_a_second_try...` on the
+  30 deg slope) pressed while the mech was bouncing down the slope more than a second in the air (probe: centre of
+  mass 2-5 m up, 10-16 m/s), which the speed rule refuses by design. A press now also counts within
+  `righting.ground_window_s` (0.5 s) of the last touch (`_track_ground`, one ray a tick only while tipped), the test
+  presses again as the mech touches the slope and checks it ends on its feet (it lands upright at 31 deg on the 30 deg
+  slope by itself now), and a new test keeps a flip in the air refused (0.69 s off the ground at 14.7 m/s) while a
+  press 0.3 s after a touch is taken. **Verified:** test_righting 13/13 (three runs, same numbers), test_clip 20/20,
+  test_physics 5/5, test_mech 6/6, test_juggernaut 27/27.
+
 ### 2026-10-08 · Relay 95 · Takumi (default, high): music for friends' copies (QUICKSTART item 10)
 Item 10 asked for (a) a music folder picker, (b) a share zip that is safe with no music, (c) HOW-TO-RUN.txt telling
 friends how to add music, and bundled CC tracks only with a named, licensed source. Lane A7 had already built (a)

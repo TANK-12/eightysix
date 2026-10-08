@@ -98,6 +98,13 @@ var _swing_dir := Vector2.ZERO
 ## Righting (Emerson 2026-10-07: "flip the mech back upright when it ends up on its side or back"):
 ## seconds left of a stand-up the pilot asked for (U key, or jump while tipped); 0 when none is running.
 var righting_s := 0.0
+## The axis this stand-up rolls about last tick (ZERO until its first push). It follows the body
+## (always up x world up, short or long way), kept continuous so passing over the back keeps going.
+var _right_axis := Vector3.ZERO
+## Seconds since the chassis last had ground within righting.ground_m under its centre of mass while
+## it lay tipped (0 while it stands on its feet). Tumbling down a steep slope it bounces clear of the
+## ground for a moment; a press within righting.ground_window_s of a touch still counts as lying on it.
+var _off_ground_s := 0.0
 
 
 func setup(id: String, mech_def: Dictionary, leg_list: Array, info: Dictionary, acts: Array) -> void:
@@ -606,7 +613,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		else:
 			_stuck_s = 0.0
 		var delay := float(rc.get("stuck_delay_s", 1.25))
-		if _stuck_s > delay:
+		if _stuck_s > delay and righting_s <= 0.0:
 			var recover := clampf((_stuck_s - delay) / float(rc.get("ramp_s", 2.0)), 0.0, 1.0)
 			_steady(state, w, recover)
 			_unstick(state, xf.basis, recover)
@@ -747,6 +754,8 @@ func _keel(state: PhysicsDirectBodyState3D, w: Vector3) -> void:
 	var keep := deg_to_rad(float(u.get("keep_deg", 0.0)))
 	if keep <= 0.0 or bench_mode() or not Settings.get_b("gameplay.upright_assist"):
 		return
+	if righting_s > 0.0:
+		return  # the legs are standing it up (_right_itself), maybe the long way round: no fighting them
 	if airborne and not hauling:
 		return  # no torque from nowhere in flight: only the legs' swing (_air_legs) turns the body
 	# (A ledge haul counts as airborne but the legs grip the ledge, so their righting stays.)
@@ -785,18 +794,45 @@ func start_righting() -> bool:
 	var r: Dictionary = _t.get("righting", {})
 	if righting_s > 0.0 or not is_tipped():
 		return false
-	if linear_velocity.length() > float(r.get("max_speed_m_s", 4.0)):
-		return false
+	if linear_velocity.length() > float(r.get("max_speed_m_s", 4.0)) and _off_ground_s > float(r.get("ground_window_s", 0.5)):
+		return false  # flying: a flip in the air is left alone (sliding or tumbling down a slope is not)
 	righting_s = float(r.get("max_s", 3.0))
+	_right_axis = Vector3.ZERO
 	return true
 
 
-## The stand-up itself: the legs shove the chassis up off the ground (righting.lift_m_s, only while
-## it is still well over) and roll it back to level about the shortest axis, keeping its heading, at
-## up to righting.rate_deg_s. Ends once it is within righting.done_deg of level (the springs and the
-## keel take over from there) or after righting.max_s. Velocities are set, not forces, so it works the
-## same for every mech's mass; collisions still apply, so it cannot stand up through a wall.
+## Keeps _off_ground_s. The ray (one a tick) runs only while the chassis is tipped, the only time a
+## stand-up can start; upright it counts as on the ground unless it is in the air.
+func _track_ground(dt: float) -> void:
+	if not is_tipped():
+		_off_ground_s = _off_ground_s + dt if airborne else 0.0
+		return
+	_off_ground_s = 0.0 if _lying_on_ground(_t.get("righting", {})) else _off_ground_s + dt
+
+
+## Something solid under the chassis within righting.ground_m of its centre of mass.
+func _lying_on_ground(r: Dictionary) -> bool:
+	var com := global_transform * center_of_mass
+	var reach := float(r.get("ground_m", 2.5))
+	var query := PhysicsRayQueryParameters3D.create(com, com + Vector3.DOWN * reach, RAY_MASK, [get_rid()])
+	return not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
+
+
+## The stand-up itself, done by the legs (Emerson 2026-10-07: "physical, not magic"). Each leg looks
+## for ground within its reach, inside the cone its hip can swing to (righting.swing_max_deg out of the
+## belly, never more than righting.inward_deg across under the chassis), plants its foot there and
+## pushes its hip away from the foot. The push is capped by the leg's strength (righting.leg_push_g
+## times the leg's share of the mech's weight), fades as the leg nears full stretch, and has to stay
+## inside the foot's friction cone on that ground (righting.foot_mu): on a steep or slick slope the
+## foot slips and the leg gives less. A leg pushes only when its push rolls the chassis the way it
+## has to go (and, near level, only to brake the roll); the rest hang. So the stages come from the
+## geometry, not a script: on its back the low-side legs reach over the edge and lever it onto its
+## side, on its side the lower legs shove it over until the legs are under it, and the springs take it
+## from there. Pinned, or with no ground in reach, it fails and gives up after righting.max_s; the
+## pilot can try again. Only forces: no velocity is set.
 func _right_itself(state: PhysicsDirectBodyState3D, dt: float) -> void:
+	for leg: Dictionary in legs:
+		leg["pushing"] = false
 	if righting_s <= 0.0:
 		return
 	righting_s = maxf(righting_s - dt, 0.0)
@@ -804,22 +840,144 @@ func _right_itself(state: PhysicsDirectBodyState3D, dt: float) -> void:
 	var basis := state.transform.basis.orthonormalized()
 	var up := basis.y
 	var lean := up.angle_to(Vector3.UP)
-	if lean < deg_to_rad(float(r.get("done_deg", 10.0))):
+	var spin_left := state.angular_velocity.length()
+	if lean < deg_to_rad(float(r.get("done_deg", 10.0))) and spin_left < deg_to_rad(float(r.get("done_spin_deg_s", 30.0))):
 		righting_s = 0.0
-		state.angular_velocity *= 0.2
 		_aim_yaw = _yaw_of(basis)
 		return
-	var axis := up.cross(Vector3.UP)
-	if axis.length() < 0.001:
-		axis = -basis.z  # exactly upside down: roll over sideways, about the nose
-		axis.y = 0.0
-		if axis.length() < 0.01:
-			axis = Vector3.RIGHT
+	var short := up.cross(Vector3.UP)
+	if short.length() < 0.05:
+		# Flat on its back: both ways are as short; keep last tick's, else roll about the body's
+		# length, toward whichever side the chassis already leans.
+		short = _right_axis if _right_axis != Vector3.ZERO else (basis.z if basis.x.y >= 0.0 else -basis.z)
+		short.y = 0.0
+	short = short.normalized()
+	var first: Array = []
+	if _right_axis == Vector3.ZERO:
+		# Which way to roll is settled at the first push, by which way the legs can drive it: mostly
+		# on its back the short way needs a foot across over the back, so it goes the long way, over
+		# the back and onto the other side, like a beetle.
+		var short_way := _leg_pushes(state, short, 1.0)
+		var long_way := _leg_pushes(state, -short, 1.0)
+		if short_way.is_empty() and long_way.is_empty():
+			return  # nothing in reach (pinned, wedged, in the air): it keeps trying until max_s
+		var short_rate := _pushing_torque(short_way) / maxf(lean, 0.2)
+		var long_rate := _pushing_torque(long_way) / maxf(TAU - lean, 0.2)
+		_right_axis = short if short_rate >= long_rate else -short
+		first = short_way if short_rate >= long_rate else long_way
+	# The roll follows the body (it drifts about other axes as the legs push). Past 90 deg it stays on
+	# the same side of the short axis tick to tick, so a long-way roll keeps going once it passes over
+	# the back; nearer level it is always the short way, so an overshoot past level is braked back.
+	var roll := short
+	if lean > PI * 0.5 and short.dot(_right_axis) < 0.0:
+		roll = -short
+	_right_axis = roll
+	var to_go := lean if roll == short else TAU - lean
+	# The hips roll it toward level at up to rate_deg_s, slower as it nears level (gain_per_s);
+	# drive < 0 means it rolls too fast and the legs that can brake it do.
 	var rate := deg_to_rad(float(r.get("rate_deg_s", 160.0)))
-	state.angular_velocity = axis.normalized() * minf(rate, lean * 4.0)
-	var v := state.linear_velocity
-	var lift := float(r.get("lift_m_s", 3.0)) if lean > deg_to_rad(35.0) else 0.0
-	state.linear_velocity = Vector3(v.x * 0.9, maxf(v.y, lift), v.z * 0.9)
+	var want := minf(rate, to_go * float(r.get("gain_per_s", 4.0)))
+	var drive := clampf((want - state.angular_velocity.dot(roll)) / rate, -1.0, 1.0)
+	if absf(drive) < 0.02:
+		return
+	var xf := state.transform
+	var pushes := first if drive > 0.0 and not first.is_empty() else _leg_pushes(state, roll, signf(drive))
+	for push: Array in pushes:
+		var leg: Dictionary = push[0]
+		var hit: Dictionary = push[2]
+		state.apply_force((push[1] as Vector3) * absf(drive), (hit["position"] as Vector3) - xf.origin)
+		leg["pushing"] = true
+		leg["push_at"] = hit["position"]
+		leg["push_normal"] = hit["normal"]
+
+
+## The legs that can push the chassis round `roll` (`way` -1: against it, to brake), each as
+## [leg, ground force on its foot, the ground hit, how much it turns the body]. A leg is a lever,
+## not a strut: its hip motor holds it, so the ground can push its foot any way inside the friction
+## cone (righting.foot_mu), up to the leg's strength, fading over the last 30 percent of its stretch.
+## The force acts at the foot, so a foot swept in under the high-riding body turns it hard. A leg
+## tries the most downward way its hip can point it and righting.probe_tilt_deg (and twice that)
+## either way along the roll, and keeps the foothold that turns the body most.
+func _leg_pushes(state: PhysicsDirectBodyState3D, roll: Vector3, way: float) -> Array:
+	var r: Dictionary = _t.get("righting", {})
+	var out: Array = []
+	if legs.is_empty():
+		return out
+	var xf := state.transform
+	var basis := xf.basis.orthonormalized()
+	var belly := -basis.y
+	var com := xf * center_of_mass
+	var space := state.get_space_state()
+	var reach := float(legs[0]["upper_len"]) + float(legs[0]["lower_len"])
+	var most := float(r.get("leg_push_g", 2.5)) * mass * 9.81 / legs.size()
+	var mu := float(r.get("foot_mu", 0.8))
+	var swing := deg_to_rad(float(r.get("swing_max_deg", 120.0)))
+	var inward := sin(deg_to_rad(float(r.get("inward_deg", 20.0))))
+	var tilt := deg_to_rad(float(r.get("probe_tilt_deg", 30.0)))
+	var turn := roll * way
+	for leg: Dictionary in legs:
+		var hip_local: Vector3 = leg["hip"]
+		var hip := xf * hip_local
+		var out_side := basis.x * signf(hip_local.x) if absf(hip_local.x) > 0.01 else basis.z * signf(hip_local.z)
+		var toward := Vector3.DOWN - belly * belly.dot(Vector3.DOWN)
+		if toward.length() < 0.05:
+			toward = out_side - belly * belly.dot(out_side)
+		var low := Vector3.DOWN
+		if belly.angle_to(Vector3.DOWN) > swing:
+			low = (belly * cos(swing) + toward.normalized() * sin(swing)).normalized()
+		var best: Array = []
+		var best_use := 0.0
+		for t: float in [0.0, tilt, -tilt, 2.0 * tilt, -2.0 * tilt]:
+			var d := low.rotated(roll, t)
+			if d.angle_to(belly) > swing + 0.01 or d.dot(out_side) < -inward:
+				continue
+			var query := PhysicsRayQueryParameters3D.create(hip, hip + d * reach, RAY_MASK, [get_rid()])
+			query.hit_back_faces = false
+			var hit := space.intersect_ray(query)
+			if hit.is_empty():
+				continue
+			var foot: Vector3 = hit["position"]
+			var n: Vector3 = hit["normal"]
+			var strength := most * clampf((1.0 - hip.distance_to(foot) / reach) / 0.3, 0.0, 1.0)
+			# The best way to push for this turn is along g = turn x (foot - com); the ground only
+			# pushes (along n) and holds sideways up to mu times that.
+			# Pushing along the roll axis would only slew the chassis round, so the ground's push is
+			# kept square to it: n_r and the friction plane are the foot's cone cut by that plane.
+			var g := turn.cross(foot - com)
+			var n_r := n - roll * n.dot(roll)
+			if n_r.length() < 0.2:
+				continue  # ground facing along the roll axis: nothing to push the roll with
+			n_r = n_r.normalized()
+			var t_r := roll.cross(n_r)  # the one sideways way left in that plane
+			var gn := g.dot(n_r)
+			var gt := g.dot(t_r)
+			# Best push in the plane: along g if inside the cone, else on its edge toward g. A push
+			# a n_r + b t_r has a cos(phi) along n (t_r is square to n) and slides unless
+			# b^2 <= a^2 (mu^2 cos^2 phi - sin^2 phi): the cone cut by the plane.
+			var c := n_r.dot(n)
+			var edge := mu * mu * c * c - (1.0 - c * c)
+			if edge <= 0.0:
+				continue  # the ground tilts so far along the roll axis that every push there slips
+			var cone := sqrt(edge)
+			var dir := (n_r * gn + t_r * gt).normalized()
+			if gn <= 0.0 or absf(gt) > cone * gn:
+				dir = (n_r + t_r * signf(gt) * cone).normalized()
+			if dir.dot(n) <= 0.0:
+				continue
+			var use := dir.dot(g) * strength
+			if use > best_use:
+				best_use = use
+				best = [leg, dir * strength, hit, use]
+		if not best.is_empty():
+			out.append(best)
+	return out
+
+
+func _pushing_torque(pushes: Array) -> float:
+	var total := 0.0
+	for push: Array in pushes:
+		total += float(push[3])
+	return total
 
 
 ## The slide (lane A3 part 4, Emerson: "a slide button that is somehow directional... the momentum
@@ -1107,6 +1265,7 @@ func _cast_sole(leg: Dictionary, space: PhysicsDirectSpaceState3D, xf: Transform
 
 
 func _physics_process(delta: float) -> void:
+	_track_ground(delta)
 	var xf := global_transform
 	var feet: Dictionary = _t.get("feet", {})
 	var max_tilt := deg_to_rad(float(feet.get("max_tilt_deg", 25.0)))
@@ -1115,7 +1274,12 @@ func _physics_process(delta: float) -> void:
 		var on_ground: bool = leg["sole_contact"] or leg["contact"]
 		var target_world: Vector3
 		var target_normal := xf.basis.y
-		if leg["sole_contact"]:
+		if leg.get("pushing", false):
+			# Standing itself up: the foot goes where the leg is pushing off (_right_itself).
+			on_ground = true
+			target_world = leg["push_at"]
+			target_normal = leg["push_normal"]
+		elif leg["sole_contact"]:
 			target_world = leg["sole_hit"]
 			target_normal = leg["sole_normal"]
 		elif leg["contact"]:
