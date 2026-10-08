@@ -840,8 +840,15 @@ func _right_itself(state: PhysicsDirectBodyState3D, dt: float) -> void:
 	var basis := state.transform.basis.orthonormalized()
 	var up := basis.y
 	var lean := up.angle_to(Vector3.UP)
-	var spin_left := state.angular_velocity.length()
-	if lean < deg_to_rad(float(r.get("done_deg", 10.0))) and spin_left < deg_to_rad(float(r.get("done_spin_deg_s", 30.0))):
+	# Done once it is level with the ground under its legs (on a slope that is the slope, not the world)
+	# and no longer tilting; spin about its own up (a held turn) does not count.
+	var level := lean
+	if grounded_legs >= 2:
+		level = minf(lean, up.angle_to(ground_normal))
+	var w := state.angular_velocity
+	var tilting := (w - up * w.dot(up)).length()
+	var tip := deg_to_rad(float(r.get("tip_deg", 55.0)))
+	if lean <= tip and level < deg_to_rad(float(r.get("done_deg", 10.0))) and tilting < deg_to_rad(float(r.get("done_spin_deg_s", 30.0))):
 		righting_s = 0.0
 		_aim_yaw = _yaw_of(basis)
 		return
@@ -858,7 +865,10 @@ func _right_itself(state: PhysicsDirectBodyState3D, dt: float) -> void:
 		# on its back the short way needs a foot across over the back, so it goes the long way, over
 		# the back and onto the other side, like a beetle.
 		var short_way := _leg_pushes(state, short, 1.0)
-		var long_way := _leg_pushes(state, -short, 1.0)
+		# Only past 90 deg can it go the long way round (nearer level the roll below always takes the
+		# short way), so nearer level the long way is not tried: its pushes would shove the first tick
+		# the wrong way.
+		var long_way: Array = _leg_pushes(state, -short, 1.0) if lean > PI * 0.5 else []
 		if short_way.is_empty() and long_way.is_empty():
 			return  # nothing in reach (pinned, wedged, in the air): it keeps trying until max_s
 		var short_rate := _pushing_torque(short_way) / maxf(lean, 0.2)

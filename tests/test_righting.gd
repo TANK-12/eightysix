@@ -264,3 +264,32 @@ func test_a_flip_in_the_air_is_left_alone_but_a_bounce_is_not() -> void:
 	mech.set("_off_ground_s", 0.3)
 	assert_true(mech.call("start_righting"), "a press 0.3 s after a touch counts")
 	print("    in the air: off the ground %.2f s at %.1f m/s, refused; 0.3 s after a touch, taken" % [off, mech.linear_velocity.length()])
+
+
+## Turning (spin about its own up) does not count as spin left over from the stand-up: before
+## 2026-10-08 a held turn (95 deg/s) kept it going until max_s even on flat ground.
+func test_turning_while_it_stands_up_does_not_keep_the_stand_up_going() -> void:
+	var lean := await _tip(180.0)
+	assert_gt(lean, 55.0, "it lies on its back first (%.0f deg)" % lean)
+	Input.action_press("right_mech")
+	await physics_frames(3)
+	Input.action_release("right_mech")
+	var turning := false
+	var ended := -1.0
+	for i in 600:
+		await physics_frames(1)
+		if not turning and _lean_deg() < 30.0:
+			turning = true
+		if turning:
+			# a held turn: the yaw part of the spin is 95 deg/s, the tilting part is left to the legs
+			var up := mech.global_transform.basis.y
+			var w := mech.angular_velocity
+			mech.angular_velocity = w - up * w.dot(up) + up * deg_to_rad(95.0)
+		if float(mech.get("righting_s")) <= 0.0:
+			ended = (i + 3) / 120.0
+			break
+	var max_s := float((mech.get("_t") as Dictionary)["righting"]["max_s"])
+	assert_true(turning, "it came near level (%.0f deg)" % _lean_deg())
+	assert_between(ended, 0.0, max_s - 0.5, "the stand-up ended after %.2f s while turning, before its %.1f s limit" % [ended, max_s])
+	assert_lt(_lean_deg(), 15.0, "and it is level (%.0f deg)" % _lean_deg())
+	print("    turning at 95 deg/s as it comes level: stand-up ended after %.2f s" % ended)

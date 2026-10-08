@@ -1,0 +1,90 @@
+{
+ "name": "a011_paint",
+ "_about": "Alpha 0.1.1 (Relay 110, 2026-10-08): the Juggernaut's paint in the Hangar (Showroom light) with the finish and shine pinned to their defaults (Undertaker field, shine 1), the finish whose chipped paint 0.1.1 changed. The player's own pick (Settings) would otherwise decide it. Bot runs save into user://bot_settings.cfg, so the pins do not touch his file. tools/bot_run.sh a011_paint --preset=high",
+ "steps": [
+  {
+   "at": 0.0,
+   "setting": "mech.finish",
+   "value": "undertaker_field"
+  },
+  {
+   "at": 0.0,
+   "setting": "mech.shine",
+   "value": 1.0
+  },
+  {
+   "at": 1.0,
+   "goto": "hangar"
+  },
+  {
+   "at": 4.0,
+   "call": "set_panels_hidden",
+   "args": [
+    true
+   ]
+  },
+  {
+   "at": 4.05,
+   "call": "preview_light",
+   "args": [
+    "showroom"
+   ]
+  },
+  {
+   "at": 4.1,
+   "call": "view",
+   "args": [
+    35.0,
+    -8.0,
+    8.0
+   ]
+  },
+  {
+   "at": 5.5,
+   "shot": "paint-front"
+  },
+  {
+   "at": 5.7,
+   "call": "view",
+   "args": [
+    20.0,
+    4.0,
+    4.5
+   ]
+  },
+  {
+   "at": 7.1,
+   "shot": "paint-legs-close"
+  },
+  {
+   "at": 7.3,
+   "call": "view",
+   "args": [
+    70.0,
+    -20.0,
+    4.0
+   ]
+  },
+  {
+   "at": 8.7,
+   "shot": "paint-hull-close"
+  },
+  {
+   "at": 8.9,
+   "call": "view",
+   "args": [
+    210.0,
+    -12.0,
+    8.0
+   ]
+  },
+  {
+   "at": 10.3,
+   "shot": "paint-rear"
+  },
+  {
+   "at": 10.8,
+   "quit": true
+  }
+ ]
+}
