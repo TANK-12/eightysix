@@ -41,12 +41,16 @@ Side-by-side shots of the same views before and after, and the frame rates on ea
   blue-grey saw blade. Select map > Sector 86 frontier; look north or east across the valley.
 - **Allegheny morning:** looking into the sun no longer washes the whole sky out to cream: the sun is a disc in a
   pale, hazy sky with clouds showing, and the near firs keep their shape (it is still a misty morning).
-  Allegheny forest: from the high ridge about 1.8 km west (and a little north) of the start, look back east
+  Allegheny forest: from the high ridge about 1.8 km west (and a little south) of the start, look back east
   into the morning sun.
 - **Hangar:** a lit showroom (key light, rim, warm fill, ceiling lamps, wall washes, a glossy floor) instead of
-  a dim grey room. Main menu > Hangar.
-- **Juggernaut paint:** finer chips and less grime, so the hull looks less like grey marble up close. Main menu >
-  Hangar, walk round it. (Out in the shade the dark frame still reads very dark from the chase camera.)
+  a dim grey room. Main menu > Hangar. That is the default Showroom light; yours is set to Emergency (amber), so
+  switch it under Settings > Gameplay > Menus and theme > Hangar lighting, or with Q and E in the Hangar.
+- **Juggernaut paint (the default finish, Undertaker, field worn):** finer chips and less grime, so the hull looks
+  less like grey marble up close. Main menu > Hangar, walk round it. Your finish is set to Fresh from the hangar
+  (metal shine 0.1), which has no chipped paint, so to see it pick Undertaker, field worn under Settings >
+  Gameplay > Juggernaut > Mech finish. (Out in the shade the dark frame still reads very dark from the chase
+  camera.)
 - **Golden afternoon light (Ashen valley, Palouse):** the sun comes from behind your left shoulder at the start,
   so the Juggernaut reads as lit grey steel instead of a black cutout. Deploy and look at the mech.
 - **Standing back up (U):** the legs plant and lever the mech over, no more magic torque; a press as it bounces
@@ -56,7 +60,10 @@ Side-by-side shots of the same views before and after, and the frame rates on ea
 - **Your settings:** check runs had been saving their graphics preset (and 0 wingmen) over your own settings.
   That is fixed; your preset is now High and the squad back to 2 wingmen, so pick your own preset again under
   Settings > Graphics if you had something else. The old file is kept beside it
-  (`~/.local/share/godot/app_userdata/Eighty Six/settings.before-relay110-2026-10-08.cfg`).
+  (`~/.local/share/godot/app_userdata/Eighty Six/settings.before-relay110-2026-10-08.cfg`). Three other values in
+  your file are ones check runs set, but they were left alone in case they are yours: Damage you take 0.25
+  (default 1.0, Settings > Gameplay > Difficulty), Move hints off (default on, Gameplay > HUD) and Sub-arm guns
+  "A little play on the mounts" (default Fixed straight ahead, Gameplay > HUD).
 
 ## The mission: First contact
 
