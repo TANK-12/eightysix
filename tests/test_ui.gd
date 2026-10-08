@@ -173,3 +173,13 @@ func _trigger(axis: JoyAxis, value: float) -> InputEventJoypadMotion:
 	ev.axis = axis
 	ev.axis_value = value
 	return ev
+
+
+func test_the_menu_subtitle_shows_the_project_version() -> void:
+	# alpha 0.1.1: the subtitle said "Alpha 0.1" by hand; it follows project.godot's config/version now
+	var menu_script: GDScript = load("res://scripts/ui/main_menu.gd")
+	assert_eq(menu_script.version_label("0.1.1-alpha"), "Alpha 0.1.1")
+	assert_eq(menu_script.version_label("0.2.0-beta"), "Beta 0.2.0")
+	assert_eq(menu_script.version_label("1.0"), "1.0")
+	var v := str(ProjectSettings.get_setting("application/config/version"))
+	assert_eq(menu_script.version_label(v), "Alpha 0.1.1", "project.godot says " + v)

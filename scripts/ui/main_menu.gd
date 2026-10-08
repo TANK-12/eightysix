@@ -7,6 +7,14 @@ const SETTINGS_SCRIPT := preload("res://scripts/ui/settings_screen.gd")
 const MAPS_TOP := 150.0
 const MAPS_BOTTOM_GAP := 130.0
 
+## "0.1.1-alpha" (project.godot's config/version) as the subtitle shows it: "Alpha 0.1.1".
+static func version_label(version: String) -> String:
+	var parts := version.split("-", false, 1)
+	if parts.size() < 2:
+		return version
+	return parts[1].capitalize() + " " + parts[0]
+
+
 var _backdrop: ColorRect
 var _menu: VBoxContainer
 var _maps_panel: PanelContainer
@@ -101,7 +109,7 @@ func _build() -> void:
 	title.add_theme_font_override("font", UiTheme.spaced_font("heading", 6))
 	left.add_child(title)
 	var sub := Label.new()
-	sub.text = "Alpha 0.1  ·  Juggernaut field test"
+	sub.text = version_label(str(ProjectSettings.get_setting("application/config/version"))) + "  ·  Juggernaut field test"
 	sub.theme_type_variation = "DimLabel"
 	left.add_child(sub)
 
