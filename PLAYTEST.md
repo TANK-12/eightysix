@@ -25,28 +25,38 @@ by lane A6 (Asuka, Relay 51) on 2026-10-07
 ## New in 0.1.1 and where to see it
 
 Alpha 0.1.1 is the good-looking one: the same game, with the look worked over. Every item says where to look.
-Side-by-side shots of the same views before and after are in `images/` (see results/ALPHA011.md).
+Side-by-side shots of the same views before and after, and the frame rates on each preset, are listed in
+`~/Forge/sessions/juggernaut-alpha/results/ALPHA011.md` and
+`~/Forge/docs/library/eightysix/2026-10-08-alpha-011-before-after-fps.md`.
 
-- **Sky:** blue instead of lilac-grey, with real cumulus (grey bellies, silver edges). Any outdoor map; look up.
-- **Clouds:** the open blue between the clouds is clean now, no more scattered white flecks. Look up.
-- **Shadows:** deep shade keeps its detail instead of going to pure black (the colour grade's contrast now bends
-  into black instead of cutting off). Any outdoor map: look at the Juggernaut's own shadow on the grass.
+- **Sky:** bluer instead of lilac-grey, with fuller clouds (shaded bellies, brighter edges). Any outdoor map;
+  look up.
+- **Clouds:** the open blue between the clouds is cleaner, far fewer scattered white flecks. Look up.
+- **Shadows:** the darkest shade keeps a little detail instead of clipping to pure black (the colour grade's
+  contrast now bends into black instead of cutting off). Any outdoor map: the Juggernaut's shadow on the grass.
 - **Grass:** fuller and straw-coloured on Ashen valley and Palouse, greener elsewhere (about 1.6x denser).
   Deploy on Ashen valley and look along the road.
 - **Far shrubs:** soft sage dabs on the far hills instead of black ink dots. Palouse, look across the hills.
 - **Sector 86 frontier's mountains:** warm sandstone massifs with cliff bands and saddles instead of an even
   blue-grey saw blade. Select map > Sector 86 frontier; look north or east across the valley.
-- **Allegheny morning:** looking into the sun no longer blows the sky out to cream; the sky stays blue with
-  clouds and the firs keep their shape. Allegheny forest: from the high ridge about 1.8 km west (and a little
-  north) of the start, look back east into the morning sun.
+- **Allegheny morning:** looking into the sun no longer washes the whole sky out to cream: the sun is a disc in a
+  pale, hazy sky with clouds showing, and the near firs keep their shape (it is still a misty morning).
+  Allegheny forest: from the high ridge about 1.8 km west (and a little north) of the start, look back east
+  into the morning sun.
 - **Hangar:** a lit showroom (key light, rim, warm fill, ceiling lamps, wall washes, a glossy floor) instead of
   a dim grey room. Main menu > Hangar.
-- **Juggernaut paint:** finer chips, calmer blotches and less grime, so the hull reads as worn paint instead
-  of grey marble. Main menu > Hangar, walk round it.
+- **Juggernaut paint:** finer chips and less grime, so the hull looks less like grey marble up close. Main menu >
+  Hangar, walk round it. (Out in the shade the dark frame still reads very dark from the chase camera.)
+- **Golden afternoon light (Ashen valley, Palouse):** the sun comes from behind your left shoulder at the start,
+  so the Juggernaut reads as lit grey steel instead of a black cutout. Deploy and look at the mech.
 - **Standing back up (U):** the legs plant and lever the mech over, no more magic torque; a press as it bounces
   down a slope counts too. When it ends up on its side or back (a flip gone wrong, a tumble down a steep
   slope), press U.
 - The main menu's subtitle shows the version (Alpha 0.1.1).
+- **Your settings:** check runs had been saving their graphics preset (and 0 wingmen) over your own settings.
+  That is fixed; your preset is now High and the squad back to 2 wingmen, so pick your own preset again under
+  Settings > Graphics if you had something else. The old file is kept beside it
+  (`~/.local/share/godot/app_userdata/Eighty Six/settings.before-relay110-2026-10-08.cfg`).
 
 ## The mission: First contact
 
