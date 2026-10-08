@@ -9,6 +9,14 @@ extends Node
 ## tools/bot_run.sh and tools/fps_log.sh wrap this.
 
 const LEVEL_TIMEOUT_S := 90
+## A run starts from the player's settings but saves into these instead: picking a preset saves every
+## setting, so runs used to write their preset and "setting" steps over the player's own settings.cfg
+## (Relay 110: his preset flipped with every check run, his squad went to 0 wingmen).
+const SAVE_FILES := {
+	"settings": "user://bot_settings.cfg",
+	"bindings": "user://bot_bindings.cfg",
+	"music": "user://bot_music.cfg",
+}
 
 var active := false
 var script_path := ""
@@ -53,6 +61,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	if not active:
 		return
+	Settings.save_path = SAVE_FILES["settings"]
+	Controls.save_path = SAVE_FILES["bindings"]
+	Music.position_file = SAVE_FILES["music"]
 	var parsed: Variant = parse_script(FileAccess.get_file_as_string(script_path))
 	if not parsed is Dictionary:
 		_fail("cannot read bot script %s" % script_path)
