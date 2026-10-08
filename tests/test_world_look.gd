@@ -147,3 +147,20 @@ func test_shrub_keeps_its_leaf_clusters() -> void:
 	var verts: PackedVector3Array = mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	assert_gt(verts.size(), 600, "a shrub is made of many leaf clusters")
 	shrub.free()
+
+
+func test_far_shrubs_ease_to_a_soft_colour_instead_of_black_dots() -> void:
+	# alpha 0.1.1 (Relay 110): far shrubs read as black ink dots on Palouse (images/644 vs 656)
+	var path := "res://assets/kit/shaders/foliage.gdshader"
+	var names := _uniforms(path)
+	for u: String in ["colour_far", "far_start_m", "far_end_m", "far_amount"]:
+		assert_true(u in names, "foliage has uniform " + u)
+	var src := FileAccess.get_file_as_string(path)
+	var re := RegEx.new()
+	re.compile("uniform float (far_\\w+) = ([0-9.]+);")
+	var d := {}
+	for m in re.search_all(src):
+		d[m.get_string(1)] = float(m.get_string(2))
+	assert_gt(float(d.get("far_amount", 0.0)), 0.0, "on by default, on every map")
+	assert_lt(float(d.get("far_start_m", 99.0)), float(d.get("far_end_m", 0.0)), "fades in with distance")
+	assert_gt(float(d.get("far_start_m", 0.0)), 10.0, "a shrub up close keeps its own leaves")
