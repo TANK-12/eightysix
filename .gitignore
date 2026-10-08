@@ -18,9 +18,16 @@ node_modules/
 # secrets: keep them in these files, never committed
 .env
 .env.*
+!.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+id_rsa*
 secrets.*
+# Android export signing keys
+*.keystore
+*.jks
 
 # python
 *.pyc
