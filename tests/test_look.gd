@@ -36,6 +36,19 @@ func test_every_weather_builds_with_its_grade_and_fog() -> void:
 	assert_eq(str(small["weather"]), "golden_afternoon", "the small map opens on the golden afternoon")
 
 
+
+func test_every_map_opens_with_the_sun_lighting_the_side_the_chase_camera_sees() -> void:
+	# Relay 110: Palouse opened with the sun 65 deg ahead of the spawn view, so the chase camera saw the
+	# Juggernaut's shaded back and it read black. At spawn the sun sits to the side or behind the camera.
+	for id: String in Registry.ids("maps"):
+		var map := Registry.entry("maps", id)
+		var spawn: Dictionary = map.get("spawn", {})
+		if not map.has("weather") or not spawn.has("heading_deg"):
+			continue
+		var w := Registry.entry("weather", str(map["weather"]))
+		var rel := wrapf(float(w.get("sun_azimuth_deg", 135.0)) - float(spawn["heading_deg"]), -180.0, 180.0)
+		assert_gt(absf(rel), 85.0, "%s: the sun is %.0f deg from the spawn view" % [id, rel])
+
 func test_finish_paints_and_the_export_comes_back() -> void:
 	var paint := StandardMaterial3D.new()
 	paint.resource_name = "JG2_paint_001"
