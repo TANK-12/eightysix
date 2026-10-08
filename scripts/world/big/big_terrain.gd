@@ -35,6 +35,8 @@ var _n_rough := FastNoiseLite.new()
 var _n_spur := FastNoiseLite.new()
 var _n_peaks := FastNoiseLite.new()
 var _n_mid := FastNoiseLite.new()  # ridged hills a few hundred metres across, between the big swells
+var _n_massif := FastNoiseLite.new()  # which stretches of the rim swell into massifs and which drop to saddles
+var _n_crag: FastNoiseLite  # the rim's own crags when terrain.rim_crag_frequency is set (else the ridges' noise)
 var _n_wx := FastNoiseLite.new()  # the water's meander: river banks and lake shores wander by these
 var _n_wz := FastNoiseLite.new()
 var _meander_m := 30.0
@@ -301,6 +303,17 @@ func _setup_noise(seed_value: int) -> void:
 	_n_rough.seed = seed_value + 37
 	_n_rough.frequency = 0.11
 	_n_rough.fractal_octaves = 3
+	_n_massif.seed = seed_value + 73
+	_n_massif.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_n_massif.frequency = float(_t.get("rim_massif_frequency", 0.0007))
+	_n_massif.fractal_octaves = 2
+	if _t.has("rim_crag_frequency"):
+		_n_crag = FastNoiseLite.new()
+		_n_crag.seed = seed_value + 74
+		_n_crag.noise_type = FastNoiseLite.TYPE_SIMPLEX
+		_n_crag.fractal_type = FastNoiseLite.FRACTAL_RIDGED
+		_n_crag.frequency = float(_t["rim_crag_frequency"])
+		_n_crag.fractal_octaves = 5
 
 
 ## A real place's ground (Emerson 2026-10-03: "get some nice maps downloaded"): terrain.heightmap
@@ -354,10 +367,33 @@ func _natural(x: float, z: float, water_d: float) -> float:
 	var spur := _n_spur.get_noise_2d(x, z) * 0.5 + 0.5
 	var edge := smoothstep(half - rim_w, half - 8.0, maxf(absf(x), absf(z)) + spur * spur * rim_w * 0.55)
 	if edge > 0.0:
-		h += edge * edge * float(_t.get("rim_m", 160.0)) * maxf(0.75, 0.8 + 0.5 * b + 0.55 * _n_peaks.get_noise_2d(x, z))
+		var rim := edge * edge * float(_t.get("rim_m", 160.0)) * maxf(0.75, 0.8 + 0.5 * b + 0.55 * _n_peaks.get_noise_2d(x, z))
 		# sharp crests and gullies on the mountains (the ridged noise again, squared), so the rim is rock, not cones
-		h += edge * edge * float(_t.get("rim_crag_m", 0.0)) * r * r
+		var crag := r if _n_crag == null else _n_crag.get_noise_2d(x, z) * 0.5 + 0.5
+		rim += edge * edge * float(_t.get("rim_crag_m", 0.0)) * pow(crag, float(_t.get("rim_crag_power", 2.0)))
+		h += _shape_rim(x, z, rim)
 	return h
+
+
+## The rim mountains' skyline and strata (alpha 0.1.1: the crags read as an even saw blade). rim_massif
+## swells some stretches of the rim into big massifs and drops others to saddles (the height times
+## 1 +- rim_massif, over about 1 / rim_massif_frequency metres); rim_terrace_m cuts the slopes into
+## ledges and cliff bands about that tall, the layers tilting and wandering with the spur noise, blended
+## in by rim_terrace (0..1). Both off (0) unless the map's terrain block asks.
+func _shape_rim(x: float, z: float, rim: float) -> float:
+	var massif := float(_t.get("rim_massif", 0.0))
+	if massif > 0.0:
+		rim *= 1.0 + massif * _n_massif.get_noise_2d(x, z)
+	var step := float(_t.get("rim_terrace_m", 0.0))
+	var amount := float(_t.get("rim_terrace", 0.0))
+	if step <= 0.0 or amount <= 0.0:
+		return rim
+	# fade the bands in over the first ledge, so the rim starts flush with the plain instead of on a step
+	amount *= smoothstep(0.0, step, rim)
+	var tilt := _n_spur.get_noise_2d(x * 0.5, z * 0.5) * 0.6
+	var k := rim / step + tilt
+	var ledge := floorf(k)
+	return lerpf(rim, (ledge + smoothstep(0.3, 0.7, k - ledge) - tilt) * step, amount)
 
 
 ## Height at (x, z) with every feature in cell c. With splat, writes the four weights at splat[at].

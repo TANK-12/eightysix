@@ -433,11 +433,7 @@
         0.29,
         0.47
       ],
-      "sky_horizon": [
-        0.66,
-        0.68,
-        0.66
-      ],
+      "sky_horizon": [0.6, 0.66, 0.7],
       "ground_colour": [
         0.14,
         0.15,
@@ -467,11 +463,11 @@
       "ambient_energy": 0.75,
       "exposure": 1.85,
       "white": 1.0,
-      "sun_scatter": 0.06,
+      "sun_scatter": 0.03,
       "height_fog_top_m": 90.0,
       "height_fog_density": 0.0015,
-      "fog_sky_affect": 0.15,
-      "volumetric_anisotropy": 0.5,
+      "fog_sky_affect": 0.08,
+      "volumetric_anisotropy": 0.3,
       "grade": {
         "contrast": 1.1,
         "saturation": 1.02,
@@ -487,9 +483,9 @@
         ],
         "strength": 1.0
       },
-      "glow_intensity": 0.22,
+      "glow_intensity": 0.15,
       "glow_threshold": 1.4,
-      "agx_white": 5.5,
+      "agx_white": 7.5,
       "agx_contrast": 1.7,
       "volumetric_ambient_inject": 0.12
     },

@@ -1,0 +1,22 @@
+{
+ "name": "a011_crags",
+ "_about": "Alpha 0.1.1 (Relay 110, 2026-10-08): the big map's far crags and rim, looked at from the valley and from close in. HUD hidden, no squad. tools/bot_run.sh a011_crags --preset=high",
+ "steps": [
+  {"at": 0.0, "setting": "gameplay.squad_size", "value": 0.0},
+  {"at": 0.0, "setting": "gameplay.move_hints", "value": false},
+  {"at": 0.2, "goto": "map:big_map"},
+  {"at": 0.4, "wait": "level"},
+  {"at": 0.5, "call": "show_hud", "args": [false]},
+  {"at": 0.6, "call": "look_from", "args": ["kreuzberg"]},
+  {"at": 4.0, "shot": "kreuzberg"},
+  {"at": 4.2, "call": "look_from", "args": ["depot"]},
+  {"at": 6.7, "shot": "depot"},
+  {"at": 6.9, "call": "look_from", "args": ["rim_north"]},
+  {"at": 9.4, "shot": "rim_north"},
+  {"at": 9.6, "call": "look_from", "args": ["rim_east"]},
+  {"at": 12.1, "shot": "rim_east"},
+  {"at": 12.3, "call": "look_from", "args": ["l_ridge"]},
+  {"at": 14.8, "shot": "l_ridge"},
+  {"at": 15.2, "quit": true}
+ ]
+}

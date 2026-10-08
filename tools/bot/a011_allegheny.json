@@ -1,0 +1,20 @@
+{
+ "name": "a011_allegheny",
+ "_about": "Alpha 0.1.1 (Relay 110, 2026-10-08): the Allegheny views of the a011 set (chase, start, the ridge into the sun, in the trees) for tuning the morning's glare. HUD hidden, no squad. tools/bot_run.sh a011_allegheny --preset=high",
+ "steps": [
+  {"at": 0.0, "setting": "gameplay.squad_size", "value": 0.0},
+  {"at": 0.0, "setting": "gameplay.default_view", "value": "third"},
+  {"at": 0.0, "setting": "gameplay.move_hints", "value": false},
+  {"at": 0.2, "goto": "map:allegheny"},
+  {"at": 0.4, "wait": "level"},
+  {"at": 0.5, "call": "show_hud", "args": [false]},
+  {"at": 4.4, "shot": "chase"},
+  {"at": 4.6, "call": "look_from", "args": ["start"]},
+  {"at": 7.1, "shot": "start"},
+  {"at": 7.3, "call": "look_from", "args": ["ridge"]},
+  {"at": 9.8, "shot": "ridge"},
+  {"at": 10.0, "call": "look_from", "args": ["in_the_trees"]},
+  {"at": 12.5, "shot": "in_the_trees"},
+  {"at": 12.9, "quit": true}
+ ]
+}

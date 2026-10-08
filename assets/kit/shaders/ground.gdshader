@@ -43,6 +43,8 @@ uniform vec3 dry_tint : source_color = vec3(0.9, 0.8, 0.64);
 uniform vec3 road_tint : source_color = vec3(0.78, 0.74, 0.68);
 uniform vec3 mud_tint : source_color = vec3(0.42, 0.38, 0.32);
 uniform vec3 rock_tint : source_color = vec3(0.86, 0.84, 0.8);
+// how fast the rock turns from warm to cool stone with height (per metre); 0: the same mix at any height
+uniform float rock_height_cool = 0.0015;
 uniform float water_level = 0.0;
 // lane B4 part 3: the pebble detail read as grain, worst under a low sun and in motion. Near the camera
 // it keeps this share of its contrast, falling to detail_far by detail_fade_m; the normal map likewise.
@@ -238,7 +240,7 @@ void fragment() {
 			r *= mix(1.0, mix(0.62, 1.12, gully) * mix(0.86, 1.1, strata), rock_far * far_rock_breakup);
 		}
 		// strata of warm and cool stone broken up by the noise, so a far ridge is not one grey
-		r *= mix(vec3(1.12, 0.98, 0.84), vec3(0.88, 0.96, 1.08), smoothstep(0.3, 0.7, m2 * 0.6 + m3 * 0.5 + wp.y * 0.0015));
+		r *= mix(vec3(1.12, 0.98, 0.84), vec3(0.88, 0.96, 1.08), smoothstep(0.3, 0.7, m2 * 0.6 + m3 * 0.5 + wp.y * rock_height_cool));
 		col = mix(col, r * rock_tint, rockiness);
 		nrm = mix(nrm, n_side, rockiness);
 	}

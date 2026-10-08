@@ -34,7 +34,11 @@ func test_the_forest_mist_pools_in_the_hollows_below_the_ridges() -> void:
 	var top := float(w["height_fog_top_m"])
 	assert_true(top > 64.0 and top < 170.0, "mist top %.0f m between the spawn hollow and the ridges" % top)
 	assert_true(float(w["sun_elevation_deg"]) < 25.0, "a low morning sun slants through the firs")
-	assert_true(float(w["volumetric_anisotropy"]) >= 0.5, "fog scatters forward, so light shafts show toward the sun")
+	# alpha 0.1.1 (Relay 110): 0.5 blew the into-the-sun ridge view out (1.6 % clipped, 0.78 % with the softer tone);
+	# 0.3 keeps the forward glow through the firs at 0.17 % (images/648, 649, 652)
+	var aniso := float(w["volumetric_anisotropy"])
+	assert_true(aniso >= 0.2, "fog scatters forward, so the firs glow toward the sun")
+	assert_true(aniso <= 0.4, "but not so hard that the sky round the sun blows out")
 
 
 func test_the_firs_take_their_look_from_the_map_entry() -> void:

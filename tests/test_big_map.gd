@@ -261,3 +261,20 @@ func test_the_wire_can_bite_streamed_ground_near_and_far() -> void:
 	anchor.free()
 	s.free()
 
+
+
+func test_the_rim_cliff_bands_start_flush_with_the_plain() -> void:
+	# alpha 0.1.1 (Relay 110): the terraces cut ledges +-0.3 of rim_terrace_m off the rim's height; at the foot of
+	# the mountains (rim height 0) that left a step up to 5.8 m along a line round the map, unless they fade in
+	var t := _t()
+	assert_gt(float(t._t.get("rim_terrace", 0.0)), 0.0, "the big map's rim has cliff bands")
+	var worst_foot := 0.0
+	var lowest := 0.0
+	for i in 64:
+		var x := -1900.0 + i * 61.0
+		var z := 1800.0 - i * 13.0
+		worst_foot = maxf(worst_foot, absf(t._shape_rim(x, z, 0.0)))
+		for k in 61:
+			lowest = minf(lowest, t._shape_rim(x, z, k * 0.5))
+	assert_lt(worst_foot, 0.01, "no step where the rim begins (worst %.2f m)" % worst_foot)
+	assert_gt(lowest, -0.01, "the bands never dig below the plain (lowest %.2f m)" % lowest)
