@@ -425,9 +425,9 @@ func _add_light(spec: Dictionary, shadows: bool) -> void:
 	light.position = _vec(spec.get("at", [0, 0, 0]))
 	_lights.add_child(light)
 	if kind == "sun":
-		light.look_at(light.position + _vec(spec.get("look", [0, -1, 0])), Vector3.UP)
+		_aim(light, light.position + _vec(spec.get("look", [0, -1, 0])))
 	elif spec.has("look"):
-		light.look_at(_vec(spec["look"]), Vector3.UP)
+		_aim(light, _vec(spec["look"]))
 	if bool(spec.get("lamp", false)):
 		_add_lamp(spec, light.light_color)
 
@@ -449,7 +449,16 @@ func _add_lamp(spec: Dictionary, color: Color) -> void:
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_lights.add_child(mi)
 	if spec.has("look"):
-		mi.look_at(_vec(spec["look"]), Vector3.UP)
+		_aim(mi, _vec(spec["look"]))
+
+
+## look_at for a light or its fixture. A lamp straight above its mark makes look_at warn (the look and up are
+## parallel); there it turns by Vector3.LEFT, which gives the same turn Godot falls back to, without the warning.
+func _aim(node: Node3D, target: Vector3) -> void:
+	var up := Vector3.UP
+	if up.cross((target - node.global_position).normalized()).is_zero_approx():
+		up = Vector3.LEFT
+	node.look_at(target, up)
 
 
 # --- the room ----------------------------------------------------------------------------------

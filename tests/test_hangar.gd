@@ -196,6 +196,33 @@ func test_lights_switch_and_follow_the_preset() -> void:
 	assert_eq(stage.set_light("no_such_preset"), ids[0], "an unknown id falls back to the first preset")
 
 
+## Catches the engine's warnings while it is added (OS.add_logger).
+class WarningCatcher extends Logger:
+	var warnings: PackedStringArray = []
+
+	func _log_error(_function: String, _file: String, _line: int, code: String, rationale: String, _editor_notify: bool, error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		if error_type == ERROR_TYPE_WARNING:
+			warnings.append(code + " " + rationale)
+
+
+func test_lamps_straight_above_their_mark_hang_level_without_a_warning() -> void:
+	_make_stage()
+	var catcher := WarningCatcher.new()
+	OS.add_logger(catcher)
+	var lamps := 0
+	for id in stage.light_ids():
+		stage.set_light(id)
+		for n in stage.get_node("Lights").get_children():
+			if n is MeshInstance3D:
+				lamps += 1
+				var long_side: Vector3 = (n as MeshInstance3D).global_basis.x.normalized()
+				assert_lte(absf(long_side.y), 0.01, id + ": a lamp fixture hangs level")
+	OS.remove_logger(catcher)
+	assert_gte(lamps, 1, "some preset hangs a lamp (Showroom's ceiling lamps look straight down)")
+	var colinear := Array(catcher.warnings).filter(func(w: String) -> bool: return w.contains("colinear"))
+	assert_eq(colinear.size(), 0, "look_at warned while the lights were built: %s" % [colinear])
+
+
 func test_the_blades_variant_builds_too() -> void:
 	_make_stage()
 	assert_true(stage.set_mech("juggernaut_m2_blades"))
