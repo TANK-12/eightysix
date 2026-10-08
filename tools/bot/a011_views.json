@@ -1,6 +1,6 @@
 {
  "name": "a011_views",
- "_about": "Alpha 0.1.1 (Relay 65, 2026-10-07): the fixed before/after set. Every map: the chase camera at spawn (fps measured there for 6 s) and three viewpoints; then the Juggernaut close up in the Hangar. HUD hidden, no squad. Run once per preset: tools/bot_run.sh a011_views --preset=<p> --timeout=420",
+ "_about": "Alpha 0.1.1 (Relay 65, 2026-10-07): the fixed before/after set. Every map: the chase camera at spawn (fps measured there for 6 s) and three viewpoints; then the Juggernaut close up in the Hangar. HUD hidden, no squad. Run once per preset: tools/bot_run.sh a011_views --preset=<p> --timeout=420 The Hangar shots preview the default Showroom light (preview_light does not save), so a player's own Hangar light pick does not change the comparison.",
  "steps": [
   {
    "at": 0.0,
@@ -311,6 +311,13 @@
    "call": "set_panels_hidden",
    "args": [
     true
+   ]
+  },
+  {
+   "at": 102.55,
+   "call": "preview_light",
+   "args": [
+    "showroom"
    ]
   },
   {
