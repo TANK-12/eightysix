@@ -47,7 +47,8 @@ func test_finish_paints_and_the_export_comes_back() -> void:
 	var changed := Finish.apply_to([paint, lens], "undertaker_field")
 	assert_true(changed.has(paint), "paint changed")
 	assert_almost_eq(paint.metallic, 1.0, 0.001, "metal where the surface's map shows chips")
-	assert_almost_eq(paint.roughness, 0.64 / Finish.SURFACE_ROUGH_MEAN, 0.001)
+	var rough := float(Registry.entry("finishes", "undertaker_field")["materials"]["JG2_paint"]["roughness"])
+	assert_almost_eq(paint.roughness, rough / Finish.SURFACE_ROUGH_MEAN, 0.001)
 	assert_true(paint.detail_enabled, "grime on")
 	assert_lt(paint.albedo_color.r, 0.95, "tinted off the export's white")
 	assert_almost_eq(lens.metallic, 0.3, 0.001, "a material the finish does not name stays as exported")
@@ -192,7 +193,11 @@ func test_grime_buildup_dirties_the_finish_and_mattes_it_capped() -> void:
 	g.add(50.0)
 	var cap := float(Registry.tune("grime_buildup", {})["max_extra"])
 	assert_almost_eq(g.extra, cap, 0.0001, "capped")
-	assert_eq(paint.detail_albedo, Finish.grime_texture(Finish.GRIME_STEPS), "the heaviest grime at most")
+	var base := float(Registry.entry("finishes", "undertaker_field")["materials"]["JG2_paint"]["grime"])
+	assert_almost_eq(Finish.grime_of(paint), minf(base + cap, 1.0), 0.001, "the finish's grime plus the cap, no more")
+	var capped_tex := paint.detail_albedo
+	g.add(50.0)
+	assert_eq(paint.detail_albedo, capped_tex, "no dirtier past the cap")
 	g.free()
 
 

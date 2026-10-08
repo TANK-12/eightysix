@@ -2,7 +2,7 @@
 
 Each entry names an ambientCG CC0 set. The 1K JPG set is downloaded once into the shared
 asset cache (~/Forge/shared/assets/ambientcg/<id>/) and turned into three textures in
-assets/textures/mech/<entry>/: albedo.jpg (desaturated and brought to a set mean, so the
+assets/textures/mech/<entry>/: albedo.jpg (desaturated, its swing scaled by "contrast", and brought to a set mean, so the
 finish colour does the tinting), normal.jpg (OpenGL convention, as Godot wants) and orm.jpg
 (R occlusion, G roughness brought to a mean of ROUGH_MEAN, so a finish's roughness reads as the
 average it gets, B metalness). A .import beside each asks Godot for VRAM
@@ -66,10 +66,15 @@ def channel(folder: pathlib.Path, asset: str, name: str, fallback: float) -> np.
     return np.asarray(Image.open(path).convert("L"), np.float32) / 255.0
 
 
-def albedo(colour: np.ndarray, desaturate: float, brightness: float) -> np.ndarray:
-    """Pulls the colour toward its own grey, then scales it so the mean is brightness."""
+def albedo(
+    colour: np.ndarray, desaturate: float, brightness: float, contrast: float = 1.0
+) -> np.ndarray:
+    """Pulls the colour toward its own grey, scales its swing about the mean by contrast (under 1 calms
+    blotches but keeps the chips), then scales it so the mean is brightness."""
     grey = colour @ np.array([0.2126, 0.7152, 0.0722], np.float32)
     mixed = colour + (grey[..., None] - colour) * desaturate
+    centre = mixed.mean(axis=(0, 1))
+    mixed = centre + (mixed - centre) * contrast
     return np.clip(mixed * (brightness / max(float(mixed.mean()), 1e-4)), 0.0, 1.0)
 
 
@@ -90,6 +95,7 @@ def build(entry_id: str, entry: dict) -> pathlib.Path:
         colour / 255.0,
         float(entry.get("desaturate", 0.0)),
         float(entry.get("brightness", 0.8)),
+        float(entry.get("contrast", 1.0)),
     )
     Image.fromarray((base * 255).astype(np.uint8)).save(out / "albedo.jpg", quality=92)
     Image.open(folder / f"{asset}_1K-JPG_NormalGL.jpg").convert("RGB").save(

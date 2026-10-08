@@ -112,9 +112,12 @@ func apply(id: String) -> void:
 	env.fog_sky_affect = float(w.get("fog_sky_affect", 0.35))
 	env.volumetric_fog_anisotropy = float(w.get("volumetric_anisotropy", 0.45))
 	var grade: Dictionary = w.get("grade", {})
-	env.adjustment_contrast = float(grade.get("contrast", 1.0))
+	# Alpha 0.1.1: the grade's contrast is a soft S-curve in the grade table (FilmGrade.contrast_curve); the
+	# environment's own contrast is a straight line that clipped every shadow under 16 of 255 to black
+	env.adjustment_contrast = 1.0
 	env.adjustment_saturation = float(grade.get("saturation", 1.0))
-	env.adjustment_color_correction = FilmGrade.lut(grade) if grade.has("shadow_shift") or grade.has("highlight_shift") else null
+	var table := grade.has("contrast") or grade.has("shadow_shift") or grade.has("highlight_shift")
+	env.adjustment_color_correction = FilmGrade.lut(grade) if table else null
 
 
 func _apply_clouds() -> void:

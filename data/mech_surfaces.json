@@ -1,12 +1,13 @@
 {
-  "_about": "Real PBR surfaces for the mechs (look part 3). The game exports carry no UV maps, so these are projected three ways in each part's own space (triplanar), so they ride with the part. One entry per surface: an ambientCG CC0 set (source), how it is prepared by tools/make_mech_textures.py (desaturate 0-1, brightness = target mean of the albedo so the finish colour does the tinting), and how it is laid on (scale = repeats per metre, normal = normal-map strength). A finish in data/finishes.json names a surface per material. Textures land in assets/textures/mech/<id>/ (albedo.jpg, normal.jpg, orm.jpg: R occlusion, G roughness, B metalness).",
+  "_about": "Real PBR surfaces for the mechs (look part 3). The game exports carry no UV maps, so these are projected three ways in each part's own space (triplanar), so they ride with the part. One entry per surface: an ambientCG CC0 set (source), how it is prepared by tools/make_mech_textures.py (desaturate 0-1, contrast = how much of the pattern's swing about its mean is kept, under 1 calms blotches, brightness = target mean of the albedo so the finish colour does the tinting), and how it is laid on (scale = repeats per metre, normal = normal-map strength). A finish in data/finishes.json names a surface per material. Textures land in assets/textures/mech/<id>/ (albedo.jpg, normal.jpg, orm.jpg: R occlusion, G roughness, B metalness).",
   "entries": {
     "chipped_paint": {
       "label": "Worn paint, chipped to bare metal",
       "source": "PaintedMetal012",
       "desaturate": 0.65,
       "brightness": 0.86,
-      "scale": 0.9,
+      "contrast": 0.6,
+      "scale": 1.8,
       "normal": 0.9
     },
     "scratched_metal": {

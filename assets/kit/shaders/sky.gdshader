@@ -77,10 +77,13 @@ void sky() {
 			vec2 p = d.xz / (up + 0.08) / cloud_scale;
 			float lo = 1.0 - coverage;
 			// thickness: how far the form rises over the coverage threshold
-			float thick = clamp((spread(cloud_base(p)) - lo) / 0.25, 0.0, 1.0);
-			// billows: the detail pushes the thin edges in and out
+			float form = spread(cloud_base(p));
+			float thick = clamp((form - lo) / 0.25, 0.0, 1.0);
+			// billows: the detail pushes the thin edges in and out, only near a form (Alpha 0.1.1: on its own in
+			// open sky its peaks came through as scattered white flecks)
+			float edge = smoothstep(lo - 0.12, lo, form);
 			float detail = cloud_detail(p) - 0.5;
-			float dens = clamp((thick + detail * 0.6 * (1.0 - thick) - 0.05) * 1.5, 0.0, 1.0);
+			float dens = clamp((thick + detail * 0.6 * (1.0 - thick) * edge - 0.05) * 1.5, 0.0, 1.0);
 			// light: cloud between this point and the sun dims it (Beer's law over a few samples)
 			vec2 toward = LIGHT0_DIRECTION.xz * 0.12 / cloud_scale;
 			int steps = quality > 1 ? 5 : 2;
