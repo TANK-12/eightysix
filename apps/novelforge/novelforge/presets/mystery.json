@@ -1,0 +1,90 @@
+{
+  "id": "mystery",
+  "label": "Mystery / detective",
+  "group": "Western",
+  "description": "A fair-play puzzle: a crime, a detective, suspects with motives, clues and red herrings, and a reveal that the reader could have solved.",
+  "keywords": [
+    "mystery",
+    "detective",
+    "murder",
+    "whodunit",
+    "cozy",
+    "investigation",
+    "crime",
+    "sleuth",
+    "inspector",
+    "clue"
+  ],
+  "words_per_chapter": 3000,
+  "voice": [
+    "First or third person, past tense, with the detective's observations precise and specific.",
+    "Clues are shown to the reader when the detective sees them, fairly.",
+    "Every suspect has a motive, a secret and a lie.",
+    "Interviews are duels; people lie for their own reasons, not only the killer.",
+    "Setting details double as clues.",
+    "Chapters end on a new clue, a new body or a lie exposed."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "crime",
+      "guide": "The crime is discovered, with one odd detail.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "engaged",
+      "guide": "The detective takes the case, for a personal reason."
+    },
+    {
+      "at": 0.2,
+      "role": "suspects",
+      "guide": "The suspects introduced, each with a motive.",
+      "then": "Interviews and clues; each chapter one lie exposed."
+    },
+    {
+      "at": 0.5,
+      "role": "second crime",
+      "guide": "A second crime or reversal that kills the leading theory.",
+      "key": true
+    },
+    {
+      "at": 0.75,
+      "role": "wrong answer",
+      "guide": "The detective (or police) accuses the wrong person."
+    },
+    {
+      "at": 0.9,
+      "role": "reveal",
+      "guide": "The gathering and the reveal, using clues the reader saw.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "denouement",
+      "guide": "The aftermath and what it cost.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter should contain at least one concrete clue or one exposed lie, named in the line.",
+  "outline_example": "The Clock in the Hall | At Wren House the morning after the party, Inspector Adaeze Obi notices the hall clock was wound backwards | The butler's alibi now depends on a time that never happened | The victim's niece asks to speak to her alone",
+  "scene_guidance": [
+    "Plant clues in plain sight.",
+    "Let each suspect lie differently.",
+    "Keep a list of who knew what when."
+  ],
+  "worldbuilding": [
+    "The true sequence of the crime, minute by minute",
+    "Each suspect's secret"
+  ],
+  "naming": "Names that fit the setting and are easy to tell apart.",
+  "cliches": [
+    "the butler did it",
+    "you'll never get away with this"
+  ],
+  "sample": "The hall clock said twenty past nine.\n\nAdaeze checked her own watch. Ten past eleven.\n\n\"Stopped?\" said Constable Hale.\n\n\"No.\" She opened the case with a gloved finger. The key was still warm from someone's pocket. \"Wound. Backwards.\"",
+  "example_names": [
+    "Adaeze",
+    "Obi"
+  ]
+}

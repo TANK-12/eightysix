@@ -1,0 +1,16 @@
+{
+ "agent": "atmosphere",
+ "model": "opus",
+ "task": "Sheepy-style light, bloom, dust, contact shadow",
+ "status": "done",
+ "doing": "file delivered and wired by the commander",
+ "done": [
+  "static/atmosphere.js, 1341 lines",
+  "wired into render.js behind a guard; visible in screenshots",
+  "not profiled \u2014 see roadmap"
+ ],
+ "files": [
+  "apps/janhollow/static/atmosphere.js"
+ ],
+ "updated": 1789557366.7522109
+}

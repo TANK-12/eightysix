@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>forge_panels check</title></head>
+<body style="margin:0">
+<div id="board" style="width:1000px;height:600px">
+  <div data-panel="settings" data-title="Settings"><input id="inner"></div>
+  <div data-panel="preview" data-title="Preview">preview</div>
+</div>
+<div id="twin" style="width:1000px;height:600px">
+  <div data-panel="settings" data-title="Settings">a</div>
+  <div data-panel="preview" data-title="Preview">b</div>
+</div>
+<div id="narrow" style="width:500px;height:600px">
+  <div data-panel="settings" data-title="Settings">c</div>
+</div>
+<pre id="out"></pre>
+<script src="/shared/forge_panels.js"></script>
+<script>
+const lines = [];
+const check = (name, ok, got) => lines.push((ok ? "PASS" : "FAIL") + " :: " + name + (ok ? "" : " (got " + JSON.stringify(got) + ")"));
+const near = (a, b) => Math.abs(a - b) < 0.006;
+function pointer(el, type, x, y) {
+  el.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0, pointerId: 1 }));
+}
+function dragBy(el, dx, dy) {
+  pointer(el, "pointerdown", 500, 300);
+  pointer(el, "pointermove", 500 + dx, 300 + dy);
+  pointer(el, "pointerup", 500 + dx, 300 + dy);
+}
+try {
+  localStorage.clear();
+  const defaults = { settings: { x: 0, y: 0, w: 0.3, h: 1 }, preview: { x: 0.3, y: 0, w: 0.7, h: 0.6 } };
+  const board = document.getElementById("board");
+  const p = ForgePanels.mount(board, { key: "t", defaults });
+  const card = board.querySelector('[data-card="preview"]');
+  const bar = card.querySelector(".fp-bar");
+  check("each block gets a card with its title", board.querySelectorAll(".fp-card").length === 2 && bar.textContent === "Preview", bar.textContent);
+  check("the app's own elements keep their ids", document.getElementById("inner").closest(".fp-card").dataset.card === "settings", null);
+  check("the default layout is applied", card.style.left === "30%" && card.style.width === "70%", card.style.cssText);
+
+  dragBy(bar, -100, 60);
+  let r = p.layout().preview;
+  check("dragging the title bar moves the card", near(r.x, 0.2) && near(r.y, 0.1), r);
+  check("a move is saved", JSON.parse(localStorage.getItem("forge-panels:t")).preview.x > 0.19, localStorage.getItem("forge-panels:t"));
+
+  dragBy(card.querySelector(".fp-grip"), -200, -120);
+  r = p.layout().preview;
+  check("the corner grip resizes", near(r.w, 0.5) && near(r.h, 0.4), r);
+  dragBy(card.querySelector(".fp-grip"), -2000, -2000);
+  r = p.layout().preview;
+  check("a card never shrinks below the minimum", near(r.w, 0.22) && near(r.h, 0.2), r);
+  dragBy(bar, 5000, 5000);
+  r = p.layout().preview;
+  check("a card cannot leave the board", near(r.x + r.w, 1) && near(r.y + r.h, 1), r);
+
+  const z0 = p.layout().settings.z;
+  pointer(board.querySelector('[data-card="settings"]'), "pointerdown", 10, 10);
+  check("clicking a card brings it to the front", p.layout().settings.z > p.layout().preview.z && p.layout().settings.z > z0, p.layout());
+
+  const before = p.layout().preview;
+  bar.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  r = p.layout().preview;
+  check("double-click fills the board", r.x === 0 && r.y === 0 && r.w === 1 && r.h === 1, r);
+  bar.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+  r = p.layout().preview;
+  check("double-click again puts it back", near(r.x, before.x) && near(r.w, before.w), r);
+
+  const twin = ForgePanels.mount(document.getElementById("twin"), { key: "t", defaults });
+  check("a saved layout comes back on the next start", near(twin.layout().preview.x, r.x) && near(twin.layout().preview.w, r.w), twin.layout());
+
+  const narrow = document.getElementById("narrow");
+  const n = ForgePanels.mount(narrow, { key: "n", defaults });
+  check("a narrow board stacks its cards", narrow.classList.contains("fp-stacked"), narrow.className);
+  dragBy(narrow.querySelector(".fp-bar"), 100, 100);
+  check("stacked cards do not drag", n.layout().settings.x === 0, n.layout());
+  const cardsN = Array.from(narrow.querySelectorAll(".fp-card"));
+  check(
+    "stacked cards take the full width, one under another",
+    cardsN.every((c) => c.offsetWidth >= narrow.clientWidth - 30) &&
+      cardsN.every((c, i) => i === 0 || c.offsetTop >= cardsN[i - 1].offsetTop + cardsN[i - 1].offsetHeight),
+    cardsN.map((c) => [c.offsetWidth, c.offsetTop, c.offsetHeight])
+  );
+
+  p.reset();
+  r = p.layout().preview;
+  check("reset brings the defaults back and forgets the saved one", near(r.x, 0.3) && near(r.w, 0.7) && !localStorage.getItem("forge-panels:t"), r);
+} catch (e) {
+  lines.push("FAIL :: harness threw " + e);
+}
+document.getElementById("out").textContent = "\n" + lines.join("\n");
+</script>
+</body>
+</html>

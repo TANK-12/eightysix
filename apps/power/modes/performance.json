@@ -1,0 +1,22 @@
+{
+  "name": "performance",
+  "label": "Performance",
+  "order": 3,
+  "description": "Everything on. Turbo, performance governor, no frequency cap, the firmware's performance fan table, your full 55 W headroom held for a full hour instead of stepping down after 28 s, and the screen at 60 Hz. Runs hotter and louder.",
+  "settings": {
+    "governor": "performance",
+    "turbo": "on",
+    "max_freq_mhz": "max",
+    "epp": "performance",
+    "platform_profile": "performance",
+    "pl1_duration_s": 3600,
+    "nmi_watchdog": false,
+    "dirty_writeback_cs": 500,
+    "audio_power_save": 0,
+    "wifi_power_save": false,
+    "gpu_max_freq_mhz": "max"
+  },
+  "display": {
+    "refresh_hz": 60
+  }
+}

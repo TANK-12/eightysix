@@ -1,0 +1,46 @@
+{
+  "name": "study-companion",
+  "label": "Study Companion",
+  "tagline": "A Jan tutor grounded in your course notes",
+  "port": 8443,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#5b8a72",
+  "icon": "🎓",
+  "role": "study-companion",
+  "order": 20,
+  "section": "assistants",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "Drop in lecture slides, notes or any course PDF/text and chat with Jan about them. Jan only ever answers from the material you loaded plus whatever it's told in the system prompt -- it never improvises new syllabus content. Can generate practice quizzes (question + full worked solution) grounded in a chosen source, and can plot a function on request via a PLOT directive the frontend renders as a real chart.",
+    "features": [
+      {
+        "name": "Sources",
+        "description": "Any .txt/.md dropped into a course's folder under ~/Forge/apps/study-companion/data/<course>/ is picked up automatically -- no code change. Text extracted from PDFs with pdftotext works well; the app does not parse PDFs itself."
+      },
+      {
+        "name": "Grounded chat",
+        "description": "Every request sends Jan the full text of the selected source(s) plus a system prompt that instructs it to answer only from that material and say plainly when something isn't covered, rather than inventing content."
+      },
+      {
+        "name": "Quiz generator",
+        "description": "Asks Jan for N questions in strict JSON (question + full worked solution) from a chosen source; rendered as reveal-to-check cards. A malformed response is shown as an error rather than guessed at."
+      },
+      {
+        "name": "Graphing",
+        "description": "Jan can end a reply with a PLOT block (function + domain); the frontend evaluates it with a small safe expression parser and draws a real canvas chart -- the model describes the function, the app draws it, so a hallucinated curve isn't possible."
+      }
+    ],
+    "data_dir": "~/Forge/apps/study-companion/data/<course>/*.txt",
+    "services": ["Jan (http://127.0.0.1:1337/v1) -- required for chat and quizzes; the app shows a clear offline state without it"],
+    "dependencies": {"required": ["fastapi", "uvicorn", "httpx"], "optional": []},
+    "standalone_launch": "cd ~/Forge/apps/study-companion && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8443",
+    "api_base": "/api",
+    "known_gaps": [
+      "No PDF parsing built in -- source files must already be .txt/.md (pdftotext -layout works well).",
+      "No retrieval/chunking: the whole selected source goes into the prompt, so a very large source (tens of thousands of words) may exceed a small local model's context. Select one topic at a time for a small model.",
+      "The client-side plot expression parser supports +-*/^, sin/cos/tan, sqrt, ln/log, exp, abs, pi, e -- nothing more exotic."
+    ],
+    "docs": ["README.md"]
+  }
+}

@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><title>B39: the frame-rate cap</title>
+<!-- Run by tests/browser/check_framecap.py in real time. The child is the B18
+     rest child: a real shared/forge_chrome.js app counting its animation
+     frames in w.frames. The cap reaches it the way it does in Forge, inside
+     the hub's theme message. -->
+<script src="/shared/forge_chrome.js"></script></head>
+<body>
+<iframe id="app" src="forge_rest_child.html"></iframe>
+<script>
+// S17 (2026-09-27), B39: Emerson: "let the power app control the fps ...
+// making the gpu only render frames like 1 fps or 30 fps with a slider".
+const out = [];
+const t = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const until = async (ok, ms) => { for (let i = 0; i < ms / 50 && !ok(); i++) await wait(50); return ok(); };
+addEventListener("load", () => setTimeout(async () => {
+  try {
+    const w = document.getElementById("app").contentWindow;
+    const cap = (n) => w.postMessage({ forge: "theme", theme: { max_fps: n } }, "*");
+    const rate = async (ms) => { const f = w.frames; await wait(ms); return (w.frames - f) * 1000 / ms; };
+    t("the app loads the cap from forge_chrome.js", await until(() => !!w.ForgeFrameCap, 3000));
+    t("standalone pages don't load it", !window.ForgeFrameCap);
+    const full = await rate(1000);
+    t("with no cap the app draws freely", full >= 40, full.toFixed(1));
+    for (const [n, lo, hi] of [[30, 24, 33], [10, 8, 11.5], [2, 1, 3]]) {
+      cap(n);
+      await wait(n < 5 ? 1100 : 200);
+      const r = await rate(n < 5 ? 3000 : 1500);
+      t(`capped at ${n} it draws about ${n} a second`, r >= lo && r <= hi, r.toFixed(1));
+    }
+    t("the page reports the cap", w.ForgeFrameCap.fps === 2, w.ForgeFrameCap.fps);
+    let ran = false;
+    const id = w.requestAnimationFrame(() => { ran = true; });
+    w.cancelAnimationFrame(id);
+    await wait(1200);
+    t("a cancelled capped frame never runs", !ran);
+    w.postMessage({ forge: "visible", visible: false }, "*");
+    await wait(100);
+    const resting = await rate(1200);
+    t("behind another app it still rests under the cap", resting <= 1, resting.toFixed(1));
+    w.postMessage({ forge: "visible", visible: true }, "*");
+    cap(60);
+    await wait(300);
+    const back = await rate(1000);
+    t("back to 60 it draws freely again", back >= 40, back.toFixed(1));
+  } catch (e) {
+    t("framecap harness ran", false, String(e && e.stack || e));
+  }
+  const pre = document.createElement("pre");
+  pre.id = "results";
+  pre.textContent = out.join("\n");
+  document.body.appendChild(pre);
+}, 300));
+</script>
+</body></html>

@@ -1,0 +1,64 @@
+{
+ "id": "office",
+ "label": "Office",
+ "order": 1,
+ "palette": "crewroom",
+ "background": "#1b1726",
+ "legend": {
+  "#": {"sprite": "wall_office", "solid": true},
+  ".": {"sprite": "floor_wood"},
+  "~": {"sprite": "rug"}
+ },
+ "tiles": [
+  "####################",
+  "####################",
+  "....................",
+  "....................",
+  "....................",
+  "....................",
+  ".............~~~~~~.",
+  ".............~~~~~~.",
+  ".............~~~~~~.",
+  ".............~~~~~~.",
+  ".............~~~~~~.",
+  "...................."
+ ],
+ "props": [
+  {"sprite": "window_city", "x": 0.5, "y": 0},
+  {"sprite": "window_city", "x": 9.5, "y": 0},
+  {"sprite": "bookshelf", "x": 13, "y": 0, "solid": true},
+  {"sprite": "coffee_machine", "x": 15.5, "y": 1, "solid": true},
+  {"sprite": "plant", "x": 17, "y": 0.9, "solid": true},
+  {"sprite": "lamp", "x": 18.8, "y": 0.2, "solid": true},
+  {"sprite": "couch", "x": 14.5, "y": 6.1, "layer": "back", "solid": true},
+  {"sprite": "beanbag", "x": 13.6, "y": 9.2, "layer": "back"},
+  {"sprite": "beanbag_green", "x": 17.4, "y": 9.2, "layer": "back"},
+  {"sprite": "cat", "x": 15.9, "y": 10.1, "layer": "back"},
+  {"sprite": "plant", "x": 0.1, "y": 5.5, "solid": true}
+ ],
+ "board": {"sprite": "whiteboard", "x": 4.5, "y": 0, "text": [4, 4, 56, 26], "ink": "#2a2140", "title": "Whiteboard"},
+ "seat": {"dx": 1, "dy": 0.7},
+ "stations": [
+  {"sprite": "desk", "x": 1.5, "y": 3.6},
+  {"sprite": "desk", "x": 5.5, "y": 3.6},
+  {"sprite": "desk", "x": 9.5, "y": 3.6},
+  {"sprite": "desk", "x": 1.5, "y": 7.4},
+  {"sprite": "desk", "x": 5.5, "y": 7.4},
+  {"sprite": "desk", "x": 9.5, "y": 7.4}
+ ],
+ "helper_offsets": [[-1.1, 0.45], [1.1, 0.45], [-1.1, 1.25], [1.1, 1.25]],
+ "lounge": [
+  {"x": 15.0, "y": 7.75, "pose": "relax"},
+  {"x": 16.0, "y": 7.75, "pose": "relax"},
+  {"x": 17.0, "y": 7.75, "pose": "relax"},
+  {"x": 14.25, "y": 10.05, "pose": "relax"},
+  {"x": 18.05, "y": 10.05, "pose": "relax"},
+  {"x": 15.2, "y": 3.3, "pose": "idle"},
+  {"x": 16.6, "y": 3.5, "pose": "idle"}
+ ],
+ "jan": {
+  "prop": {"sprite": "server_rack", "x": 0.2, "y": 8.9},
+  "spots": [{"x": 1.9, "y": 10.9}, {"x": 3.1, "y": 11.5}, {"x": 1.4, "y": 11.8}]
+ },
+ "door": {"x": 11.5, "y": 11.9}
+}

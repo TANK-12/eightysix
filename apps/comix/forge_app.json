@@ -1,0 +1,38 @@
+{
+  "name": "comix",
+  "label": "Comix",
+  "tagline": "Save comix.to series you read as CBZ files",
+  "port": 8456,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e8a0d8",
+  "icon": "📚",
+  "fullscreen": "auto",
+  "order": 14,
+  "section": "media",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "A chapter downloader for comix.to. It lists every chapter of a series with every scanlation group's version, lets Emerson pick groups per series, and downloads through the site's own reader in headless Chrome using the login from the Forge Browser. The queue keeps state per page, so slow or broken image loading is retried page by page and resumed after a restart. Chapters are saved as CBZ files and can be read in the app.",
+    "features": [
+      {"name": "Login from the Forge Browser", "description": "Log in once on comix.to in the Forge Browser. Comix reads that site's cookies from a temporary copy of the browser's cookies.sqlite and gives them to its headless Chrome. No password is stored."},
+      {"name": "Every scanlation group", "description": "Looking up a series lists each chapter once per group with counts. Per series: one group, a ranked list with fallback, or every version. The choice can be changed later."},
+      {"name": "Library sync", "description": "Reads every series linked from the library/bookmarks page set in Settings and adds them waiting for a group choice; nothing downloads until groups are picked."},
+      {"name": "Survives bad image loading", "description": "Each page is captured, checked (decodes, not blank) and saved on its own. Missing pages are retried in further passes after a reader reload, and the chapter is requeued with a growing delay. A CBZ is only built when every page is saved."},
+      {"name": "Resume", "description": "Pages already saved are never fetched again; a chapter that was running when the app stopped is requeued at start."},
+      {"name": "Reader", "description": "Vertical-scroll reader over the downloaded CBZ with previous/next chapter."}
+    ],
+    "data_dir": "~/.local/share/forge/comix/comix.db (records); ~/.config/forge-comix/settings.json; downloads in the folder set in Settings (default ~/ComixData/<Series>/<Group>/Chapter_NNNN.cbz, pages in progress under .work/)",
+    "services": [],
+    "dependencies": {
+      "required": ["fastapi", "uvicorn", "websocket-client", "pillow", "Flatpak Google Chrome (com.google.Chrome)"],
+      "optional": ["Forge Browser app (for logging in)"]
+    },
+    "standalone_launch": "cd ~/Forge/apps/comix && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8456",
+    "api_base": "/api",
+    "known_gaps": [
+      "Library sync walks every page of the link set in Settings (confirmed live 2026-09-25: https://comix.to/user?tab=titles, 139 series over 5 pages).",
+      "Relies on comix.to's reader markup (.rpage-page, li.mchap-item); a site redesign needs the selectors in comix/sources/comix_to.py updated."
+    ],
+    "docs": ["README.md", "WIP.md"]
+  }
+}

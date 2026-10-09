@@ -1,0 +1,9 @@
+{
+  "name": "afterglow-frontend",
+  "private": true,
+  "type": "module",
+  "description": "Only here so Node treats the curios' .js files as ES modules when running their tests. Nothing is installed.",
+  "scripts": {
+    "test": "node --test tests/js/ curios/"
+  }
+}

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Docs</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="docs.css">
+<style>
+  :root { --accent: #e0916b; --accent-2: #d97757; --on-accent: #1a0c05; }
+</style>
+</head>
+<body>
+<div id="app" class="docs">
+  <header class="d-head">
+    <a class="btn" id="back" href="index.html" title="Back to the conversations">← Claude</a>
+    <h1>Docs</h1>
+    <span class="muted small" id="count"></span>
+    <span class="grow"></span>
+    <input id="search" type="search" spellcheck="false" placeholder="Search titles and text, Enter to search" title="Every word must appear in the title, path or text">
+    <button type="button" class="btn" id="refresh" title="Read the folders again">↻</button>
+  </header>
+  <aside class="d-tree" id="tree"></aside>
+  <main class="d-view" id="view">
+    <div class="d-empty muted">
+      <p>Every important text document for you and Claude, dated and in folders, newest first. Read-only.</p>
+      <p class="small">New docs go in <code id="lib-path"></code>, one folder per topic, named <code>YYYY-MM-DD-name.md</code>. The folders shown come from <code>apps/claude/doc_sources.json</code>.</p>
+    </div>
+  </main>
+</div>
+<script src="/shared/forge_convo.js"></script>
+<script src="claude_common.js"></script>
+<script src="docs_text.js"></script>
+<script src="docs.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "code",
+  "label": "Code",
+  "tagline": "VS Code inside Forge",
+  "port": 8460,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#6ea8fe",
+  "icon": "🧩",
+  "role": "code",
+  "order": 97,
+  "section": "system",
+  "ready_timeout": 60
+}

@@ -1,0 +1,34 @@
+{
+  "name": "voice",
+  "label": "Voice",
+  "tagline": "Speech in and out for all of Forge",
+  "port": 8467,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7fc8d8",
+  "icon": "🎙️",
+  "role": "voice",
+  "order": 40,
+  "section": "system",
+  "start_at_launch": true,
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "The only Forge process that loads speech models. Speech-to-text (whisper.cpp) and text-to-speech (Kokoro) from shared/voice_registry.json, loaded on first use and unloaded when idle; push-to-talk from the Super+Z hotkey that sends what you say to Acchan (Jan) or Claude and speaks the reply; an HTTP API the other apps use for listening and speaking.",
+    "features": [
+      {"name": "Registry", "description": "Models are rows in shared/voice_registry.json; engines are one file each in engines/ found by the row's engine field."},
+      {"name": "Push-to-talk", "description": "Hold to talk while held, or tap to talk until a pause or the next tap. A tap while speaking hushes."},
+      {"name": "Routing", "description": "A leading wake name picks Claude or Jan; stop, cancel and say that again are handled here."},
+      {"name": "Per-app picks", "description": "Each app with a voice field in its forge_app.json gets its own model, voice, speed and speak-replies setting."}
+    ],
+    "data_dir": "~/.config/forge/voice.json (settings, written only here); models in ~/Forge/models/voice (FORGE_MODELS_DIR)",
+    "services": ["Acchan at 127.0.0.1:8451 (/api/voice/command)", "Claude app at 127.0.0.1:8445 (/api/voice/ask)"],
+    "dependencies": {
+      "required": ["fastapi", "uvicorn", "numpy", "onnxruntime", "kokoro-onnx", "ffmpeg", "pw-record", "pw-play", "whisper-cli (whisper.cpp)"],
+      "optional": ["notify-send"]
+    },
+    "standalone_launch": "cd ~/Forge/apps/voice && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8467",
+    "api_base": "/api",
+    "known_gaps": ["No /api/events stream yet", "No model download or delete routes yet"],
+    "docs": ["README.md", "WIP.md"]
+  }
+}

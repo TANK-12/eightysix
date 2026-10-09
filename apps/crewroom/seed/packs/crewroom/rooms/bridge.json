@@ -1,0 +1,57 @@
+{
+ "id": "bridge",
+ "label": "Spaceship bridge",
+ "order": 2,
+ "palette": "crewroom",
+ "background": "#0b0e22",
+ "legend": {
+  "#": {"sprite": "wall_metal", "solid": true},
+  "=": {"sprite": "floor_metal"},
+  "-": {"sprite": "floor_metal_stripe"}
+ },
+ "tiles": [
+  "####################",
+  "####################",
+  "####################",
+  "====================",
+  "====================",
+  "====================",
+  "====================",
+  "====================",
+  "====================",
+  "====================",
+  "--------------------",
+  "===================="
+ ],
+ "ambient": {"type": "stars", "rect": [50, 2, 220, 34]},
+ "props": [
+  {"sprite": "star_window", "x": 3, "y": 0},
+  {"sprite": "bench", "x": 1, "y": 10.1, "layer": "back", "solid": true},
+  {"sprite": "plant", "x": 0.1, "y": 2.6, "solid": true},
+  {"sprite": "plant", "x": 18.9, "y": 2.6, "solid": true}
+ ],
+ "board": {"sprite": "bridge_display", "x": 8, "y": 6.4, "text": [4, 4, 56, 28], "ink": "#7ff7ff", "title": "Bridge display", "solid": true},
+ "seat": {"dx": 1, "dy": 0.7},
+ "stations": [
+  {"sprite": "console", "x": 1.5, "y": 3.8},
+  {"sprite": "console", "x": 5.5, "y": 3.3},
+  {"sprite": "console", "x": 12.5, "y": 3.3},
+  {"sprite": "console", "x": 16.5, "y": 3.8},
+  {"sprite": "console", "x": 3.5, "y": 7.1},
+  {"sprite": "console", "x": 14.5, "y": 7.1}
+ ],
+ "helper_offsets": [[-1.1, 0.45], [1.1, 0.45], [-1.1, 1.25], [1.1, 1.25]],
+ "lounge": [
+  {"x": 1.5, "y": 10.85, "pose": "relax"},
+  {"x": 2.5, "y": 10.85, "pose": "relax"},
+  {"x": 3.5, "y": 10.85, "pose": "relax"},
+  {"x": 9.0, "y": 4.2, "pose": "idle"},
+  {"x": 11.0, "y": 4.2, "pose": "idle"},
+  {"x": 7.5, "y": 11.2, "pose": "idle"}
+ ],
+ "jan": {
+  "prop": {"sprite": "reactor", "x": 17.6, "y": 8.4, "solid": true},
+  "spots": [{"x": 16.6, "y": 11.4}, {"x": 16.4, "y": 9.6}, {"x": 15.3, "y": 10.6}]
+ },
+ "door": {"x": 10, "y": 11.9}
+}

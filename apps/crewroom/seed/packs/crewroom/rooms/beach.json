@@ -1,0 +1,62 @@
+{
+ "id": "beach",
+ "label": "Beach",
+ "order": 3,
+ "palette": "crewroom",
+ "background": "#ffc7a8",
+ "legend": {
+  "s": {"sprite": "sky", "solid": true},
+  "w": {"sprite": "water", "solid": true},
+  "f": {"sprite": "foam", "solid": true},
+  ",": {"sprite": "sand_wet"},
+  ".": {"sprite": "sand"}
+ },
+ "tiles": [
+  "ssssssssssssssssssss",
+  "ssssssssssssssssssss",
+  "wwwwwwwwwwwwwwwwwwww",
+  "wwwwwwwwwwwwwwwwwwww",
+  "ffffffffffffffffffff",
+  ",,,,,,,,,,,,,,,,,,,,",
+  "....................",
+  "....................",
+  "....................",
+  "....................",
+  "....................",
+  "...................."
+ ],
+ "props": [
+  {"sprite": "sun", "x": 14.5, "y": 0.1},
+  {"sprite": "umbrella", "x": 1.25, "y": 5.55},
+  {"sprite": "umbrella", "x": 5.25, "y": 5.55},
+  {"sprite": "umbrella", "x": 12.25, "y": 5.55},
+  {"sprite": "palm", "x": 17.5, "y": 4.9, "block": [18, 7, 1, 1]},
+  {"sprite": "towel_pink", "x": 8.0, "y": 9.6, "layer": "back"},
+  {"sprite": "towel_blue", "x": 10.6, "y": 10.4, "layer": "back"},
+  {"sprite": "crab", "x": 6.4, "y": 11.1, "layer": "back"}
+ ],
+ "board": {"sprite": "beach_sign", "x": 8, "y": 5.3, "text": [4, 3, 56, 28], "ink": "#3b2a1a", "title": "Beach sign", "solid": true},
+ "seat": {"dx": 1, "dy": 0.7},
+ "stations": [
+  {"sprite": "beach_table", "x": 1.5, "y": 7.7},
+  {"sprite": "beach_table", "x": 5.5, "y": 7.7},
+  {"sprite": "beach_table", "x": 12.5, "y": 7.7},
+  {"sprite": "beach_table", "x": 1.6, "y": 10.4},
+  {"sprite": "beach_table", "x": 14.5, "y": 10.4},
+  {"sprite": "beach_table", "x": 5.2, "y": 10.4}
+ ],
+ "helper_offsets": [[-1.1, 0.45], [1.1, 0.45], [-1.1, 1.1], [1.1, 1.1]],
+ "lounge": [
+  {"x": 8.55, "y": 10.5, "pose": "relax"},
+  {"x": 9.45, "y": 10.5, "pose": "relax"},
+  {"x": 11.15, "y": 11.3, "pose": "relax"},
+  {"x": 12.05, "y": 11.3, "pose": "relax"},
+  {"x": 4.0, "y": 5.9, "pose": "idle"},
+  {"x": 15.6, "y": 5.9, "pose": "idle"}
+ ],
+ "jan": {
+  "prop": {"sprite": "tiki", "x": 18.9, "y": 8.4, "solid": true},
+  "spots": [{"x": 17.6, "y": 11.4}, {"x": 18.7, "y": 11.8}, {"x": 16.9, "y": 10.3}]
+ },
+ "door": {"x": 10, "y": 11.9}
+}

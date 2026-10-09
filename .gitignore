@@ -1,0 +1,82 @@
+# Forge .gitignore
+# Ignored files stay on disk; they are just not version-controlled.
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Logs, PID files, editor leftovers
+*.log
+logs/
+*.pid
+*.bak
+*.swp
+*~
+.DS_Store
+
+# Runtime output shared by every app (logs, screenshots, dossier-manifest.json)
+/outputs/
+
+# Snapshot copies taken before edits; git history does this job now
+/backups/
+
+# Rewritten by forge.py on every start (theme.js from ~/.config/forge/settings.json)
+/hub/status.js
+/hub/status.json
+/hub/theme.js
+
+# Downloaded models, binaries and generated images (gigabytes; fetch, never commit)
+/apps/ai-studio/models/
+/apps/ai-studio/bin/
+/apps/ai-studio/outputs/
+
+# Vendored VS Code server download used by the Code app
+/apps/code/openvscode-server/
+
+# Per-app state the apps write while running
+/apps/code/data/
+/apps/keymap/data/backups/
+/apps/keymap/data/history.jsonl
+/apps/jan-tune/data/backups/
+/apps/jan-tune/data/results/
+
+# Eval results cited in apps/acchan/WIP.md are kept, logs included
+!/apps/acchan/tests/results/*.log
+
+# Throwaway folders made by test runs
+.scratch-*/
+.ui-*/
+.shots/
+
+# Godot and editor caches
+.godot/
+.vscode/
+.idea/
+
+# /sessions
+
+# Downloaded CC0 character bodies and animation clips (about 21 MB; source and
+# licence in shared/bridges/godot/templates/third_person/characters/CREDITS.md).
+# Kept on disk, out of git: the laptop is short on space.
+shared/assets/characters/
+shared/assets/animations/
+
+# Drift Peaks music: hardlinks to ~/Music/Alto, not source
+apps/driftpeaks/music/
+
+# Shared Forge model home (Relay 113): every app downloads models here, never per app
+/models/

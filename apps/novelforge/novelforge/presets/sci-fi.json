@@ -1,0 +1,96 @@
+{
+  "id": "sci-fi",
+  "label": "Science fiction",
+  "group": "Western",
+  "description": "A speculative idea explored through people: space, near-future tech or strange science, consistent rules and human stakes.",
+  "keywords": [
+    "sci",
+    "fi",
+    "science",
+    "space",
+    "spaceship",
+    "starship",
+    "cyberpunk",
+    "future",
+    "android",
+    "ai",
+    "alien",
+    "colony",
+    "mars",
+    "dystopian"
+  ],
+  "words_per_chapter": 3500,
+  "voice": [
+    "Close third or first person, past tense; the future is shown through lived-in detail, not explained.",
+    "The speculative idea has consistent rules and real consequences.",
+    "Technology changes how people behave, talk and work.",
+    "No info dumps: explain only what the character would think about now.",
+    "Human stakes stay at the centre.",
+    "Chapters end on a discovery, a failure or a choice."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "A normal day in an abnormal world, broken by a concrete anomaly.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "inciting",
+      "guide": "The anomaly becomes the protagonist's problem."
+    },
+    {
+      "at": 0.25,
+      "role": "exploration",
+      "guide": "Investigate the idea; the rules become clear.",
+      "then": "Each chapter pushes the idea further and costs something."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "The idea's full implication lands.",
+      "key": true
+    },
+    {
+      "at": 0.72,
+      "role": "crisis",
+      "guide": "Systems fail; allies split."
+    },
+    {
+      "at": 0.87,
+      "role": "climax",
+      "guide": "The choice that uses the rules of the idea.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "new world",
+      "guide": "What the world becomes afterwards.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter tests the central idea with a concrete event and a human cost.",
+  "outline_example": "Signal Delay | Aboard the relay ship Kestrel, engineer Priya Nand hears her own voice on a message sent eleven years from now | The crew realises the relay can receive from the future | The message ends with a mayday",
+  "scene_guidance": [
+    "Lived-in details",
+    "Tech used casually",
+    "Idea through action"
+  ],
+  "worldbuilding": [
+    "The central idea and its rules",
+    "Society shaped by it",
+    "Its hidden cost"
+  ],
+  "naming": "Names that reflect a plausible future mix of cultures.",
+  "cliches": [
+    "as you know, captain",
+    "it's not possible",
+    "the ai became self-aware"
+  ],
+  "sample": "The message came in at 03:12 ship time, flagged priority, sender unknown.\n\nPriya played it twice before she let herself believe it.\n\nIt was her voice. Older, hoarse, with a crackle she recognised from the Kestrel's aft antenna.\n\n\"If you're hearing this,\" the voice said, \"don't reboot the relay.\"\n\nShe looked at the maintenance schedule on her wrist. Relay reboot: 03:30.",
+  "example_names": [
+    "Priya Nand",
+    "Kestrel"
+  ]
+}

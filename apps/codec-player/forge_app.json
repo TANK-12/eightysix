@@ -1,0 +1,55 @@
+{
+  "name": "codec-player",
+  "label": "Codec Player",
+  "tagline": "Play .acv files",
+  "root": "~/anime-codec-lab",
+  "port": 8432,
+  "module": "web_player:app",
+  "src_dir": ".",
+  "accent": "#e0655f",
+  "icon": "🎬",
+  "fullscreen": "auto",
+  "order": 5,
+  "section": "watch",
+  "ready_timeout": 45,
+  "manifest": {
+    "summary": "A pointer folder like apps/codec-lab/ - the code lives at ~/anime-codec-lab/web_player.py. The in-hub equivalent of the standalone player.py: upload a .acv, it reads the header for the strategy that produced it, decodes with that strategy, and serves the reconstructed video as an mp4 with audio muxed from the file's embedded WAV. No lab, no source clip, and no ffmpeg-at-runtime dependency for playing an existing .acv.",
+    "features": [
+      {
+        "name": "Open a .acv",
+        "description": "Drop or upload a .acv file; core/container.py load_acv() reads strategy id + params + encoded bytes + optional WAV."
+      },
+      {
+        "name": "Decode + play",
+        "description": "The named strategy from strategies/ decodes the frames; the result is served at /video/{play_id} as an mp4 with the embedded audio muxed in."
+      }
+    ],
+    "data_dir": "none persisted",
+    "services": [
+      "None. Reuses ~/anime-codec-lab's core/ + strategies/ + .venv."
+    ],
+    "dependencies": {
+      "required": [
+        "numpy",
+        "opencv",
+        "fastapi",
+        "uvicorn",
+        "shared ~/anime-codec-lab/.venv"
+      ],
+      "optional": []
+    },
+    "standalone_launch": "cd ~/anime-codec-lab && uvicorn web_player:app --host 127.0.0.1 --port 8432   (in Forge: port 8432 via the root path). The OpenCV-window version is player.py, also shipped as the AnimeCodecPlayer / AnimeCodecPlayer.exe binary for sharing .acv files outside Forge.",
+    "api_base": "/  (web_player.py: GET /, POST /api/open, GET /video/{play_id})",
+    "acv_format": "core/container.py - strategy id + params + encoded bytes + optional passthrough-audio WAV, self-contained.",
+    "known_gaps": [
+      "Playback quality is whatever the source .acv's strategy produced - see Codec Lab's findings.",
+      "The standalone player.py needs non-headless OpenCV for its cv2.imshow window; the web player does not."
+    ],
+    "docs": [
+      "README.md",
+      "MANIFEST.md",
+      "~/anime-codec-lab/README.md",
+      "~/anime-codec-lab/BUILD_MANIFEST.json"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "rocks_ground_02",
+  "name": "Rocks Ground 02",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/rocks_ground_02",
+  "license": "CC0",
+  "authors": [
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/rocks_ground_02/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/rocks_ground_02/1k/rocks_ground_02_1k.gltf",
+  "files": [
+    "rocks_ground_02_1k.gltf",
+    "rocks_ground_02.bin",
+    "textures/rocks_ground_02_col_1k.jpg",
+    "textures/rocks_ground_02_nor_gl_1k.jpg",
+    "textures/rocks_ground_02_rough_1k.jpg"
+  ]
+}

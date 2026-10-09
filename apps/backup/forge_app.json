@@ -1,0 +1,29 @@
+{
+  "name": "backup",
+  "label": "Backup",
+  "tagline": "Offline code, snapshots and the rescue drive",
+  "port": 8468,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#8fd18b",
+  "icon": "💾",
+  "order": 23,
+  "section": "system",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "Emerson's offline GitHub plus offline rescue: browses the bare git mirrors and the dated snapshots on the external backup drive (Rescue and Vault partitions), compares a snapshot file with the laptop, copies files back to ~/Restored, shows backup status with Back up now and Eject, and renders the restore guide.",
+    "features": [
+      {"name": "Code", "description": "Every mirror in Vault/git: branches, tags, history, a commit's diff, the file tree and files at any commit, README rendered. Read-only git plumbing."},
+      {"name": "Snapshots", "description": "Rescue or Vault, a set, a date: browse, view text and pictures, compare with the live copy, copy a file or folder to ~/Restored/<date>/ (never over anything)."},
+      {"name": "Status", "description": "Drive plugged in, free space, every set's snapshots and age, due or not, last run; Back up now (systemd units via polkit) with the live journal; Eject."},
+      {"name": "Help", "description": "RESTORE.md and README.md rendered."}
+    ],
+    "data_dir": "reads the drive (/mnt/forge-drive or /run/media/ejb/{Rescue,Vault}); writes only ~/Restored",
+    "services": ["forge-backup-now@{all,rescue,vault}.service (root, started via polkit)", "journalctl -u forge-backup-*"],
+    "dependencies": {"required": ["fastapi", "uvicorn", "git", "systemctl", "journalctl"], "optional": ["udisksctl (eject)"]},
+    "standalone_launch": "cd ~/Forge/apps/backup && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8468",
+    "api_base": "/api",
+    "known_gaps": ["Root-owned Rescue folders show 'needs admin'; no sudo helper", "No search across a snapshot or a repo yet"],
+    "docs": ["README.md", "RESTORE.md", "WIP.md"]
+  }
+}

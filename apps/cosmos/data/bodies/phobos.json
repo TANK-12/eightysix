@@ -1,0 +1,26 @@
+{
+  "id": "phobos",
+  "name": "Phobos",
+  "kind": "moon",
+  "parent": "mars",
+  "order": 41,
+  "radius_km": 11.08,
+  "gm_km3_s2": 0.0007087,
+  "color": "#7f7164",
+  "summary": "Orbits Mars three times a day and is spiralling inward; in about 50 million years it will break apart or crash.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 9375,
+    "e": 0.015,
+    "i_deg": 1.1,
+    "node_deg": 169.2,
+    "peri_deg": 216.3,
+    "M_deg": 189.7,
+    "period_days": 0.3187,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000",
+    "peri_period_yr": 1.1,
+    "node_period_yr": 2.3
+  }
+}

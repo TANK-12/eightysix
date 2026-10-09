@@ -1,0 +1,18 @@
+{
+  "name": "panelforge",
+  "label": "PanelForge",
+  "tagline": "Manga and webtoons into voiced movies",
+  "port": 8449,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e0564f",
+  "icon": "🎬",
+  "order": 9,
+  "section": "create",
+  "ready_timeout": 60,
+  "manifest": {
+    "summary": "Fetches manga and webtoon chapters, cuts them into panels, reads the bubbles, voices them with Kokoro and renders motion-comic movies with an intelligent camera.",
+    "data_dir": "~/PanelForgeData",
+    "docs": ["HANDOFF.md", "CONTRACTS.md", "README.md"]
+  }
+}

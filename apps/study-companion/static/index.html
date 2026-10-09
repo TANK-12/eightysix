@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Companion</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #5b8a72; --accent-2: #467058; --on-accent: #0c150f; }
+  body { padding-bottom: 40px; }
+  header.top { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 20px; flex-wrap:wrap; }
+  header.top h1 { font-size: 17px; margin:0; }
+  header.top .sub { color: var(--muted); font-size: 12px; }
+  .jan-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; background:var(--bad); }
+  .jan-dot.on { background: var(--good); }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .source-pick { display:flex; gap:8px; flex-wrap:wrap; margin: 10px 0 4px; }
+  .source-pick label { display:flex; gap:6px; align-items:center; font-size:12px; padding:5px 10px; border:1px solid var(--border); border-radius:999px; cursor:pointer; background:var(--panel-2); }
+  .source-pick input { margin:0; }
+  select, input[type=text], input[type=number] { background:var(--panel-2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 9px; font-size:13px; }
+
+  /* question bank */
+  .qcard { border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:10px; background:var(--panel-2); }
+  .qcard .meta { font-size:11px; color:var(--muted); margin-bottom:6px; display:flex; gap:8px; }
+  .qcard .meta .tag { background:var(--panel); border-radius:999px; padding:2px 8px; }
+  .qcard .qtext { line-height:1.55; margin-bottom:8px; }
+  .qcard .steps { display:none; flex-direction:column; gap:4px; font-size:13px; color:var(--text); background:var(--bg); border-radius:6px; padding:10px 12px; margin-top:8px; }
+  .qcard .steps.open { display:flex; }
+  .qcard .answer { font-weight:600; color: var(--good); margin-top:6px; }
+
+  /* chat */
+  #chatlog { display:flex; flex-direction:column; gap:12px; padding:14px; border:1px solid var(--border); border-radius:8px; background:var(--panel-2); height: 46vh; min-height:280px; overflow-y:auto; margin-bottom:10px; }
+  .msg { max-width: 88%; padding:9px 12px; border-radius:10px; line-height:1.55; font-size:13.5px; white-space:pre-wrap; }
+  .msg.user { align-self:flex-end; background:var(--accent-2); color:var(--on-accent); }
+  .msg.assistant { align-self:flex-start; background:var(--panel); border:1px solid var(--border); }
+  .msg.system-note { align-self:center; color:var(--muted); font-size:12px; font-style:italic; }
+  canvas.plot { display:block; margin-top:8px; border-radius:6px; background:var(--bg); }
+  #chatform { display:flex; gap:8px; }
+  #chatform textarea { flex:1; resize:vertical; min-height:44px; background:var(--panel-2); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:9px; font-family:inherit; font-size:13.5px; }
+
+  .empty { color:var(--muted); font-size:13px; padding:20px; text-align:center; }
+  .msg { animation: msg-in 180ms ease-out; }
+  .msg.failed { border-color: var(--bad); }
+  @keyframes msg-in { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:none; } }
+  canvas.plot { max-width:100%; height:auto; }
+  #chatform button:disabled, #bankMore:disabled { opacity:.55; cursor:default; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <h1>Study Companion</h1>
+    <div class="sub"><span class="jan-dot" id="janDot"></span><span id="janLabel">checking Jan…</span></div>
+  </div>
+  <div class="row">
+    <select id="courseSelect"></select>
+    <button id="go-fullscreen" class="btn" title="Full screen">⤢</button>
+  </div>
+</header>
+
+<nav class="row" style="padding:0 20px; border-bottom:1px solid var(--border); gap:2px;">
+  <div class="tab active" data-tab="bank">Question bank</div>
+  <div class="tab" data-tab="chat">Chat with your notes</div>
+  <div class="tab" data-tab="quiz">Generate a quiz</div>
+</nav>
+
+<!-- ---------------- BANK ---------------- -->
+<section class="panel active" data-panel="bank" style="padding:18px 20px;">
+  <div class="row" style="margin-bottom:10px;">
+    <select id="bankTopic"><option value="">All topics</option></select>
+    <button class="btn" id="bankMore">Load more</button>
+    <span class="sub" id="bankCount"></span>
+  </div>
+  <div id="bankList"></div>
+</section>
+
+<!-- ---------------- CHAT ---------------- -->
+<section class="panel" data-panel="chat" style="padding:18px 20px;">
+  <div class="sub">Pick which lecture material Jan should ground its answers in — it will say so if something isn't covered.</div>
+  <div class="source-pick" id="sourcePick"></div>
+  <div id="chatlog"><div class="empty">Ask anything — "explain vertical asymptotes again", "walk me through the chain rule", "why is my domain wrong here?"</div></div>
+  <form id="chatform">
+    <textarea id="chatInput" placeholder="Ask a question about the selected material… (Ctrl+Enter sends)"></textarea>
+    <button class="btn btn-primary" type="submit">Send</button>
+  </form>
+</section>
+
+<!-- ---------------- QUIZ ---------------- -->
+<section class="panel" data-panel="quiz" style="padding:18px 20px;">
+  <div class="sub">Jan writes fresh questions from the material you select, in the same format as the built-in bank — anything it generates gets saved so it's there next time too.</div>
+  <div class="source-pick" id="quizSourcePick"></div>
+  <div class="row" style="margin:10px 0;">
+    <label class="sub">How many: <input type="number" id="quizCount" value="4" min="1" max="10" style="width:60px"></label>
+    <button class="btn btn-primary" id="quizGo">Generate quiz</button>
+  </div>
+  <div id="quizList"></div>
+</section>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script>
+let COURSE = null;
+let SOURCES = [];
+let JAN_OK = false;
+let janCheckedAt = 0;
+let courseSeq = 0;
+
+const OFFLINE_NOTE = 'Could not reach the Study Companion server: trying again by itself';
+
+/* Jan's state in the header; the raw reason sits in the tooltip, not the text. */
+async function checkJan() {
+  const dot = document.getElementById('janDot');
+  const label = document.getElementById('janLabel');
+  janCheckedAt = Date.now();
+  try {
+    const res = await fetch('/api/status');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const st = await res.json();
+    JAN_OK = !!st.jan;
+    label.textContent = JAN_OK
+      ? `Jan connected (${st.model})`
+      : 'Jan offline: chat and quiz generation need it, the question bank works either way';
+    label.title = st.detail || '';
+  } catch (e) {
+    JAN_OK = false;
+    label.textContent = 'Server not reachable yet';
+    label.title = String(e.message || e);
+  }
+  dot.classList.toggle('on', JAN_OK);
+  return JAN_OK;
+}
+
+async function loadCourses() {
+  let courses;
+  try {
+    const res = await fetch('/api/courses');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    courses = (await res.json()).courses || [];
+  } catch (e) {
+    document.getElementById('bankList').innerHTML = `<div class="empty">${OFFLINE_NOTE}</div>`;
+    document.getElementById('janLabel').textContent = 'Server not reachable yet';
+    return false;
+  }
+  checkJan();
+  const sel = document.getElementById('courseSelect');
+  sel.innerHTML = courses.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
+    || '<option value="">no course folders yet</option>';
+  if (courses.length) await loadCourse(courses[0]);
+  else document.getElementById('bankList').innerHTML =
+    '<div class="empty">No course folders yet: add one under data/&lt;course&gt;/ with .txt notes in it.</div>';
+  return true;
+}
+
+function boot() {
+  document.getElementById('courseSelect').addEventListener('change', (ev) => { if (ev.target.value) loadCourse(ev.target.value); });
+  initTabs(name => { if (name === 'bank') loadBank(true); });
+  document.getElementById('bankMore').addEventListener('click', () => loadBank(false));
+  document.getElementById('bankTopic').addEventListener('change', () => loadBank(true));
+  document.getElementById('chatform').addEventListener('submit', onSend);
+  document.getElementById('chatInput').addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); document.getElementById('chatform').requestSubmit(); }
+  });
+  document.getElementById('quizGo').addEventListener('click', onQuiz);
+
+  // Coming back into view while Jan was offline: look again (at most every 10 s).
+  let booted = false;
+  const recheck = () => { if (booted && !JAN_OK && ForgeIdle.shown() && Date.now() - janCheckedAt > 10000) checkJan(); };
+  document.addEventListener('visibilitychange', recheck);
+  document.addEventListener('forge-visible', recheck);
+
+  // Read the courses; if the server is not there yet, try again 2 s later,
+  // doubling to 30 s, only while the page is on screen, and stop once read.
+  const bootPoll = ForgeIdle.poll(async () => {
+    const ok = await loadCourses();
+    if (ok) { booted = true; bootPoll.stop(); }
+    return ok;
+  }, 2000, { backoff: 2, maxMs: 30000, immediate: true });
+}
+
+async function loadCourse(course) {
+  const seq = ++courseSeq;
+  COURSE = course;
+  let sources = [], failed = false;
+  try {
+    const res = await fetch(`/api/courses/${encodeURIComponent(course)}/sources`);
+    if (res.ok) sources = (await res.json()).sources || [];
+    else failed = true;
+  } catch (e) { failed = true; }
+  if (seq !== courseSeq) return;  // another course was picked meanwhile
+  SOURCES = sources;
+  const pick = (cls) => SOURCES.map(s =>
+    `<label><input type="checkbox" class="${cls}" value="${escapeHtml(s.id)}" checked> ${escapeHtml(s.label)}</label>`).join('')
+    || `<span class="sub">${failed ? 'Could not read the sources of this course: switch course or reload to try again.' : 'No .txt sources in this course folder yet.'}</span>`;
+  document.getElementById('sourcePick').innerHTML = pick('srcbox');
+  document.getElementById('quizSourcePick').innerHTML = pick('srcbox2');
+  const topicSel = document.getElementById('bankTopic');
+  topicSel.length = 1;  // the next bank load fills this course's topics
+  loadBank(true);
+}
+
+function selectedSources(cls) {
+  return Array.from(document.querySelectorAll(`.${cls}:checked`)).map(el => el.value);
+}
+
+/* ---------------- Question bank ---------------- */
+// bankSeq drops the answer of a load that a newer one replaced (switching
+// course or topic quickly used to append two first pages: "40 of 108").
+let bankOffset = 0, bankSeq = 0, bankBusy = false;
+async function loadBank(reset) {
+  if (!COURSE) return;
+  if (!reset && bankBusy) return;
+  const seq = ++bankSeq;
+  bankBusy = true;
+  const more = document.getElementById('bankMore');
+  more.disabled = true;
+  const offset = reset ? 0 : bankOffset;
+  const topic = val('bankTopic');
+  const url = `/api/courses/${encodeURIComponent(COURSE)}/bank?limit=20&offset=${offset}`
+    + (topic ? `&topic=${encodeURIComponent(topic)}` : '');
+  let data = null, failed = '';
+  try {
+    const res = await fetch(url);
+    if (res.ok) data = await res.json();
+    else failed = await errText(res, 'Could not load the question bank');
+  } catch (e) {
+    failed = 'Could not reach the server: try again in a moment';
+  }
+  if (seq !== bankSeq) return;
+  bankBusy = false;
+  const list = document.getElementById('bankList');
+  if (!data) {
+    if (reset) list.innerHTML = `<div class="empty">${escapeHtml(failed)}</div>`;
+    else { toast(failed, 'err'); more.disabled = false; }
+    return;
+  }
+
+  const topicSel = document.getElementById('bankTopic');
+  if (topicSel.options.length <= 1) {
+    (data.topics || []).forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = String(t).toUpperCase(); topicSel.appendChild(o); });
+  }
+
+  if (reset) list.innerHTML = '';
+  if (data.questions.length === 0 && reset) {
+    list.innerHTML = `<div class="empty">${topic ? 'No questions for this topic.' : 'No questions in the bank for this course yet.'}</div>`;
+  }
+  data.questions.forEach(q => list.appendChild(renderQCard(q)));
+  bankOffset = offset + data.questions.length;
+  document.getElementById('bankCount').textContent = data.total ? `${Math.min(bankOffset, data.total)} of ${data.total}` : '';
+  more.disabled = bankOffset >= data.total;
+}
+
+function renderQCard(q) {
+  const el = document.createElement('div');
+  el.className = 'qcard';
+  const steps = Array.isArray(q.steps) ? q.steps : [];
+  el.innerHTML = `
+    <div class="meta"><span class="tag">${escapeHtml(String(q.topic||'').toUpperCase())}</span><span class="tag">${escapeHtml(q.skill||'')}</span></div>
+    <div class="qtext">${escapeHtml(q.question||'')}</div>
+    <button class="btn" type="button">Show working</button>
+    <div class="steps">${steps.map(s=>`<div>${escapeHtml(s)}</div>`).join('')}<div class="answer">${escapeHtml(q.answer||'')}</div></div>
+  `;
+  el.querySelector('button').addEventListener('click', (ev) => {
+    const steps = el.querySelector('.steps');
+    steps.classList.toggle('open');
+    ev.target.textContent = steps.classList.contains('open') ? 'Hide working' : 'Show working';
+  });
+  return el;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* A request that never reached the server reads as one calm line. */
+function reachText(e) {
+  return e instanceof TypeError ? 'Could not reach the server: try again in a moment' : e.message;
+}
+
+/* ---------------- Chat ---------------- */
+let CHAT_HISTORY = [];
+let chatBusy = false;
+async function onSend(ev) {
+  ev.preventDefault();
+  if (chatBusy) return;
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!COURSE) { toast('Add a course folder first', 'err'); return; }
+  const send = document.querySelector('#chatform button[type=submit]');
+  chatBusy = true; send.disabled = true;
+  try {
+    if (!JAN_OK && !(await checkJan())) { toast('Jan is offline: start it to chat', 'err'); return; }
+    const log = document.getElementById('chatlog');
+    if (log.querySelector('.empty')) log.innerHTML = '';
+    addMsg('user', text);
+    CHAT_HISTORY.push({role:'user', content:text});
+    input.value = '';
+    const thinking = addMsg('assistant', 'Thinking…');
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({course: COURSE, source_ids: selectedSources('srcbox'), messages: CHAT_HISTORY})
+      });
+      if (!res.ok) throw new Error(await errText(res, 'Jan could not answer'));
+      const data = await res.json();
+      CHAT_HISTORY.push({role:'assistant', content:data.reply});
+      renderAssistant(thinking, data.reply);
+    } catch (e) {
+      CHAT_HISTORY.pop();  // the question was not answered: keep the history in turns
+      thinking.classList.add('failed');
+      thinking.querySelector('.body').textContent = `Error: ${reachText(e)}`;
+      if (!input.value) input.value = text;
+      checkJan();
+    }
+  } finally {
+    chatBusy = false; send.disabled = false;
+  }
+}
+function addMsg(role, text) {
+  const log = document.getElementById('chatlog');
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.innerHTML = `<div class="body">${escapeHtml(text)}</div>`;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+function renderAssistant(el, reply) {
+  reply = String(reply ?? '');
+  const plotMatch = reply.match(/```plot\s*\n([\s\S]*?)```/);
+  const textPart = plotMatch ? reply.slice(0, plotMatch.index).trim() : reply;
+  el.querySelector('.body').textContent = textPart;
+  if (plotMatch) {
+    const block = plotMatch[1];
+    const fnLine = block.match(/f\(x\)\s*=\s*(.+)/i);
+    const domLine = block.match(/domain:\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/i);
+    if (fnLine) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'plot'; canvas.width = 480; canvas.height = 260;
+      el.appendChild(canvas);
+      const xmin = domLine ? parseFloat(domLine[1]) : -10;
+      const xmax = domLine ? parseFloat(domLine[2]) : 10;
+      try { plotFunction(canvas, fnLine[1].trim(), xmin, xmax); }
+      catch (e) { canvas.remove(); const warn = document.createElement('div'); warn.className='sub'; warn.textContent = `(could not plot: ${e.message})`; el.appendChild(warn); }
+    }
+  }
+  document.getElementById('chatlog').scrollTop = document.getElementById('chatlog').scrollHeight;
+}
+
+/* ---------------- Quiz ---------------- */
+async function onQuiz() {
+  const btn = document.getElementById('quizGo');
+  if (btn.disabled) return;
+  if (!COURSE) { toast('Add a course folder first', 'err'); return; }
+  const ids = selectedSources('srcbox2');
+  if (!ids.length) { toast('Select at least one source', 'err'); return; }
+  const count = Math.min(10, Math.max(1, parseInt(val('quizCount'), 10) || 4));
+  document.getElementById('quizCount').value = count;
+  btn.disabled = true; btn.textContent = 'Generating…';
+  const list = document.getElementById('quizList');
+  try {
+    if (!JAN_OK && !(await checkJan())) { toast('Jan is offline: start it to generate a quiz', 'err'); return; }
+    list.innerHTML = '<div class="empty">Asking Jan: this can take a little while on a local model…</div>';
+    const res = await fetch('/api/quiz', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({course: COURSE, source_ids: ids, count})
+    });
+    if (!res.ok) throw new Error(await errText(res, 'Jan could not write a quiz'));
+    const data = await res.json();
+    list.innerHTML = '';
+    if (!data.questions.length) {
+      list.innerHTML = `<div class="empty">Jan's reply didn't parse as valid question lines (${Number(data.rejected_lines) || 0} rejected). Try again, or use the Question bank tab instead.</div>`;
+    } else {
+      data.questions.forEach(q => list.appendChild(renderQCard(q)));
+      toast(`${data.questions.length} question(s) added, also saved to the bank`, 'ok');
+    }
+  } catch (e) {
+    list.innerHTML = `<div class="empty">Error: ${escapeHtml(reachText(e))}</div>`;
+    checkJan();
+  } finally {
+    btn.disabled = false; btn.textContent = 'Generate quiz';
+  }
+}
+
+/* ---------------- tiny safe expression plotter ---------------- */
+// Only these names may appear: anything else (alert, constructor, window...)
+// is refused before the expression is turned into code.
+const PLOT_FUNCS = { sqrt:'Math.sqrt', ln:'Math.log', log:'Math.log10', exp:'Math.exp', abs:'Math.abs', sin:'Math.sin', cos:'Math.cos', tan:'Math.tan' };
+function compileExpr(src) {
+  const allowed = /^[0-9x+\-*/^(). ,a-zA-Z]*$/;
+  if (!allowed.test(src)) throw new Error('unsupported characters in expression');
+  for (const name of src.match(/[a-zA-Z]+/g) || []) {
+    const low = name.toLowerCase();
+    if (!(name === 'x' || name === 'e' || low === 'pi' || Object.hasOwn(PLOT_FUNCS, low))) throw new Error(`unknown name "${name}" in expression`);
+  }
+  // Single pass over function names -- chaining separate .replace() calls here
+  // previously double-substituted ln( -> Math.log( -> Math.Math.log10(, because
+  // the log( replacement then matched the "log(" it had just introduced.
+  let js = src.replace(/\b(sqrt|ln|log|exp|abs|sin|cos|tan)\(/gi, (m, name) => PLOT_FUNCS[name.toLowerCase()] + '(');
+  js = js.replace(/\bpi\b/gi, 'Math.PI').replace(/\be\b/g, 'Math.E').replace(/\^/g, '**');
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('x', `"use strict"; return (${js});`);
+  return fn;
+}
+function plotFunction(canvas, expr, xmin, xmax) {
+  if (!(isFinite(xmin) && isFinite(xmax) && xmax > xmin)) throw new Error('the domain is empty');
+  const fn = compileExpr(expr);
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, pad = 28;
+  const styles = getComputedStyle(document.documentElement);
+  const ink = styles.getPropertyValue('--text').trim() || '#e7e9ee';
+  const grid = styles.getPropertyValue('--border').trim() || '#2a2f3a';
+  const line = styles.getPropertyValue('--accent').trim() || '#6ea8fe';
+  ctx.clearRect(0,0,W,H);
+  const N = 400;
+  let ys = [];
+  for (let i=0;i<=N;i++){
+    const x = xmin + (xmax-xmin)*i/N;
+    let y; try { y = fn(x); } catch(e){ y = NaN; }
+    if (!isFinite(y)) y = NaN;
+    ys.push(y);
+  }
+  const finite = ys.filter(y=>!isNaN(y));
+  let ymin = Math.min(...finite), ymax = Math.max(...finite);
+  if (!isFinite(ymin) || !isFinite(ymax)) throw new Error('function has no finite values on this domain');
+  if (ymin === ymax) { ymin -= 1; ymax += 1; }
+  const yrange = ymax - ymin;
+  ymin -= yrange*0.1; ymax += yrange*0.1;
+  const px = x => pad + (x-xmin)/(xmax-xmin) * (W-2*pad);
+  const py = y => H-pad - (y-ymin)/(ymax-ymin) * (H-2*pad);
+  ctx.strokeStyle = grid; ctx.lineWidth = 1;
+  ctx.beginPath();
+  if (xmin<=0 && xmax>=0){ ctx.moveTo(px(0),pad); ctx.lineTo(px(0),H-pad); }
+  if (ymin<=0 && ymax>=0){ ctx.moveTo(pad,py(0)); ctx.lineTo(W-pad,py(0)); }
+  ctx.stroke();
+  ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath();
+  let started = false;
+  let prevY = null;
+  for (let i=0;i<=N;i++){
+    const x = xmin + (xmax-xmin)*i/N;
+    const y = ys[i];
+    if (isNaN(y) || (prevY!==null && Math.abs(y-prevY) > yrange*3)) { started=false; prevY=y; continue; }
+    const X = px(x), Y = py(y);
+    if (!started) { ctx.moveTo(X,Y); started = true; } else ctx.lineTo(X,Y);
+    prevY = y;
+  }
+  ctx.stroke();
+  ctx.fillStyle = ink; ctx.font = '11px system-ui'; ctx.textAlign='left';
+  ctx.fillText(`x ∈ [${xmin}, ${xmax}]`, pad, 14);
+}
+
+boot();
+</script>
+</body>
+</html>

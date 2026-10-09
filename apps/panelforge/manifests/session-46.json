@@ -1,0 +1,56 @@
+{
+  "session": "46",
+  "date": "2026-09-19/20",
+  "the_ask": "Emerson's standing PanelForge brief plus, during the session, in his words: 'make it so that there is a thing that will just read the comic scrolling down without cutting images' (17:55); 'the voices aren't good ... make it easier for me to edit selection of object for voices, also the detector works ok for text slanting upwards but it doesn't work for text slanting downwards' (18:25); 'the pacing didn't work again, write a skill that makes it work' (18:57); 'the chapter 2 render is not very good' and 'it's got yellow boxes around the text' (21:40, 21:47); the 02:05 answers: sounds too random, echo in no context, music didn't happen, wrong speakers of every kind, both film shapes, sound effects off, echo none unless by hand (all three as options), no music for now, a proper timeline editor, keep the in-session cron; 'stop the session Sunday 6pm, be ready with handoffs and manifests' (02:10).",
+  "built": [
+    "Scroll reader mode: the strip as drawn, whole width, window rests on each balloon while its line plays (scroll keys), balloons poking out of a panel still shown whole, optional ring round the spoken balloon (off by default after Emerson saw 'yellow boxes')",
+    "Lines editor in the Cast & voices tab: every line with its balloon picture (GET .../bubbles/{bid}/image), click a face to change the speaker, Edit (words, own voice, expression + strength), hear (audition), Speak N changed lines, Render scroll film, speaker filter, only-unsure filter",
+    "Render re-plans shots when lines were re-spoken or silenced (timeline.lines_respoken); style knobs drawn from the styles listing and sent as style_settings",
+    "Music: one segment per mood stretch (music/plan.py) instead of per panel; audio/auto keeps the saved timeline's music ids in step",
+    "Sound policy (audio/policy.py, GET|PUT /api/sound, Render tab block): dry voices, no auto sound effects, no auto music unless placed by hand",
+    "Timeline tab: per-line room/echo and mute, music blocks drag to move/trim, mood select, policy-silenced blocks dimmed",
+    "Speakers: caption boxes over a drawn character may become that character's thought (guess conf capped at 0.5); tools/replay_llm.py re-applies stored model answers; picture pass on every multi-cast line (vision_all); voice job only_missing",
+    "Reader: letters grouped along fitted baselines so downhill lettering is read (text.py _fragments/_join_along_baseline); glued-word rescue only on confident reads; balloons keep their angle; tools/tilted.py lists tilted lettering",
+    "Casting by the model from the cast pictures (audio/casting.py, POST /api/series/{s}/cast/voices/auto), two-phase bulk runs with casting between",
+    "Pacing: ~/.claude/skills/pace + ~/.claude/tools/pace.py (self-scheduling ticks by the usage meter); in-session cron every 15 min with a 17:20 cutoff",
+    "Dossier's janidle.py asks the model server's /slots before unloading a model (it was unloading Jan's 4B under PanelForge's requests)",
+    "Timeline tab: arrow-key nudging of the selected line or sound (0.1 s, Shift 1 s)"
+  ],
+  "verified": [
+    "pytest: 569 passing (apps/panelforge/tests) at 14:21; Dossier tests/test_jan_idle.py 12 pass",
+    "Screenshots checked: Lines editor (rows, faces, editor, buttons), Render tab knobs and sound policy block, Timeline line inspector with Room and Mute and a dimmed music block",
+    "Films: chapters 1-10 both shapes rendered under the sound policy 02:54-05:50; chapter 1 frames checked for the resting scroll (docs/crew/rest-c01.jpg, final-c01.jpg), chapter 2 for whole balloons (docs/crew/c02-548-fixed.jpg), chapter 1 for no boxes",
+    "Chapter 1 page 8 downhill caption read on the real crop (tests/fixtures/c01-p08-downhill-caption.jpg) and added to the chapter by hand",
+    "Bulk runner built chapters 4-10 end to end on real data (job 20260919-231322-49ad91, none failed)",
+    "Picture pass changed 9/9/6 speakers in chapters 1-3",
+    "All ten chapters re-voiced under the sound policy and all twenty scroll films re-rendered 02:54-05:50; picture pass changed 9/9/6 speakers in chapters 1-3"
+  ],
+  "fixed_after_looking": [
+    "Ring round the spoken balloon: Emerson called them yellow boxes -> off by default, style version bumped because cached clips with it were being reused",
+    "Balloons over the gutter cut at the top in chapter 2 -> the balloon wins over the panel range",
+    "A junk read spoken aloud in chapter 1 -> glued-word rescue needs conf >= 0.6, line silenced",
+    "16 thought balloons read by the narrator in chapter 1 -> caption-box guess capped; 42 lines moved in chapters 1-3",
+    "60 music segments in chapter 1 -> 4"
+  ],
+  "not_verified": [
+    "How the films sound: only Emerson can judge voices, deliveries and whether dry voices are right; chapters 4-10 were not looked at frame by frame",
+    "The glide between balloons (SCROLL_MOVE_LEAD) never triggers on this series (lines within a shot follow within 0.55 s)",
+    "PanelForge inside Emerson's running Forge still runs the 17:46 (Sept 19) backend; Close app + open again loads today's code"
+  ],
+  "known_limits": [
+    "Speaker detection: 'the auto detector for characters sucks' (Emerson) -- the Lines editor is the human fix; cast c01 merges two people, c03/c07 one person split",
+    "No real music: the library is empty; synth pads only, and off by default",
+    "Puppet eyes/mouth on every face needs an anime face landmark model (install review needed)",
+    "A re-detect renumbers balloons and breaks the script's links, so the grouping fix was not applied to already-read chapters",
+    "Scheduling lives in this session's cron: dies with the terminal; Emerson declined a systemd timer"
+  ],
+  "files_outside_the_app": [
+    "~/PanelForgeData/sound.json (sound policy), ~/PanelForgeData/series/bad-born-blood/** (scripts, films: 3.6 GB of renders)",
+    "~/.claude/skills/pace/SKILL.md, ~/.claude/tools/pace.py, ~/.claude/tools/usage.py permission rules in ~/.claude/settings.json",
+    "~/Forge/apps/dossier/janidle.py + tests, ~/Forge/apps/dossier/WIP.md note",
+    "~/Forge/shared/forge_jan.py (log flush), ~/Forge/PROGRESS.json, ~/Forge/apps/mediaforge/WIP.md note"
+  ],
+  "questions_and_answers": "See HANDOFF.md 'Emerson's answers, 02:05' (verbatim).",
+  "closed": "2026-09-20 14:25",
+  "emersons_verdict": "it's fine, just still wrong characters but I'll fix that, ok it's great, just finish up (14:20)"
+}

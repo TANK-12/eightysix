@@ -1,0 +1,244 @@
+{
+  "_readme": "Session 2's record, written as the work went. Self-contained: it assumes you have read neither the conversation nor session-01.json. 'verified' means it was run and observed; 'reasoned' means it looks right but was not executed. The handoff entry point is ../MANIFEST.json.",
+  "project": "Emberfield",
+  "session": 2,
+  "date": "2026-09-06",
+  "session_theme": "Making the world do something. Session 1 built a valley you could walk around; this session added the things you can do in it -- farm it, save it, and survive the night in it -- and put the content behind those things into files rather than code.",
+
+  "user_intent": {
+    "the_ask": "The user asked for saves, farming and basic combat, in roughly fifty minutes of work, and said to keep the manifest updated as a per-session series rather than one overwritten file.",
+    "easy_to_add_to": "Their standing constraint, restated in session 1 as 'for now make it work but very easy to add to and edit'. This is why the content store came before farming: a crop had to be a file before there was any point having crops.",
+    "a_studio_not_a_game": "Asked where game content should live, they said assets should sit apart from the game the way the sprite editor does -- 'as in we can basically make a pxeil games studio'. So content went into a shared store outside the app, namespaced per game, the same shape the art library already had.",
+    "jargon": "The user said plainly 'i dont know what registry or spline is'. Explain the mechanism, not the pattern name. There is no jargon in the README's description of the content store for this reason."
+  },
+
+  "inherited_bugs": {
+    "_why": "Both were reported by the user while this session was being planned, and both were things session 1 recorded as verified. Worth noting for calibration: a screenshot proves something was drawn, not that it behaves.",
+    "tree_hitboxes": {
+      "reported_as": "'the hit boxes on trees are messed up i should be able to go behind them and i dont want square hit boxes i want slightly more sided hit boxes'",
+      "cause": "worldgen.OBJECTS declared each object's whole *footprint* solid. An oak is 2x3 tiles, so all six were blocked -- you collided with leaves two tiles above the trunk and could never walk behind a tree.",
+      "fix": "Objects now carry a 'hit' box in tile units, anchored at the bottom-centre of the footprint and separate from it, read as an ellipse rather than a rectangle so you slide around a trunk instead of catching on a square corner. tree_oak is 0.50 x 0.34 tiles. Both the browser (pixel test) and worldgen.blocked_tiles (tile rasterisation, deliberately slightly stricter) use the same shape.",
+      "status": "verified"
+    },
+    "day_length": {
+      "reported_as": "'the day might sicle need to be fixed you made it so that a day and night cycle is like 24 seconds which is cooked' and later 'definetaly make sure you fix the day night cycle speed'",
+      "cause": "static/index.html declared MINUTES_PER_SECOND = 2 with a comment saying a day would take twelve real minutes, then multiplied by 60 a second time inside step(). A full day therefore passed in twelve real seconds.",
+      "fix": "One number now: settings.day_seconds, default 900 (fifteen real minutes, a little under Minecraft's twenty). Exposed as a slider in Settings and as ?daysec= on the URL, because day length is the most useful dial to shorten while testing anything that depends on days passing.",
+      "status": "verified"
+    },
+    "menu_contrast": {
+      "reported_as": "'make sure that the menus dont have white on white for the text and background of the text'",
+      "cause": "The page styled <select> but never <option>, and never declared color-scheme. The dropdown popup was drawn with the system's light palette while the text colour was inherited from the dark theme.",
+      "fix": "color-scheme:dark on :root, explicit option{} colours, an explicit ::placeholder colour, and the alpha-based --muted token replaced with the solid one.",
+      "status": "verified for the closed controls by screenshot; the open popup list is an OS widget that headless Chrome will not capture, so that half is reasoned from the two properties that govern it"
+    }
+  },
+
+  "done_this_session": [
+    {
+      "what": "shared/forge_content.py -- the content store. Game content as plain JSON files, discovered by scanning a directory.",
+      "status": "verified",
+      "note": "The companion to forge_art.py and deliberately its near-twin. forge_art holds what things look like; this holds what they are. Types are declared in a TYPES table (items, tools, crops, foes, weapons now; recipes, quests, skills declared and empty). Adding content is adding a file; adding a *kind* of content is one TYPES entry. A broken file is reported in the payload, never raised, so a half-edited crop cannot stop the game booting -- there is a test for exactly that."
+    },
+    {
+      "what": "~/ForgeGameData -- the store itself, seeded with 16 entries by tools/seed_content.py.",
+      "status": "verified",
+      "note": "Outside the app, namespaced emberfield-*, so a second game shares it and a future content editor can write it. Same seeder contract as seed_art.py: re-running restores what is missing, --force is needed to overwrite your edits. --list prints the store."
+    },
+    {
+      "what": "Object hit boxes separate from footprints, as ellipses.",
+      "status": "verified",
+      "note": "See inherited_bugs.tree_hitboxes. Screenshotted with the player standing inside what used to be solid canopy, visible behind the leaves."
+    },
+    {
+      "what": "Farming: hoe, watering can, seeds, growth on sleep, harvest, regrowing crops.",
+      "status": "verified",
+      "note": "Tools name a 'verb' string in their content file and the game dispatches on it, so a second tool sharing a verb needs no code. Three crops seeded, one regrowing. Crops live in save state keyed by tile, never in the world -- the valley comes back from its seed, what you planted comes back from the save."
+    },
+    {
+      "what": "A bed on the farm, and sleeping.",
+      "status": "verified",
+      "note": "Placed by worldgen inside the fence on a stone floor. Sleeping is the only way crops grow, so it happens at a place rather than at a keypress -- this is also the first building-like thing in the valley and the seam a farmhouse grows from."
+    },
+    {
+      "what": "Hotbar and inventory. Keys 1-9 select, space acts on the tile you face.",
+      "status": "verified",
+      "note": "The hotbar is derived from the content store and your inventory, never stored as truth, so a new tool appears in it without a line of code. Starting seeds are filtered to crops sowable in the starting season -- an earlier version handed out a summer crop on the first morning of spring."
+    },
+    {
+      "what": "Save and load: one slot per valley, autosaved.",
+      "status": "verified",
+      "note": "Slot is 'valley-<seed>'. Written on sleep, on Save, on leaving through the pause menu, and on window close via sendBeacon. The title screen lists valleys to continue. The world is not stored -- only its seed, which is why test_generation_is_deterministic matters more than it looks. Round-tripped through the real API and seen on the title screen."
+    },
+    {
+      "what": "Combat: mouse-aimed shooting, foes at night, player HP, and the death rules doing something at last.",
+      "status": "verified",
+      "note": "Left click fires toward the cursor (the user asked for arrows 'in direct of mouse'), so you shoot in any direction rather than the four you can face. Foes come out after dark in a ring 5-13 tiles around you and are culled beyond 700px; your farm and the town stay clear. The three death rules chosen on the title screen now resolve differently for the first time."
+    },
+    {
+      "what": "Shadows.",
+      "status": "verified",
+      "note": "Requested by the user. A flattened ellipse under anything that stands on the ground, strength varying with the sun so morning and evening read differently. Sized from the sprite's footprint, not from the hit box -- they are different things, and drawing an oak's shadow at trunk width made it look like it was floating over a pebble."
+    },
+    {
+      "what": "Full screen without the Forge sidebar.",
+      "status": "verified for the mechanism, not for the GTK window",
+      "note": "Two mechanisms, because inside Forge the game is an iframe in a shell that owns a sidebar. The app posts {forge:'chrome',hidden:true} and hub/index.html hides the sidebar; it also asks for real fullscreen, and the hub's iframe now carries allowfullscreen. Kept generic in the hub rather than special-cased for Emberfield: any app may ask. Press f, or use the pause menu. NOT verified inside a running Forge GTK window -- see verification_status.not_verified."
+    },
+    {
+      "what": "New art: 12 crop stage sprites, 4 tool/item sprites, an arrow, a bed, and 2 foes, in two new packs.",
+      "status": "verified",
+      "note": "emberfield-items and emberfield-foes. Crop stages are generated from one shape function per stage rather than hand-drawn, so a fourth crop is a colour and a fruit character. All of it is editable in Pixel Forge like everything else."
+    },
+    {
+      "what": "static/selftest.js -- 21 checks of the frontend, run in a real browser against the real content store.",
+      "status": "verified",
+      "note": "Farming, growth, combat, day length and saving all live in the browser and cannot be reached from pytest. A screenshot proves something was drawn, not that a watered turnip ripens on schedule and an unwatered one does not. Run it at ?selftest=1 and read the page, or --dump-dom it. This exists because session 1 reported two bugs as verified on the strength of screenshots."
+    },
+    {
+      "what": "18 new Python tests (53 total, all passing).",
+      "status": "verified"
+    }
+  ],
+
+  "not_done_yet": [
+    "The wilds as their own map. Foes come out in the valley at night instead, which is the cheapest honest version of 'the wilds get harder at night' and needs no second generator. The real regenerating wilds are still unwritten.",
+    "NPCs, buildings, the town interior, schedules, relationships. The town is still paved ground with nobody on it.",
+    "Crafting, skills, quests and recipes. Their content types are declared in forge_content.TYPES and their directories exist and are empty -- the shape is agreed, so the session that builds them adds files and handlers, not architecture.",
+    "Selling. Items carry a 'sell' price and gold exists, but there is no shop to spend it in; gold only comes from kills.",
+    "Rolling. The user floated 'space can become like general interact or mabye roll when moving' -- space became interact, and the roll was not built.",
+    "A craftable bed. The user said 'add bed object on the farm mand mabye craftable idk'. It is generated, not craftable.",
+    "The whole voice layer and the whole LLM layer. Settings expose both toggles; neither has an implementation.",
+    "Tool upgrades. Tools carry 'range' and 'power' fields that nothing reads yet.",
+    "Sound. There is still no audio of any kind, which is conspicuous now that there is combat."
+  ],
+
+  "next_session_should": [
+    "Sound first, if anything. It is the largest gap between what this build is and what it feels like -- a hoe stroke, a bowstring, a hit, a night ambience. It is also cheap and needs no new architecture.",
+    "Then the wilds: a second generator, entered from the cave mouth, regenerating on the day/night cycle. The content store already holds foes, so the wilds are a map problem, not a content problem.",
+    "Then a shop in the town, because gold and sell prices already exist and are inert, and selling closes the farming loop properly.",
+    "Resist adding a fifth system before the four that exist have sound and a reason to use them."
+  ],
+
+  "assessment": {
+    "what_went_well": "Putting the content store in before farming paid for itself inside the same session: the hotbar, the starting kit, the tutorial's seed step and the night spawner are all driven by whatever is in ~/ForgeGameData, so none of them needed touching when the crops changed. Splitting the hit box from the footprint turned out to fix more than the tree -- fences, rocks and the bed all feel better to walk past, and reusing the same shape for the shadow means what you see is what you bump into.",
+    "what_i_got_wrong": [
+      "Named the content lookup helper `c`, which render() shadows with `const c = $(\"#stage\")`. The whole canvas rendered black. Caught only because the first screenshot was blank -- exactly the kind of thing the browser check exists for.",
+      "Wrote crop art as literal character rows and miscounted the widths; forge_art's validator refused to save it. Rewrote the crop stages as a pixel grid, which is the right call for twelve sprites that are one shape in three colours.",
+      "Spawned night foes uniformly across all 96x72 tiles, which is about one foe every 700 tiles -- you could cross the valley at midnight and meet nothing. Replaced with a ring around the player plus a distance cull.",
+      "Then got the ring wrong too: picked a radius of 150-370 thinking in screen pixels when the field is world pixels, so at zoom 4 every foe spawned beyond the edge of the screen and the night still looked empty. It is 80-210 now, which is five to thirteen tiles.",
+      "Floored the bed with the 'path' tile, which is the road tile -- it read as a road through the bedroom and tripped the existing test that keeps roads clear of solid objects. Stone floor now.",
+      "A scripted edit dropped the closing </script> tag, which silently stopped the whole game executing and produced an empty menu card with no console error. Worth remembering: an empty card with no error usually means the script never ran."
+    ],
+    "what_i_would_add": [
+      "Sound. See next_session_should.",
+      "Shoreline and cliff autotiling. Still the single biggest visual win, still needs no new art -- only edge-aware sprite selection. Carried over from session 1 untouched.",
+      "The path tile and the soil tile still read at nearly the same value, so the road entering the farm blends into the plot. Also carried over.",
+      "Crop sprites are readable but plain. They are the one piece of this session's art that would most reward being opened in Pixel Forge and drawn properly by hand.",
+      "Foes have no attack animation and no knockback, so a fight reads as two sprites overlapping. Knockback alone would fix most of it.",
+      "A death that costs something you can see. 'Character permadeath' currently resets your inventory, which is invisible because there is nothing much in it yet."
+    ],
+    "risks": [
+      "The valley is 96x72 and now has farming, combat and a bed in it. It is starting to feel small, and the user has said the game should be huge. Growing it is cheap; leaving it is a decision that gets harder to reverse.",
+      "The frontend is one 1200-line HTML file. It is still navigable, but it now holds rendering, simulation, farming, combat, saving and every menu. The next system added is the one that should force a split into modules.",
+      "Everything about combat is tuned by guess, not by play. The numbers in the foe files are a first pass and the user has not actually fought anything yet."
+    ]
+  },
+
+  "decision_record": {
+    "_why": "Questions put to the user this session, their answers quoted exactly as written, and what was taken from them. Answers are verbatim, typos included, because a paraphrase would quietly launder the meaning.",
+    "round_1_scope": [
+      {
+        "question": "How much of the manifest's next_session_should should this session take on?",
+        "options_offered": ["Registry + farming + saves (recommended)", "Registry spine only", "Add combat too", "Add the visual polish pass"],
+        "answer_verbatim": "do what ever thoingk is doable in 50 minutes fo work. i would liek saves and farming and basic combat but just remeber to comsatnly updat the manifest actully amke a new manifets as this will be a multi seesion job no matter wat also i dont know what registry or spline is",
+        "taken_to_mean": "Time-boxed rather than scope-boxed. Saves, farming and basic combat all in. A new manifest per session, not one overwritten file. And drop the jargon.",
+        "consequence": "This file, plus manifests/session-01.json holding session 1's record unchanged, plus MANIFEST.json rewritten as a thin entry point. The word 'registry' does not appear in the README."
+      },
+      {
+        "question": "Where should game content live on disk?",
+        "options_offered": ["~/EmberfieldData/content/ (recommended)", "apps/emberfield/content/"],
+        "answer_verbatim": "just liek how the pixel texture editor is both linked to and seperate fom emberfile the game itself i woudl liek most thins liek assest to be seperate form emeebr fiela as a game as in twe cna basiclaly make a pxeil games studio . in this ealry case do whateve you think is best",
+        "taken_to_mean": "Neither option as offered -- the store should sit outside Emberfield entirely, the way Pixel Forge and ForgeArtData do, because the destination is a studio rather than one game.",
+        "consequence": "~/ForgeGameData with shared/forge_content.py, not ~/EmberfieldData/content/. Files namespaced emberfield-* so a second game shares the store."
+      },
+      {
+        "question": "How should the player act on the world?",
+        "options_offered": ["Tool + hotbar, Stardew-style (recommended)", "Contextual single key"],
+        "answer_verbatim": "Tool + hotbar, Stardew-style (Recommended)",
+        "consequence": "Keys 1-9 select from a hotbar derived from the content store; space acts on the facing tile."
+      }
+    ],
+    "round_2_controls_and_time": [
+      {
+        "question": "Space was doing two jobs -- tool and weapon. How should attacking work?",
+        "options_offered": ["Mouse aim, click to fire (recommended)", "Space does both, by context", "Separate keys"],
+        "answer_verbatim": "im using a mouse but space can become like general interact or mabye roll when moving. i wnat arrows be be on left click and in direct of mouse",
+        "taken_to_mean": "Left click fires toward the cursor. Space becomes a general interact rather than specifically a tool key. A dodge roll was floated but not committed to.",
+        "consequence": "fire() aims at the cursor in world space and turns the player to face the shot. interact() resolves by what is in front of you and what is in your hand: the bed sleeps, a ripe crop harvests, otherwise the held tool's verb runs. The roll is in not_done_yet."
+      },
+      {
+        "question": "How do you sleep, given there is no farmhouse?",
+        "options_offered": ["Add a bed object on the farm (recommended)", "A key you can press anywhere", "The day ends on its own at 2am"],
+        "answer_verbatim": "add bed object on the farm mand mabye craftable idk but also the day might sicle need to be fixed you mad it so thata  day and night cycle is like 24 scounds which is cooked make it mabye abit faster than minecraft or the nsanemspeed but for dev perpuses i can make it digfernt time periods also add shadows",
+        "taken_to_mean": "The bed, plus two things not asked about: the day/night cycle is far too fast and must be fixed with a user-adjustable length, and the game should have shadows.",
+        "consequence": "worldgen._place_bed; settings.day_seconds defaulting to 15 real minutes with a Settings slider and ?daysec=; and a shadow pass in the renderer. See inherited_bugs.day_length."
+      },
+      {
+        "question": "Where should it be dangerous?",
+        "options_offered": ["Valley gets dangerous at night (recommended)", "Only near the cave mouth", "Valley stays safe entirely"],
+        "answer_verbatim": "Valley gets dangerous at night (Recommended)",
+        "consequence": "Foes spawn after dark outside the farm and town, and clear at dawn. No second map needed."
+      },
+      {
+        "question": "How should saving work?",
+        "options_offered": ["One slot per valley, autosaved (recommended)", "Named slots you manage"],
+        "answer_verbatim": "One slot per valley, autosaved (Recommended)",
+        "consequence": "Slot 'valley-<seed>', written on sleep, on Save, on leaving, and on window close."
+      }
+    ],
+    "unprompted_directives": [
+      {
+        "verbatim": "also the hit boxes on trees are messed up i should be able to go behind them and io ont wnat squar hit boxes i wnat slighlty mroe sided hit boxes",
+        "effect": "Became the first item of work. See inherited_bugs.tree_hitboxes. 'Slightly more sided' was read as: not a square tile, and rounded rather than sharp -- hence an ellipse."
+      },
+      {
+        "verbatim": "also make sure that th emenus dont have white on white for the txt and back ground of the text",
+        "effect": "See inherited_bugs.menu_contrast."
+      },
+      {
+        "verbatim": "definetaly make sure you fix the day night cycle speed",
+        "effect": "Restated the day length fix. Covered by a self-test assertion so it cannot silently regress."
+      },
+      {
+        "verbatim": "also make it so  that it can be full screen without the side bar",
+        "effect": "A generic postMessage channel in hub/index.html plus allowfullscreen on the workspace iframe, and an f key and pause-menu button in the game."
+      }
+    ]
+  },
+
+  "verification_status": {
+    "python_tests": "53 passed (35 from session 1, 18 new). New coverage: object hit boxes never block above their own base, the oak is narrower than its tile, decor blocks nothing, the bed is inside the farm and the farm stays reachable, content round-trips through disk, content is discovered by scanning rather than listed, a broken content file is reported not raised, invalid content is refused on save, every crop's stage sprites and every foe's sprite exist in the art library, and every crop's seed and yield name a real item.",
+    "browser_selftest": "21 passed, run in headless Chrome against the real content store at ?selftest=1. Covers day length, the tree canopy, tilling, planting, watering, the growth schedule, unwatered and out-of-season crops not growing, harvest, regrow, mouse-aimed firing, damage, invulnerability, the farm staying safe, foes spawning within reach, and the save carrying the seed rather than the map.",
+    "black": "clean on all touched files",
+    "pyright": "0 errors (emberfield/, web_app.py, tools/, shared/forge_content.py)",
+    "screenshots": "Taken with headless Chrome via flatpak com.google.Chrome into ~/.var/app/com.google.Chrome/data/shots, driven by ?seed=/?hour=/?zoom=/?demo=/?screen= links. s2-title (with a save listed to continue), s2-settings (every control readable, day-length slider present), s2-farm (a planted plot at mixed growth stages), s2-tree (the player standing behind an oak's canopy), s2-night (foes and the night palette).",
+    "api": "Save round-tripped with curl: written, listed on /api/saves, read back with crops and worked ground intact, then deleted.",
+    "not_verified": [
+      "A full Forge GTK launch. The fullscreen/sidebar mechanism was implemented on both sides but only the standalone half was exercised; whether WebKit2 grants a real fullscreen request in that window is untested. The postMessage sidebar hide does not depend on it.",
+      "The open state of a <select> popup. Headless Chrome will not capture the OS widget. The closed controls are verified by screenshot and the two properties that govern the popup are set.",
+      "Anything about how combat *feels*. The numbers are a first pass and nobody has played it."
+    ]
+  },
+
+  "how_to_run": {
+    "inside_forge": "Launch Forge normally; Emberfield is in the sidebar. Press f for full screen.",
+    "standalone": "cd apps/emberfield && FORGE_SHARED_DIR=../../shared ./.venv/bin/python -m uvicorn web_app:app --port 8434",
+    "python_tests": "./.venv/bin/python -m pytest tests/ -q",
+    "browser_tests": "open http://127.0.0.1:8434/?seed=777&selftest=1",
+    "seed_the_art": "FORGE_SHARED_DIR=../../shared ./.venv/bin/python tools/seed_art.py       (--force overwrites your edits)",
+    "seed_the_content": "FORGE_SHARED_DIR=../../shared ./.venv/bin/python tools/seed_content.py   (--list to see the store)",
+    "a_specific_valley": "http://127.0.0.1:8434/?seed=777&hour=10&zoom=4",
+    "dev_links": "?daysec=60 makes a day one real minute; ?demo=farm plants a plot; ?demo=tree stands you behind an oak; ?demo=night puts you outside at 22:00; ?screen=settings opens Settings directly."
+  }
+}

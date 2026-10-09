@@ -1,0 +1,345 @@
+/* The Claude panel's own widgets. Palette, buttons and inputs come from /shared/forge.css. */
+
+.small { font-size: 12px; }
+/* #app is a column in shared/forge.css; an id beats a class, so name both. */
+#app.claude { display: flex; flex-direction: row; height: 100vh; }
+
+/* --- conversation list ---------------------------------------------------------- */
+/* The list grows with Text size (within limits) so its buttons keep fitting. */
+/* scrolls only when a big App and Text size leave too little height for the
+   buttons, the list and the accounts together */
+.list { width: clamp(210px, min(calc(250px * var(--forge-text, 1)), 28vw), 360px); flex: none; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px;
+  overflow-y: auto; background: var(--panel); border-right: 1px solid var(--border); }
+.list .new { width: 100%; }
+.chats { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+/* The list scrolls; its groups keep their full height (min-height on .loose would let it squash and overlap). */
+.chats > * { flex-shrink: 0; }
+.chat-item { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  color: var(--muted); font-size: 13px; }
+.chat-item:hover { background: var(--panel-2); color: var(--text); }
+.chat-item.on { background: var(--panel-2); color: var(--text); box-shadow: inset 3px 0 0 var(--accent); }
+.chat-item .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-item .busy { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s infinite; }
+.chat-item .x { border: 0; background: none; color: var(--muted); border-radius: 5px; padding: 0 6px; visibility: hidden; }
+.chat-item:hover .x { visibility: visible; }
+.chat-item .x:hover { color: var(--bad); }
+.foot { padding: 4px 2px; }
+
+/* --- accounts ---------------------------------------------------------------------- */
+/* Capped with its own scroll: a long web logins list at a big Text size pushed the page past the window. */
+.accounts { border-top: 1px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 6px;
+  flex: none; max-height: 50%; overflow-y: auto; }
+.accounts-head { display: flex; align-items: center; justify-content: space-between; padding: 0 2px; }
+.linkish { border: 0; background: none; color: var(--accent); font-size: 12px; padding: 2px 4px; cursor: pointer; }
+.linkish:hover { text-decoration: underline; }
+.account-list { display: flex; flex-direction: column; gap: 3px; }
+.account { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer;
+  border: 1px solid transparent; font-size: 12px; color: var(--muted); }
+.account:hover { background: var(--panel-2); color: var(--text); }
+.account.on { background: var(--panel-2); color: var(--text); border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); }
+.account .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--border); }
+.account.signed .dot { background: var(--good); }
+.account .same { display: block; font-size: 11px; color: var(--warn, #e0a85f); white-space: normal; }
+.account.same { border-color: color-mix(in srgb, var(--warn, #e0a85f) 45%, var(--border)); }
+.account.on .dot { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent); }
+.account .who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.account .who .n { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.account .who .e { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.account .meter { width: 46px; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; flex: none; }
+.account .meter i { display: block; height: 100%; background: var(--good); }
+.account .meter.warm i { background: var(--warn); }
+.account .meter.full i { background: var(--bad); }
+.account .act { border: 0; background: none; color: var(--muted); border-radius: 5px; padding: 0 5px; font-size: 12px; visibility: hidden; }
+.account:hover .act { visibility: visible; }
+.account .act:hover { color: var(--text); }
+.account .act.x:hover { color: var(--bad); }
+.account .act.in { visibility: visible; color: var(--accent); }
+.signin { border: 1px solid var(--border); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; background: var(--panel-2); }
+.signin-url { font-size: 11px; overflow-wrap: anywhere; max-height: 54px; overflow: auto; }
+.signin-url a { color: var(--accent); }
+.signin-row { display: flex; gap: 4px; }
+.signin-row input { flex: 1; min-width: 0; padding: 4px 6px; font-size: 12px; }
+.small-btn { padding: 4px 8px; font-size: 12px; }
+#conv-account { color: var(--muted); }
+#conv-account b { color: var(--text); font-weight: 600; }
+@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
+
+/* --- the conversation --------------------------------------------------------------- */
+.chat { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-head { display: flex; align-items: center; gap: 12px; padding: 8px 14px; flex-wrap: wrap;
+  background: var(--panel); border-bottom: 1px solid var(--border); }
+.title { flex: 1; min-width: 160px; text-overflow: ellipsis; border: 0; background: none; font-size: 15px; font-weight: 600; padding: 4px 0; }
+.field-inline { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; color: var(--muted); }
+.field-inline input { width: 190px; padding: 5px 8px; }
+.field-inline select { padding: 5px 8px; max-width: 260px; }
+.notice { margin: 10px 14px 0; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); font-size: 13px; }
+
+.log { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 14px 24px; display: flex; flex-direction: column; gap: 14px; }
+.log > * { max-width: 900px; width: 100%; margin: 0 auto; }
+/* One conversation's drawn events; lays them out as .log used to. */
+.view { display: flex; flex-direction: column; gap: 14px; }
+.view:empty { display: none; }
+.view > * { max-width: 900px; width: 100%; margin: 0 auto; }
+.empty { text-align: center; padding: 10vh 20px; }
+.empty-mark { font-size: 42px; color: var(--accent); }
+.empty h2 { margin: 8px 0; }
+
+.msg { display: flex; flex-direction: column; gap: 6px; }
+.msg.user { align-items: flex-end; }
+.bubble { padding: 10px 14px; border-radius: 12px; line-height: 1.55; font-size: 14px; overflow-wrap: anywhere; }
+.msg.user .bubble { background: var(--panel-2); border: 1px solid var(--border); max-width: 80%; white-space: pre-wrap; }
+.msg.claude .bubble { padding: 2px 2px; }
+.bubble p { margin: 0 0 10px; }
+.bubble p:last-child { margin-bottom: 0; }
+.bubble pre { background: #0b0d11; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; overflow-x: auto;
+  font: 12.5px/1.5 ui-monospace, monospace; white-space: pre; }
+.bubble code { font: 12.5px ui-monospace, monospace; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+.bubble pre code { background: none; padding: 0; }
+.bubble a { color: var(--accent); cursor: pointer; }
+.bubble ul, .bubble ol { margin: 0 0 10px; padding-left: 22px; }
+.bubble h1, .bubble h2, .bubble h3 { font-size: 15px; margin: 12px 0 6px; }
+.files { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+.toolcard { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); font-size: 13px; }
+.toolcard summary { cursor: pointer; padding: 8px 12px; display: flex; gap: 8px; align-items: center; list-style: none; }
+.toolcard summary::-webkit-details-marker { display: none; }
+.toolcard .name { font-weight: 600; }
+.toolcard .brief { color: var(--muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toolcard .state { font-size: 11px; color: var(--muted); }
+.toolcard.pending .state::before { content: "running…"; color: var(--accent); }
+.toolcard.done .state::before { content: "done"; color: var(--good); }
+.toolcard.error .state::before { content: "failed"; color: var(--bad); }
+.toolcard pre { margin: 0; padding: 8px 12px; border-top: 1px solid var(--border); max-height: 280px; overflow: auto;
+  font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); }
+.toolcard .pic-tag { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; flex: none;
+  color: #1b1030; background: #f0a8e0; }
+.toolcard.has-pic { border-color: color-mix(in srgb, #f0a8e0 55%, var(--border)); }
+.toolcard.browser { border-color: color-mix(in srgb, #7cc4f0 45%, var(--border)); }
+
+.turn-end { font-size: 11px; color: var(--muted); text-align: right; }
+.sys { font-size: 12px; color: var(--muted); text-align: center; }
+.sys.bad { color: var(--bad); white-space: pre-wrap; }
+
+/* --- composer ---------------------------------------------------------------------- */
+.composer { padding: 10px 14px 12px; border-top: 1px solid var(--border); background: var(--panel); }
+.composer.drop { outline: 2px dashed var(--accent); outline-offset: -6px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; max-width: 900px; margin: 0 auto 6px; }
+.chips:empty { display: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 10px; border-radius: 999px; font-size: 12px;
+  background: var(--panel-2); border: 1px solid var(--border); }
+.chip button { border: 0; background: none; color: var(--muted); padding: 0 4px; }
+.chip button:hover { color: var(--bad); }
+.chip.image { padding-left: 3px; }
+.chip.image img { width: 28px; height: 28px; object-fit: cover; border-radius: 999px; display: block; }
+.chip.image span { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shot { position: relative; margin: 8px 0 0; max-width: min(100%, 520px); align-self: flex-end; }
+.toolcard .shot { align-self: flex-start; }
+.shot img { display: block; max-width: 100%; max-height: 360px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); }
+.shot .copy-img { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity .15s; border: 1px solid var(--border);
+  background: var(--panel); color: var(--text); border-radius: 999px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+.shot:hover .copy-img, .shot .copy-img:focus-visible { opacity: 1; }
+.row-input { display: flex; align-items: flex-end; gap: 6px; max-width: 900px; margin: 0 auto; }
+.row-input textarea { flex: 1; resize: none; max-height: 220px; min-height: calc(40px * var(--forge-text, 1)); line-height: 1.45; padding: 9px 12px; border-radius: 12px; }
+.tool { width: 38px; height: 38px; flex: none; border: 0; border-radius: 10px; background: none; font-size: 18px; }
+.tool:hover { background: var(--panel-2); }
+.status { max-width: 900px; margin: 6px auto 0; min-height: 16px; }
+
+/* --- avatar stage (stage.js) ------------------------------------------------------ */
+/* Narrows on small windows so the conversation keeps most of the room. */
+.stage-pane { width: clamp(240px, 26vw, 340px); flex: none; display: flex; flex-direction: column; background: var(--panel);
+  border-left: 1px solid var(--border); min-width: 0; }
+.stage-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+.stage-top .grow { flex: 1; }
+.stage-top select { flex: 0 1 120px; min-width: 56px; font-size: 12px; padding: 3px 6px; }
+.stage-top .stage-btn, .stage-top .stage-toggle, .stage-top b { flex: none; }
+.stage-mood { font-size: 11px; color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+.stage-btn, .stage-toggle { border: 0; background: none; color: var(--text); font-size: 16px; padding: 2px 5px; border-radius: 6px;
+  cursor: pointer; text-decoration: none; }
+.stage-btn:hover, .stage-toggle:hover { background: var(--panel-2); }
+.stage-view { flex: 1; min-height: 0; position: relative; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 90%, #3a2418 0%, #1a1418 45%, var(--bg) 85%); }
+.stage-view > canvas, .stage-view > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.stage-off { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 20px; text-align: center; cursor: default; }
+.stage-off button { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); cursor: pointer; }
+.stage-off button:hover { border-color: var(--accent); }
+#stage-avatar:not(.on) { opacity: .55; }
+.stage-note { padding: 4px 10px 8px; min-height: 14px; }
+.stage-view { touch-action: none; cursor: grab; }
+.stage-view:active { cursor: grabbing; }
+.stage-chat { border-top: 1px solid var(--border); display: flex; flex-direction: column; }
+.stage-log { max-height: 170px; overflow-y: auto; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.stage-log:empty { display: none; }
+.stage-log .me { align-self: flex-end; background: var(--panel-2); color: var(--text); border-radius: 10px 10px 2px 10px; padding: 4px 9px; max-width: 85%; }
+.stage-log .them { align-self: flex-start; color: var(--text); border: 1px solid var(--border); border-radius: 10px 10px 10px 2px; padding: 4px 9px; max-width: 85%; }
+.stage-log .them.wait { color: var(--muted, #888); font-style: italic; }
+.stage-say { display: flex; gap: 4px; padding: 6px 8px 8px; }
+.stage-say input { flex: 1; min-width: 0; font-size: 13px; padding: 5px 8px; }
+#app.claude.stage-closed .stage-pane { width: 38px !important; }
+#app.claude.stage-closed #split-stage { display: none; }
+#app.claude.stage-closed .stage-pane > :not(.stage-top),
+#app.claude.stage-closed .stage-top > :not(.stage-toggle) { display: none; }
+
+/* --- folders of conversations --- */
+.new-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.new-row .new { flex: 1; }
+.new-folder { padding: 6px 10px; font-size: 12px; }
+.folder { border-radius: 8px; }
+.folder-head { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 8px;
+  cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 600; }
+.folder-head:hover { background: var(--panel-2); color: var(--text); }
+.folder-head .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.folder-head .count { font-weight: 400; opacity: .7; }
+.folder-head .x { visibility: hidden; }
+.folder-head:hover .x { visibility: visible; }
+.folder-body { padding-left: 10px; display: flex; flex-direction: column; gap: 2px; }
+.folder.shut .folder-body { display: none; }
+.folder-body.loose { padding-left: 0; min-height: 24px; }
+.folder.drop, .folder-body.loose.drop { outline: 2px dashed var(--accent); outline-offset: -2px; }
+.chat-item .mv { font-size: 11px; }
+
+/* --- tabs: the live set of conversations, each fixed to one account --- */
+.tabs { display: flex; align-items: flex-end; gap: 2px; padding: 6px 8px 0; background: var(--bg);
+  border-bottom: 1px solid var(--border); overflow-x: auto; flex: none; }
+.tab { display: flex; align-items: center; gap: 6px; max-width: 220px; min-width: 90px; padding: 6px 6px 6px 10px;
+  border: 1px solid transparent; border-bottom: 0; border-radius: 8px 8px 0 0; cursor: pointer;
+  color: var(--muted); font-size: 12.5px; }
+.tab:hover { background: var(--panel-2); color: var(--text); }
+.tab.on { background: var(--panel); color: var(--text); border-color: var(--border); box-shadow: inset 0 2px 0 var(--accent);
+  margin-bottom: -1px; padding-bottom: 7px; }
+.tab .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t .who { font-weight: 600; color: var(--text); }
+.t .topic { color: var(--muted); margin-left: 6px; }
+.tab .acct { font-size: 10.5px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); flex: none; }
+.tab .busy { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.2s infinite; flex: none; }
+.tab .x { border: 0; background: none; color: var(--muted); border-radius: 5px; padding: 0 5px; visibility: hidden; }
+.tab:hover .x, .tab.on .x { visibility: visible; }
+.tab .x:hover { color: var(--bad); }
+.tab-new { border: 0; background: none; color: var(--muted); font-size: 16px; padding: 3px 10px; border-radius: 6px; margin-bottom: 3px; }
+.tab-new:hover { background: var(--panel-2); color: var(--text); }
+
+/* --- the / and . command menu --- */
+.composer { position: relative; }
+.cmd-menu { position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%);
+  width: min(760px, calc(100% - 28px)); max-height: 300px; overflow-y: auto; padding: 4px; z-index: 5;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, .45); }
+.cmd { display: flex; align-items: baseline; gap: 12px; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+.cmd .n { flex: none; font: 12.5px ui-monospace, monospace; color: var(--text); }
+.cmd .d { flex: 1; min-width: 0; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmd:hover { background: var(--panel-2); }
+.cmd.on { background: color-mix(in srgb, var(--accent) 22%, var(--panel-2)); }
+
+/* a message sent mid-turn, which Claude Code folds into the running turn */
+.msg.user .joined { font-size: 11px; color: var(--muted); }
+.account .who .u { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- draggable dividers between the panes --- */
+.split { flex: none; width: 7px; margin: 0 -3px; cursor: col-resize; z-index: 3; position: relative; }
+.split::after { content: ""; position: absolute; inset: 0 3px; background: transparent; transition: background .15s; }
+.split:hover::after, .split.drag::after { background: var(--accent); }
+body.dragging { cursor: col-resize; user-select: none; }
+/* the bar above the accounts drags their height */
+.split.split-h { width: auto; height: 7px; margin: -6px 0 -3px; cursor: row-resize; }
+.split.split-h::after { inset: 3px 0; }
+body.dragging-y { cursor: row-resize; }
+.accounts.folded { height: auto !important; max-height: none !important; }
+.accounts.folded > :not(.accounts-head:first-child) { display: none; }
+.accounts.folded { flex: none; }
+#to-everyone.on { background: var(--accent); color: var(--on-accent); }
+
+/* --- everyone: every Claude session and its helpers --- */
+.everyone { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.ev-group { font-size: 11px; color: var(--muted); padding: 8px 4px 2px; font-weight: 600; }
+.ev { padding: 7px 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 3px; font-size: 12px; flex-shrink: 0; }
+.ev:hover { background: var(--panel-2); }
+.ev .top { display: flex; align-items: center; gap: 6px; }
+.ev .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--border); }
+.ev.working > .top .dot { background: var(--accent); animation: pulse 1.2s infinite; }
+.ev.idle > .top .dot { background: var(--good); }
+.ev .n { flex: 1; min-width: 0; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev.cold .n { color: var(--muted); font-weight: 400; }
+.ev .sub { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev .acts { display: flex; gap: 4px; flex-wrap: wrap; }
+.ev .acts button { padding: 2px 8px; font-size: 11px; }
+.ev .say { display: flex; gap: 4px; }
+.ev .say input { flex: 1; min-width: 0; padding: 4px 6px; font-size: 12px; }
+.ev .kids { margin: 2px 0 0 4px; padding-left: 8px; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 2px; }
+.ev .kid { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.ev .kid.working { color: var(--text); }
+.ev .kid.working .dot { background: var(--accent); animation: pulse 1.2s infinite; }
+.ev .kid .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ev-empty { padding: 12px 6px; }
+
+/* --- polish (look critic, 2026-10-07); enjoy.html loads this file too --- */
+/* thin, quiet scrollbars instead of the toolkit's default ones */
+/* Chrome and WebKit draw the ::-webkit-scrollbar rules below (Chrome ignores
+   them once scrollbar-color is set); Firefox takes the standard properties */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: #3a3f4b transparent; }
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-button { display: none; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: #4b5160; }
+
+/* the tab row scrolls sideways only, with no bar; + stays in view at the end */
+.tabs { overflow-y: hidden; scrollbar-width: none; flex-wrap: nowrap; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 0 1 auto; transition: background .15s ease, color .15s ease; }
+.tab-new { position: sticky; right: 0; flex: none; background: var(--bg); box-shadow: -10px 0 10px -4px var(--bg); }
+
+/* Markdown tables in answers (/context prints one) */
+.bubble .table-wrap { overflow-x: auto; margin: 0 0 10px; border: 1px solid var(--border); border-radius: 8px; }
+.bubble table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 13px; }
+.bubble th, .bubble td { padding: 5px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.bubble th { background: var(--panel-2); font-weight: 600; color: var(--text); }
+.bubble tbody tr:last-child td { border-bottom: 0; }
+.bubble tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--panel-2) 40%, transparent); }
+
+/* "conversation compacted": a quiet rule across the log */
+.divider { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--muted); letter-spacing: .02em; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+
+/* a crashed turn: a card, like a failed tool call */
+.crash-card { border: 1px solid color-mix(in srgb, var(--bad) 55%, var(--border)); border-radius: 10px; font-size: 13px;
+  background: color-mix(in srgb, var(--bad) 8%, var(--panel)); overflow: hidden; }
+.crash-head { padding: 9px 12px; color: var(--text); display: flex; gap: 8px; align-items: baseline; }
+.crash-head::before { content: "!"; flex: none; width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center;
+  background: var(--bad); color: var(--bg); font-weight: 700; font-size: 12px; }
+.crash-card pre { margin: 0; padding: 8px 12px; border-top: 1px solid var(--border); max-height: 220px; overflow: auto;
+  font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); }
+
+/* the working dots: their own layer (cheap to fade), still while hidden
+   (forge_idle.js) and for reduced motion or Forge's animations-off */
+.chat-item .busy, .tab .busy, .ev.working > .top .dot, .ev .kid.working .dot { will-change: opacity; }
+body.no-anim .chat-item .busy, body.no-anim .tab .busy, body.no-anim .ev .dot { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .chat-item .busy, .tab .busy, .ev .dot { animation: none; }
+}
+
+/* Send is disabled while a message is on its way */
+#send:disabled, #e-t-send:disabled { opacity: .6; cursor: progress; }
+.chat-item, .account, .folder-head, .ev { transition: background .15s ease, color .15s ease; }
+
+/* the header: title, account and Full screen, then the settings, which wrap
+   onto a second row on narrow windows rather than scroll out of sight (a hidden
+   sideways scroll cut off Limits and Can below about 1900 px, final critic 1) */
+.chat-head { flex-wrap: wrap; gap: 6px 12px; padding: 8px 14px 6px; }
+.chat-head .title { flex: 1 1 200px; }
+#go-fullscreen { padding: 4px 12px; font-size: 12px; border-radius: 99px; }
+.head-controls { flex: 1 1 100%; min-width: 0; display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; padding: 1px 0 3px; }
+.head-controls > * { flex: none; }
+.head-controls .field-inline input { width: clamp(110px, 12vw, 220px); }
+.head-controls .field-inline select { max-width: 220px; }
+
+/* the list's buttons: New conversation across the top, the rest in a row */
+.new-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(76px * var(--forge-text, 1)), 1fr)); gap: 6px; }
+.new-row .new { grid-column: 1 / -1; }
+.new-row .new-folder { text-align: center; }
+#chats { min-height: 30%; }
+
+/* with the avatar off (the default) its pane only holds the chat: narrower */
+#app.claude:has(.stage-off) .stage-pane { width: clamp(200px, 18vw, 260px); }
+.stage-pane { transition: width .2s ease; }
+.new-row a.btn { text-decoration: none; }

@@ -1,0 +1,18 @@
+{
+  "name": "inkforge",
+  "label": "InkForge",
+  "tagline": "Manga and PDFs, read in Forge",
+  "port": 8455,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7fa0e0",
+  "icon": "📖",
+  "order": 17,
+  "section": "watch",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "Reads the manga library Komikku already downloaded (read-only) and imported PDFs, in one page-by-page viewer.",
+    "data_dir": "~/InkForgeData",
+    "docs": ["README.md", "WIP.md"]
+  }
+}

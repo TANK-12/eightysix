@@ -1,0 +1,4 @@
+{
+  "extraPaths": ["../../shared", ".", "../browser"],
+  "reportMissingImports": "error"
+}

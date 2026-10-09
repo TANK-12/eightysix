@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acchan</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="/static/app.css">
+<style>
+  :root { --accent: #f28fb1; --accent-2: #e56f9a; --on-accent: #2a0b17; }
+</style>
+</head>
+<body>
+<div id="app">
+  <nav class="tabs" id="tabs">
+    <button type="button" class="tab active" data-tab="assistant">🐱 Assistant</button>
+    <span id="extra-tabs"></span>
+    <span class="grow"></span>
+    <span id="status" class="status small muted">…</span>
+    <button type="button" class="icon-btn" id="settings-btn" title="Settings">⚙</button>
+  </nav>
+
+  <section class="pane active" id="pane-assistant">
+    <aside class="list" id="list">
+      <button type="button" class="btn btn-primary new" id="new-chat">+ New chat</button>
+      <div id="chats" class="chats"></div>
+    </aside>
+    <main class="chat">
+      <div id="log" class="log">
+        <div class="hello" id="hello">
+          <div class="big">🐱</div>
+          <h2>Hi, I'm Acchan</h2>
+          <p class="muted">I run on your own Jan models. Ask me to open apps, manage windows and tabs, play music, read documents and videos, or work on code.</p>
+          <div class="chips" id="chips"></div>
+        </div>
+      </div>
+      <form id="composer" class="composer" autocomplete="off">
+        <select id="tier" title="Which model answers. Auto keeps one model loaded and only steps up a size when it gets stuck.">
+          <option value="">Auto (one model)</option>
+          <option value="switch">Switch per message</option>
+          <option value="tiny">0.8B</option>
+          <option value="small">2B</option>
+          <option value="medium">4B</option>
+          <option value="large">9B</option>
+        </select>
+        <label class="think" title="Let the model think before it answers. Smarter on hard questions, but slower."><input type="checkbox" id="think"> Think</label>
+        <textarea id="input" rows="1" placeholder="Ask Acchan… (Enter to send, Shift+Enter for a new line)"></textarea>
+        <button type="button" class="btn voice-btn" id="mic" title="Speak instead of typing" aria-label="Microphone" hidden>🎤</button>
+        <button type="button" class="btn voice-btn" id="speak" title="Read replies aloud" aria-label="Read replies aloud" aria-pressed="false" hidden>🔈</button>
+        <button type="submit" class="btn btn-primary" id="send">Send</button>
+        <button type="button" class="btn" id="stop" hidden>Stop</button>
+      </form>
+    </main>
+  </section>
+
+  <div id="frames"></div>
+
+  <dialog id="settings" class="settings">
+    <form method="dialog">
+      <h3>Settings</h3>
+      <p class="small muted">Which Jan model answers at each size. Models load on the first request and are released after sitting idle.</p>
+      <div id="jan-settings"></div>
+      <h4>Personality</h4>
+      <label class="small">How Acchan talks
+        <select id="persona">
+          <option value="plain">Plain: friendly, no cat talk</option>
+          <option value="cat">Catgirl: the odd "nya"</option>
+        </select>
+      </label>
+      <h4>Out of sight or on screen</h4>
+      <label class="small">Shells Acchan runs commands in
+        <select id="terminal_view">
+          <option value="headless">Headless: out of sight (show one any time with "show the terminal")</option>
+          <option value="visible">Visible: a window follows each shell</option>
+        </select>
+      </label>
+      <label class="small">Web pages Acchan reads and clicks
+        <select id="browser_view">
+          <option value="headless">Headless: Acchan's own hidden Firefox</option>
+          <option value="visible">Visible: your main Firefox (needs remote control on)</option>
+        </select>
+      </label>
+      <p class="small muted">Everything headless closes when Acchan closes.</p>
+      <h4>Voice</h4>
+      <label class="small">Voice for replies read aloud (the 🔈 button beside Send)
+        <select id="voice"></select>
+      </label>
+      <p class="small muted">The 🎤 button turns what you say into text in the box, with whisper.cpp on this laptop; nothing leaves it.</p>
+      <h4>Tools <span id="tool-count" class="muted small"></span></h4>
+      <div id="tool-list" class="tool-list small"></div>
+      <h4>Use Acchan elsewhere</h4>
+      <ul class="small">
+        <li>Terminal: <code>acchan</code></li>
+        <li>Nyarch Assistant / any OpenAI client: base URL <code>http://127.0.0.1:8451/v1</code>, model <code>acchan</code>, any key</li>
+        <li>Claude Code: MCP server <code>acchan</code> (the same tools)</li>
+      </ul>
+      <div class="right"><button class="btn">Close</button></div>
+    </form>
+  </dialog>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge_jan.js"></script>
+<script src="/shared/forge_mic.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

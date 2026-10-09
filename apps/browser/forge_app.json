@@ -1,0 +1,40 @@
+{
+  "name": "browser",
+  "label": "Browser",
+  "tagline": "Real web pages with your Firefox logins",
+  "port": 8444,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7cc4f0",
+  "icon": "🌐",
+  "role": "browser",
+  "fullscreen": "auto",
+  "order": 13,
+  "section": "research",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "A tabbed web browser inside the Forge window. Pages are real WebKit views laid over the app by forge.py (forge_views.py), so any site works, unlike an iframe. Imports bookmarks, history and cookies from the user's Firefox profile, opens pages in real Firefox, and takes commands from other apps (the Claude panel) through a small queue.",
+    "features": [
+      {"name": "Tabs and navigation", "description": "Tabs restored next time, back/forward/reload, address bar that tells addresses from searches, zoom, new-window links open as tabs, downloads saved to ~/Downloads."},
+      {"name": "Bookmarks and history", "description": "Star, bookmarks bar, side panels with search, start page with most visited and bookmarks. Stored in ~/.local/share/forge/browser/browser.db."},
+      {"name": "Import from Firefox", "description": "Bookmarks, history and cookies from the profile Firefox opens by default, read from temporary copies; Firefox is never written. Cache and saved passwords cannot come across."},
+      {"name": "Open in Firefox", "description": "The fox button opens the current page in real Firefox; the menu opens Firefox itself."},
+      {"name": "Commands for other apps", "description": "POST /api/agent/do with {op: open | search | read | tabs | back | forward | reload | switch | close}; the page carries it out and answers. Needs X-Forge: 1."}
+    ],
+    "data_dir": "~/.local/share/forge/browser (records); ~/.local/share/forge/browser-profile (cookies, site storage, owned by forge.py); ~/.cache/forge/browser (page cache)",
+    "services": [],
+    "dependencies": {
+      "required": ["fastapi", "uvicorn", "WebKit2GTK 4.1 and libsoup 3 (for forge.py)"],
+      "optional": ["firefox"]
+    },
+    "standalone_launch": "cd ~/Forge/apps/browser && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8444",
+    "api_base": "/api",
+    "known_gaps": [
+      "Pages only render inside the Forge window; standalone the page manages records only.",
+      "Keyboard shortcuts on the Browser page do not fire while a web page has the keyboard focus.",
+      "No per-site permission prompts, extensions or password manager.",
+      "Container and partitioned Firefox cookies are not imported."
+    ],
+    "docs": ["README.md", "MANIFEST.md", "WIP.md"]
+  }
+}

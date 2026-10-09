@@ -1,0 +1,21 @@
+{
+  "id": "grass_medium_01",
+  "name": "Grass Medium 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/grass_medium_01",
+  "license": "CC0",
+  "authors": [
+    "Rico Cilliers",
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/grass_medium_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/grass_medium_01/1k/grass_medium_01_1k.gltf",
+  "files": [
+    "grass_medium_01_1k.gltf",
+    "textures/grass_medium_01_nor_gl_1k.jpg",
+    "textures/grass_medium_01_diff_1k.jpg",
+    "textures/grass_medium_01_arm_1k.jpg",
+    "grass_medium_01.bin"
+  ]
+}

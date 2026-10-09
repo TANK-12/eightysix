@@ -1,0 +1,787 @@
+{
+  "_readme": "Session history and open questions for the Forge project. READ README.md FIRST -- it is the architecture document and explains the layout, how to add an app, and the rules that are easy to break. This file is the changelog and the list of things nobody has verified yet. Older session entries (session_2_work to session_29_work) are in PROGRESS-archive.json.",
+  "archive": "PROGRESS-archive.json holds older session_N_work entries under \"sessions\" (session_2_work to 38_work as of 2026-09-16), and the old stacked status text under \"status_history_before_2026-09-16\".",
+  "project": "Forge - unified hub for NovelForge, MediaForge, AI Studio, Codec Lab, Codec Player and Arcade",
+  "last_updated": "2026-10-08",
+  "status": "2026-09-29: new app Relay (apps/relay, port 8463, System section) plus the relay-boss user service: a zero-token Python boss that runs headless Claude sessions unattended across accounts (Emerson's 70/92/95 rule), takes jobs by mail from his Outlook address to a spare Gmail, the `relay` terminal command or its page, hands over at 95 percent and mails results. Live mail waits on his Gmail app password. Needs a Forge restart to show the tile. Before that: PrintForge (8462) added 2026-09-28; NovelForge's rework still uncommitted (sessions/QUICKSTART.md).",
+  "written_by": "Finisher (S10, ejb-db)",
+  "start_here": "sessions/QUICKSTART.md (top section: left after the 2026-09-27 wave), then sessions/2026-09-27-S12-hub-apps-wave.md",
+  "user_hardware_and_environment": {
+    "machine": "Arch Linux laptop, Intel Iris Xe iGPU (no discrete GPU), ~31GB RAM, Wayland session",
+    "implications": "Local AI is CPU/iGPU-bound and slow. Image generation above ~768px hits a Vulkan per-allocation VRAM ceiling (see the AI Studio fix below). Local LLM work runs 5-15 tok/s; a full novel is an overnight job. Models above ~14B are impractical.",
+    "jan": "The local LLM server (Jan) runs at http://localhost:1337/v1. It was OFFLINE for most of this session, so anything needing a model was verified only for its error paths. Jan must be running for NovelForge generation, casting, style analysis, and the Japanese Tutor.",
+    "sandbox_limits_seen": "No screenshot capability (grim/gnome-screenshot both denied) - GUI changes cannot be visually verified from the agent side, only via logs/process checks and by asking the user.",
+    "no_version_control": "NONE of these four directories are git repos. There is no undo. Be careful with destructive edits; consider copying a file before a large rewrite."
+  },
+  "architecture": {
+    "decision": "The user chose 'rebuild as one web-hub' over (a) merging just NovelForge+MediaForge in customtkinter or (b) a bare launcher. Reason: AI Studio was already a fast FastAPI + web-frontend app, while customtkinter itself was identified as a real source of the sluggishness in the other two.",
+    "shape": "The hub is a thin orchestrator. Each tool keeps its OWN FastAPI backend running as its own subprocess on its own port. The hub window (GTK3 + WebKit2) loads a static shell via file:// and iframes whichever backend is active. Closing the hub window SIGTERMs all backends.",
+    "ports": {
+      "novelforge": 8421,
+      "mediaforge": 8422,
+      "ai-studio": 8430,
+      "codec-lab": 8431,
+      "codec-player": 8432,
+      "arcade": 8433
+    },
+    "why_iframes": "AI Studio already had a complete working frontend, so an iframe let it join with zero changes. NovelForge and MediaForge had no web frontend at all, so theirs were written fresh - also iframed for consistency. A future pass could inline all three into one shared-DOM page; iframes were the low-risk way to get everything under one roof.",
+    "backend_discovery": "app_window.py's BACKENDS list defines each backend (name, root dir, module target, port, src_dir). A backend whose .venv/bin/python or src_dir is missing is skipped at launch and the sidebar shows a placeholder instead of a broken iframe. Availability is written to /home/ejb/Forge/static/status.json at startup and read by the shell's JS."
+  },
+  "the_porting_pattern": {
+    "summary": "Used identically for both NovelForge and MediaForge. Follow it for anything new.",
+    "step_1": "Leave every business-logic module COMPLETELY UNTOUCHED. None of them ever imported customtkinter - they were already cleanly separated behind plain callback hooks (log / progress / stream / on_status / on_line / should_stop). This is why the port was feasible at all.",
+    "step_2": "web_app.py (FastAPI) per app imports those modules directly and exposes them as REST endpoints.",
+    "step_3": "For long-running work, use the generic Job class already defined in each web_app.py: a background thread + a queue.Queue of events, drained by an SSE endpoint at /api/jobs/{id}/events that BATCHES events in ~120ms windows before sending. THIS BATCHING IS THE ACTUAL FIX for the original sluggishness - the old customtkinter apps did one Tk textbox insert per streamed token; the SSE endpoint coalesces bursts into single messages.",
+    "step_4": "static/index.html per app is the frontend, sharing a dark CSS-token system (--bg/--panel/--border/--text/--muted/--accent) so all three look like one product.",
+    "critical_sse_rule": "ONE EventSource per job. Job events go through a queue.Queue, which is single-consumer (NOT broadcast) - opening two connections to the same job silently splits events between them. A bug of exactly this kind was caught and fixed in NovelForge's audiobook panel. If a panel needs both log text and progress, pass both callbacks into ONE stream helper (see streamJobGeneric in NovelForge's index.html).",
+    "job_result_convention": "Jobs that produce a result set job.result inside their work function; GET /api/jobs/{id} returns it (MediaForge) or a dedicated /result endpoint returns it (some NovelForge/MediaForge routes). MediaForge's GET /api/jobs/{id} includes 'result' generically - prefer that for anything new."
+  },
+  "user_data_locations": {
+    "novelforge": "~/NovelMakerData/ - projects/<name>/{bible,state,codex,export,voices}.json + chapters/*.txt + manuscript.md + cover.png + audiobook/, series/<name>/series.json, style_library.json, known_models.json, novelforge_settings.json, tts_voices/",
+    "mediaforge": "~/MediaForgeData/ - settings.json, file_index.db (SQLite), manifests/*.json (organiser undo log), anime_title_cache.json",
+    "ai_studio": "/home/ejb/Forge/apps/ai-studio/models/ (checkpoints, ~12GB) and outputs/ (generations + server logs)",
+    "warning": "These are the user's REAL data. Test with synthetic files in a scratch dir, and clean up any artifacts you create in these directories (this session created and then removed test manifests, a test series, and a test style source)."
+  },
+  "completed_work": {
+      "2026-10-09_hub_top_bar_121": {
+        "date": "2026-10-09",
+        "who": "Kana/Tetsu (Relay task 121, from WhatsApp)",
+        "what": "Hub top bar: many open apps no longer push the tray off screen. The open-app strip (#workspaces) scrolls sideways (wheel too) and keeps room for one icon; brand and tray never shrink; a '+N' button (#ws-more) counts icons out of sight (dot for news/failed, pulse for busy) and opens the overview; fades mark the end with more; the app in front is scrolled clear of the fade on every change; when still too full, Strip.tighten adds .tight-1..5 to #bar (labels, title, last icon, zen/background, reload) until the tray fits, at any text size. All in hub/index.html (CSS above #home-btn, const Strip before aimAt). Numbers and screenshots: docs/library/forge/2026-10-09-hub-top-bar.md.",
+        "verified": "tests/browser/hub_bar_overflow_harness.js (30-app fixture hub_bar_many_status.js) in run.sh: 29/29/26 checks pass at 1400/800/500 px incl. a sweep of every bar width 500..1400 at text 1 and 1.5; it fails on the pre-fix hub. Before the fix the whole tray sat at x 1460-1721 in a 1400 px window. Full run.sh: only 3 FAILs, hub_icon_style about the 'voice' app having no drawn icon (same before this change). Hub pytest (test_hub_*, css_tokens, glass_budget, icons, fullscreen): 131 pass, 2 fail in test_icons ('backup', 'voice' have no glyph; pre-existing). Headless screenshots at 1400/700/500 checked by eye. One opus critic: 4 confirmed findings (tray off at 641-760 px and at text 1.5, fade over the front icon, stale '+N' on icon-size change, badges of hidden apps lost) all fixed and covered by the harness; its low finding (strip 2 px taller than the bar) fixed.",
+        "not_verified": "Not seen in the real Forge WebKit window (hub reload picks it up, no Forge restart). Drag onto a scrolled-away folder icon does not auto-scroll; RTL untested; the glow around the front icon is clipped at the strip edge.",
+        "also": "tests/browser/run.sh now passes --no-documents-portal to flatpak (the document portal is not mounted, so bwrap refused to start Chrome at all)."
+      },
+      "2026-10-09_relay_account_fallback_128": {
+        "date": "2026-10-09",
+        "who": "Hayato (Relay task 128, from WhatsApp)",
+        "what": "Relay: when an account runs out its work goes to its fallback by itself. New setting account_fallback (default {\"hey\": \"default\"}, name or list, chains followed). A task pinned to hey launches on default while hey is out (5-hour or weekly line, or a limit hit); moves and a task last run on an out account prefer the fallback; the pin is kept so work returns to hey once it has room. Code in apps/relay/picker.py (fallbacks, out_of_usage, fallback_in, pick_account, move_to), store.py, boss.py wait note.",
+        "verified": "apps/relay tests: 10 new picker tests and 6 new boss tests (fake Claude: full and weekly-full pinned account, running hand-over, limit hit mid-run, a limit hit moving every session on the account, both full), red before the change; full suite 451 pass; one opus critic, 5 findings fixed, 2 left in apps/relay/WIP.md; black; pyright only the 2 old channels.whatsapp errors in test_boss.py.",
+        "not_verified": "Not live until relay-boss restarts (not restarted, sessions running). Not seen on a real hey limit hit.",
+        "docs": "apps/relay/README.md (How it decides: Fallback), apps/relay/WIP.md, docs/library/relay/2026-10-09-account-fallback.md"
+      },
+      "2026-10-09_quickstart_sweep_123": {
+        "date": "2026-10-09",
+        "who": "Relay task 123 (sessions 1-3, Umi)",
+        "what": "QUICKSTART sweep: went through the open to-dos in sessions/QUICKSTART.md newest first (skipping the hub top bar, Forge Browser, Eighty Six and calculus). Done: Shiori, Claude's own persona for fact checks (670e798, tightened in 98d0a1f); the chat-diary rule in ~/.claude/CLAUDE.md and Shiori in PERSONALITY.md; the 2026-09-28 NovelForge rework committed after a UI check (8a58a8e) plus a critic's fixes to its delete/reset/rewind routes (b369f19); items 6 and 9 and the Claude app names/effort section marked done; older sections triaged. Everything needing Emerson is a 9-item questions list at the top of QUICKSTART.",
+        "verified": "apps/claude tests/test_personas.py 33 pass (app suite 222), apps/novelforge 46 pass (3 new, red first), black, pyright no new errors; NovelForge Home/Story/Generate/Codex/Settings looked at in headless Chrome in Simple and Advanced on a copy of the data, no page errors. One opus critic read the diffs: 0 high, 3 medium (fixed), lows listed in apps/novelforge/WIP.md.",
+        "not_verified": "The NovelForge live outline run on Jan and Acchan B42's Jan evals (no Jan runs unattended); Shiori's mood in the live Claude panel (needs a Claude app restart). QUICKSTART.md edits are working-tree only: HEAD's copy predates the sections other sessions added since task 68, so a hunk-only commit was not possible.",
+        "docs": "sessions/QUICKSTART.md (questions at the top, items marked), apps/claude/WIP.md, apps/novelforge/WIP.md, MANIFEST.md, README.md"
+      },
+    "2026-10-09_voice_cloning_120": {
+      "date": "2026-10-09",
+      "who": "Relay task 120 (sessions 1-12, 2026-10-08 to 2026-10-09)",
+      "what": "Voice cloning and mood tags for Forge voice, plus the mic fix. (1) Mic: in Forge's WebKitGTK 2.54 a real microphone track reports sample rate 0 and MediaRecorder records 0 bytes, so every browser-mic dictation got 'no audio' (400). shared/forge_mic.js records through Web Audio into a 16 kHz WAV instead; forge_voice.js micButton, the Voice page mic test and Acchan use it; pop-out windows allow the microphone on Forge pages only, never camera or screen (forge_popout.allow_microphone) (49e7405, ec48e73). (2) Cloning: audio.cpp v0.9.1 built from source (Vulkan + this CPU; the prebuilt needs AVX-512) runs AuK-Flash (the cloner AI Search covered, Tencent, Sep 2026; English) and Irodori-TTS v4.1 Anime (Japanese, emoji moods) as rows auk-flash and irodori-anime (apps/voice/engines/audio_cpp.py); Breeze TTS 2 speaks cloned voices too (a profile's calm clip saved once as a Breeze voice). Voices are profile folders in models/voice/profiles/<id>/ (apps/voice/profiles.py add/design/moods). One mood-tag list, shared/voice_emotions.json ([angry] [sad] [whisper] [laugh] [sigh] ...), rendered per model by apps/voice/expressive.py; models without moods get the tags taken out. forge_voice.py say/clip --voice (clip saves a wav/ogg voice note), ForgeVoice.speak(text, {model, voice}) (c1ee8fe, ff2ed80, cd95a71, ec48e73). (3) Eighty Six: apps/voice/cast.py + casts/eightysix.json render the game's lines through the Voice API into outputs/voice-cast/eightysix/<lang>/ with a manifest; stand-in voices (English Kokoro presets af_bella/am_michael read through Breeze, Japanese designed by Irodori) until the episodes come. Bake-off pick: English Breeze (best words and match), AuK-Flash the faster cloner, Japanese Irodori, OmniVoice out (moved to the Trash). (4) Two critics (code; Emerson-lens) found 16 code issues and 11 doc/ask gaps; 15 code issues fixed with tests (ec48e73), docs corrected; a second code critic on ec48e73 found 10 more (3 side effects of the fixes), all fixed with tests in the session 12 commit; list in docs/library/voice/2026-10-09-cloning-critic-findings.md.",
+      "verified": "tests/browser/check_mic_webkit.py 8/8 pass on real WebKitGTK 2.54 with a temporary PipeWire test mic (MediaRecorder 0 bytes; ForgeMic WAV -> /api/stt 200 'What time is it?' in the hub and a pop-out; rerun 2026-10-09 03:41 after the Forge-page rule). Voice suite 203 pass, node forge_mic 13 + forge_voice 11, tests/test_forge_mic.py 7, tests/test_forge_voice.py 21; every critic fix has a test that fails on the code before it (cd95a71, ec48e73). On a scratch voice backend (port 8497, not the live one): /api/tts 200 on the asked model and voice for auk-flash [angry]/[whisper], irodori-anime [angry]/[laugh], Breeze [sad][sigh]; SenseVoice heard the right words and no tag read aloud; 8 English game lines rendered (Lena 194-206 Hz, Shin 103-140 Hz, voice match 0.74-0.86).",
+      "not_verified": "Whether the moods sound right: SenseVoice's emotion labels were mostly unknown, so only Emerson's ears can judge (samples sent). The live Voice backend (port 8467, pid 22968) and Forge (pid 2910) still run code from before these commits: restart Forge once (Ctrl+Shift+R). Speech to text with Emerson's real mic inside the real Forge window was not tried (a loopback test mic was).",
+      "left": "Eighty Six voices from the show: waits for Emerson's season 1 episodes (extract audio only, separate, diarize, match subtitles to characters, English dub and Japanese, then per-character profiles). 116 of 124 Lena/Shin English lines not rendered yet; 305 lines of other characters have no voice. Japanese game lines need text_ja in the game (Riku's crew, ejb-6a, told on the board). Open from the critics: the private flag is a label only; no prompt tells Jan/Claude/Relay about mood tags; Acchan cannot pick a voice per line.",
+      "docs": "apps/voice/README.md 'Cloned voices and mood tags', apps/voice/WIP.md, docs/library/voice/2026-10-08-voice-how-to-use.md 'Character voices and moods', docs/library/voice/2026-10-08-voice-cloning-and-emotion-tts.md (research), docs/library/voice/2026-10-09-voice-cloning-bakeoff.md (numbers and pick), docs/library/voice/2026-10-09-cloning-critic-findings.md, samples in docs/library/voice/samples/2026-10-09-*"
+    },
+    "2026-10-08_pad_in_app_frames": {
+      "date": "2026-10-08",
+      "who": "Relay task 115 (sessions 2-12)",
+      "what": "PS5 pad in app frames: the hub's app iframe allows gamepad (the Gamepad spec lets a cross-origin frame read pads only when allowed, and WebKitGTK carries that refusal; session 3 measured that 2.54.1 with no pad plugged in answers getGamepads() in such a frame with or without the allow, so the feared 'game would not boot in Forge' was not real tonight, and the game survives a refusal either way); a page that reads the pad itself posts {forge: 'pad', native}; the hub sends {pad_native} for the app in front (from sendVisibility, reset on a new frame); forge.py -> forge_popout.set_pad_native writes pad-focus 0 while the main window's app in front reads the pad (pop-out focus still counts), so forge-pad.service stays quiet and the game's presses are not doubled.",
+      "verified": "tests/test_forge_pad.py (flag through fake windows, read back by forge_pad.pad_should_idle; hub/forge.py wiring) and tests/test_forge_mic.py: 7 pass, test_pad_found fails with no pad plugged in (older test); hub inline script node --check; Exo Lab tests/js/pad_map.mjs 27 checks. Session 3: tests/browser/check_gamepad_webkit.py (off-screen WebKitGTK 2.54.1 view from forge.hub_webview, software only, no pad): the hub's app frame under the file:// hub is a secure context and getGamepads() answers; frames with the old allow or none answer too. Sessions 8-9 (b538a50): test_forge_pad.py + test_forge_mic.py 13 pass, 1 skip (incl. the hub's forgeWindowActive run in node on fake frames); Exo Lab pad_map.mjs ok 43, main_pad.mjs ok 11 (the real main.js in a node vm, 9 of them red on the old code), test_pad.py 4 pass; black, pyright no new errors. Session 10 (cdcaed9): pad_map.mjs ok 50, main_pad.mjs ok 17 (incl. a check that every name main.js imports from the game's modules is exported; run against b538a50's game files the critic 3 checks fail, 5 in each file), test_pad.py 4 pass; critic 3's own harnesses all behave. Session 11 (8509987): pad_map.mjs ok 54, main_pad.mjs ok 19 (the 7 checks added or rewritten for critic 4 fail on cdcaed9's game files), test_pad.py 4 pass; critic 3 and 4 harnesses rerun. Session 12 reran pad_map ok 54, main_pad ok 19, test_pad.py 4 pass.",
+      "not_verified": "Forge not restarted, so none of it has run in the window; no real pad connected; the game page has not run in any browser since the pad work (Emerson: no browser runs that night). The focus relay (forge.py notify::is-active -> hub forgeWindowActive -> {forge: focus}) has not run in the real window either.",
+      "critic_fixes": "Critic 1 F1-F10 fixed: Forge 7433529 (pop-out relay, hub resets on load, close and mount), Exo Lab 77fd779 (menu ignores a direction held from play and stops at its ends, trigger release line, sprint rest time, choosePad reads the pad in use, the waking press is not an action, native only while a pad is seen and posted from a pop-out too, blur pauses pad play, a click after pad play only switches device); node pad_map.mjs ok 34, exolab tests/test_pad.py 3 pass. Critic 2 G1-G10 fixed in b538a50: the menu is locked after play, the wake press and focus loss until every direction is let go, with stick hysteresis menu_stick_release; a drifting stick no longer counts as pad use; the mouse is quiet mouse_quiet_s 2 after pad input (canvas, locked pointer, real clicks on the pause menu); L3 turns sprint off only after latch_rest_s of running; the latch clears only standing and the release line is never above the press line; sticks[].do and pad.analog in controls.json; Forge's window focus reaches the game (forge.py -> hub forgeWindowActive -> {forge: focus}) and pad play pauses then and when the pad drops out; a window error tells Forge to take the pad back; the hint says press a d-pad arrow and the repair prompt names the pad's button. Report: ~/.local/share/forge/relay/tasks/0115-critic2-findings.md. Critic 3 (three low) fixed in cdcaed9: gentle stick play keeps the mouse quiet and pauses on focus loss (H1); the pad in use dropping out pauses with a second pad connected, also when the browser's disconnect event comes first (H2; the menu line and rumble only peek at the pad); the menu lock opens once its buttons are let go and its stick has rested menu_rest_s 0.12 s, counted in play too, so a dodge through the centre walks nothing, while a d-pad let go is let go (H3); Enter or Space on the pause menu goes through after pad use. Report: ~/.local/share/forge/relay/tasks/0115-critic3-findings.md. Critic 4 (one medium, five low) fixed in 8509987: a stick drifting past the deadzone after pad play no longer keeps the mouse dead (I1: gentle stick play does not keep the mouse quiet; while the pad is in use mouse moves do not turn the camera, and after mouse_quiet_s the first click hands the controls back); the menu rest counts only between two resting frames (I3) and in play only inside the deadzone (I4); focus coming back locks the menu again (I5); the tests let go over 1/60 s frames (I6); I2 (a drifting pad pauses a keyboard player on focus loss) stays by design, raise pad.deadzone for a worn pad. Report: ~/.local/share/forge/relay/tasks/0115-critic4-findings.md."
+    },
+    "bug_fixes_requested_by_user": [
+      {
+        "bug": "NovelForge: 'only one test novel ever worked'",
+        "root_cause": "engine.py build_outline() used b.get('protagonist', 'the protagonist'), which only falls back when the key is MISSING - not when it's an empty string. Continue-a-Series projects had protagonist:'' so .split()[0] raised IndexError on the very first outline batch, before a single chapter was written.",
+        "fix": "Changed to (b.get('protagonist') or 'the protagonist').",
+        "verified": "YES - re-ran outline generation against the user's real 'cintinue' project (which has the empty protagonist) and it completed cleanly instead of crashing."
+      },
+      {
+        "bug": "NovelForge: failures looked like successes",
+        "root_cause": "engine.py run() caught per-chapter exceptions, logged them, and broke the loop - then returned normally. The caller then fired a green 'Generation finished' toast even when zero chapters were written. There was no way to tell success from silent failure.",
+        "fix": "run() now tracks stopped_early and raises RuntimeError at the end when it stopped for a real failure (NOT for a user kill / soft-stop / RAM-gate, which are legitimate stops). The existing worker exception handler turns that into a real red error with the reason.",
+        "verified": "Logic verified by inspection + the outline path exercising the same reporting; not exercised via a real mid-generation crash."
+      },
+      {
+        "bug": "AI Studio: images come out with misplaced squares / weird blocks",
+        "root_cause": "The Iris Xe's Vulkan driver enforces a per-allocation VRAM ceiling. Above ~768px the UNet/VAE im2col buffers exceed it; ggml then silently reroutes individual ops to CPU one node at a time (this is exactly the 'alternating CPU then iGPU bursts, then it times out' behaviour the user described), and partially-written buffers produce coherent rectangular block artifacts. Confirmed from ggml_vulkan OOM warnings in outputs/sd-server-gpu.log at 896x896 and 1024x1024.",
+        "fix": "Added --diffusion-conv-direct --vae-conv-direct --vae-tiling to the sd-server launch in src/model_manager.py. conv-direct swaps im2col for a much smaller-footprint direct conv; vae-tiling caps decode memory.",
+        "verified": "NO - the user explicitly asked to skip the live high-res verification test and check it themselves through the real app. THIS IS THE SINGLE BIGGEST UNVERIFIED CLAIM IN THE PROJECT. If they report artifacts still happening, next levers are --max-vram with graph-cut segmented execution, or a hard UI resolution cap."
+      },
+      {
+        "bug": "AI Studio: wanted a model option with higher default resolution",
+        "fix": "Added default_width/default_height to every models_catalog.py entry (512 for the four existing SD1.5 models) and a new 'segmind-vega' entry - a distilled SDXL checkpoint, natively 1024x1024, chosen as the SMALLEST 1024-native option because of the iGPU constraints. It ships with the sdxl-vae-fp16-fix VAE since SDXL-family checkpoints produce black/garbled images in fp16 without it. Threaded through model_manager.catalog_status() and app.py's generate endpoint; the frontend now pre-selects a model's native resolution when you activate it, and the resolution hint text is model-aware instead of hardcoded to 512.",
+        "verified": "URLs verified to resolve (both checkpoint and VAE, ungated). NOT downloaded or generated with - that is a ~3.4GB download the user hasn't triggered. Its steps/cfg (20/7.0) are untuned guesses; adjust if output looks wrong."
+      },
+      {
+        "bug": "AI Studio: wanted CPU + iGPU used together for max speed",
+        "important_nuance": "A SINGLE image genuinely cannot benefit - diffusion steps are sequential, so forcing a stage onto the slower CPU would only make that image slower. Explained this to the user and they accepted it. What DOES benefit is multiple independent images.",
+        "fix": "Added batch_count to /api/generate/image. When >1, images are fanned across BOTH the GPU-pinned and CPU-pinned sd-server instances concurrently via the existing HybridScheduler (which previously only served the video pipeline). Single images stay GPU-only by design. UI shows the iGPU/CPU split and wall-clock vs summed time.",
+        "verified": "Code path complete and compiles; not exercised with a real multi-image batch."
+      }
+    ],
+    "hub": {
+      "location": "/home/ejb/Forge/",
+      "files": "app_window.py (Backend + BackendManager + GTK window), static/index.html (sidebar shell), static/status.json (generated at launch), assets/icon.png",
+      "desktop_entry": "~/.local/share/applications/forge.desktop -> icon ~/.local/share/icons/forge.png",
+      "verified": "Launched many times with all three backends live; confirmed clean teardown with zero orphaned processes every time."
+    },
+    "novelforge": {
+      "location": "/home/ejb/Forge/apps/novelforge/web_app.py + static/index.html, port 8421",
+      "all_9_tabs_done": [
+        "Home - project list with stats, create project",
+        "Story - full bible editor + outline generation (SSE job)",
+        "Generate - start/resume, soft-stop, hard-kill with keep/discard, batched SSE token stream, chapter progress bar",
+        "World Codex - stats + raw JSON view (read-only)",
+        "References - PDF ingestion into the shared style library, per-source style analysis + content summarization via the local model, enable/disable, DuckDuckGo idea lookup, push-to-inspiration-notes",
+        "Continue a Series - CorpusIngest over multiple PDFs, spin presets, then open-ended 'write N more chapters' via continue_run",
+        "Series - create, add books, per-book status, arc synopsis",
+        "Export - EPUB/PDF/TXT + cover art (quick-generate gradient/duotone/minimal, import, edit)",
+        "Audiobook - Piper + Kokoro voice catalog, per-character voice map, AI auto-casting, mode selector (single/cast/narrator-voices), voice preview player, live build with per-chapter progress",
+        "Settings - connection, generation defaults, RAM guard, export defaults, TTS defaults"
+      ],
+      "verified_live": [
+        "Outline generation against the real 'cintinue' project (the crash-fix regression test)",
+        "Export: produced a real valid 12-page PDF, a real EPUB, and a TXT from a real project",
+        "Cover art: generated a real 1600x2400 PNG, visually inspected - looks good",
+        "References: ingested a real PDF, listed the user's pre-existing real style sources, research lookup returned real DuckDuckGo content",
+        "Series: full create/add-book/status cycle (test artifact then removed)",
+        "Audiobook: generated a real Kokoro voice preview WAV, then built a complete real ~7.4-minute MP3 audiobook from a real 2-chapter project with correct ID3 title/genre/chapter metadata. Took ~3.5 minutes of CPU TTS for 2 chapters - expect hours for a full novel."
+      ],
+      "not_verified": "Continue-a-Series full ingest (needs Jan + a real multi-book PDF corpus); a real full-length generation run."
+    },
+    "mediaforge": {
+      "location": "/home/ejb/Forge/apps/mediaforge/web_app.py + static/index.html, port 8422",
+      "all_9_modules_done": [
+        "Subtitle Studio - folder scan, ffprobe track inspector, 5 modes (hardbake embedded/file, translate-then-hardbake, Whisper-transcribe-then-hardbake, convert-only), encoder controls, live ffmpeg progress + kill",
+        "Anime Library - health report, name check, export report",
+        "Storage Tools - SQLite index scan, instant search, duplicate finder, clean dead entries",
+        "Video Enhancer - resolution upscale, scaler choice, motion interpolation, GOP/scene-threshold, encoder controls",
+        "Library Organiser - anitopy parse -> AniList/Jikan/TMDB lookup -> editable preview -> apply (move/copy/hardlink) -> manifest -> revert",
+        "Duplicate Slayer - perceptual-hash dedup of PDFs/image folders, auto or manual review with thumbnails, PDF/CBZ rebuild",
+        "Manga Downloader - Selenium chapter-list fetch, parallel per-chapter scroll/key-press scraping, PDF/CBZ compile",
+        "AI Image Studio - fal.ai cloud generation + local Pillow upscale",
+        "Japanese Tutor - Jan chat with register/persona controls and a clickable kana keyboard"
+      ],
+      "verified_live": [
+        "Storage Tools: scanned a real 21,797-file directory, searched it, cleaned up after",
+        "Subtitle Studio: ran a real ffmpeg convert job end-to-end, output verified",
+        "Video Enhancer: ran a real ffmpeg job, output verified",
+        "Duplicate Slayer: both auto and manual-review paths, thumbnails served, real deduplicated PDF produced",
+        "Library Organiser: FULL preview -> apply -> revert cycle with real file moves on synthetic test files; files landed correctly and reverted back exactly. Test manifests removed from the user's real MediaForgeData afterwards.",
+        "AI Image Studio local upscale: real image, correct 2x output",
+        "Manga Downloader: Selenium Manager auto-provisions a browser even though no Chromium is on PATH, so this actually ran - launched a browser, navigated, scraped, quit cleanly",
+        "Japanese Tutor: graceful Jan-offline handling"
+      ],
+      "not_verified": "fal.ai generation (needs the user's paid API key); a real manga site scrape (only tested against example.com)."
+    },
+    "bugs_found_and_fixed_while_building": [
+      "NovelForge web_app.py was missing `import os` at module level (used by the TTS endpoints) - caused a 500 on any voice preview. Found by live testing, fixed.",
+      "NovelForge audiobook panel opened TWO EventSource connections to the same job. Because job events flow through a queue.Queue (single-consumer, not broadcast), this would have split events unpredictably between the two listeners. Caught before shipping; fixed by extending streamJobGeneric with an onProgress callback so there is exactly one connection per job.",
+      "Several endpoints initially double-started their job thread (register + start, then overwrite + start again). Fixed by deferring engine construction into a make_target(job) closure passed to start_job()."
+    ],
+    "claude_avatars": {
+      "what": "2026-09-24 s55: Claude app got a live avatar stage and personas (Tetsu, Kira, Shizu, Arch-chan, Yui, Ren; picked by mood), Kokoro voice via PanelForge's venv, and an Avatar Studio (8 working Live2D models incl. Nyarch's Arch-chan, 24 generated motions each, puppet generator/editor). Shared: forge_avatars.py, forge_avatar.js, avatars/. Verified: tests plus screenshots plus a param probe; Ren hidden (moc3 v6). See apps/claude/WIP.md. Personality: ~/.claude/self/PERSONALITY.md.",
+      "verified": "14 shared + 42 app tests; headless screenshots; motion/lip-sync probe on arch, hiyori, wanko; /api/voice WAV in 2 s",
+      "not_verified": "Jan 'describe a motion' live; the stage in a real Forge window during a real turn",
+      "docs": "apps/claude/WIP.md"
+    },
+    "calendar": {
+      "what": "2026-09-24 s55b: new Calendar app (apps/calendar, port 8453): a life log with feeders for Claude Code, Jan, Nyarch, apps, Forge and Hyprland, your own events and reminders, a Jan day summary, forge-log for scripts, and password masking. 19 tests; screenshots. See apps/calendar/WIP.md.",
+      "verified": "19 tests; live backfill (claude 576, jan 77); month, week and day screenshots",
+      "not_verified": "Jan summary live; a real reminder popup; inside the Forge window",
+      "docs": "apps/calendar/README.md, WIP.md"
+    },
+    "ejb83_2026_09_27_find_dialogs_popups": {
+      "what": "2026-09-27 ejb-83: (1) Terminal find in scrollback, Ctrl+Shift+F, @xterm/addon-search 0.16.0 vendored (66ffa31). (2) Hub popups (music popout, size panel, app menu) close when you click into an app: window blur closes every open .popup except the toast (3ff287d). (3) All 40 native confirm/prompt/alert calls in 12 apps (ai-studio, browser, calendar, comix, dossier, foresight, inkforge, jan-tune, mediaforge, novelforge, pixelforge, pulseforge) now use shared/forge_dialog.js, so no popup freezes Forge or its music. NovelForge's Kill dialog has 'Keep partial chapter' / 'Discard it' buttons. (4) Batch-by-default rule added to ~/.claude/CLAUDE.md and the lean skill (Emerson).",
+      "verified": "terminal check_ui.py 23/23 PASS + find screenshot; tests/browser/run.sh 521 PASS incl. hub_popup_blur (6); tests/check_dialogs.py 32/32 PASS (ForgeDialog on every page, real clicks on browser #clear-history, novelforge #hardStopBtn, pixelforge #newSprite/#newSound, native popups never called) + screenshots; app pytest 855 pass across the 11 apps with tests; node --check on every script incl. inline blocks.",
+      "not_verified": "Inside the real Forge window (needs a Forge restart). Hub blur closing is checked with a synthetic blur event; that WebKitGTK fires blur on a click into an app frame is assumed (the app menu already relied on it). Converted buttons that need app data (dossier queues, pulseforge scenery, calendar delete, mediaforge organiser, ai-studio deletes, comix forget) are covered by the syntax check and the per-page ForgeDialog check, not a click. Emerson reported the background music stopped working (2026-09-27 ~06:55): not reproduced; Forge was still running the 04:31 hub, so today's music commits (ea5b75d etc.) were not live yet. Next step: restart Forge, and if it is still silent, open the music panel and read its status line.",
+      "docs": "apps/terminal/WIP.md, tests/check_dialogs.py docstring, sessions/QUICKSTART.md"
+    },
+    "2026-09-29_desktop_overview_and_visualiser": {
+      "date": "2026-09-29",
+      "what": "Desktop layer fixes. (1) In Super's overview the desktop copy made the workspace card screen-wide (a Clutter.Clone asks for the monitor's width), so the wallpaper and widgets were stretched sideways. extension.js now uses CardClone, which asks for no size. (2) The visualiser vanished 3 s into any silence and came back at the next sound, because cava sends one silent frame and then nothing. forge_desktop.js levels() now keeps drawing a stale frame when it was silent.",
+      "verified": "tests/test_desktop_widgets.py: 21 pass, including a node run of levels(). Desktop script restarted with the new page.",
+      "not_verified": "The overview fix is not seen yet. GNOME loads extension code only at log-in, so it takes effect after Emerson logs out and back in. The visualiser fix has not been watched on screen."
+    },
+    "2026-10-07_alt_f_fullscreen_cycle": {
+      "did": [
+        "forge.py FullScreen.key: Alt+F/F11 cycle 0 maximised under GNOME's bar -> 1 window full screen, hub bar kept -> 2 app alone, hub bar on hover (existing bar-edge reveal) -> 0. Home screen: levels 0 and 1 only.",
+        "forge.py: window maximised at start when start_fullscreen is off; ~/.config/forge/settings.json start_fullscreen set false (Emerson wants level 0 at start; backup in backups/2026-10-07-fullscreen-cycle).",
+        "apps/relay/static/app.js: open State boxes kept in openStates, so the 4 s refresh no longer closes them."
+      ],
+      "verified": [
+        "tests/test_fullscreen.py 11/11",
+        "Relay State box in headless Chrome: still open after 9 s, closes on second click",
+        "Relay suite 181 passed"
+      ],
+      "not_verified": [
+        "live window levels on GNOME: needs a Forge restart"
+      ],
+      "brief": "sessions/2026-10-07-fullscreen-cycle.md"
+    },
+    "2026-10-08_relay_long_task_review": {
+      "date": "2026-10-08",
+      "who": "Relay task 112 (sessions Chihiro, Nao, Emi)",
+      "what": "Relay no longer parks a task after a fixed number of sessions (task 102 was parked at 13 while working). After review_after_rounds (25) sessions without finishing, a short review session (review_model opus, review_effort medium) reads the task file, whether State moved each session, commits tagged (Relay task N) and last words, and ends with verdict: continue or park. Continue: reviewed again every review_every_rounds (10), so 35, 45, 55, no hard cap. Park: the one-line reason goes to WhatsApp. A review with no verdict twice lets the task carry on. `relay finishing` lets a nearly done session pass the context hand-over and move line for finishing_minutes (45). All limits are settings, also on the page's Settings panel. The WhatsApp chat task is never reviewed. Failures now park a task only twice in a row (a clean session resets the count).",
+      "verified": "pytest 414 passed, tests/test_review.py 79 (its 18 newest tests fail on the pre-fix code); headless Chrome check of the Settings boxes and the reviewing group; black clean; pyright no new errors; two opus critics (10 + 7 findings) fixed.",
+      "not_verified": "No real task has reached a review yet; no real session has used relay finishing.",
+      "where": "apps/relay: review.py (new), picker.py, boss.py, actions.py, chat.py, items.py, prompts.py, runs.py, store.py, cli.py, static/; tests/test_review.py; docs/library/relay/2026-10-08-park-review-rule.md; apps/relay/WIP.md top entry"
+    },
+    "2026-10-08_ai_studio_rebuild": {
+      "date": "2026-10-08",
+      "who": "Rin/Tetsu (ejb-a6) commanding crew ai-studio (4 Opus 5.5 helpers)",
+      "what": "AI Studio rebuilt: declarative parts-based model catalog (src/catalog/) with press-to-download/cancel/delete cards for image, video and 3D-world models (Z-Image-Turbo, FLUX.2-klein 4B, Qwen-Image 2.1, Wan2.2 5B compact; big ones connected only), newer sd.cpp build in bin/next, real video models via sd vid_gen, edit route, background warp-video jobs with cancel, audit fixes (motion, longform, hybrid, library), 3D worlds runner (approximate walk-through on sd.cpp; real world models need NVIDIA), new frontend. Details apps/ai-studio/README.md 'Rebuild (2026-10-08)', WIP.md.",
+      "verified": "323 tests pass (128 opt-in live skipped); check_ui 174 checks at 3 widths; HF sizes 128/128 match.",
+      "not_verified": "No GPU run of the new engine, models, video, edit or worlds; Emerson to OK. Live app on 8430 needs Close app + reopen to load the new backend."
+    }
+  },
+  "api_surface": {
+    "note": "Full route list, so you don't have to re-derive it. Both backends also expose /api/jobs/{id}, /api/jobs/{id}/stop, /api/jobs/{id}/events.",
+    "novelforge": [
+      "/api/state",
+      "/api/settings",
+      "/api/refresh-models",
+      "/api/projects",
+      "/api/projects/{name}",
+      "/api/projects/{name}/bible",
+      "/api/projects/{name}/codex",
+      "/api/projects/{name}/chapters/{n}",
+      "/api/projects/{name}/outline",
+      "/api/projects/{name}/generate",
+      "/api/projects/{name}/continue-ingest",
+      "/api/projects/{name}/continue-run",
+      "/api/continuation/spin-presets",
+      "/api/series",
+      "/api/series/{name}",
+      "/api/series/{name}/books",
+      "/api/series/{name}/status",
+      "/api/projects/{name}/export",
+      "/api/projects/{name}/export/meta",
+      "/api/projects/{name}/cover",
+      "/api/projects/{name}/cover/quick",
+      "/api/projects/{name}/cover/import",
+      "/api/projects/{name}/cover/edit",
+      "/api/style-sources",
+      "/api/style-sources/{name}",
+      "/api/style-sources/{name}/enabled",
+      "/api/style-sources/{name}/analyze-style",
+      "/api/style-sources/{name}/summarize",
+      "/api/research",
+      "/api/tts/catalog",
+      "/api/tts/installed",
+      "/api/tts/voices",
+      "/api/tts/preview",
+      "/api/tts/preview-file",
+      "/api/projects/{name}/voice-map",
+      "/api/projects/{name}/cast-voices",
+      "/api/projects/{name}/audiobook/build",
+      "/api/projects/{name}/audiobook/file",
+      "/api/projects (now returns has_cover per project)"
+    ],
+    "mediaforge": [
+      "/api/settings",
+      "/api/encoders",
+      "/api/storage/count",
+      "/api/storage/scan",
+      "/api/storage/search",
+      "/api/storage/duplicates",
+      "/api/storage/clean-dead",
+      "/api/storage/clear",
+      "/api/anime-library/report",
+      "/api/anime-library/export",
+      "/api/anime-library/namecheck",
+      "/api/subtitles/scan-folder",
+      "/api/subtitles/probe",
+      "/api/subtitles/start",
+      "/api/enhance/start",
+      "/api/dedupe/scan",
+      "/api/dedupe/{job_id}/result",
+      "/api/dedupe/{job_id}/finish",
+      "/api/dedupe/thumbnail",
+      "/api/organizer/preview",
+      "/api/organizer/apply",
+      "/api/organizer/history",
+      "/api/organizer/revert",
+      "/api/jptutor/status",
+      "/api/jptutor/send",
+      "/api/imagestudio/models",
+      "/api/imagestudio/generate",
+      "/api/imagestudio/upscale",
+      "/api/manga/fetch",
+      "/api/manga/download",
+      "/api/thumbnail?path=&w= (image via Pillow, video frame via ffmpeg, disk-cached)"
+    ]
+  },
+  "not_done_yet": [
+    {
+      "item": "Real-world shakedown",
+      "detail": "Still the highest-value next action, and now doubly so: the third session moved every file in the project and rewired both frontends onto a shared kit, all verified statically only. The first thing to do is launch the hub and click through all three tools."
+    },
+    {
+      "item": "The four unverified claims (the user deferred these and asked to be asked again)",
+      "detail": "1) AI Studio's high-resolution artifact fix, never tested at >=896px. 2) Re-running Generate on one of the old stalled NovelForge projects to confirm the crash/silent-failure fixes really do produce chapters (needs Jan running). 3) Segmind Vega has never been downloaded or run and its steps/cfg are untuned guesses. 4) Continue-a-Series full ingest, verified only on its error path."
+    },
+    {
+      "item": "Deeper hub integration (iframes -> native panels)",
+      "detail": "Everything is still iframed. Now that the three tools share one stylesheet and one helper library, inlining them into a single shared-DOM page is a much smaller job than it was. Only worth doing if the user wants it."
+    },
+    {
+      "item": "Put this folder under version control",
+      "detail": "There is still no git repo and no undo; backups/ is the only safety net. Now that everything is in one folder this is a single `git init` plus a .gitignore for apps/*/.venv, apps/ai-studio/models, outputs and backups. Worth offering."
+    }
+  ],
+  "known_risks_and_caveats": [
+    "The third session moved all three apps into Forge/apps/ and rewired both frontends onto shared/forge.css and shared/forge.js, verified by compile and static cross-checks only -- nothing was run. The likeliest failure mode is a broken /shared mount, which would show as completely unstyled app pages inside the hub. If that happens, check that each web_app.py's /shared mount comes BEFORE its catch-all / static mount and that the relative hop to shared/ is right (../../shared for novelforge and mediaforge, ../../../shared for ai-studio, whose source lives one level deeper in src/).",
+    "Everything the second session changed was verified only by compile checks -- no server was started and no feature was exercised, at the user's explicit request. The hub fix in particular is reasoned from the file:// origin rule, not observed working. If the hub still shows placeholders, check that Forge/static/status.js exists and that the WebKit console shows window.FORGE_STATUS defined.",
+    "BIGGEST: the AI Studio high-resolution artifact fix was never verified live at >=896px, at the user's request. Check this first if they report image problems.",
+    "Segmind Vega (the new 1024px model) has never been downloaded or run. Its steps/cfg values are untuned.",
+    "Several of the user's old NovelForge projects (test, my_first_novel*) are still stalled at 0-1 chapters from before the fixes. The crash and silent-failure bugs are fixed, but those specific projects were never re-run to confirm they now produce chapters. Only 'cintinue' was spot-checked, and only for the outline stage.",
+    "NovelForge's Continue-a-Series was verified only on its error path.",
+    "No automated tests exist anywhere in this project - matching the original three apps, which had none either. All verification has been manual and live.",
+    "MediaForge's available_hw_encoders() reports vaapi/qsv/nvenc as available based only on ffmpeg's compiled-in encoder list, not on actual hardware presence - so nvenc shows up on a machine with no NVIDIA GPU. This is PRE-EXISTING behaviour inherited from the desktop app, not a regression, but it will mislead anyone picking an encoder.",
+    "Audiobook rendering is genuinely slow (CPU TTS): ~3.5 min for 2 chapters. A 30-chapter novel is an hours-long job. The build endpoint resumes from already-rendered chapter WAVs, so an interrupted build is cheap to restart."
+  ],
+  "suggested_next_steps": [
+    "0. Restart Forge (close it and open it from the launcher) so the new forge.py runs: full screen at start, apps on demand, the Browser's pages, the Claude panel's browser tools. Then check the not_verified list in session_33_work.",
+    "1. In the Browser: menu > Import from Firefox, then check a site you are logged into.",
+    "2. In Claude: ask it to open something in the Browser; click a link in an answer.",
+    "3. Press Super+T and Super+E once each.",
+    "0b. With AN3 plugged in: Dossier > Watch > 'Get new info for every subject', then Foresight > Signals > 'Get all new info for what is held', then Plans > Learn from history.",
+    "4. Offer the four verification items in not_done_yet; the user deferred them twice and asked to be asked again.",
+    "5. Offer to put Forge under git."
+  ],
+  "file_map_note": "Superseded by README.md section 6 ('Where the important code is') and section 5 (debugging).",
+  "session_2026_09_27_S12_work": {
+    "who": "Hagane (S12, ejb-72)",
+    "brief": "sessions/2026-09-27-S12-hub-apps-wave.md",
+    "commits": "git log 2026-09-27",
+    "verified": "tests/browser/run.sh ALL PASS 388; hub pytest 156; app suites green"
+  },
+  "session_2026_09_27_s15_work": {
+    "brief": "sessions/2026-09-27-S15-quickstart-hub.md",
+    "commits": [
+      "e0d246f",
+      "277d483",
+      "de961a8",
+      "b57fbf4",
+      "b6596c0",
+      "e2b76e8",
+      "a8938c8",
+      "d001ad3",
+      "afb11d5"
+    ],
+    "verified": [
+      "tests/test_seen.py 7 pass",
+      "hub pytest 64 pass",
+      "apps/settings 34 pass",
+      "run.sh 449 PASS",
+      "check_rest.py 8 PASS",
+      "screenshots /tmp/b34/shot/b7.png b4.png",
+      "B38: tests/test_desktop_particles.py 4, Wallpapers tests 29, 5 s live run of desktop/particles.py",
+      "particles behind open apps: hub_effects 4 PASS, run.sh 453 PASS, hub pytest 68"
+    ],
+    "not_verified": [
+      "B34 live: restore after minimise, workspace switch, CPU drop in top (needs a Forge restart)",
+      "B38 GNOME extension (loads at next log-in)"
+    ],
+    "findings": "GNOME 50 sends visibility-notify FULLY_OBSCURED ~4 s after a window is hidden; frame callbacks do not stop; unmapping the window's child makes WebKit report document.hidden."
+  },
+  "session_S17_work": {
+    "date": "2026-09-27",
+    "session": "ejb-94 (board name ejb-a1)",
+    "brief": "sessions/2026-09-27-S17-board-fps-aistudio-acchan.md",
+    "done_and_checked": [
+      "B32 Board: FYI notes, grouped replies, search, desktop alerts (b07c57e)",
+      "B39 frame-rate cap max_fps + shared/forge_framecap.js + Power slider (1344f6a)",
+      "Files: restore from trash, extract/compress, PDF thumbnails (9569600, e717506)",
+      "Terminal: log token masked (ab85380)",
+      "Code: chat panel starts closed (578ac25)",
+      "Claude app: ForgeDialog in-page popups (no more frozen Forge / stopped music) and same-account flag (e1bcf66)",
+      "Code Restricted Mode re-checked 14/14 (fixed by S11)"
+    ],
+    "needs_forge_restart": [
+      "Board page",
+      "frame-rate cap",
+      "Files additions",
+      "Claude app popups and account flag"
+    ],
+    "next": "ejb-fe: B42 Acchan local Claude Code, xterm search, B41, popup conversion in other apps; Emerson: sign 'second' profile in with his other subscription"
+  },
+  "session_S18_work": {
+    "brief": "sessions/2026-09-27-S18-quickstart-tools-music.md",
+    "commits": [
+      "30eaf49",
+      "ea5b75d",
+      "8b8f1e5",
+      "f61955b",
+      "13511c7",
+      "e29ee51"
+    ],
+    "verified": "run.sh 498 PASS; acchan 166 pass; hub/settings/desktop pytest green",
+    "not_verified_live": [
+      "mic inside Forge",
+      "desktop particles extension",
+      "Relax screenshot after the darker backdrop was taken but not viewed"
+    ]
+  },
+  "session_ejb_d1_power": {
+    "handoff": "sessions/QUICKSTART.md 'ejb-d1 power handoff'",
+    "commits": [
+      "7840934",
+      "c15a323",
+      "3b2ccf3",
+      "e175d4e",
+      "hub lighter-effects commit"
+    ],
+    "verified": "tests/browser/run.sh 529 PASS 0 FAIL; hub/desktop pytest 55+4; settings 34; apps/power 138; Power card screenshot viewed",
+    "not_verified_live": [
+      "unplug switch on the real machine",
+      "Claude panel CPU after a Forge restart",
+      "Settings Speed section screenshot (DOM-checked only)"
+    ]
+  },
+  "session_ejb_e3_speed_detail": {
+    "asked": "Emerson 2026-09-27: the speed (frame rate) sliders in Settings and Power must update properly, also when unplugged; the auto-switch must move the Power slider; a frame rate for all of Forge, even YouTube and scrolling; one Settings section with all frame-rate and LOD sliders; more LOD and frame-rate options on battery and plugged in.",
+    "commits": [
+      "01292cf"
+    ],
+    "how_it_works": [
+      "shared/forge_theme.py POWER_PAIRS: plugged-in setting -> (battery twin, rule 'min' or 'scale'). power_values(settings, on_battery) applies it; the theme carries it as power_pairs.",
+      "shared/forge_power.js: the same rules in JS for the hub (frame cap, Particles.look) and desktop/particles.html. tests/test_speed_detail.py checks Python and JS agree.",
+      "New settings, group 'Speed and detail' (was 'Speed'): battery_particles (share kept on battery), video_fps/battery_video_fps (Browser video, 30 or 60), video_height/battery_video_height (Browser video quality), smooth_scroll/battery_smooth_scroll. Defaults keep today's behaviour plugged in; on battery video is 30 fps and 1080p.",
+      "A setting's 'also' list shows the same control in more cards: Speed and detail collects particle_fps, particle_amount, desktop_particle_fps, desktop_particle_amount.",
+      "The hub posts {power: values} to forge.py on each change; forge.py sets smooth scrolling on the main window and calls ViewHost.set_power, which re-injects shared/forge_framecap.js + shared/forge_webcap.js into every Browser page. forge_webcap.js answers 'no' to MediaSource.isTypeSupported/canPlayType for formats above the video caps (the h264ify approach), so YouTube picks a lighter format from the next video.",
+      "Settings re-reads /api/settings on every hub theme message and when shown, and marks the rows in use now (plugged in or battery). Power re-reads /api/fps and /api/modes on its 5 s poll while shown, so the mode slider follows the auto-switch watcher and Super+Alt+P."
+    ],
+    "verified": [
+      "tests/test_speed_detail.py 12 passed (dossier venv, which has gi + pytest); root tests 196 passed; Settings 34, Power 138, Browser 22 passed.",
+      "tests/test_views.py (real off-screen WebKit): test_speed_and_detail_reaches_the_pages passes; cap, video filter and smooth scrolling reach an open page and a later one. ALL PASS.",
+      "tests/browser/run.sh: 537 PASS, ALL PASS, including the new hub_power block (real hub copy: unplugged frame cap, half particles, values sent to forge.py).",
+      "tests/browser/check_speed_detail.py: 22 PASS against real Settings and Power backends in a sandbox HOME: every row present, copy and original in sync, a change made elsewhere shows in both apps, in-use marks follow the plug, the mode slider follows a switch it did not make. Screenshots looked at. 0 headless Chromes left."
+    ],
+    "not_verified_live": [
+      "Nothing is live until Forge restarts (hub HTML, forge.py) and the Settings and Power backends restart.",
+      "YouTube really taking the 30 fps / 1080p format inside Forge's Browser: the filter is tested in node and in WebKit, not against youtube.com.",
+      "Smooth scrolling off in the main Forge window on a real unplug."
+    ]
+  },
+  "session_ejb_e3_claude_restart": {
+    "asked": "Emerson 2026-09-27: Claude sessions survive a laptop restart; a key bind to restart Forge.",
+    "commits": [
+      "6e4f3c6"
+    ],
+    "how_it_works": [
+      "What a reboot lost before: the running turn (history and session id were already kept and resumed on the next message); nothing marked it, and the Claude backend only started when opened.",
+      "apps/claude/runner.py: send() marks meta 'working'; a finished turn, a crash or the user's Stop clears it; Forge quitting (stop_all, quiet) or a reboot leaves it. A result that arrives because Forge stopped the process keeps it.",
+      "Registry.resume_interrupted(): at backend start (web_app lifespan) each marked conversation with a session id is sent RESUME_MESSAGE, which runs --resume, oldest first, 20 s apart. Setting claude_resume (Settings > Apps) turns it off; the page shows 'Forge restarted while this was working' (forge_resumed event).",
+      "Manifest field start_at_launch (README table): started at launch even when Start apps is on demand; apps/claude sets it. forge.launch_now() picks them.",
+      "HUB_KEYS 'restart' = Ctrl+Shift+R (rebindable in Settings > Forge keys): quit_forge() then os.execv(forge.restart_argv(...)), without --background."
+    ],
+    "verified": [
+      "apps/claude/tests/test_resume_after_restart.py 6 passed; Claude app suite 130 passed; tests/test_restart.py + test_hub_keys 14 passed (incl. no two default keys clash); root suite 207 passed; Settings 34 passed.",
+      "Real run: the real Claude backend (uvicorn, sandbox FORGE_CLAUDE_DATA, fake CLI) started with a marked conversation, relaunched the CLI with --resume <its session id>, finished the turn and cleared the mark; events forge_resumed, forge_user, system, assistant, result."
+    ],
+    "not_verified_live": [
+      "Ctrl+Shift+R in the real window (it would end every running Claude session, this one included); the execv path is only unit-tested through restart_argv.",
+      "A real reboot: that the session-end SIGTERM reaches Forge before the kill (the mark is written at send time, so a hard kill still resumes).",
+      "The real Claude CLI's answer to SIGINT mid-turn (guarded: a result after Forge's own stop keeps the mark)."
+    ]
+  },
+  "session_S21_effects_work": {
+    "brief": "sessions/2026-09-27-S21-effects.md",
+    "verified": "run.sh 634 PASS 0 FAIL; pytest 52 + wallpapers 30 passed; overview search screenshot",
+    "not_verified": "live Forge (restart needed); extension settings window on screen; Wallpapers panel screenshot"
+  },
+  "session_2026_09_28_novelforge_rework_work": {
+    "date": "2026-09-28",
+    "who": "Suzu (ejb-0d)",
+    "app": "novelforge",
+    "did": "Jan 27B registered under its real folder id qwen3.8-27b-iq4 (stray model.gguf folder removed, Jan settings ids updated). NovelForge diagnosed; ordered rework plan written. No NovelForge code changed.",
+    "verified": "Jan settings.json parses with the new id in 3 places; NovelForge scan lists qwen3.8-27b-iq4 and no model.gguf. Not checked in a running Jan.",
+    "next": "apps/novelforge/docs/rework-plan-2026-09-28.md, steps 1-9 in order."
+  },
+  "session_2026_09_28_S26_work": {
+    "date": "2026-09-28",
+    "who": "Yui/Tetsu (ejb-be)",
+    "brief": "sessions/2026-09-28-S26-finish-wave.md",
+    "commits": [
+      "045f576 S25",
+      "6736908 usage bars",
+      "5001cbf #257",
+      "79e7fa3 glass",
+      "0ce67d3 S24 + SIGUSR1 deadlock",
+      "77100ab S23 2.5D",
+      "545a343 desktop settings button",
+      "S26 item 9 (2026-10-01, Hina ejb-d6): hub WebView allows autoplay"
+    ],
+    "verified": "run.sh 780 PASS 0 FAIL; pytest tests/ 274 passed; apps/claude 138 passed; headless screenshots of widgets, Alt+V popup, Settings, desktop page, glass and 2.5D looked at; live: Forge audio stream lifted from 0% to 100%, 2.5D layers made for sky2 in 7.5 s, fixed desktop script idle at 0.4% CPU; 2026-10-01: root cause of the silent music measured: WebKitGTK's default autoplay policy refuses play() with sound until the page is clicked, so the hub's music (started with no click) stayed paused; forge.hub_webview() sets AutoplayPolicy.ALLOW. tests/browser/check_music_webkit.py (real WebKitGTK window, stream captured with pw-record + pw-link): plain WebView silent (rms 0.0, paused, AudioContext suspended), hub_webview() plays through Web Audio with no click (rms 28.9 for a -40 dB tone); tests/test_hub_autoplay.py passes",
+    "not_verified": "anything in the running Forge until it restarts; the GNOME extension's top bar menu and multi-window placement until a log out/in; more than one monitor; music heard twice (#257) not reproduced; the autoplay fix in the running Forge (needs a restart, Ctrl+Shift+R)",
+    "next": "Restart Forge and listen. Measure Forge's stream with pw-link into pw-record (parec --monitor-stream returns nothing on this PipeWire, even for a loud app, so the earlier 'RMS 0' readings were the meter). Music heard twice is still not reproduced. Then: full hub on every screen; NovelForge rework."
+  },
+  "session_2026_09_28_printforge_work": {
+    "date": "2026-09-28",
+    "who": "Tetsu (ejb-fc)",
+    "brief": "sessions/2026-09-28-printforge.md",
+    "did": [
+      "apps/printforge: STL library, three.js bed view, watertight/pieces/volume/bed-fit check, simple and advanced modes",
+      "shared/vendor/three: copy of Cosmos's three.js r186 (MIT) for any app; Cosmos untouched",
+      "tests/cdp_driver.py: chrome_page(extra_args=...) optional Chrome flags, e.g. software WebGL"
+    ],
+    "verified": "apps/printforge pytest 11 passed; pyright 0 errors; headless Chrome via cdp_driver: statue and base load and render, check panel filled, advanced panel after overflow fix",
+    "not_verified": "inside the running Forge (needs restart); Open folder; Save picture",
+    "next": "send-to-slicer once a slicer is installed; 3MF/OBJ; thin-wall map"
+  },
+  "session_2026_09_29_glass_and_add_menu_fix": {
+    "date": "2026-09-29",
+    "who": "Tetsu",
+    "asked": "leaving Alt+B / Alt+V the glass widgets took half a second to a second to turn to glass; the desktop's widget picker was white text on white",
+    "did": [
+      "hub/index.html: #home only fades on the way out (in-app, zen, ambient); it comes back at full opacity at once, because a pane's backdrop blur sees nothing past a parent below opacity 1, so the old fade-in left every glass pane flat until it ended",
+      "hub/index.html: leaving background mode (Alt+B, and Alt+V with it) or zen plays the home entrance; the entrance now also fades the clock/date, search box and widget cards themselves",
+      "shared/forge_widgets.js/.css: '+ Add a widget' is a menu the page draws (.wg-addwrap/.wg-addlist/.wg-addkind), not a native <select> whose list the system drew white on white on the desktop; .widgets carries color-scheme: dark for the options panel's selects",
+      "tests/browser: hub_glass checks the fade rule and the pane entrance after Alt+B and Alt+V; desktop_widgets drives the new Add menu and checks its colours"
+    ],
+    "verified": "tests/browser/run.sh: 791 PASS, 1 FAIL (forge_media 'with its length :: 0', a harness that loads none of these files); the new glass checks were red before the fix; headless Chrome screenshot of the open Add menu looked at",
+    "not_verified": "the feel inside the running Forge (WebKitGTK), which needs a Forge restart and the desktop page reloaded; headless Chrome does not run transitions, so the check is on the transition rule, not on frames"
+  },
+  "session_2026_09_29_mode_return_and_keys": {
+    "date": "2026-09-29",
+    "who": "Tetsu",
+    "asked": "Alt+B and Alt+Z take me back to the app I was in; Alt+H goes to the home screen; Alt+S goes to Settings",
+    "did": [
+      "shared/forge_theme.py HUB_KEYS: home Alt+H (Ctrl+0 still works), settings Alt+S; rebindable in Settings > Forge keys",
+      "hub/index.html: Zen and Ambient remember the app they were started from (.back) and returnFromMode() goes back to it if still open, else home with the entrance; Alt+V's exit goes through Ambient so it returns too; zen then Alt+B keeps zen's app",
+      "hub/index.html: leaveModes() (forget .back, leave both modes) for anything that goes elsewhere: Alt+H, Alt+S, the media popup's Go to it, the visuals popup's Settings; openSettings()/settingsKey() shared by the bar button, the popup and Alt+S"
+    ],
+    "verified": "tests/browser/run.sh 799 PASS 0 FAIL (hub_zen: 9 new checks for return, Alt+H, Alt+S; hub_music_fix updated to expect the return); tests/test_hub_fx.py 6 passed (settings venv pytest); test_hub_keys 9 PASS and test_restart key-clash PASS with /usr/bin/python3; black and pyright clean on forge_theme.py and test_hub_fx.py",
+    "not_verified": "in the running Forge (needs a restart for the new keys, forge.py reads HUB_KEYS at start); Alt+H is read as Forge's home screen, not minimising Forge to the real desktop"
+  },
+  "session_2026_09_29_relay_work": {
+    "who": "ejb-12 (Aiko), brief sessions/2026-09-29-relay-app.md",
+    "built": [
+      "apps/relay (boss.py, picker, runs, meters, machine, items, commands, actions, prompts, channels/gmail, web_app, static, cli)",
+      "relay-boss.service (KillMode=process), ~/.local/bin/relay",
+      "shared/claude_launch.py; apps/crewroom/launch.py now imports it"
+    ],
+    "verified": [
+      "67 relay tests + 34 crewroom tests pass",
+      "real sessions on default and hey",
+      "real hand-over hey->default",
+      "session survives boss restart",
+      "page screenshot"
+    ],
+    "not_verified": [
+      "live Gmail (needs his app password)",
+      "keep-awake inhibitor live",
+      "a real goal planning session"
+    ],
+    "next": "apps/relay/WIP.md 'Improve next'"
+  },
+  "session_2026_09_29_docs_section": "Claude app Docs section (docs.html, docs_library.py, doc_sources.json registry, /api/docs): every important doc dated, foldered, newest first, read-only; library at docs/library/<topic>/YYYY-MM-DD-name.md; rule in ~/.claude/CLAUDE.md. Tests 5 passed, screenshot checked. Brief: sessions/2026-09-29-claude-docs-section.md.",
+  "session_2026_09_29_gpu_ease_alt_v_depth": {
+    "handoff": "sessions/QUICKSTART.md 'ejb-95 GPU easing, Alt+V fixes and real-depth 2.5D handoff'",
+    "asked": "Emerson 2026-09-29: ease off under GPU load (visualiser, particles, 25 fps, particles >=20), Claude picks battery values, Alt+V at full refresh, fix Alt+V keys / Alt+M popup / help line, 2.5D without restart, better 2.5D or 3D, less GPU when not seen",
+    "verified": "test_forge_gpuload 8, test_speed_detail 15, 45 passed across the touched suites; run.sh hub_ease 26 PASS, 1 FAIL (depth pixel check, likely the check); live meter reads ~6%",
+    "not_verified": "running Forge (restart needed) and the extension (re-login needed); no screenshot of real depth; Emerson's saved fps values not reset yet (planned values in the handoff)"
+  },
+  "session_2026_10_07_white_on_white": {
+    "handoff": "docs/library/forge/2026-10-07-white-on-white.md",
+    "asked": "QUICKSTART item 2: white-on-white text in the hub and the desktop widget app; find, fix, screenshot before/after (Relay task 57)",
+    "verified": "tests/browser/run.sh hub_contrast 160 PASS 0 FAIL (46 FAIL on pre-fix hub), desktop_contrast 25 PASS 0 FAIL (10 FAIL pre-fix); full run.sh 997 PASS, 2 FAIL (hub_level, hub_music_skip: page_probe.py hangs in the headless session, also on the pre-fix hub); before/after headless Chrome screenshots in docs/library/forge/",
+    "not_verified": "the running Forge window and real GNOME desktop (needs a Forge restart); desktop wall_light comes from the hub wallpaper, not the GNOME picture"
+  },
+  "session_2026_10_07_gpu_and_visualiser_lag": {
+    "task": "Relay task 56, all three parts: hub/desktop GPU use and the visualiser lag (parts 2, 3), and Eighty Six smoke cost (part 1, done 2026-10-07 by Momo: smoke GPU cost -55 to -58 %, heavy barrage 22 -> 37 fps, Medium; see docs/library/forge/2026-10-07-gpu-and-visualiser-lag.md and the Eighty Six README log).",
+    "handoff": "docs/library/forge/2026-10-07-gpu-and-visualiser-lag.md",
+    "changed": [
+      "hub/index.html (stepped clock shimmer, hidden-screen animation pause, stepped background drift, visualiser follow/silent idle/60 levels a second)",
+      "shared/forge_widgets.css (stepped breathing orb)",
+      "shared/forge_depth.js (drift alone at 24 fps)",
+      "shared/forge_visual.js (follow, stillInSilence)",
+      "desktop/forge_desktop.js (follow, silent idle)",
+      "shared/forge_music.py (cava noise_reduction 77 -> 30)",
+      "tools/gpu_use.py, tools/web_gpu_bench.py, tools/vis_latency.py (new measuring tools)",
+      "tests/test_gpu_and_lag.py (new), tests/test_forge_music.py, tests/test_desktop_widgets.py"
+    ],
+    "verified": "web_gpu_bench A/B against a before-copy, same sitting: hub home 31-34% -> 18% GPU at full clock, background mode 24-26% -> 12-13%, web CPU 42-49% -> 30%; desktop page unchanged at about 3.5%. vis_latency.py: 109-156 ms -> 77 ms behind the sound (cava plus easing). tests/test_gpu_and_lag.py 5 pass; tests/ 296 pass, 8 fail all unrelated (particle_fps default, printforge tagline, GL views needing the mesa fix, blender, pad).",
+    "not_verified": "The live Forge and desktop were not restarted (and cannot be until the mesa/llvm mismatch is fixed with pacman -Syu), so the change has not been seen in the real window. Canvas-to-screen latency not measured."
+  },
+  "session_2026_10_07_size_sliders": {
+    "task": "Relay task 68: App size / Text size sliders flip-flopped while dragged and were slow.",
+    "handoff": "docs/library/forge/2026-10-07-size-sliders.md",
+    "changed": [
+      "shared/forge_theme.py (size specs: apply release, preview text_size)",
+      "apps/settings/static/app.js (preview while dragged, apply on release, no refetch mid-drag)",
+      "shared/forge_chrome.js (ForgeChrome.previewTextSize)",
+      "hub/index.html (Sizes.preview/set on release; broadcastTheme 60 ms debounce)",
+      "tests/browser/check_size_drag.py (new drag harness)",
+      "tests/browser/hub_scale_harness.js (preset drag previews, release applies)"
+    ],
+    "verified": "check_size_drag.py: before = runaway (hub App size 1.35 -> 1.50, 7 zooms) and a Settings flip 1.35 -> 0.80; after = 32/32 PASS, one zoom/save/broadcast per drag. Settings pytest 34 passed. Not run in the live Forge window (no restart needed: hub reload)."
+  },
+  "session_2026_10_07_glass_freeze": {
+    "task": "Relay task 63 (part 2 of the overhaul wave): Forge froze on Frosted or Liquid glass (Alt+Shift+M).",
+    "handoff": "docs/library/forge/2026-10-07-glass-blur-freeze.md",
+    "changed": [
+      "shared/glass/frosted.css, shared/glass/liquid.css (live blur only on .glass:not(.tile); tiles, chips, widgets draw their glass)",
+      "shared/forge_widgets.css, desktop/particles.html (widget glass drawn, no blur)",
+      "forge.py (hub hang watchdog: hub_hang_check/answer/watchdog/ender, wired in main(); counts from COMMITTED with a 30 s limit until loaded; script and print dialogs pause it, WebKit's own dialog closing restarts the count; a late tick after Forge itself stalled gets one grace ping; a crashed page is asked nothing more)",
+      "hub/index.html (safe-mode note says crashed or froze)",
+      "tests/test_hub_hang.py, tests/test_glass_budget.py (new)",
+      "tests/browser/headless_gnome.sh, tests/browser/check_hub_hang_webkit.py (new: private headless GNOME rig and the real-WebKit check)",
+      "tests/browser/hub_glass_harness.js (blurs only single panes)"
+    ],
+    "verified": "check_hub_hang_webkit.py in the headless GNOME, real WebKitGTK 2.54: all PASS (4 blurred panes, none of 39 tiles; healthy 20 s not ended; frames stopped and main thread stuck both ended and reloaded ?safe=1; a confirm() held open 27 s not ended; stuck after WebKit's own dialog, and stuck while loading, both ended and back in safe mode: 23 PASS). Unit tests 39 pass; two opus critics, all confirmed findings fixed, known low gaps in the handoff doc. run.sh hub_glass all PASS.",
+    "frame_rate_after": "headless GNOME, real WebKit, 12 s each: flat 55, frosted 54, liquid 53 fps medians (before: frosted 0, liquid hung).",
+    "not_verified": "The watchdog in Emerson's live Forge (needs a restart). Known low gaps: docs/library/forge/2026-10-07-glass-blur-freeze.md."
+  },
+  "session_2026_10_08_voice_113": {
+    "who": "Relay task 113, sessions 1 to 13, 2026-10-08 to 2026-10-09",
+    "what": "Local voice for all of Forge. apps/voice (port 8467) is the one process that loads speech models: whisper.cpp STT (whisper base.en q5_1 default, 60 MB), Kokoro v1 as the fast default voice and Breeze TTS 2 (3B, q4_k GGUF through Breeze-TTS-2.cpp with Vulkan) as the near-human option, picked per app from shared/voice_registry.json, loaded on first use and unloaded when idle. A heavy model runs only with enough free memory and an idle Jan; otherwise the default voice speaks and says why. A global hotkey (GNOME Super+Z tap, Hyprland hold Super+Alt+Z) talks from anywhere: words without a wake name go to Acchan's command registry first (POST :8451/api/voice/command, phrases only, risky tools refused from voice), then to the Claude app's Voice conversation (POST :8445/api/voice/ask), and to Jan only when the Claude app never got them; a wake name ('Claude, ...', 'Jan, ...') picks directly. The reply is spoken. shared/forge_voice.py (client, CLI, hotkey installer, text helpers) and shared/forge_voice.js (mic button, speak) are the one shared module for Acchan, the Claude app, Mission Control and Forge.",
+    "verified": [
+      "Tests (2026-10-09 01:55): apps/voice 125 pytest, tests/test_forge_voice.py 18, whole Acchan suite 322; Claude app 207 (2026-10-08 evening).",
+      "End to end against the live Acchan (21:50, test instance with a recorded 'What time is it?' as the mic): heard exactly, routed to Jan, phrase reply, 2.9 s from the tap.",
+      "Live Acchan (last restarted 2026-10-09 01:56): /api/voice/command without X-Forge: 1 gives 403; a phrase reply in 9 to 48 ms; 'start reboot' and risky tools refused from voice.",
+      "STT measured here: whisper base.en q5_1 8.1% WER, RTF 0.23; a cut audio context keeps the WER on 10 clips and takes a 1 s command from 1.9 s to 0.8 s (docs/library/voice/2026-10-08-stt-under-100mb.md).",
+      "TTS: Kokoro v1 stays the fast default (RTF 0.54 under load). Breeze TTS 2 is wired as the near-human option (d0f4ece): RTF 5.0 and 4.4 on Vulkan (GPU shared with a Godot render), 9.0 on CPU; whisper heard both test lines back exactly; headless Chrome on a scratch backend: 'Hear the best voice' made 2.72 s of speech in 24.2 s, no server left after.",
+      "Mission Control mic and speak buttons beside the attach button (ab4b723): apps/mission tests/test_voice_browser.py passes in headless Chrome, screenshot looked at.",
+      "Critic findings F1-F6 fixed in 77faebd, each with a test that fails on the old code; the critic's proof scripts re-run and pass (the header one against a real uvicorn). A second critic on 77faebd found no high or medium bug; its three low ones (G1-G3, apps/voice/WIP.md Session 13) are fixed with tests.",
+      "GNOME Super+Z hotkey installed (gsettings checked)."
+    ],
+    "not_verified": [
+      "Real mic and speaker by Emerson (list in docs/library/voice/2026-10-08-voice-how-to-use.md); Hyprland hold-to-talk with a real key release (written to custom/keybinds.lua, not tried live).",
+      "The Claude app on 8445 (started 2026-10-08 21:23) runs its old code until restarted (Emerson's call): 'Claude, ...' gets no answer from it until then, and un-named speech falls back to Jan.",
+      "The running voice backend (Forge started it at 21:34 on 2026-10-08) loads all the later service code (dd22830, 98410bd, 9fde2c1, 38e2b97, d0f4ece, 77faebd) on its next start: close and reopen Voice in Forge, or restart Forge. Until then it sees the Breeze row without the memory and Jan check.",
+      "Breeze through a real speaker, and its fallback under a real memory squeeze (only faked in tests).",
+      "The mic in Forge's real window with a real mic (relay-120 checked the shared mic code in a Forge-like WebKit view with a loopback mic, 49e7405)."
+    ],
+    "left": [
+      "GET /api/events stream and the model download and delete routes in apps/voice.",
+      "Critic items still open: speech another page plays in the browser itself is not known to the voice service, so a hotkey press during it opens the mic; a cancelled round does not tell the Claude app or Acchan, so a command already sent still runs (documented); no PR_SET_PDEATHSIG on breeze-server, so a server outlives a backend killed with SIGKILL until the next load or memory check stops it."
+    ],
+    "docs": [
+      "sessions/2026-10-08-voice.md (brief and session log)",
+      "docs/library/voice/2026-10-08-stt-under-100mb.md",
+      "docs/library/voice/2026-10-08-tts-small-fast-and-best.md",
+      "docs/library/voice/2026-10-08-voice-how-to-use.md",
+      "docs/library/voice/2026-10-08-ai-search-latest-two-videos.md",
+      "apps/voice/README.md",
+      "apps/voice/WIP.md"
+    ]
+  },
+  "session_2026_10_08_u1_every_app_sweep": {
+    "date": "2026-10-08",
+    "by": "Noa (relay-93-work), Relay task 93",
+    "what": "U1 every-app sweep summary: 34 apps in 18 groups (Relay tasks 75-92, queued by u1_sequencer.py of task 74), all done, each with a sweep commit, a critic follow-up commit and its own Opus critic.",
+    "doc": "docs/library/power/2026-10-07-every-app-sweep.md",
+    "verified": "Per group: pytest and headless Chrome checks on scratch copies on spare ports, as listed per app in the doc.",
+    "not_verified": "Nothing checked in Emerson's real Forge window (WebKitGTK) or on his real data; backend fixes need his next Forge restart. Idle-CPU before/after not measured: the laptop crashed (~05:58 2026-10-08) during the first rig try, cause unknown, not retried unattended.",
+    "open": [
+      "G9 has no critic file",
+      "Codec Lab/Player code uncommitted in ~/anime-codec-lab (no commits there)",
+      "final-breaker.md breaks 1-5 (hub, Claude app)",
+      "shared/ and hub recommendations listed in the doc, need their own task",
+      "numbers plan docs/library/power/2026-10-07-overhaul-numbers.md Part A and B, with Emerson at the laptop"
+    ]
+  },
+  "session_2026_10_08_exolab": {
+    "date": "2026-10-08",
+    "by": "Kiko (relay-102-work), Relay task 102; helpers: task 104 (suit shells), task 106 (game), task 108 (close_fit)",
+    "what": "New app Exo Lab (apps/exolab, port 8466): exoskeleton and mech physics test bench plus an exo-suit game. Engine-free physics core (exolab/), data registry (data/<kind>/*.json), profiles with relative knobs (stiffness, strength, weight, power per material, joint and part) and advanced overrides, four shoulder mechanisms, five bench tests (range of motion, motions, hold, lift, close_fit), API, home menu (Real-world tester / Game), tester page (VRM + fitted suit + live mechanism in three.js) and a six-tab editor. Five critic passes fixed (bad numbers, power knob costs, profile names, text fields, motion keys, stale knobs, save-time rules); power on a motor scales torque and speed by the square root and adds drive mass; exo_lite shows skin with dark shorts hemmed inside the thigh cuffs.",
+    "docs": [
+      "apps/exolab/README.md",
+      "apps/exolab/WIP.md",
+      "apps/exolab/docs/2026-10-08-plan.md",
+      "docs/library/exolab/2026-10-08-baselines.md",
+      "docs/library/exolab/2026-10-08-close-fit.md",
+      "apps/exolab/docs/2026-10-08-critic.md",
+      "apps/exolab/docs/2026-10-08-critic-2.md",
+      "apps/exolab/docs/2026-10-08-critic-3.md",
+      "apps/exolab/docs/2026-10-08-critic-4.md",
+      "apps/exolab/docs/2026-10-08-critic-5.md",
+      "apps/exolab/docs/2026-10-08-creative.md",
+      "apps/exolab/docs/2026-10-08-emerson-view.md"
+    ],
+    "verified": "pytest 274 pass (core, benches, API, close_fit, bad input from all five critics' reports, suit.js run in node, page files and JS import graph); tests/check_ui.py 48/48 pass in headless Chrome against a sandboxed backend; black and pyright clean (0 errors); exo_lite hem and the game page seen in headless screenshots.",
+    "not_verified": "Not seen in Emerson's real Forge window (Forge needs a restart to discover the app). Physics checked for direction and plausibility, not against a real exoskeleton. Frame rate on the Iris Xe.",
+    "open": [
+      "visual pass (reach dome, edit chips, gimbal-lock cones, suit-coloured mechanism, shoulder camera, planned-model screen, plain motor names): queued as a Relay task (follow-on of 102)",
+      "cyber arm and leg, biped and spider mechs are listed as planned only (chunks 3-4 of the plan)",
+      "M8: shell strength and hip/knee knobs reach no bench yet (documented in WIP.md)",
+      "shared/vendor/ (three.js, its addons, three-vrm) is untracked in git; whether to commit it is a hub-wide call"
+    ]
+  },
+  "session_2026_10_08_disk_cleanup": {
+    "what": "Disk cleanup plus automatic cache trimming. Disk went from 27G free (88%) to 81G free (64%).",
+    "removed": "Trash emptied (4.6G); Jan models qwen3.8-27b-iq4 and VibeThinker-3B_Q4_K_M deleted (2B Uncensored, 0.8B, 4B, 9B, sentence-transformer-mini kept); Steam games Backrooms Escape Together, Ultimate Epic Battle Simulator, Bopl Battle Demo, Sheepy uninstalled (manifests, compatdata, shadercache, workshop removed with Steam closed); 5109 leaked headless Chrome scoped_dir* temp profiles (~6.8G); pacman cache trimmed to 1 version (3.2G); unused flatpak 26.08 runtimes removed.",
+    "added": "tools/cache_trim.py + tools/cache_trim.json (registry: one entry per cache with path, glob, limit_mb, min_age_minutes; over the limit it removes the oldest matching entries until under half). Run by ~/.config/systemd/user/forge-cache-trim.timer every 6h and 15 min after boot. paccache.timer enabled weekly with drop-in /etc/systemd/system/paccache.service.d/keep-one.conf (PACCACHE_ARGS=-k1).",
+    "verified": "tests/test_cache_trim.py 5 tests pass (python3 -m unittest); black and pyright clean; service ran once from systemd and logged both entries under limit; paccache.service ran OK. df before/after measured.",
+    "not_done": "Root cause of the leaked Chrome temp profiles (headless runs that get killed before Chrome cleans up) not traced; the trimmer only bounds it. Flatpak unused runtimes are not auto-removed (needs root); run `sudo flatpak uninstall --unused` now and then. Orphan packages (pacman -Qdtq) left alone: the list includes things in use like python-black, polkit-gnome and qt6-wayland."
+  },
+  "session_2026_10_08_mission_chat_109": {
+    "summary": "Relay task 109 (Emerson, WhatsApp 15:07: the Mission Control conversation view 'still sucks'): Conversations rebuilt as one full-window chat in big type with an anime night look, steps folded per run, model / effort / ultrathink in a popover, everything else in a Session slide-over, a Chats slide-over; plus Emerson's notes 1300/1307/1310 (click-away closes, calm card order, gentle leaving), 1316 (newest activity first, Archived section, plain names) and 1295 (the WhatsApp thread with Relay mirrored live in Mission with a box to type to Relay or the boss).",
+    "added": "apps/mission/static/convos.js + convos.css + chat_logic.js (one chat UI for Claude-app chats, transcripts and the WhatsApp mirror), logic.js section/calmOrder/displayName, mc/relay_chat.py + GET /api/relay-chat + POST /api/relay-chat/say; shared/forge_convo.js opt-in step hooks (Claude app unchanged without them); apps/relay/cli.py session command `relay as-whatsapp`; tests/test_convos_browser.py rewritten, tests/test_whatsapp_browser.py, tests/test_relay_chat.py, apps/relay/tests/test_as_whatsapp.py, tests/chat_logic.test.js; tests/cdp_driver.py serve() kills a uvicorn that ignores terminate. Commits 7e0cad4, 4e2af9c, a9c9142 and the task 109 finish commit. Before/after shots in apps/mission/docs/2026-10-08-task109-*.png.",
+    "verified": "Final numbers are in apps/mission/WIP.md (top section, Checks). Before the reviewers: node chat/logic tests 24/24, Mission pytest 109 pass (browser tests drive headless Chrome on fake data: focus layout, Chats order, keys, steps folding, model/effort/ultrathink/Ultracode POST bodies, WhatsApp send to Relay and boss), Relay tests 51 pass, Claude app 194 pytest + Enjoy browser check pass after the shared hook, black and pyright clean; real-data screenshots with every POST blocked.",
+    "not_done": "No real send from the new view into a real chat was made (POSTs blocked on real data; sending checked against fakes). `relay as-whatsapp` tested end to end on fake Relay data, not on the live WhatsApp. Task 114 queued: the same plain names in the Claude app and on the Relay page."
+  },
+  "session_2026_10_08_attach_118": {
+    "who": "Koharu (relay-118-work), Relay task 118",
+    "what": "Pictures and files everywhere Emerson talks to Claude: WhatsApp media to Relay is downloaded into ~/.local/share/forge/relay/attachments/YYYY-MM-DD and handed to the chat/work session as 'Attached files:' paths; attach button, paste and drop on the Relay page request box, Mission Conversations (WhatsApp + transcript chats) and the Mission drawer reply box, the Board send box and the Crew Room background-task box. Claude app already had it. Shared: shared/forge_attach.py, shared/forge_attach_api.py (the two routes), shared/forge_attach.js.",
+    "verified": [
+      "relay pytest 435 pass (tests/test_attach.py 19)",
+      "mission tests/test_attach.py 7 + test_claude_proxy 45 pass, chat_logic.test.js 21, shared/forge_attach.test.js 6",
+      "board 22 pass (tests/test_attach.py), crewroom 39 pass (test_a_task_names_its_attached_files)",
+      "pyright 0 errors on the touched Python",
+      "live Whatsie: .md byte-identical, JPEG full size, 2 s video",
+      "headless Chrome: Relay form, Mission WhatsApp composer, Mission drawer, Board send box, Crew Room task box: drop+paste make chips (screenshots looked at)",
+      "second critic (opus): send during upload waits and late files kept, mixed text+picture paste stays text, desktop paste errors shown, 50 MB refused before read, Jan drawer refuses files, Relay Add task double click, paths dedupe: all fixed and tested"
+    ],
+    "not_verified": [
+      "voice note",
+      "a picture sent from the phone end to end",
+      "WhatsApp intake live only after relay-boss restarts",
+      "a real send with a file from Mission, Board or Crew Room"
+    ],
+    "docs": [
+      "README.md",
+      "apps/relay/README.md",
+      "apps/relay/WIP.md",
+      "apps/mission/README.md",
+      "apps/mission/WIP.md",
+      "apps/board/README.md",
+      "apps/board/WIP.md",
+      "apps/crewroom/README.md",
+      "apps/crewroom/WIP.md"
+    ],
+    "open": [
+      "WhatsApp album keeps one picture per row",
+      "send_tray 8 s race",
+      "no request size cap before JSON parse",
+      "Board has no Origin check on any POST (as before)"
+    ],
+    "committed": "shared, Relay, Board, Crew Room hunks committed (Relay task 118); Mission's hunks left uncommitted (interleaved with task-109 work)"
+  },
+  "session_2026_10_08_backup_117": {
+    "who": "Relay task 117 (three sessions)",
+    "what": "New hub app apps/backup (Backup, System section, port 8468): offline GitHub over the bare git mirrors on the Vault partition, a snapshot browser for Rescue and Vault (view, compare with the laptop, copy back to ~/Restored/<date>/<set>/), Status with Back up now, live journal and Eject, Help rendering RESTORE.md and README.md. browse.py imports backup.py; nothing deletes.",
+    "verified": [
+      "46 pytest pass in apps/backup (9 original backup tests included); black clean; pyright 0 errors",
+      "Headless Chrome screenshots against the real drive looked at: Code (mirror list, Forge repo files, a commit's diff), Snapshots (Rescue root with needs admin, Vault forge), Status, Help",
+      "forge.discover_backends() lists Backup; a hub copy with fresh status shows the tile in System",
+      "Two critic agents: 14 + 12 findings, all confirmed ones fixed (apps/backup/WIP.md lists them)"
+    ],
+    "not_verified": [
+      "Back up now and Eject pressed for real (mocked in tests; a backup was running)",
+      "The live Forge window adopting the app without a restart (hub rescans every 15 s; lazy adopt_new does not rewrite hub/status.js, so a hub page reload before a state change shows the old list)"
+    ],
+    "docs": [
+      "apps/backup/README.md",
+      "apps/backup/WIP.md",
+      "docs/library/system/2026-10-08-backup-app.md"
+    ]
+  },
+  "session_2026_10_09_browser_122": {
+    "date": "2026-10-09",
+    "by": "Hikari (relay-122-work), Relay task 122",
+    "what": "Forge Browser 'never works', round 2 (task 74 fixed the hidden first page): app shortcuts reach the Browser while a page has the keyboard (forge_views create keys/keys_first, key event, focus op), a crashed page has its address loaded again once (never a form re-sent), /path ~/path file:/// open the file, local files WebKit cannot show get a note instead of a copy in Downloads, Browser responses carry Cache-Control no-cache (stale app.js).",
+    "doc": "apps/browser/WIP.md",
+    "verified": "apps/browser pytest 49; tests/test_views.py 15 (new ones red on the old forge_views first); apps/browser/tests/check_real_sites.py (real hub + forge_views in private headless GNOME): 10/10 offline checks, 11 real sites load with text and no crash; tests/check_ui.py headless Chrome all pass; Opus critic, 6 of 11 findings fixed, rest noted in WIP.",
+    "not_verified": "Not on Emerson's screen: forge_views.py loads at Forge start, so it needs a Forge restart. Real sign-ins not tried (scratch profile). A real PDF not tried."
+  }
+}

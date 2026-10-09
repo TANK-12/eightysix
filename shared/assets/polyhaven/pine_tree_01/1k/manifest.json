@@ -1,0 +1,30 @@
+{
+  "id": "pine_tree_01",
+  "name": "Pine Tree 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/pine_tree_01",
+  "license": "CC0",
+  "authors": [
+    "Rico Cilliers",
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/pine_tree_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/pine_tree_01/1k/pine_tree_01_1k.gltf",
+  "files": [
+    "pine_tree_01_1k.gltf",
+    "textures/pine_tree_01_bark_nor_gl_1k.jpg",
+    "textures/pine_tree_01_bark_diff_1k.jpg",
+    "textures/pine_tree_01_bark_arm_1k.jpg",
+    "textures/pine_tree_01_trunk_a_nor_gl_1k.jpg",
+    "textures/pine_tree_01_trunk_a_diff_1k.jpg",
+    "textures/pine_tree_01_trunk_a_arm_1k.jpg",
+    "textures/pine_tree_01_twig_nor_gl_1k.jpg",
+    "textures/pine_tree_01_twig_diff_1k.jpg",
+    "textures/pine_tree_01_twig_arm_1k.jpg",
+    "textures/pine_tree_01_trunk_b_nor_gl_1k.jpg",
+    "textures/pine_tree_01_trunk_b_diff_1k.jpg",
+    "textures/pine_tree_01_trunk_b_arm_1k.jpg",
+    "pine_tree_01.bin"
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "_readme": "Session 4's record, written as the work went. Self-contained: it assumes you have read neither the conversation nor the earlier session files. 'verified' means it was run and observed; 'reasoned' means it looks right but was not executed. The handoff entry point is ../MANIFEST.json, and the plan for what comes next is ../manifests/roadmap.json.",
+  "project": "Emberfield",
+  "session": 4,
+  "date": "2026-09-06",
+  "session_theme": "Closing loops. Everything here existed as a dangling end before this session: gold with no sink, a cavern with no reason to cross it, combat you could not feel landing, and a sun that lit the valley without ever moving across it.",
+
+  "user_intent": {
+    "the_ask": "'add a couple more functionns and cool thing and also makea plan for the next 4 sessions'.",
+    "mid_session": "'also shadows that move with the sun would be cool' — added while the work was in progress, and built.",
+    "what_was_chosen_and_why": "Four things, picked because each one closed something already half-built rather than opening something new. The shop because gold had a source and no sink at all; loot because every cavern was already computing a 'deep' point for a reward and nothing was being put in it; knockback because combat read as two sprites overlapping; sun-tracking shadows because the user asked."
+  },
+
+  "done_this_session": [
+    {
+      "what": "A market stall in the town square, and a shop.",
+      "status": "verified",
+      "note": "The first thing in the town that is not paving. Its stock is not a list anywhere: it sells every item in the content store carrying a buy price above zero, and buys back anything you hold with a sell price. Putting something on the shelf is setting a number on an item file. This finally closes the loop farming and combat both feed — buy seeds, grow them, sell what grew."
+    },
+    {
+      "what": "A 'loot' content type and a chest at the deep end of every cavern.",
+      "status": "verified",
+      "note": "Tables are drawn by weight and gated by day and by darkness, so making a reward rare is a smaller number rather than a branch in the code, and the wilds pay better the further in and the later you are willing to go. The generator was already computing the deep point for exactly this. An emptied chest is dimmed rather than removed, which is the only navigational aid a cavern that regenerates daily is ever going to get."
+    },
+    {
+      "what": "Shadows that move with the sun.",
+      "status": "verified",
+      "note": "Requested mid-session. They fall long to the west at dawn, shorten and swing underneath toward midday, then stretch east through the afternoon, fading as the sun drops. One cosine per frame, and it makes the hour of the day legible without reading the clock. Underground there is no sun, so shadows are cast away from the player's torch instead and swing around an object as you walk past it."
+    },
+    {
+      "what": "Torchlight in the wilds.",
+      "status": "verified",
+      "note": "Replaced the flat dark wash with a warm pool around the player falling off to near-black. One radial gradient over the finished frame — no light map, no shadow casting, no second pass. Sized deliberately against the foe aggro range: you see about half as far as they can, so the dark is threatening without being unfair."
+    },
+    {
+      "what": "Knockback, on foes and on the player.",
+      "status": "verified",
+      "note": "Foes are shoved along the arrow's line; you are shoved away from whatever touched you. Resolved against walls like ordinary movement so nothing is pushed through rock. Combined with the existing invulnerability window this is what lets you break out of a crowd rather than being ground down standing still."
+    },
+    {
+      "what": "Interaction now dispatches on an object's 'use' field rather than on bespoke checks.",
+      "status": "verified",
+      "note": "The bed had a hardcoded proximity check; the stall and the chest would each have needed another. Objects carry use: 'sleep' | 'shop' | 'chest' in their world data and one lookup handles all of them, so a second stall or a chest somewhere else needs no code."
+    },
+    {
+      "what": "Two new sprites (stall, chest) and two new sounds (chest, sell).",
+      "status": "verified"
+    },
+    {
+      "what": "10 new browser self-tests (40 total) and 5 new Python tests (95 total). All passing.",
+      "status": "verified",
+      "note": "Including one that is really a design check rather than a code check: every crop's produce must be worth more than its seed costs. A crop that loses money would be invisible for a week of play."
+    }
+  ],
+
+  "not_done_yet": [
+    "Splitting static/index.html. It is ~1950 lines now and holds seven systems. This is the THIRD session in a row that has recorded the split as overdue, and it is now the first item on the roadmap.",
+    "NPCs, buildings and the town interior. The stall is the first structure in the town, and there is still nobody standing behind it.",
+    "Crafting, skills and quests. Content types declared, directories empty.",
+    "Tool upgrades. Tools carry 'range' and 'power' fields that nothing reads.",
+    "The voice layer and the LLM director layer. Settings expose both toggles; neither has an implementation.",
+    "A dodge roll, floated by the user in session 2 and still not built.",
+    "Music. There are effects and ambience and no melodic layer."
+  ],
+
+  "assessment": {
+    "what_went_well": "Every one of the four additions was cheap because the groundwork was already there: the shop needed no new content type because one number on an item was enough; the chest needed no placement logic because the cavern already computed its deep point; the knockback needed no physics because collision was already resolved per-axis. That is what the last three sessions of registry work was for, and this is the first session where it visibly paid off in speed rather than in tidiness.",
+    "what_i_got_wrong": [
+      "Negated the shadow direction, so every shadow pointed at the sun instead of away from it and mornings and evenings were exactly reversed. It looks perfectly fine in a single screenshot, which is why it took comparing 07:00 against 18:00 to see it. There is now a test on the sun vector so it cannot flip back.",
+      "Made the torchlight 74 world pixels wide, which at zoom 3 is a spotlight barely wider than the player — atmospheric, and unfair, because foes aggro from 190 away and arrived out of pitch black with no warning.",
+      "Placed both new fixtures — the stall and the chest — as solid objects and then wondered why two reachability tests failed. Both were asking whether you could stand *inside* the furniture. The tests now check the tiles beside them, which is what interacting actually requires.",
+      "Wrote a knockback test that set up a foe in daylight in the valley, where every foe is cleared by design, and then a second version 700px from the player, where every foe is culled by design. Both times the failure read as 'the foe died'. Two correct behaviours can combine to look exactly like a bug."
+    ],
+    "what_i_would_add": [
+      "Someone standing behind the stall. It is a table with no shopkeeper, and the town is still empty.",
+      "A reason to prefer one crop over another beyond price — nothing has a use yet, only a value.",
+      "Ember shards are in the loot tables and sell for 65g and do nothing else. They are waiting for crafting.",
+      "Shoreline and cliff autotiling in the valley. Carried over from every previous session, still the biggest remaining visual win, still needs no new art.",
+      "Music, or a two-note motif when you go down."
+    ],
+    "risks": [
+      "The economy is now real and completely untuned. Seed and sell prices were chosen by eye; the only guard is a test that produce beats seed cost. Nobody has played long enough to find out whether farming or fighting pays better, and the answer determines what the game actually is.",
+      "static/index.html at ~1950 lines is genuinely at the point where a mistake in it is hard to see. The browser self-test is the only thing making a refactor safe, and it should be used for exactly that next.",
+      "Four systems were added in one session and none has been played. Everything here is verified to work and none of it is verified to be any good."
+    ]
+  },
+
+  "decision_record": {
+    "_why": "One instruction and one mid-session request; the rest were judgement calls, recorded here so a later session can disagree.",
+    "user_input": [
+      {
+        "verbatim": "add a couple more functionns and cool thing and also makea plan for the next 4 sessions",
+        "taken_to_mean": "Build a few more features, chosen by me, and produce a roadmap.",
+        "consequence": "The four features above, picked from the top of the existing next_session_should rather than invented, and manifests/roadmap.json."
+      },
+      {
+        "verbatim": "also shadows that move with the sun would be cool",
+        "taken_to_mean": "The existing shadows sat directly under objects and only varied in darkness. Make the sun actually cross the sky.",
+        "consequence": "sunLight() and a rewritten shadow(), plus the torch-cast variant underground, which was not asked for but follows from the same idea: if shadows have a light source, the cave needs one too."
+      }
+    ],
+    "taken_without_asking": [
+      {
+        "decision": "Shop stock is a 'buy' field on items rather than a shops content type.",
+        "why": "A shops type would need a list of stocked ids, which is the hardcoded list the whole project is arranged to avoid. One number on the item says both that it is for sale and what it costs.",
+        "cost": "There can only ever be one price list. A second shop charging different prices will need the type after all."
+      },
+      {
+        "decision": "Loot is its own content type rather than a field on foes or the cavern.",
+        "why": "A table is a thing in its own right -- it has a weight, a gold range and gates on day and darkness -- and more than one chest will eventually draw from the same one."
+      },
+      {
+        "decision": "Torchlight is a single radial gradient, not a light map.",
+        "why": "It costs one fill per frame and needs no second render pass, which matters on an Iris Xe. Real light occlusion would look better and would be the first thing in this renderer to actually cost something."
+      },
+      {
+        "decision": "An emptied chest is dimmed, not removed.",
+        "why": "A cavern that regenerates every cycle gives you no landmarks at all. A chest you can see you have already opened is the cheapest orientation aid available."
+      }
+    ]
+  },
+
+  "verification_status": {
+    "python_tests": "95 passed (90 from session 3, 5 new). New coverage: the chest at the deep end can be walked up to, and the stall can be walked up to — both tested against the tiles beside them, because both are solid. The scatter test now exempts deliberately placed fixtures, which are allowed to stand on the town's paving.",
+    "browser_selftest": "40 passed (30 from session 3, 10 new). New coverage: the stall stocks exactly the items with a buy price; buying costs gold and hands over the goods; you cannot buy what you cannot afford; selling pays out and takes the item; every crop's produce is worth more than its seed; a loot table can always be drawn; a chest pays out once and only once; every loot table names items that exist; shadows fall west in the morning and east in the evening and are shortest at midday; and a hit shoves a foe away from the shot.",
+    "black": "clean on all touched files",
+    "pyright": "0 errors",
+    "screenshots": "s4-morning, s4-noon and s4-evening (the same tree at 07:00, 12:30 and 18:00, showing the shadow swing west to east), s4-wilds (torchlight, with a boulder's shadow cast away from the player), s4-shop (the stall screen with stock and sell lists). In ~/.var/app/com.google.Chrome/data/shots.",
+    "not_verified": [
+      "How any of it plays or sounds. Four systems went in and nobody has played a minute of it.",
+      "The economy. Prices are guesses guarded by one sanity test.",
+      "A full Forge GTK launch."
+    ]
+  }
+}

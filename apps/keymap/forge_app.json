@@ -1,0 +1,13 @@
+{
+  "name": "keymap",
+  "label": "Keymap",
+  "tagline": "Every Hyprland keybind, in one place to edit",
+  "port": 8439,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#5fb0e0",
+  "icon": "⌨️",
+  "order": 11,
+  "section": "system",
+  "ready_timeout": 30
+}

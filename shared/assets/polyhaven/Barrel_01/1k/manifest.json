@@ -1,0 +1,20 @@
+{
+  "id": "Barrel_01",
+  "name": "Barrel_01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/Barrel_01",
+  "license": "CC0",
+  "authors": [
+    "Jorge Camacho"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/Barrel_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/Barrel_01/1k/Barrel_01_1k.gltf",
+  "files": [
+    "Barrel_01_1k.gltf",
+    "Barrel_01.bin",
+    "textures/Barrel_01_explosive_diff_1k.jpg",
+    "textures/Barrel_01_explosive_nor_gl_1k.jpg",
+    "textures/Barrel_01_explosive_arm_1k.jpg"
+  ]
+}

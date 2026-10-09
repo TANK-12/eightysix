@@ -1,0 +1,10 @@
+[Unit]
+Description=Check every 6 hours whether a Forge backup is due
+
+[Timer]
+OnBootSec=20min
+OnUnitActiveSec=6h
+Unit=forge-backup-auto@all.service
+
+[Install]
+WantedBy=timers.target

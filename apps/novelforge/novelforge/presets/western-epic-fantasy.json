@@ -1,0 +1,102 @@
+{
+  "id": "western-epic-fantasy",
+  "label": "Epic fantasy",
+  "group": "Western",
+  "description": "Large-scale secondary-world fantasy: kingdoms, magic with costs, several POV characters and a war or quest that changes the map.",
+  "keywords": [
+    "epic",
+    "fantasy",
+    "kingdom",
+    "quest",
+    "war",
+    "magic",
+    "dragon",
+    "empire",
+    "throne",
+    "sword",
+    "sorcery",
+    "high"
+  ],
+  "words_per_chapter": 4000,
+  "voice": [
+    "Third person limited, past tense; one point-of-view character per scene, with a clear change of scene when the POV changes.",
+    "History is implied through detail (a ruined bridge, a banned song), never delivered in lectures.",
+    "Magic has rules and costs that the plot respects.",
+    "Characters have distinct voices, loyalties and grey motives.",
+    "Grounded sensory detail: weather, food, fatigue, the weight of armour.",
+    "Chapters end on a decision, a reveal or a cliffhanger in another POV thread."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "The ordinary world disturbed by a concrete event with a body count or a broken oath.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "call",
+      "guide": "The call to act, refused or accepted at a price."
+    },
+    {
+      "at": 0.2,
+      "role": "threshold",
+      "guide": "Crossing into danger: leaving home, joining the war, taking the forbidden power.",
+      "then": "Trials, allies and enemies; each chapter tests loyalty or skill."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "A revelation that reframes the quest: the enemy's reason, the prophecy's lie, the ally's secret.",
+      "key": true
+    },
+    {
+      "at": 0.65,
+      "role": "betrayal",
+      "guide": "Betrayal or defeat; the fellowship breaks."
+    },
+    {
+      "at": 0.75,
+      "role": "dark night",
+      "guide": "The lowest point, and the choice that follows."
+    },
+    {
+      "at": 0.87,
+      "role": "climax",
+      "guide": "The battle or confrontation where the threads meet.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "resolution",
+      "guide": "The cost counted, the new order, and a thread left for later.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Track each POV thread: every chapter should advance one thread concretely and name the place. Avoid chapters of pure travel or pure council meetings unless something breaks.",
+  "outline_example": "Salt on the Bridge | At the Ashford crossing, Captain Maren Holt orders the bridge burned with refugees still on it to stop the Veyran cavalry | Her own soldiers stop trusting her | A child she saved carries a Veyran seal",
+  "scene_guidance": [
+    "One POV per scene.",
+    "Enter late, leave early.",
+    "Let the landscape shape the action."
+  ],
+  "worldbuilding": [
+    "Kingdoms and their conflicts",
+    "A magic system with a cost",
+    "Old history that the plot digs up"
+  ],
+  "naming": "Consistent linguistic families per culture; avoid apostrophe soup; places named for geography or history.",
+  "cliches": [
+    "the ancient evil stirs",
+    "we're not so different",
+    "chosen one",
+    "as you know"
+  ],
+  "sample": "The bridge was older than the kingdom and would not burn easily.\n\nMaren watched the oil go down in dark sheets over the timbers while the last carts rattled across. A woman shouted a name. Nobody answered it.\n\n\"Captain.\" Tollis did not look at her. \"The cavalry is at the ridge.\"\n\nShe counted the carts still on the span. Four. Three.\n\n\"Light it,\" she said.",
+  "example_names": [
+    "Maren Holt",
+    "Ashford",
+    "Veyran",
+    "Tollis"
+  ]
+}

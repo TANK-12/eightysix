@@ -1,0 +1,104 @@
+{
+  "id": "kr-murim",
+  "label": "Korean murim / regression",
+  "group": "Korean",
+  "description": "Martial-arts world of sects, clans and qi. A fallen master regresses to his youth with memories of a ruined future and rebuilds everything, with dry humour and brutal fights.",
+  "keywords": [
+    "murim",
+    "martial",
+    "sect",
+    "sects",
+    "clan",
+    "qi",
+    "regression",
+    "regressor",
+    "regressed",
+    "wuxia",
+    "sword",
+    "demonic",
+    "cult",
+    "mount"
+  ],
+  "words_per_chapter": 2300,
+  "voice": [
+    "Close third person, past tense, on the protagonist. Terse, rhythmic sentences; fights told through stance, footwork, breath and qi flow.",
+    "Martial vocabulary used matter-of-factly: sect, clan, dantian, meridians, internal energy, sword intent, techniques with poetic names; ranks such as Second-rate, First-rate, Peak, Transcendent.",
+    "He is older inside than he looks: he knows who betrays whom and when, and that knowledge is dramatic irony, not a spoiler dump.",
+    "Dry humour: juniors who slack, elders who complain, a protagonist who is far too calm for his age.",
+    "Terms of address matter: sahyung, sajae, sabu, Elder, Clan Head, Young Master.",
+    "End chapters on a reversal or a quiet line that promises violence."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "He dies in the final battle of a ruined future, then opens his eyes decades earlier in his weak young body in a declining sect.",
+      "then": "He relearns his body and quietly fixes small things, using what he knows of the future.",
+      "key": true
+    },
+    {
+      "at": 0.06,
+      "role": "vow",
+      "guide": "He confirms the date and vows to stop the sect's fall; the first person he saves is someone who died in his past life."
+    },
+    {
+      "at": 0.13,
+      "role": "first humbling",
+      "guide": "An arrogant senior or clan young master is humbled by technique he should not know.",
+      "then": "Reform: training methods, lost manuals, money problems solved with future knowledge."
+    },
+    {
+      "at": 0.3,
+      "role": "outing",
+      "guide": "The sect goes out into the martial world: a tournament, an escort job, a bandit fortress. Famous names notice."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "The future changes: the great enemy moves earlier than in his past life, or an ally who should be loyal is not.",
+      "then": "The old future no longer protects him; he must plan without it.",
+      "key": true
+    },
+    {
+      "at": 0.68,
+      "role": "cost",
+      "guide": "A price for meddling with fate: a disciple hurt, a clan turning hostile, his secret suspected."
+    },
+    {
+      "at": 0.82,
+      "role": "decisive battle",
+      "guide": "The battle that destroyed the sect last time; this time the reforms, the allies and his sword are ready.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "new path",
+      "guide": "The sect stands; a bigger shadow (the Demonic Cult, the Alliance's rot) steps into view.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Every chapter shows either a fight, a humbling, or a reform with a visible result. Let his knowledge of the future create irony and tension, and let the world push back when he changes it.",
+  "outline_example": "The Plum That Did Not Fall | In the Hwaeum training yard, Mok Seon humbles Senior Brother Gu with a sword form that was lost thirty years ago | The elders start watching him instead of ignoring him | A letter arrives from the clan that burned the sect in his past life",
+  "scene_guidance": [
+    "Fights are short and clear: distance, stance, the one move that decides it.",
+    "Let other characters misread his calm as arrogance or genius.",
+    "Food, weather and poverty make the sect feel real."
+  ],
+  "worldbuilding": [
+    "Orthodox sects and noble clans, the Unorthodox, and the Demonic Cult, with their grudges.",
+    "The cultivation of internal energy: how it is built, what a breakthrough costs.",
+    "The ruined future he remembers, year by year."
+  ],
+  "naming": "Korean readings of martial names: family names like Mok, Baek, Jin, Gu, Yu, Cheon, Namgung, Dang with one- or two-syllable given names (Seon, Ha-Rim); sect names like Hwaeum Sect or Blue Cloud Sect.",
+  "cliches": [
+    "coughed up a mouthful of blood",
+    "the elders were speechless",
+    "doesn't know the height of the heavens",
+    "snorted coldly"
+  ],
+  "sample": "Senior Brother Gu swung first, as he always had.\n\nSeon stepped half a pace left. Not fast. Just early.\n\nThe wooden sword hissed past his ear. Gu's weight kept going, and Seon's blade touched the back of his wrist, lightly, the way you tap a door you are not sure you want opened.\n\nGu's sword hit the dirt.\n\nNobody in the yard said anything. Somewhere behind the storehouse, a crow gave up and flew away.",
+  "example_names": [
+    "Mok Seon",
+    "Hwaeum"
+  ]
+}

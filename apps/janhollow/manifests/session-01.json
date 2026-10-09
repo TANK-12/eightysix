@@ -1,0 +1,69 @@
+{
+ "session": 1,
+ "title": "Foundation",
+ "date": "2026-09-16",
+ "claude_session": "ejb-34 (background job), after the Pixel games tab session of the same name",
+ "started_from": "~/Forge/apps/janhollow/docs/PLAN-jan-world.md — 'start the Jan world from ~/Forge/apps/janhollow/docs/PLAN-jan-world.md'",
+ "intended": "Session 1 of the plan: app skeleton, membership of the Pixel games group, a station map, crew walking their schedules from data with no LLM yet, save and load, and the manifest series set up.",
+ "did": [
+  "Extended shared/forge_content.py with a Store class so a game can have its own content types in its own folder (~/ForgeGameData/<game>/<type>/) instead of adding game-specific types to the shared registry. The module-level functions are now that class over the shared types, so Emberfield, Pixel Forge and Cosmos need no change. A type spec may now carry a 'check' callable for rules a required-fields list cannot express.",
+  "apps/janhollow: forge_app.json on port 8448 with \"group\": \"pixel-games\" and \"fullscreen\": \"auto\"; nothing in forge.py was touched.",
+  "janhollow/content.py declares five types — decks, locations, npcs, events, quests — with validators for deck size, room rectangles and, most usefully, crew schedules (real times, in order, going somewhere).",
+  "janhollow/station.py builds decks from data: corridors carved first, room rectangles carved as floor, hull touching floor becomes wall, and a door cut where a room's wall separates it from a corridor. No file lists a single wall or door.",
+  "janhollow/sim.py runs the clock, the schedules and the walking in the backend, with the four away modes as a small registry rather than four branches.",
+  "janhollow/saves.py: autosave every 60 seconds and on shutdown, plus manual slots.",
+  "web_app.py: station, content, art, world state, presence heartbeat, settings, saves, and forge_jan.mount with the chatter and narrator roles.",
+  "tools/seed_content.py wrote four decks, twenty-five rooms, eight crew, three event templates and two quest templates; it leaves hand-edited files alone unless --force.",
+  "tools/seed_art.py wrote the janhollow-station pack (door, lift pad, floor grate, bunk, crate, locker). Everything else is borrowed from the crewroom packs, including the eight anime crew sprites with walk cycles.",
+  "static/: the deck view, crew list, town log and a settings pane with the day-length slider paired with a number field, the four away modes and the chatter level, plus the shared Jan settings panel. #deck=… and #pane=… deep-link into a deck or a pane."
+ ],
+ "verified": [
+  "apps/janhollow/.venv/bin/python -m pytest -q tests → 19 passed.",
+  "Live API check with pause_unfocused: clock held at 07:30 across four seconds unfocused, moved to 07:32 after focus returned.",
+  "Headless Chrome screenshots looked at: habitat deck with all eight crew placed and named, engineering deck, the log showing 'd1 07:10 Vessa Oduya heads to Mess hall — coffee, first pot.', and the settings pane with the current away mode and chatter level highlighted and the Jan selects readable.",
+  "forge.discover_backends() finds janhollow: label Janhollow, port 8448, group pixel-games, fullscreen auto; all app ports unique.",
+  "~/Forge/tests/test_app_discovery.py and test_app_groups.py → 5 passed.",
+  "apps/emberfield tests → 123 passed against the extended shared store.",
+  "black on every Python file touched; pyright --pythonpath ./.venv/bin/python → 0 errors, and 0 on shared/forge_content.py."
+ ],
+ "got_wrong_and_fixed": [
+  "The page loaded its scripts from /static/…, but the backend mounts static at /, so the first screenshot was an empty shell with a --:-- clock. Scripts are referenced from / now.",
+  "The crewroom metal wall and metal floor look nearly identical, so the first working render had no visible rooms. Walls are now pushed into shadow, floors lifted slightly, and each room outlined in the station's colour.",
+  "The app opened on the Command deck, which at 07:00 is empty. It now opens on whichever deck has the most crew on it.",
+  "The settings panel was drawn before the first state arrived, so nothing was highlighted. It now redraws when the server's settings actually change.",
+  "The first clock test asserted 'day 2, 00:00' exactly after 40 real minutes, which is luck at a tenth-of-a-second tick. It asserts total elapsed station minutes instead, plus a short-day case that does roll the date over.",
+  "Emberfield's virtualenv was missing pluggy, so its pytest could not start at all — pre-existing and unrelated, repaired with pip install pluggy into that venv so the shared change could actually be checked."
+ ],
+ "not_done_yet": [
+  "No model call exists anywhere: no chatter, no narrator.",
+  "No player.",
+  "Relationships are loaded and saved but never change.",
+  "Events and quests are seeded templates with no reader.",
+  "Props do not block movement."
+ ],
+ "questions_and_answers_verbatim": {
+  "_note": "Nothing was asked in this session: the plan already carried Emerson's answers and he had said 'no more questions'. These are the answers session 1 was built from, quoted from ~/Forge/apps/janhollow/docs/PLAN-jan-world.md.",
+  "The game's name": "Janhollow",
+  "Setting": "Space station",
+  "Keep living while the tab is closed?": "make it a setting and stuff for focuse closed and idel and summery of time skip it deppends ont eh world",
+  "Which away modes may a world pick?": "Pause when unfocused, Keep running when closed, Idle when closed, Time-skip summary",
+  "Default away mode for a new world": "Pause when unfocused",
+  "Starting NPCs": "8 (Recommended)",
+  "Day length": "40 min per day",
+  "Tone": "Cozy crew life",
+  "How far may the narrator push events?": "Crew can come and go",
+  "Who is the player?": "New arrival (Recommended)",
+  "Station layout": "Several decks with a lift",
+  "Chatter amount": "Setting, default moderate (Recommended)",
+  "Where should the Jan-run NPC world live?": "make ember fild part fo the pixel games tab and put this jan world as a new pixel game",
+  "How hard may it lean on Jan and the laptop?": "0.8B chatter plus 4B narrator",
+  "On running several models": "im happy to have more than one moedl runnign ata itme as long as the outputs are fine",
+  "On manifests": "will probaly need to be a multi seesion thing as alwasy asi ask make sure there is a a realtime upto date manifets as you work for pasta nd futere things"
+ },
+ "notes_for_the_next_session": [
+  "Jan was not running during this session and no model was called, so nothing about model behaviour here is verified — the plan's warning about Qwen3.5 thinking output for short lines is still an open question.",
+  "world.models_allowed() already answers whether a model may run right now under the current away mode; session 2 should ask it before every call rather than inventing its own rule.",
+  "The simulation thread is a plain 10 Hz loop. A model call must not run on it.",
+  "Adding a crew member really is one file: drop it in ~/ForgeGameData/janhollow/npcs/ and press 'Re-read content' in the settings pane."
+ ]
+}

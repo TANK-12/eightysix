@@ -1,0 +1,2 @@
+# Plugging in the backup drive runs whatever backup is due.
+ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_LABEL}=="Rescue", TAG+="systemd", ENV{SYSTEMD_WANTS}+="forge-backup-auto@all.service"

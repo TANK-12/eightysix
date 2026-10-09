@@ -1,0 +1,40 @@
+{
+  "_about": "Suggested Background patterns, grouped. Each pattern is a case-insensitive substring of the process name as ps shows it (at most 15 characters). Only processes you own are touched, so root daemons are left out on purpose. Adding a group is one new entry here; the Power tab picks it up.",
+  "groups": [
+    {
+      "name": "File indexers",
+      "why": "Crawl the whole disk and extract text from files, often right after login.",
+      "patterns": ["localsearch", "tracker-miner", "tracker-extract", "baloo_file", "baloorunner", "zeitgeist"]
+    },
+    {
+      "name": "Thumbnail makers",
+      "why": "Decode images and videos to draw previews whenever a folder is opened.",
+      "patterns": ["tumblerd", "thumbnail", "pixbuf-thum", "video-thu"]
+    },
+    {
+      "name": "App stores and update checkers",
+      "why": "Download metadata and updates in the background.",
+      "patterns": ["bazaar-dl", "bazaar-daemon", "gnome-software", "plasma-discove", "discovernotifi", "pamac", "update-notif", "arch-update"]
+    },
+    {
+      "name": "Mail, calendar and online accounts",
+      "why": "Sync calendars, contacts and accounts on a timer even when the apps are closed.",
+      "patterns": ["evolution-", "goa-daemon", "goa-identity", "gnome-shell-cal", "gnome-calendar", "akonadi", "kdeconnectd"]
+    },
+    {
+      "name": "Cloud sync",
+      "why": "Hash and upload files; can hold a core busy during big changes.",
+      "patterns": ["dropbox", "megasync", "onedrive", "nextcloud", "insync", "syncthing"]
+    },
+    {
+      "name": "Desktop housekeeping",
+      "why": "Printer, sharing, disk-space and device-watch helpers that never need to be quick.",
+      "patterns": ["gsd-housekeepin", "gsd-print-notif", "gsd-printer", "gsd-sharing", "gsd-wwan", "gsd-smartcard", "gsd-disk-utilit", "gvfs-", "gvfsd-metadata", "obexd"]
+    },
+    {
+      "name": "Launcher and browser helpers",
+      "why": "Steam's built-in web views and browser crash or telemetry reporters.",
+      "patterns": ["steamwebhelper", "crashhelper", "pingsender"]
+    }
+  ]
+}

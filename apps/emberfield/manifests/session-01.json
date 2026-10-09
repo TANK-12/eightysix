@@ -1,0 +1,271 @@
+{
+  "_readme": "Session 1's record, kept as written at the time. The handoff entry point is ../MANIFEST.json; this file is history and is not updated by later sessions. Note that two things it reports as verified were later found wrong -- see session-02.json's inherited_bugs.",
+  "project": "Emberfield",
+  "one_line": "A Stardew-style valley crossed with Realm of the Mad God, inside the Forge hub, with an optional layer where local models direct the world.",
+  "last_updated": "2026-09-06",
+  "session": 1,
+  "session_theme": "World creation and texture. The user asked to start here so the look could be settled before systems are built on top of it.",
+  "user_intent": {
+    "the_game": "Huge and complex, with JRPG-like depth -- but built over multiple sessions, and above all EASY TO ADD TO AND EDIT. The user's words: 'for now make it work but very easy to add to and edit'.",
+    "solo_for_now": "Play is solo, like Stardew and RotMG. The user does want party members later, acting human via small models, so actors carry a 'mind' field from the start and nothing assumes a single actor.",
+    "three_stacked_modes": "A complete base game with no voice and no models (text and sound effects, Stardew-style), then a voice mode, then an LLM mode. Each is additive and independently switchable. The base game must never depend on the others.",
+    "voice": "Pre-generated and cached, never synthesised during play. Narrator plus main NPCs only. The user was explicit: do not max the CPU for ages; generate intelligently.",
+    "llm_scope": "All four director areas -- world events, quests, wilds design, economy -- plus NPC dialogue. Toggleable. Background NPCs deliberately unwired. 'Don't let it go crazy': the engine validates and clamps, it does not trust the model.",
+    "death_rules": "Chosen per save: soft, character permadeath, or full permadeath.",
+    "world_shape": "A persistent valley with easter eggs and events that change it, plus wilds that regenerate every day/night cycle and get harder at night.",
+    "art": "World and object art is authored pixel art that can vary per world; nature (grass, leaves) is procedural. Everything must be editable by the user in a separate part of Forge. The user's local models cannot generate images, so the art is authored as data."
+  },
+  "hardware_constraints_that_shape_the_design": {
+    "cpu": "12th Gen i5-1245U: 10 physical cores, 12 logical. 2 performance cores (logical 0-3, 4.4 GHz), 8 efficiency cores (logical 4-11, 3.3 GHz).",
+    "gpu": "Intel Iris Xe iGPU only. No discrete GPU. Jan runs llama.cpp on Vulkan.",
+    "memory": "31 GiB shared between CPU and iGPU. NO SWAP -- an out-of-memory condition freezes the laptop outright.",
+    "disk": "~37 GB free of 230 GB. The user asked explicitly not to consume storage.",
+    "measured_llm_speed": "~5 tokens/sec generation on a 4B model. A 9B director call is minutes, not seconds.",
+    "the_consequence": "The model can never be in the frame loop, and speech (CPU/onnxruntime) must not run at the same time as generation (iGPU/Vulkan) because they share one memory bus. See emberfield/resources.py."
+  },
+  "done_this_session": [
+    {
+      "what": "shared/forge_art.py + shared/forge_art.js -- the universal sprite format, validator, atomic writer, and browser-side baker.",
+      "status": "verified",
+      "note": "Format is palette-indexed character rows. Colour lives in the palette, so a season, night or biome reskin is one palette rather than a copy of every sprite."
+    },
+    {
+      "what": "The starting art: 3 packs (terrain, nature, actors) and 5 palettes (four seasons + night), in ~/ForgeArtData.",
+      "status": "verified",
+      "note": "Written by tools/seed_art.py, which is a seeder and not a pipeline -- re-running restores defaults, and --force is needed to overwrite the user's edits. 60 KB total."
+    },
+    {
+      "what": "apps/pixelforge -- the shared sprite and animation editor (port 8435).",
+      "status": "verified",
+      "note": "Screenshotted: pack/sprite browser with live thumbnails, pixel canvas with grid, palette swatches showing semantic role names, frame timeline, animation preview, undo, atomic save."
+    },
+    {
+      "what": "apps/emberfield -- world generation, renderer, day/night, walking, collision, settings (port 8434).",
+      "status": "verified",
+      "note": "Screenshotted at day and night. 96x72 valley generates in ~21 ms."
+    },
+    {
+      "what": "emberfield/resources.py -- the compute governor.",
+      "status": "verified",
+      "note": "Detects the hybrid topology and pins background work to efficiency cores 4-9 (six of ten, as the user asked), leaving both performance cores free. HeavyLane serialises LLM/TTS/STT."
+    },
+    {
+      "what": "35 tests, all passing, including a 120-seed connectivity sweep.",
+      "status": "verified"
+    },
+    {
+      "what": "Seed links: ?seed=&hour=&season=&zoom= boot straight into a valley.",
+      "status": "verified",
+      "note": "Added so the renderer could be screenshotted without a human at the keyboard; kept because sharing a good seed as a link is genuinely useful."
+    }
+  ],
+  "not_done_yet": [
+    "Farming: tilling, planting, watering, growth, harvest, sleep-to-next-day. The farm plot is generated and rendered but inert.",
+    "Combat and the wilds: real-time twin-stick projectiles, enemies, loot, and the nightly regenerating wilds that get harder after dark. Only the valley exists.",
+    "NPCs, the town interior, schedules, relationships. The town is paved ground with no buildings or people.",
+    "The three death rules are chosen on the title screen and stored, but nothing enforces them yet.",
+    "Save/load: the API and saves.py exist and are tested by hand, but the game does not call them yet.",
+    "The whole LLM layer. Settings expose the toggle; no hook registry is implemented.",
+    "The whole voice layer. Settings expose the toggle; no bake pipeline is implemented.",
+    "The tutorial is four hardcoded steps in TUTORIAL[]. It is shaped like data so it can become the quest/script system, but it is not that yet."
+  ],
+  "next_session_should": [
+    "Build the content registry spine FIRST -- items, crops, skills, enemies, status effects, recipes, quests -- as data files discovered from a directory, before any of the systems that consume them. This is the single thing that decides whether 'huge and complex' stays manageable.",
+    "Then the farming loop, because it is self-contained and exercises the registry end to end: a crop should be one JSON entry and nothing else.",
+    "Wire save/load into the game while the state is still small.",
+    "Only then combat."
+  ],
+  "assessment": {
+    "what_went_well": "The palette-indexed format earned itself immediately: four seasons and a night mode cost five small JSON files and no extra art, and the editor came almost free because the format is already the edit surface. Baking the whole ground layer into one offscreen canvas per palette turned the render loop into a single blit, which is why a 96x72 valley with a per-tile procedural grass layer costs nothing per frame.",
+    "what_i_got_wrong": [
+      "The first tree had an 18-row trunk and read as a lamppost. Fixed by making the canopy dominate.",
+      "The first water tile offset by (x + y*2), which tiled into a diagonal barber pole across any real body of water. Now broken horizontal streaks.",
+      "The first farm was a solid rectangle of bare soil and looked like a brown slab dropped on the map. Now cleared grass with a furrowed plot and a fence.",
+      "The vertical fence used the horizontal rail sprite and read as a ladder. Now has its own transposed sprite.",
+      "Most seriously: _carve_path silently skipped water tiles, so roads were discontinuous. This was invisible until the farm got a fence and sealed the last gap, and the reachability test caught it. Roads now ford water. The lesson is that the 5-seed test was too thin -- the 120-seed sweep exists because of this."
+    ],
+    "what_i_would_add": [
+      "Bridge and gate sprites. Roads currently ford water as bare path tiles, which reads acceptably but is plainly a placeholder.",
+      "The path tile and the soil tile are too similar in value, so the road entering the farm blends into the plot. One of them should shift.",
+      "Autotiling for shorelines and cliff edges. Right now every water tile is the same sprite, so coastlines are blocky. This is the single biggest remaining visual win and it needs no new art, only edge-aware sprite selection.",
+      "The valley is 96x72, which is small for the scale the user wants. It should probably grow once there is a reason to walk further.",
+      "A weather layer (rain, fog) would exercise the palette system and is cheap given the ground-bake architecture."
+    ],
+    "risks": [
+      "Scope. The user wants a very large game. The mitigation is the registry-first rule above: every session should make content cheaper to add, not just add content.",
+      "The LLM layer is genuinely experimental on this hardware. A 9B director call takes minutes. The design (ask at sleep, apply next morning, always fall back deterministically) accounts for that, but it has not been built or measured yet.",
+      "Voice baking must be incremental and budgeted or it will occupy the machine for a long time. Nothing is built yet; the budget field exists in settings."
+    ]
+  },
+  "architecture_notes": {
+    "art_store": "~/ForgeArtData/{packs,palettes}/*.json -- discovered by scanning, never listed in a registry file. Shared by every Forge app; Pixel Forge writes it, Emberfield reads it. Both reach it through shared/forge_art.py on disk, so there is no cross-app HTTP.",
+    "why_two_apps": "The user asked for the art to be editable in a separate part of Forge and to be universal. Emberfield is the first consumer of the library, not its owner.",
+    "tile_ids_are_sprite_names": "worldgen.TILES keys are sprite names in the art library, so adding a terrain type is one sprite plus one line. A test asserts every tile and object names a real sprite, which catches renames.",
+    "ground_bake": "static/index.html bakes tiles + the procedural nature layer into one canvas the size of the valley, per palette, cached (max 3). Palette change re-bakes; the frame loop only blits.",
+    "day_night": "Two mechanisms on purpose. The palette swap handles the large day/night difference; a colour wash over the finished frame handles the gradual part, so dusk fades instead of switching.",
+    "forge_integration": "Both apps are discovered from their forge_app.json alone. Nothing in forge.py or hub/index.html was touched. Emberfield is port 8434 order 7, Pixel Forge 8435 order 8."
+  },
+  "how_to_run": {
+    "inside_forge": "Launch Forge normally; both appear in the sidebar.",
+    "standalone": "cd apps/emberfield && FORGE_SHARED_DIR=../../shared ./.venv/bin/python -m uvicorn web_app:app --port 8434   (and likewise pixelforge on 8435)",
+    "tests": "cd apps/emberfield && ./.venv/bin/python -m pytest tests/ -q",
+    "reseed_the_art": "python tools/seed_art.py          (--force overwrites your edits)",
+    "a_specific_valley": "http://127.0.0.1:8434/?seed=777&hour=10&zoom=3"
+  },
+  "verification_status": {
+    "tests": "35 passed, including determinism, a 120-seed reachability sweep, art round-trip, palette-swap invariance, and heavy-lane serialisation.",
+    "black": "clean on all touched files",
+    "pyright": "0 errors in both apps (pyrightconfig.json adds ../../shared to extraPaths)",
+    "rendered": "VERIFIED. Screenshotted with headless Chrome at day and night, and the editor was screenshotted with a sprite loaded. Note the Chrome extension is not connected in this environment; headless Chrome via flatpak, writing into ~/.var/app/com.google.Chrome/data/shots, is what worked.",
+    "not_verified": "A full Forge GUI launch with both apps in the sidebar. Both were exercised standalone on their real ports with FORGE_SHARED_DIR set, which is how forge.py runs them."
+  },
+  "decision_record": {
+    "_why": "Every question put to the user while planning Emberfield, the options offered, and their answer quoted exactly as written. A later session can see not just what was decided but what the alternatives were and which were rejected. Answers are verbatim, typos included, because a paraphrase would quietly launder the meaning; the 'taken_to_mean' line is where interpretation happens and is fair game to disagree with.",
+    "round_1_scope": [
+      {
+        "question": "Stardew + RotMG is a huge surface. What should the first playable build actually contain?",
+        "options_offered": [
+          "Both halves, thin (recommended) -- farm hub AND one bullet-hell dungeon, full loop end to end",
+          "Combat first -- build the RotMG half properly, farm is a stub",
+          "Farm first -- build the Stardew half properly, dungeon is a stub",
+          "Prototype the LLM layer first -- minimal game, the models are the deliverable"
+        ],
+        "answer_verbatim": "i wnat it to be buit in muitple goes with muiltiple seesions of opus so as you build make a manifest of what eneds ot be done what oyu have done and what you think abotu the porgent and what should be added. sater with genera world creation first so that you cna get the texture right",
+        "taken_to_mean": "None of the four as offered. The build is multi-session, this file is the required artefact (todo / done / my opinion / what to add), and session 1 is world creation so the texture is settled before systems land on top of it.",
+        "consequence": "Session 1 shipped no farming and no combat on purpose. MANIFEST.json exists because of this answer."
+      },
+      {
+        "question": "When the LLM layer is toggled ON, what should the big (7-16B) model actually control? (multi-select)",
+        "options_offered": [
+          "World events & weather",
+          "Quests & narrative",
+          "Dungeon & enemy design",
+          "Economy & NPC needs"
+        ],
+        "answer_verbatim": "1,2,3,4 make it all affectable but its toggeld and the game is built so that some stuff dones need tobe linked like tsome really background npcs and the system prompts are very good at handleing baly formated relys . dont let it go crazy",
+        "taken_to_mean": "All four areas, each toggleable. Not everything needs a model behind it -- background NPCs stay canned. Tolerate badly formatted model replies, and constrain the model hard.",
+        "consequence": "Planned as a registry of director hooks, each with a schema, an engine-supplied vocabulary, numeric clamps and a deterministic fallback. 'Don't let it go crazy' is enforced in the engine, not in the prompt: the parser is forgiving, the validator is strict, and anything invalid silently falls back. NPCs carry mind: canned | small | director."
+      },
+      {
+        "question": "RotMG is permadeath; Stardew is persistent. How do the two halves reconcile?",
+        "options_offered": [
+          "Farm persists, character dies (recommended)",
+          "Full permadeath",
+          "Soft death",
+          "Player picks per save"
+        ],
+        "answer_verbatim": "Player picks per save",
+        "taken_to_mean": "Difficulty is a choice at world creation, not a design decision baked into the game.",
+        "consequence": "Three rules offered on the title screen and stored on the save. NOT yet enforced -- see not_done_yet."
+      }
+    ],
+    "round_2_look_and_world": [
+      {
+        "question": "You said get the texture right first. How should the world actually look?",
+        "options_offered": [
+          "Procedural pixel art (recommended) -- seeded generator paints tiles at boot",
+          "Hand-authored pixel art -- every tile drawn as encoded strings",
+          "Generated sprite sheets -- use ai-studio's image models, real PNG assets",
+          "Non-pixel vector look -- soft geometric shapes, Arcade's phosphor register"
+        ],
+        "answer_verbatim": "for the world and non epermanet oobject mak hte art fisrt from a prdefiend set of pixel art that can chaneg woth each new world bubut the nature itself like grass and somme tree leves can be pocefural i wnat all the textures and animations to be ediatble by me in a seperate part of forge so that these pixel charters can be universal along with the texterue for everythin. but my llm cant gereabt images or pixel art so somwhow make it yourself thwith teh same look as startdew vally",
+        "taken_to_mean": "A hybrid of the first two, plus a requirement none of the options carried. Authored pixel art for world and objects, varying per world; procedural for nature (grass, leaves). Crucially: ALL textures and animations must be editable by the user, in a separate part of Forge, and universal across apps. The local models cannot make images, so Claude authors the art directly.",
+        "consequence": "This answer produced the single biggest architectural decision in the project. Art is palette-indexed character rows so it can be authored as data and edited in a GUI; colour lives in a separate palette so a world/season/night reskin is one file. It also produced a SECOND app (Pixel Forge) rather than an editor tab, because 'universal' means the library belongs to no single app. The 'changes with each new world' requirement is met by palette swap. The procedural nature layer draws in colours pulled from the current palette's roles, so it stays in step with the authored tiles."
+      },
+      {
+        "question": "What is the shape of the world itself?",
+        "options_offered": [
+          "Persistent valley + regenerating wilds (recommended)",
+          "Fully procedural realm per run",
+          "One handcrafted valley, fixed"
+        ],
+        "answer_verbatim": "persistant vally with some easter eggs oadn events that do chnage it and a new wild every day night cycle with sioemthing changing like it getting harder at night time",
+        "taken_to_mean": "The recommended option, with two additions: the valley carries easter eggs and events that genuinely alter it over time, and the wilds regenerate on the day/night cycle specifically, getting harder after dark.",
+        "consequence": "worldgen.py generates the persistent valley only, and says so in its docstring -- the nightly wilds are a deliberately separate generator, not yet written. Day/night is implemented and drives the palette."
+      },
+      {
+        "question": "What's it called? This becomes the app dir, the data dir, and the sidebar label.",
+        "options_offered": [
+          "Hollowmere",
+          "Fallowreach",
+          "Emberfield",
+          "The Quiet Acre"
+        ],
+        "answer_verbatim": "Emberfield",
+        "consequence": "apps/emberfield, ~/EmberfieldData, sidebar 'Emberfield', accent #e08a3c."
+      }
+    ],
+    "round_3_depth_and_voice": [
+      {
+        "question": "JRPG depth usually means a party. RotMG is a lone glass-cannon. Which way does combat go?",
+        "options_offered": [
+          "Solo + summons/companions (recommended)",
+          "Strictly solo",
+          "Full party of 3-4",
+          "Solo action, party for bosses"
+        ],
+        "answer_verbatim": "in this session focus on the solo opne but i would like options in the game and world for differnt partys cause i plan on this beeing a really cool world chanageble with lllm. and i want the party memebers to act human but for now make it like stardew and realm of the mad god where you are solo",
+        "taken_to_mean": "Solo now, but parties are definitely coming and party members should eventually behave like people (small models). So do not build anything that assumes exactly one actor.",
+        "consequence": "Actors are planned to carry a 'mind' field from the outset so companions slot in without a rewrite. Nothing in session 1 hardcodes a single actor."
+      },
+      {
+        "question": "Voice is pre-generated and cached, never live. How much should get voiced?",
+        "options_offered": [
+          "Story beats + NPC greetings (recommended)",
+          "Narrator only",
+          "Every named NPC, fully voiced",
+          "No voice at all for now"
+        ],
+        "answer_verbatim": "have a anarator that cna be pre voice but also some npc but i dont wnat the pu to be maxed out for ages so only pregenerat woineteligently and caus eof lllm being experimental i wnata  base game where it not voice and its just the usual stardew text and some noices and then a cvoice mode and then a lllm mode make sure youur smart about it only main npcs and narator",
+        "taken_to_mean": "Narrator plus main NPCs only, never every character. Baking must be incremental and budgeted -- explicitly NOT a long job that pins the CPU. And a three-layer structure: a complete base game with no voice (Stardew-style text and sound effects), then a voice mode, then an LLM mode.",
+        "consequence": "config.py defines the three stacked modes with the base game complete on its own, plus voice_bake_budget_mb. resources.py exists largely because of the 'don't max the CPU for ages' constraint. Neither the bake pipeline nor the LLM layer is built yet."
+      },
+      {
+        "question": "Where should the 'huge and complex' actually live? Pick the systems that matter most to you. (multi-select)",
+        "options_offered": [
+          "Classes, skills & builds",
+          "Items, crafting & equipment",
+          "Story, quests & lore",
+          "A world that simulates itself"
+        ],
+        "answer_verbatim": "all of it but still managable this will be a multi session task so for now make it work but very easy to add to and edit",
+        "taken_to_mean": "All four, eventually. The binding constraint is not which systems but that adding to them stays cheap. Editability beats feature count.",
+        "consequence": "This is why next_session_should puts the content registry spine before any system that consumes it, and why tile ids are sprite names, packs are discovered by directory scan, and a new season is a palette rather than new art."
+      }
+    ],
+    "unprompted_directives": {
+      "_why": "Instructions the user volunteered mid-task rather than in answer to a question. Several changed the plan more than the answers did.",
+      "items": [
+        {
+          "verbatim": "also on a side note just open the forge app satrt making myram go up be 5 percent every secound until it maxes ot fix that right before making the game",
+          "effect": "Became Part 0 and was done first. Root cause was codec-lab re-enqueueing crashed runs at import; see PROGRESS.json session_7_work."
+        },
+        {
+          "verbatim": "llet me see th eplan first after you fix the ram issue",
+          "effect": "The Emberfield plan was presented for review between the two pieces of work rather than being built straight through."
+        },
+        {
+          "verbatim": "i dont have git hub connected and lease dont use up my storage",
+          "effect": "Nothing pushed anywhere. Venvs use --system-site-packages so only fastapi was installed (~3 MB each); the art library is 60 KB; NovelForge's existing 453 MB of TTS voices are reused rather than duplicated."
+        },
+        {
+          "verbatim": "dont foget to be wiriting  json about this project",
+          "effect": "This file, kept current as the work went rather than written at the end."
+        },
+        {
+          "verbatim": "dont ask questions keep going",
+          "effect": "No further questions were asked; remaining judgement calls were made and recorded here instead."
+        },
+        {
+          "verbatim": "i expect the gameto be huge and complex not stupid but have depth to it kind of like a jrpg not that i he ever played it also have a tutorial ... voice do take alot of my cpu so som how account for that and using any of the lllm use tons of my igpu so in the cases where we are running the lllm experimanta and the voice experimant al and the stt and the tts account fro less cpu being free or mabye have it asing to 6 cores out of 10",
+          "effect": "Produced emberfield/resources.py (six efficiency cores for background work, both performance cores left free, one heavy job at a time) and the tutorial, which is written as data so it can grow into the quest/script system. Also confirmed the user's core count: the machine really does have 10 physical cores."
+        }
+      ]
+    },
+    "questions_deliberately_not_asked": [
+      "Which local models to use -- decided from what is on disk: Qwen3.5-9B for the director (the user's 7-16B band), Qwen3.5-0.8B/2B for NPCs.",
+      "Whether to write a new Jan client -- no. novelforge/janclient.py already encodes fixes that are expensive to rediscover, including a process-wide lock that exists because two concurrent Jan calls once OOM-froze this laptop.",
+      "Map size, tile size, walk speed, day length -- ordinary defaults, all trivially changeable."
+    ]
+  }
+}

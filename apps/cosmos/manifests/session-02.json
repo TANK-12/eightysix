@@ -1,0 +1,242 @@
+{
+  "session": 2,
+  "date": "2026-09-16",
+  "title": "Orbit puzzles (3D)",
+  "the_ask": "The user asked for 'the next stage of the space app', pointed Claude at the manifest, and asked for exactly 15 questions and no more. After answering them they asked Claude to also build the game puzzle aspect of the space app, but not the space sim or the astronomy map. So this session built roadmap session 2 (orbit puzzles) and did not touch the map, the sandbox or the flight sim.",
+  "questions_and_answers_verbatim": [
+    {
+      "q": "Which stage should this session do?",
+      "a": "Check session 1 first"
+    },
+    {
+      "q": "How should the player launch the probe?",
+      "a": "Both"
+    },
+    {
+      "q": "Can the player fire engine burns after launch?",
+      "a": "Later levels only (Recommended)"
+    },
+    {
+      "q": "How much of the future path should the game draw while aiming?",
+      "a": "Shrinks as levels get harder (Recommended)"
+    },
+    {
+      "q": "How realistic should the levels be?",
+      "a": "Toy early, real later (Recommended)"
+    },
+    {
+      "q": "How many levels this session?",
+      "a": "10 plus an endless mode"
+    },
+    {
+      "q": "What should earn stars on a level?",
+      "a": "A mix of these"
+    },
+    {
+      "q": "Which kinds of goal should levels use?",
+      "a": "Reach a moving planet, Settle into an orbit, Pass waypoints in order, Land on a body, just a fun level for explring the galaxy"
+    },
+    {
+      "q": "Which hazards should appear?",
+      "a": "Crashing into bodies, Black holes, Asteroid fields, Out of bounds, for the out of bound make it very out of bounds caus eit is space i i do wnat to try long shots"
+    },
+    {
+      "q": "What happens after a failed attempt?",
+      "a": "Ghost of last attempts (Recommended)"
+    },
+    {
+      "q": "Should levels teach real orbital ideas?",
+      "a": "Short caption per level (Recommended)"
+    },
+    {
+      "q": "Should puzzles have sound this session?",
+      "a": "Yes, small set (Recommended)"
+    },
+    {
+      "q": "Where should star ratings and progress be saved?",
+      "a": "File in ForgeGameData (Recommended)"
+    },
+    {
+      "q": "Should a basic level editor come in now?",
+      "a": "Leave it in the backlog (Recommended)"
+    },
+    {
+      "q": "Should puzzles be drawn in 2D or 3D?",
+      "a": "3D like the map"
+    }
+  ],
+  "later_messages_verbatim": [
+    "so is this session just the gae aspect of the space ap?",
+    "i  would like you to also build the game puzzel aspct of the space app not the space sim or astromy map aspect thou",
+    "just now that jan is running so frame rates will be cooked just gp for using 13 watts and 1.5 tflops as the goal for the geraphocs of the game buetifull",
+    "i told you he gpu is beeing ued so itl runfine normaly",
+    "(the user also gave the sudo password so power could be read; it is not recorded anywhere)",
+    "dont ask questinons ill fix it all after i wake up keep going",
+    "make the galaxy mode way bigger and huge itrs really cool so far but stars dont save"
+  ],
+  "ledger": [
+    {
+      "id": "A1",
+      "ask": "next stage of the space app",
+      "meaning": "Cosmos roadmap session 2, orbit puzzles",
+      "mark": "done, checked (tests, screenshots, WebKitGTK run)"
+    },
+    {
+      "id": "A2",
+      "ask": "ask 15 questions and then no more",
+      "meaning": "one round of 15, then build from the answers",
+      "mark": "done"
+    },
+    {
+      "id": "A3",
+      "ask": "Check session 1 first",
+      "meaning": "session 1's unchecked items",
+      "mark": "partly: WebGL and frame rate checked in a real WebKitGTK window for the puzzles; the map and sandbox gesture checks were left, because A4 said not the map"
+    },
+    {
+      "id": "A4",
+      "ask": "build the game puzzle aspect, not the space sim or astronomy map",
+      "meaning": "puzzles only; map, sandbox and flight sim untouched",
+      "mark": "done, checked: no file under modes/map or modes/sandbox changed"
+    },
+    {
+      "id": "A5",
+      "ask": "the 15 answers",
+      "meaning": "the design",
+      "mark": "done; each answer is in roadmap.json session_2.user_decisions_2026-09-16 and was built"
+    },
+    {
+      "id": "A6",
+      "ask": "13 watts and 1.5 TFLOPS, graphics beautiful",
+      "meaning": "a low GPU budget spent on looks",
+      "mark": "done, measured under Jan's load: about +0.5 W aiming and +1.6 W flying; TFLOPS cannot be read from these counters"
+    },
+    {
+      "id": "A7",
+      "ask": "never lose functions (standing rule)",
+      "meaning": "additive only",
+      "mark": "done: the 20 session 1 Python tests and 21 Node tests still pass"
+    },
+    {
+      "id": "A8",
+      "ask": "Jan and the running Forge are shared",
+      "meaning": "do not restart them",
+      "mark": "done: neither was touched; test copies ran on free ports"
+    },
+    {
+      "id": "A9",
+      "ask": "make the galaxy mode way bigger and huge",
+      "meaning": "the Galaxy playground explore level (assumed: the puzzle mode's galaxy, not the map)",
+      "mark": "done, checked: 40 star systems on three spiral arms about 8,400 units across, 92 planets, 10 belts, a painted galactic glow; screenshots of the home system, the whole galaxy and a flight"
+    },
+    {
+      "id": "A10",
+      "ask": "stars dont save",
+      "meaning": "a bug report",
+      "mark": "done, checked. Diagnosis from evidence: level stars did save (outputs/cosmos.log showed every POST accepted and puzzle-progress.json held the user's stars), but the galaxy playground saved nothing by design, and that is where the user was playing. The galaxy now discovers stars and black holes a probe passes within 40 units of, saves each one within 1.5 s, and shows them as gold ★ labels and '★ n of 41 stars found'. Level and progress responses are now marked no-store as well."
+    },
+    {
+      "id": "A11",
+      "ask": "dont ask questions, keep going",
+      "meaning": "no AskUserQuestion",
+      "mark": "done"
+    },
+    {
+      "id": "A12",
+      "ask": "ill fix it all after i wake up",
+      "meaning": "run unattended, leave a clear handoff",
+      "mark": "done"
+    }
+  ],
+  "built": [
+    "static/core/nbody3d.js: bodies on Kepler rails (positions are a function of time, parents before children), a massless probe stepped with kick-drift-kick leapfrog, predict() that changes nothing.",
+    "static/core/puzzle.js: checkLevel() with plain reasons, prepareLevel() defaults (the edge of space is 50 times the level's size), launch from a body's surface keeping its orbital velocity, goals (reach, orbit capture held for N seconds, waypoints in order, landing under a speed limit, explore), hazards (bodies, black holes, asteroid belts on rails, bounds, optional time limit), delta-v fuel and six burn directions, a trail that thins itself, stars (finish, par, bonus: no_burns, time_under, close_pass), playReference().",
+    "static/core/levelgen.js: endless levels built by flying a random launch first and putting the goal where the probe went, then flown again and only served if that flight wins; a simple one-planet fallback also checked; solveLevel() with a braking autopilot for orbit and landing goals that only accepts a solution whose stored, rounded form replays to a win.",
+    "tools/solve_level.mjs: finds a winning launch for any level file; --write stores reference and par (15% above the found cost).",
+    "static/modes/puzzles/: mode.json (order 30), view.js (Three.js: shaded procedural planets, additive star glows, black hole with a spinning disc, faint orbit lines, polar grid, asteroid points, target rings, dashed preview, trail, up to five ghosts, a backdrop sky with a Milky Way band, a distant sun for levels without a star; pixel ratio capped at 1.25, redraws only when something moves or about 15 times a second for pulses), mode.js (level select with stars, endless and explore cards, drag-to-aim and number-plus-slider fields, shift-drag elevation, arrow nudges, time warp, follow, fit, help, held burns by key or button, flight readouts per goal, result panel, saving, sound, URL and __debug hooks for headless checks).",
+    "web_app.py: GET /api/levels and /api/levels/{id} (discovered, broken files hidden, ids cannot escape), GET/POST /api/puzzles/progress (keeps the best of everything, refuses malformed results, sets an unreadable file aside), GET /api/sounds (cosmos-* recipes through shared forge_content).",
+    "static/index.html loads /shared/forge_sound.js; app.css gains the .pz-* block.",
+    "Ten levels plus an explore level in ~/ForgeGameData/cosmos/levels, built by a scratch design script and then kept as the editable source: 1 First light, 2 Lead the target, 3 Around the corner, 4 Slingshot, 5 Ring road (off-plane rings), 6 Event horizon (black hole, rubble disc), 7 Parking orbit (first burns), 8 Moonfall (real Earth-Moon masses and distance, land at 0.6), 9 Belt run (real Mars, Jupiter, Sun; cross the belt, capture at Jupiter), 10 Grand tour (real Earth, Jupiter, Saturn; Jupiter slingshot), explore-galaxy (four star systems round a black hole, no goal).",
+    "Five sound recipes: ~/ForgeGameData/sounds/cosmos-{launch,burn,waypoint,crash,win}.json."
+  ],
+  "verified": [
+    "node --test tests/js: 59 pass (21 from session 1, 7 nbody3d, 13 puzzle rules, 5 generator and solver including 100 generated levels each won by its own stored launch, 13 shipped-level tests: every file valid, every stored solution earns 3 stars, and Slingshot and Grand tour provably cannot reach their target orbit without the assist, by an energy bound).",
+    "pytest: 38 pass (20 from session 1, 18 new for levels, progress and sounds).",
+    "black and pyright (--pythonpath ./.venv/bin/python) on web_app.py and tests/test_puzzles.py: 0 errors, same as before. node --check on every new JS file.",
+    "Headless Chrome screenshots (software WebGL) looked at: Cosmos menu with the new card, level select, aiming with preview, arrow and three ghosts, a burn level in flight with the fuel panel, the win panel with three stars, an endless level with numbered rings, the galaxy playground, Grand tour and Belt run.",
+    "A real WebKitGTK window (the engine Forge uses) on the laptop's Iris Xe with Jan loaded: 48 frames per second aiming and in flight. RAPL power with Jan loaded: 29.1 W idle, 29.6 W aiming, 30.7 W flying (whole package).",
+    "Each sound recipe rendered offline in headless Chrome: peaks launch 0.36, burn 0.05 (then doubled), waypoint 0.36, crash 0.21, win 0.41."
+  ],
+  "fixed_after_looking": [
+    "A single braking burn from 2 to 8 radii up can never land gently; the landing autopilot now brakes at the computed height where the rest of the fall stays under the limit.",
+    "Moonfall's stored solution crashed on replay: burn times were rounded up, firing one step late. They are now rounded down, and the solver only accepts solutions whose stored form replays to a win.",
+    "Launch speed ranges were many times the needed speed (level 1 won at 0.43 on a 0 to 5 slider). Ranges were narrowed per level.",
+    "Levels 3 and 6 were won by slow drifts instead of the intended close pass, and level 7 by a very slow route; time limits (60, 80) and narrower ranges fixed it.",
+    "Grand tour could not be built: collision radii were drawn sizes (Jupiter 1.0 unit, over 200 real radii), so no close pass was possible, and the first scan's launch grazed Jupiter. Collision radii are now near real (the view still draws a minimum pixel size) and only passes at least 0.35 from Jupiter are used.",
+    "Labels sat on top of large bodies; they now step out by the drawn radius.",
+    "Asteroid hit tests compared every rock every step; an angle pre-check skips almost all of them."
+  ],
+  "not_verified": [
+    "Nobody has played it. Difficulty, pars, bonus thresholds and whether levels are fun are untested by a person.",
+    "Real pointer gestures: drag-to-aim, shift-drag elevation, turn, pan, zoom and held burn buttons ran only through code paths, URL hooks and the __debug object, not a real mouse.",
+    "Inside the running Forge hub (iframe, sidebar, f key, F11): Forge was not restarted because other sessions share it. The standalone WebKitGTK window is the same engine.",
+    "Nobody has heard the sounds; only their rendered waveforms were measured.",
+    "Frame rate and power without Jan loaded, and any TFLOPS figure."
+  ],
+  "known_limits": [
+    "Bodies are on rails: planets do not pull on each other or feel the probe. The probe's own motion is the honest simulation.",
+    "The path preview ignores asteroids.",
+    "Par is 15% above the cheapest solution the solver found, which is not proven optimal; a player may beat it by a lot.",
+    "Endless mode makes only reach and ring goals.",
+    "Levels 8 to 10 use real mass and distance ratios with circular orbits and shrunk time; sizes are drawn larger than true.",
+    "Headless screenshots with ?pzfire=1 save a real result to ~/ForgeGameData/cosmos/puzzle-progress.json. This session's test entries were removed."
+  ],
+  "files_outside_the_app": [
+    "~/ForgeGameData/cosmos/levels/*.json (11 files)",
+    "~/ForgeGameData/sounds/cosmos-*.json (5 files)",
+    "~/ForgeGameData/cosmos/puzzle-progress.json is created on first play",
+    "~/Forge/PROGRESS.json (status, session_36_work; sessions 2 to 29 moved to PROGRESS-archive.json) and ~/Forge/docs/archive/MANIFEST-to-2026-09-24.md session 36",
+    "Backups: ~/Forge/backups/2026-09-16-cosmos-puzzles/"
+  ],
+  "improve_next_ranked": [
+    {
+      "item": "Play levels 1 to 10 and tune",
+      "why": "Everything is proven solvable and nothing is proven fun; pars, bonus times and preview lengths came from a solver."
+    },
+    {
+      "item": "Check real mouse aiming and burns inside the Forge window",
+      "why": "The only unexercised input path, and the one the user will use first."
+    },
+    {
+      "item": "Session 1's map and sandbox checks (WIP.md)",
+      "why": "Still open; skipped this session because the user said not the map."
+    },
+    {
+      "item": "Orbit and landing goals in endless mode",
+      "why": "The braking autopilot already proves such levels solvable."
+    },
+    {
+      "item": "Roadmap session 3, the arcade gravity shooter",
+      "why": "Next scheduled mode; independent of puzzles."
+    }
+  ],
+  "addendum_after_the_user_played": {
+    "built": [
+      "puzzle.js: explore levels track discoveries (stars and black holes within discover_radius, checked every 4 steps) and the farthest point reached; discoverableIds(); preview_dt lets a huge level preview with coarser steps than it flies.",
+      "web_app.py: POST /api/puzzles/progress accepts {explore, found, farthest, time, ended} and keeps the union of found ids, the farthest point, the longest flight and a probe count; /api/levels reports each level's discoverable count; progress and level responses send Cache-Control: no-store.",
+      "explore-galaxy.json regenerated from a fixed seed (scratch generator, now gone; the JSON is the source): core black hole m 50000, 40 stars placed on log-spiral arms (pitch 14 degrees) from 420 to 4200, planets within 0.4 of each star's Hill radius, a dust bulge, 9 star belts, glow settings. The home star's belt was removed after a test launch died in it within 4 time units.",
+      "view.js: a face-on galaxy glow drawn once into a 1024 texture from the same spiral formula; four point lights moved each frame to the stars nearest the camera.",
+      "mode.js: discovery toasts, sound and saving (debounced, and on retry, leaving and closing); gold ★ labels; 'stars found' in the HUD, the status bar, the result panel and the level card; planet labels hidden when drawn on their star; labels written every other frame and only when they moved; the live flight preview reschedules itself at 20 times its own cost; a Power saver / Smooth button (Power saver, the default, draws every other frame; remembered in localStorage).",
+      "app.css: no backdrop blur over the 3D view in the puzzles; panels are slightly more opaque instead."
+    ],
+    "verified": [
+      "pytest 45 pass, node --test 61 pass (new: discovery, discovery merge and refusals, no-store headers, discoverable counts, the galaxy is at least 30 stars and 3000 units and every id is saveable).",
+      "An isolated scratch server (HOME pointed at the scratchpad) saved and merged a real discovery from a headless flight, and the level card showed '★ 1 of 41 stars found'. The user's real progress file was not touched by testing.",
+      "RAPL power in a real WebKitGTK window, GPU idle, galaxy flying at 1x: 16.4 W with the blur and every frame drawn; 14.5 W without the blur; 12.0 W without the blur in Power saver (24 frames drawn per second). Aiming: 11.1 to 12.3 W. The machine idles at 10.2 to 11.1 W. Two runs taken while Jan became busy were discarded."
+    ],
+    "not_verified": [
+      "The Cosmos backend inside the user's running Forge was started before this change, so galaxy discoveries return 400 there until Cosmos (or Forge) is restarted once; the game says so in a toast. It was not restarted, because it is the user's process.",
+      "Nobody has flown the big galaxy by hand: crossings between systems, burn feel at burn_rate 12 and time warp at this scale."
+    ]
+  }
+}

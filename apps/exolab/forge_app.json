@@ -1,0 +1,28 @@
+{
+  "name": "exolab",
+  "label": "Exo Lab",
+  "tagline": "Exo-suit and mech test bench, plus a game",
+  "port": 8466,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#5fd0ff",
+  "icon": "🦿",
+  "fullscreen": "auto",
+  "order": 100,
+  "section": "play",
+  "ready_timeout": 45,
+  "manifest": {
+    "summary": "Half real-world physics test bench, half game. The tester fits powered exoskeletons (a full suit and a lighter partial one) to a VRM character and tests them, the shoulder joint first: range of motion, gimbal lock, misalignment with the real shoulder, strap pressure, motor torque and speed, beam strength and battery use. An editor changes the relative specs of materials, joints and parts and re-runs the test live. The game half plays exo soldiers whose jump, sprint, strength, armour and energy come from the same specs.",
+    "features": [
+      {"name": "Real-world tester", "description": "Bench tests from data/tests: shoulder range sweep, named shoulder motions, holding a load, a box lift cycle. Verdict cards, charts, a 3D view of the character, the exo mechanism and the forces."},
+      {"name": "Editor", "description": "Four relative knobs (stiffness, strength, weight, power) per material, joint and part, advanced absolute values, saved profiles, live re-run and comparison with the baseline."},
+      {"name": "Game", "description": "Exo soldiers with boost jump, dash, slam, slide and sprint, and Armour, Strength, Speed and Cloak modes on an energy bar; stats from GET /api/derive/{model}."}
+    ],
+    "data_dir": "~/ForgeGameData/exolab/profiles (Emerson's profiles; EXOLAB_DATA moves it). Reports go to ~/Forge/docs/library/exolab/.",
+    "services": [],
+    "dependencies": {"required": ["fastapi", "uvicorn", "numpy"], "optional": ["pytest", "httpx"]},
+    "standalone_launch": "FORGE_SHARED_DIR=/home/ejb/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8466",
+    "api_base": "/api/ (GET registry, GET model/{id}, POST model, POST pose, POST run, GET/POST derive, GET/PUT profiles/{name}, POST profiles/{name}/copy, POST report, POST reload)",
+    "docs": ["README.md", "WIP.md", "docs/2026-10-08-plan.md"]
+  }
+}

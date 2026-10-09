@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Log something to the Forge Calendar from any script or terminal.
+
+    forge-log "Backed up the anime drive"
+    forge-log --kind milestone --tags backup,hdd "Backup finished"
+    forge-log --source render "PulseForge render done" --body "40 min video"
+
+The source is recorded as "script:<name>" (the calling script's name unless
+--source is given). Needs the Calendar app running (Forge opens it)."""
+
+import argparse
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+URL = os.environ.get("FORGE_CALENDAR_URL", "http://127.0.0.1:8453")
+
+parser = argparse.ArgumentParser(description="Log an event to the Forge Calendar.")
+parser.add_argument("title")
+parser.add_argument(
+    "--kind", default="note", help="note, task, milestone, reminder, said ..."
+)
+parser.add_argument(
+    "--source", default="", help="name after script: (default: the parent script)"
+)
+parser.add_argument("--body", default="")
+parser.add_argument("--tags", default="")
+parser.add_argument("--at", type=float, default=None, help="Unix time (default: now)")
+args = parser.parse_args()
+
+source = args.source or os.path.basename(os.environ.get("_", "") or "shell") or "shell"
+if source in ("forge-log", "python3", "python", "env"):
+    source = "shell"
+event = {
+    "title": args.title,
+    "kind": args.kind,
+    "source": f"script:{source}"[:40],
+    "body": args.body,
+    "tags": args.tags,
+    "ts": args.at,
+}
+request = urllib.request.Request(
+    f"{URL}/api/events",
+    data=json.dumps(event).encode(),
+    headers={"Content-Type": "application/json", "X-Forge": "1"},
+)
+try:
+    with urllib.request.urlopen(request, timeout=5) as r:
+        answer = json.loads(r.read())
+except urllib.error.HTTPError as e:
+    sys.exit(f"forge-log: {json.loads(e.read() or b'{}').get('detail', e.reason)}")
+except (urllib.error.URLError, OSError) as e:
+    sys.exit(f"forge-log: the Calendar app is not running ({e})")
+print(
+    f"logged: {answer['event']['title']}" if answer.get("event") else "already logged"
+)

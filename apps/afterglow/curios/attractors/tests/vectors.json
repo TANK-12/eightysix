@@ -1,0 +1,2956 @@
+{
+ "tolerance": {
+  "lyapunov": 1e-09,
+  "dimension": 1e-09
+ },
+ "rng_seed_1": [
+  0.6270739405881613,
+  0.002735721180215478,
+  0.5274470399599522,
+  0.9810509674716741,
+  0.9683778982143849,
+  0.281103502959013
+ ],
+ "cases": [
+  {
+   "code": "FIRCDERRPVLD",
+   "why": "Sprott's example in the book, chaotic",
+   "status": "chaotic",
+   "lyapunov": 0.05214237735287954,
+   "dimension": 1.3924661545628363,
+   "at": 12000,
+   "describe": [
+    "Lyapunov exponent 0.052 bits per iteration, correlation dimension about 1.39.",
+    "It looks like folded ribbons, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "MMMMMMMMMMMM",
+   "why": "all zero, lands on the origin at once",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "at": 2,
+   "describe": [
+    "Lyapunov exponent ? bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "YYYYYYYYYYYY",
+   "why": "everything 1.2, flies off",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "at": 4,
+   "describe": [
+    "Lyapunov exponent ? bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "LEFGQRHCFVXW",
+   "why": "first fixed in the sweep",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "at": 66,
+   "describe": [
+    "Lyapunov exponent ? bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "KQSDIKKDEIBL",
+   "why": "first cycle in the sweep",
+   "status": "cycle",
+   "lyapunov": -0.16687085530214515,
+   "dimension": null,
+   "at": 12000,
+   "describe": [
+    "Lyapunov exponent -0.167 bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "XTGGKHQVHWCB",
+   "why": "first loop in the sweep",
+   "status": "loop",
+   "lyapunov": 0.00024367717604594063,
+   "dimension": null,
+   "at": 12000,
+   "describe": [
+    "Lyapunov exponent 0.000 bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "LHQPDFRUHBBP",
+   "why": "first escapes in the sweep",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "at": 10,
+   "describe": [
+    "Lyapunov exponent ? bits per iteration, correlation dimension unknown.",
+    "It looks like a dusting of points, and drifts apart slowly."
+   ]
+  },
+  {
+   "code": "EPXBNDPPFFIE",
+   "why": "first chaotic in the sweep",
+   "status": "chaotic",
+   "lyapunov": 0.3072305159082073,
+   "dimension": 0.9190025411171115,
+   "at": 12000,
+   "describe": [
+    "Lyapunov exponent 0.307 bits per iteration, correlation dimension about 0.92.",
+    "It looks like fine threads, nearly a curve, and stirs at a steady pace."
+   ]
+  }
+ ],
+ "hunts": [
+  {
+   "seed": 1,
+   "code": "NJTGCYYAVCJP",
+   "tried": 17
+  },
+  {
+   "seed": 2,
+   "code": "XYHXWSLWHTBA",
+   "tried": 61
+  },
+  {
+   "seed": 3,
+   "code": "XJNLSEDNWQGD",
+   "tried": 78
+  },
+  {
+   "seed": 4,
+   "code": "TJLRAFMTVBLP",
+   "tried": 6
+  },
+  {
+   "seed": 5,
+   "code": "HLPFMSLIKWAC",
+   "tried": 93
+  },
+  {
+   "seed": 6,
+   "code": "VWFWHBSWKGKE",
+   "tried": 47
+  },
+  {
+   "seed": 7,
+   "code": "KHYMCVYGJBML",
+   "tried": 85
+  },
+  {
+   "seed": 8,
+   "code": "OQJKUJDLVDMR",
+   "tried": 85
+  }
+ ],
+ "sweep": [
+  {
+   "code": "LHQPDFRUHBBP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JCEIKXOAFGTX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XTGGKHQVHWCB",
+   "status": "loop",
+   "lyapunov": 0.00024367717604594063,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ITSJYQPJAYEY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UGMEYPVTOLMT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TOQYJAEBXXEE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MOHXWAYPWFON",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AWVYTAXXLLAG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UWNECMYVFIRV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EPXBNDPPFFIE",
+   "status": "chaotic",
+   "lyapunov": 0.3072305159082073,
+   "dimension": 0.9190025411171115,
+   "accepted": false
+  },
+  {
+   "code": "WJBJJWUPSJGL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FBCXDUYCEEHW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CHAOOYJMOQVM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KQSDIKKDEIBL",
+   "status": "cycle",
+   "lyapunov": -0.16687085530214515,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LEFGQRHCFVXW",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "REHJYOHYMKNT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SEYDCICDAHAQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KBOBJCKIMNNV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JLDSTUPHSSDR",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RMDYMMNORXJJ",
+   "status": "cycle",
+   "lyapunov": -0.376323560726286,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SWAYNEHXOUWX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WGIRDIQKVIER",
+   "status": "loop",
+   "lyapunov": -1.6351653235860114e-06,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VTFMAMDUNPMX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IKYXWMVYXADN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FCKCNCUOJOED",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OMWUJKXHJJME",
+   "status": "cycle",
+   "lyapunov": -0.15683585601819908,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PIBCNMHGYQTB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PQECLWRMCTSW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SUSDFFDRWGOM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KBWJKKJGNKPD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KVXKEYVIPMAK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RSSIYJIIDOLV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SRHBKKIMTCMG",
+   "status": "chaotic",
+   "lyapunov": 0.018346289280551105,
+   "dimension": 0.9510838069025965,
+   "accepted": false
+  },
+  {
+   "code": "VHJBCFCSVCXX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BJBESRSCYHAL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SYOLVKSKWOJC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QWJNWJBVJDAK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ARFWUXSHJSOT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IXYFJHWXHHCX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VHGEMLIKKGUM",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KJEPSOXWNDOF",
+   "status": "chaotic",
+   "lyapunov": 0.2565851817613877,
+   "dimension": 1.1326784330855055,
+   "accepted": true
+  },
+  {
+   "code": "BXBKEWCCWSKK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UQLSSKPMRLPK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SXTKSRRAOFQW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JQBKHBGVORKV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YGJMXSKBHMRU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WXSEXLXFHGWN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XMJDCOHYXDYQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IDTXFBKIKDFH",
+   "status": "cycle",
+   "lyapunov": -0.2970788596060173,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SBVXQJRTYEFX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PEJKGOSHHPBY",
+   "status": "cycle",
+   "lyapunov": -0.2050342040059948,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SGFFJQEBDWDB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QBYLSKUXQIPG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BIRQYPORNIUN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WOKPYADKVFQU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XGMIHXSHXVGR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CJSHXCJUETEA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AENMBJHJDKOE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QTFRADXBJSIN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VXXFJURKGOFB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YEJNUWWUAGWK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DXALGRHPNNWM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ISWBDEFJRYKO",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FNPARWJDTXQS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SMURPSCFSYOF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UXFKGFKWMHKF",
+   "status": "chaotic",
+   "lyapunov": 0.1399711882770916,
+   "dimension": 1.0197196793428276,
+   "accepted": false
+  },
+  {
+   "code": "XKPJMAJBTBEL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TQOBRMVAFVKA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PJOAOEMALPNK",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NKIWTVLWGAUY",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RGGHXQSKNYRX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MSNJLDPCAPPO",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TMPJXEFQMEMK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KWBSHSOUNIJT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VFWMSYYNWCIN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DCUCOFXRFDKS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EXUTXWJHJANK",
+   "status": "chaotic",
+   "lyapunov": 0.10092332730694625,
+   "dimension": 1.1112373561266533,
+   "accepted": true
+  },
+  {
+   "code": "GGBOTISQRVPA",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OKYNWGACNNCC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CXLEXRGWQGKE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HTXIWYJPPMPF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XULELMUXEBAC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XUSMIPOHRPXR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GJGAMREWWEEL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KRXBQXHGETIG",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TRIOOFNWUPFC",
+   "status": "loop",
+   "lyapunov": -8.369858250011032e-05,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FBBQUIUVCHGU",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FWWQAFFDHMIL",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BBOULDVRSJHL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DLGOMBQFOIEE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VRVLUHCSTDWE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ESBNHTROCQMP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CBXCESVJYDCO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KOLXXYBKXSKV",
+   "status": "cycle",
+   "lyapunov": -0.04482217175539396,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VFEXFVFHBGPV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NATFDYEFWOQA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HRROFLUDKSLW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CSQSCRDCHBYR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GRXGTNTIFMGV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KVOCFJKMHYIV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YTQEPOBHKMSN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WCTHPVLXWLQG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VDHHSFKOODIV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FRLCTXPHPTSO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YNMQGNWUISFN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IBPQSAAJXVUC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CAKPEHUQKCIX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NVIEKYSWLJTR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UDGLFFILLJEU",
+   "status": "chaotic",
+   "lyapunov": 0.25225981240042544,
+   "dimension": 0.9422657920950539,
+   "accepted": false
+  },
+  {
+   "code": "LAAEENNYNOSV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GJQRNKJXBNJM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TYOPBEYGJIHA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YDWDOBLWGKKI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EDJGXDRPMRLK",
+   "status": "cycle",
+   "lyapunov": -1.094933087329392,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FAVEDGCOWHOR",
+   "status": "cycle",
+   "lyapunov": -0.12582074412296743,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KUUYPQANQNSH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VPKKXGQLGELB",
+   "status": "loop",
+   "lyapunov": -3.104105197299787e-05,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AHNPGMRCLWRT",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EVVCNDAQYCDU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MQVCKCJUKJSS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TWBFSMSHDSKD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HDNVJFILLWMR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VQYWLMHIOTSS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KCPTDBAAMEEP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HFXVETAQDART",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VUAYDJXHBJXQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NENPKDHIFDBC",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FMTDKSEEXSPV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KWAKXUJSNQXE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TXHYOTHNCBIS",
+   "status": "chaotic",
+   "lyapunov": 0.14540824920509077,
+   "dimension": 1.550524851142167,
+   "accepted": true
+  },
+  {
+   "code": "SSIDDNHFEKHX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MALQHMLSRRMQ",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IGEGLXQTBPST",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CNKATCUYJTYW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YITKXDFARXTX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DFTTYYTMUJNQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BHHWTMTXEVWX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DCRFYFQHTRCR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KSEWBKYGUSBL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FUHPQEASHELP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FWGKVGOYPEEP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TOVIWIAVGQEM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DTEOSOGWTHOO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FOCRBPPBGUUO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TJHRCVRDLDEU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NIRUDVKBJVHN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KNBPIRYBXVWJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AIYHSKLUQNMA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XNNBMKPSWSLO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IYTIWKVMHOLE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AHEUWBHPJUJC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SNAKYWOUGTYF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GRCCIEYGWSJA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "REPWIMVEXGRF",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XQKDWJROGVRE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GDTALHAMVODR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EASRYTXBXBRM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WJDCJUBTGWVV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KPGKRRWIKDEU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XMPPUHEULMHT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UVNCMLLYDCXN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FSUJLJGWKGNH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LBHLVQRSLXRG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BAGPASRRDHDC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LEUJYBSPLJJI",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SPQESMWIMVCI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QNJMLMWFNNGW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GLJFIVBHLDFI",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DTBQFDDATIWR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PHSJLGBIDGHO",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WDTBJYHJBMIB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "THVGIGHGLYRE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BCKOVDBCWMDD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ROAXIVSAPBQU",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AOQWCTSLVVYW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IROPYXJQWUAP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ALXSTYYWWGKE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TUHSDEOKKXAO",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MQMNOGYELYGJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MTMPBBGMBKFW",
+   "status": "cycle",
+   "lyapunov": -0.17254753028281983,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LVIIKFUHEJND",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CGGDMWXQKFUU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IOUOUANLBEDP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SSKGMLVOTOKK",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QDRBBCEXDWRE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YKLDDHEDLYIC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PJRYAQHPCWQV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TNCRXAKIJKRO",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GPFAFFSORTQI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UEMPKIIRXELW",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MCXJVCXQQEUB",
+   "status": "chaotic",
+   "lyapunov": 0.09494993025989298,
+   "dimension": 0.5892756557770914,
+   "accepted": false
+  },
+  {
+   "code": "WMYCARJGFVNY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TGJRHOYGQEGS",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HOWXHDAXYLQG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OOIQJEAQDOLE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LQGVNRFDTMCR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RYJIXEMFSUVQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UTHYESMMWEKI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YLSGHRDNBBDT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DUAEETXLBBCC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QWQITCGTUEOA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SIDQDIGXUXLI",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YOVOHIRQKBDQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DYLIUGTJAYDL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SLREPDCDTUTY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EHKVWBUTCLUX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HETRUVDBWDLU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BSFACXTQXEAQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DJPIJJDEKHMQ",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HKVIDMJUDMUV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RIPFOACOLETX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JGMPEGXUYSRT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CDUQOGYHJGJH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SXLLEJPAUSHQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "APAWVJWQEUEO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YLOVBTTBHJLE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VVRRCCEQSIBG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EPXUELCNGBNR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BDNXAABKCTCB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VAEXKWVWNMXT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BWCOSAGSRVXU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HJSGLFCJGCLM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AJMPVTECQQIS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IMUFKWGTVIHI",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LEPHXUOLUXOR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ORYOHASVMIBK",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HLGSPKNKAXIT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BGVOTIMQULYV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NJWVTSELTDSX",
+   "status": "loop",
+   "lyapunov": -5.903277184224042e-05,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GXMUDGOCDSOY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PYTFFSPTANWY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CVTGAELGFQRW",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JWYGFXIYRKVL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CLYYTSWKRHXJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NWNMNODYALAF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WYMCVOVUSFGY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BUHPVBPNXEYV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AORJYUQKFYUQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WNHOTASBXRBS",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FJMYXTRUGJSI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GOYGBESXFPBS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NKVFEMRALSDB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ORNQQDQHQYYX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OHMQUYGBLXHY",
+   "status": "cycle",
+   "lyapunov": -0.6578134648607273,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VMBBYTKXMTYG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JQWEEPBPLLSP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TNARIQMBTACR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KKYSIHGRUMXF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VQYIPCHMFIPQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CLXCTJNGQOLJ",
+   "status": "chaotic",
+   "lyapunov": 0.10977069399001449,
+   "dimension": 1.1044257027215434,
+   "accepted": true
+  },
+  {
+   "code": "ASBSOSNHOCIR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PICDOLYEPGQD",
+   "status": "loop",
+   "lyapunov": -2.3479718275414187e-05,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JBGYJMXDXQXT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BMSDCAYNFPXJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PQXROUCRSKAT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OXHXAWPLUSGF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TRBFGLRPTPJY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FBRMGFBTRSAM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HKOYHRASDXGG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SYRQSJDPVNWV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SNPNGDYENEJO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WMQRRPITCWBU",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HBACIMALTRGK",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XSTHGUBWWCNS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CUBBNNPPPMWB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YEUAMNTYFIFS",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FDHXBMFOKKLL",
+   "status": "chaotic",
+   "lyapunov": 0.25498900868537827,
+   "dimension": 0.8138308867108378,
+   "accepted": false
+  },
+  {
+   "code": "BOBAJSWUBOQP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MISKOEPYAWDF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ELUBICNJWXJK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WAMDEQYBXEXI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "APHWMKWSGSGW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QWHGAAUUEPNH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VYBGJMSYTETM",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GNUHFYTADMVI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RTODQGRAFFAB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FBNCFUYGKWUR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VTBVSHPPPYTD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NHOVHWUAVPPG",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ERMQMYHVBHVD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "POTEOQKBMWFV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JKVGLJVMQIPO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RHUQHAXIWJBP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QFIDKFRXUGYM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QOWWSBFFGRCL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SVSQDOSHGVUW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LJGRESGEIPKQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ARQUMGPQQFMX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EMGGTHAMGSRK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PGEUOXWHCBEC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XTEHMFXBCMXH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JKYNOYLPCNGP",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NVONATAEMHLC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DRSWCPACAUTY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NNFKBMMFRPOG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NRCDCQADOYMO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EQQJXTJGXYPB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GLYCEYMYGCGJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IWAKDGLLJBTB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UOAUNIOXBXQU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KBIPKUOTFRWX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JWBVQWXWFXAH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KYTKXGANHAQQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MEAQVROQOMJB",
+   "status": "cycle",
+   "lyapunov": -0.05113697257093901,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GGADCJTCBLME",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "BMIBVTQFCWJU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FOCVVEJXWDFC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QPAERVFYHEBF",
+   "status": "cycle",
+   "lyapunov": -0.09965781002433541,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QIJGJERKOXOR",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PYADTJISUWFM",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SFLYGTUPEFYY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GNWWITITVQKN",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XDWNXHHIISYL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FJTPSGFHBGOO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IKVAAMBTSUTA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CGSFNNUHPFOC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SVYBREAOLBJU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "EPUMOEEBHRVN",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PAXSOQOJJVOU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XVRKGBEHYVVV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PKOMFLQSRXKW",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AHODPBOAPIKI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HYNNXIWPDXET",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RLVNFHLSGXUE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WUNBJAWBXEYD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XJBNFALCUMDI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AJIYRPFMJUYH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KPAIANTXCYUV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IRXHSECLXSPO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PAVSUWYKYJLC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UMYFFTYNHMXC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NHABOXQQJVQA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XHQNYOKQDPJI",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XKXUTAQMEMNF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DWALTTLCBJHT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CCTHVDYLYXHS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CYSWVRBFWPUT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GECYEDCKVOQX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PDDMWIHARJNY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LHWNXPXVHCYD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OAVUBOWSVDUX",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OXSPKSOFFJPY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "GXUIRXABSUHS",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ETMJCSFYQPTM",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PAATPPPGITQM",
+   "status": "cycle",
+   "lyapunov": -1.4006163850087412,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LLDBJIXPNCOU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PXGKEKALFJXA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JSDGITCCEYRR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OFBCJXDKRBNY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RJHGXORAYUPN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IYAIJECTNRMK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "OTRCYFETFKKP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IQPTBFBLIMHT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RWKFSPNVCVAI",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JOXHMRYONUBQ",
+   "status": "cycle",
+   "lyapunov": -0.34781072200972085,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ISGSJOGEFOLE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WWDWTEBGKDMY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KDTCVCITBTEL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JXBUQNHTDMYC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DPDBORCNJVLB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XHCJGXKYGBNT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LGHQJIRNYRLD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DSMWSVWGXNTD",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "URCIEEYSLLGR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "QAUHBCXEFFKR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "IKNUAOCWNQVK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NLCESKCTCQGW",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FJQCDQUAGFUH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "MRRFOQPRBMJL",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PKVOLTWJMCKN",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "UHOWKHNBGJMA",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KPTGRKMVAXHT",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FWAVJFSEQVQP",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AUUPKDEXXLNR",
+   "status": "loop",
+   "lyapunov": 9.972620302791879e-05,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XYRFAWYCQDPB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HCNWENNSEJCQ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TYJFBCNXEIGL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SJKIPJJHNFUL",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "AYNPUDGDIOEH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "FDFYGVAUFELE",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DUTGDWFDKPXY",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "RAEYTLBIOTQJ",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WIRRAXCCYDXV",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CODPECXWHRMG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "NFRBRXMDCXDG",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "JTQJMCUOOVWR",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "SVRGJJEMSMRC",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HUJLLAGKYSHO",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "TKVMTUFKYSUR",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "XUPYFSNLKDVH",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "PQEIEWHIXVRV",
+   "status": "cycle",
+   "lyapunov": -0.13442387630387628,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "YUGUYCCQEWWK",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "WLVASDSLFLSB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "VXJNAEKJFTUY",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "KKTTGDPPUWGV",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "ERGNULQPNGDG",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "DRDWBWTNYDEU",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "CPXUKVELNGXF",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "HLJODWMJGFGK",
+   "status": "fixed",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  },
+  {
+   "code": "LBNREECOGIIB",
+   "status": "escapes",
+   "lyapunov": null,
+   "dimension": null,
+   "accepted": false
+  }
+ ]
+}

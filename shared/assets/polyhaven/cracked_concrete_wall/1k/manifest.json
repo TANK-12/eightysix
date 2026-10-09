@@ -1,0 +1,21 @@
+{
+  "id": "cracked_concrete_wall",
+  "name": "Cracked Concrete Wall",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/cracked_concrete_wall",
+  "license": "CC0",
+  "authors": [
+    "Dimitrios Savva",
+    "Rico Cilliers"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/cracked_concrete_wall/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/cracked_concrete_wall/1k/cracked_concrete_wall_1k.gltf",
+  "files": [
+    "cracked_concrete_wall_1k.gltf",
+    "textures/cracked_concrete_wall_rough_1k.jpg",
+    "textures/cracked_concrete_wall_diff_1k.jpg",
+    "cracked_concrete_wall.bin",
+    "textures/cracked_concrete_wall_nor_gl_1k.jpg"
+  ]
+}

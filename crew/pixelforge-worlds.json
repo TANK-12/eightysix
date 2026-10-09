@@ -1,0 +1,16 @@
+{
+ "agent": "pixelforge-worlds",
+ "model": "sonnet",
+ "task": "Ask Jan: ship plans and world entries",
+ "status": "done",
+ "doing": "finished: 26 tests pass",
+ "done": [
+  "Ship kind reuses the sprite rasteriser",
+  "World kind validated against the worlds schema, refused twice before saving",
+  "NOTE: hand-copied the worlds schema rather than sharing it \u2014 see roadmap cleanups"
+ ],
+ "files": [
+  "apps/pixelforge/*"
+ ],
+ "updated": 1789557366.7522106
+}

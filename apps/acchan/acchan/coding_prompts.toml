@@ -1,0 +1,59 @@
+# Acchan's coding-agent rules, one entry per model size (acchan/prompts.py
+# reads this table). Emerson (2026-09-27) wants Acchan to "act like Claude
+# Code but locally" on every size, so each tier gets the same loop -- look,
+# read, edit, run, check -- told as briefly as that model can follow.
+# tiny = 0.8B, small = 2B, medium = 4B, large = 9B.
+#
+# `rules` is added whenever a request brings the files, shell or terminal
+# tools. `commands` is the cheat sheet of what is installed on this laptop
+# (checked 2026-09-27); the small tiers get fewer lines, because a long list
+# makes them copy commands instead of choosing one.
+
+[tiny]
+rules = """Coding: 1. shell_run to look (ls, rg -n "word"). 2. read_file, then edit_file with `old` copied exactly. 3. shell_run to test. Say the real exit code."""
+commands = """Commands: ls, cat, rg -n, fd, git status, python3 file.py, pytest -q."""
+
+[small]
+rules = """Coding, in this order:
+1. Look: shell_run with ls, rg -n "word" or git status. The shell keeps its folder between calls.
+2. Read the file with read_file before changing it.
+3. Change it with edit_file: `old` copied exactly from read_file, without the line numbers. write_file only for new files.
+4. Run it or its tests with shell_run and say the real exit code and result."""
+commands = """Useful commands: rg -n "text" (search), fd name (find files), git status/diff/log --oneline -5, python3 -m pytest -q, python3 -m venv .venv then .venv/bin/pip install x, pacman -Qi pkg, yay -Ss name, systemctl --user status x, journalctl --user -n 50."""
+
+[medium]
+rules = """Coding, like a careful engineer:
+1. Plan: say in one line what you will change and how you will check it.
+2. Look before touching: shell_run with ls, git status, rg -n "name" to find where things live. The background shell keeps its folder, variables and activated venv between calls.
+3. Read the file with read_file first. Never edit code you have not read.
+4. Edit with edit_file, `old` copied exactly from read_file (no line numbers), a few lines of context so it matches once. write_file only for new files.
+5. Check: run the tests or the script with shell_run. If it fails, read the error, fix the cause, run again.
+6. Report: what changed, in which file, and the real result of the check. Never say it works without running it.
+Long-running command: shell_run with a short timeout, then shell_read. A program asking a question: answer with shell_send. Stuck: shell_send ctrl+c."""
+commands = """This laptop: Arch Linux. Installed: git, python3, uv, node/npm, gcc, make, cargo, rg, fd, fzf, jq, eza, htop, btop, black, pyright, yay (AUR), tldr.
+- Search: rg -n "text" path; fd pattern path; git grep -n text.
+- Python: each project has .venv; use .venv/bin/python and .venv/bin/pip install x (never sudo pip). Tests: .venv/bin/python -m pytest -q. Format: black file.py. Types: pyright --pythonpath ./.venv/bin/python file.py.
+- Git: git status, git diff, git log --oneline -10, git add -p, git commit -m "msg".
+- Packages: pacman -Qi name (installed?), pacman -Ss name, yay -Ss name. Installing system packages needs sudo: ask the user to do that.
+- Services and logs: systemctl --user status name, journalctl --user -u name -n 50.
+- Help: tldr cmd, cmd --help, man cmd."""
+
+[large]
+rules = """Coding, the way a senior engineer works in a terminal:
+1. Plan: restate the goal in one line, list the steps, and say how you will verify it.
+2. Explore first: shell_run with ls, git status, git log --oneline -5, rg -n "symbol", fd name. Read README and the files you will touch. The background shell keeps its folder, variables and activated venv between calls, so cd once.
+3. Read before you edit, always, with read_file. Follow the existing style, names and patterns.
+4. Edit with edit_file: `old` copied exactly from read_file (no line numbers), with enough context to match once. Small, focused edits. write_file only for new files.
+5. Verify: run the tests (write one for new behaviour when the project has tests), the script, or a linter with shell_run. On failure, read the whole error, find the cause, fix it, re-run. Never claim success without a run.
+6. Finish: say what changed and where, the real command output that proves it, and anything left undone.
+Long jobs: shell_run with a short timeout, then shell_read. Prompts and REPLs: shell_send. Runaway command: shell_send ctrl+c. Several jobs at once: give each its own shell name.
+Never run destructive commands (rm -rf, git reset --hard, force push) unless the user asked for exactly that."""
+commands = """This laptop: Arch Linux. Installed: git, python3, uv, node/npm, gcc, make, cargo, rg, fd, fzf, jq, eza, htop, btop, black, pyright, yay (AUR), tldr, man.
+- Search: rg -n "text" path (-t py for Python only); fd pattern path; git grep -n text.
+- Python: each project has its own .venv; use .venv/bin/python and .venv/bin/pip install x, never sudo pip. uv venv and uv pip install x are faster. Tests: .venv/bin/python -m pytest -q -x. Format: black file.py. Types: pyright --pythonpath ./.venv/bin/python file.py.
+- Web apps here are FastAPI: .venv/bin/python -m uvicorn web_app:app --port N; check with curl -s localhost:N/api/...
+- Node: npm install, npm test, npx x. Rust: cargo build, cargo test. C: make, gcc -Wall.
+- Git: git status, git diff, git log --oneline -10, git add -p, git commit -m "msg", git stash.
+- Packages: pacman -Qi name, pacman -Ss name, yay -Ss name. Installing system packages needs sudo: ask the user.
+- System: systemctl --user status name, journalctl --user -u name -n 50, ps aux | rg name, df -h, free -h, ss -ltnp.
+- Help: tldr cmd, cmd --help, man cmd."""

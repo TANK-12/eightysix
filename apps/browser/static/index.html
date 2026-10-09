@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Browser</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root { --accent: #7cc4f0; --accent-2: #4ea7dc; --on-accent: #06131c; }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<div id="app" class="browser">
+  <div class="tabs" id="tabs">
+    <button type="button" id="new-tab" class="tab-new" title="New tab (Ctrl+T)">+</button>
+  </div>
+
+  <div class="toolbar">
+    <button type="button" class="nav" id="back" title="Back">←</button>
+    <button type="button" class="nav" id="forward" title="Forward">→</button>
+    <button type="button" class="nav" id="reload" title="Reload (F5)">⟳</button>
+    <form id="address-form" class="address" autocomplete="off">
+      <span id="lock" class="lock"></span>
+      <input id="address" spellcheck="false" placeholder="Search or type a web address (Ctrl+L)">
+    </form>
+    <button type="button" class="nav" id="star" title="Bookmark this page (Ctrl+D)">☆</button>
+    <button type="button" class="nav" id="open-bookmarks" title="Bookmarks">📑</button>
+    <button type="button" class="nav" id="open-history" title="History">🕘</button>
+    <button type="button" class="nav" id="firefox" title="Open this page in Firefox">🦊</button>
+    <button type="button" class="nav" id="menu-btn" title="Menu">⋯</button>
+  </div>
+  <div class="progress" id="progress"><div></div></div>
+  <div class="bookmark-bar hidden" id="bookmark-bar"></div>
+  <div id="offline" class="offline hidden" role="status">Browser's own server is not answering just now.
+    Pages still open; bookmarks and history pause until it is back, and your open tabs are saved then.</div>
+
+  <div class="body">
+    <div id="viewport" class="viewport">
+      <div id="start" class="start">
+        <div class="start-inner">
+          <div class="start-clock" id="start-clock"></div>
+          <form id="start-form"><input id="start-search" spellcheck="false" placeholder="Search the web or type an address"></form>
+          <div class="section-label" id="top-label">Most visited</div>
+          <div class="tiles" id="start-top"></div>
+          <div class="section-label" id="marks-label">Bookmarks</div>
+          <div class="tiles" id="start-marks"></div>
+          <div id="standalone" class="notice hidden">Pages are drawn by the Forge window, so browsing
+            only works with this app open inside Forge. Bookmarks, history and the Firefox import work here too.</div>
+        </div>
+      </div>
+    </div>
+
+    <aside id="side" class="side hidden">
+      <div class="side-head">
+        <h3 id="side-title"></h3>
+        <button type="button" class="btn icon" id="side-close" title="Close">✕</button>
+      </div>
+      <input type="search" id="side-search" placeholder="Search…">
+      <div id="side-list" class="side-list"></div>
+      <button type="button" class="btn btn-danger hidden" id="clear-history">Clear all history</button>
+    </aside>
+  </div>
+
+  <div id="menu" class="menu hidden">
+    <button type="button" data-menu="reopen">Reopen closed tab <span class="muted small">Ctrl+Shift+T</span></button>
+    <button type="button" data-menu="import">Import from Firefox…</button>
+    <button type="button" data-menu="firefox">Open Firefox</button>
+    <div class="menu-row">Zoom
+      <span class="zoom">
+        <button type="button" data-menu="zoom-out">−</button><span id="zoom-level">100%</span><button type="button" data-menu="zoom-in">+</button>
+      </span>
+    </div>
+    <label class="menu-row">Search with <select id="engine"></select></label>
+    <label class="menu-row"><span>Bookmarks bar</span> <input type="checkbox" id="show-bar"></label>
+    <label class="menu-row"><span>Reopen tabs next time</span> <input type="checkbox" id="restore-tabs"></label>
+  </div>
+
+  <div id="dialog" class="dialog hidden">
+    <div class="card">
+      <h3>Import from Firefox</h3>
+      <p class="muted small" id="import-where"></p>
+      <label class="check"><input type="checkbox" id="imp-bookmarks" checked> Bookmarks</label>
+      <label class="check"><input type="checkbox" id="imp-history" checked> History</label>
+      <label class="check"><input type="checkbox" id="imp-cookies" checked> Cookies, so sites you are
+        logged into in Firefox stay logged in here</label>
+      <p class="muted small">Firefox's page cache and saved passwords are in formats only Firefox can read,
+        so they stay in Firefox. Nothing in Firefox is changed.</p>
+      <div class="row-btns">
+        <button type="button" class="btn" id="imp-cancel">Close</button>
+        <button type="button" class="btn btn-primary" id="imp-go">Import</button>
+      </div>
+      <div class="small" id="imp-result"></div>
+    </div>
+  </div>
+
+  <div id="note" class="toast hidden"></div>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

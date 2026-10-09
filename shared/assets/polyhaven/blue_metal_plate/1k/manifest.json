@@ -1,0 +1,20 @@
+{
+  "id": "blue_metal_plate",
+  "name": "Blue Metal Plate",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/blue_metal_plate",
+  "license": "CC0",
+  "authors": [
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/blue_metal_plate/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/blue_metal_plate/1k/blue_metal_plate_1k.gltf",
+  "files": [
+    "blue_metal_plate_1k.gltf",
+    "textures/blue_metal_plate_nor_gl_1k.jpg",
+    "textures/blue_metal_plate_arm_1k.jpg",
+    "blue_metal_plate.bin",
+    "textures/blue_metal_plate_diff_1k.jpg"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "settings",
+  "label": "Settings",
+  "tagline": "Wallpaper, colours and how Forge looks",
+  "port": 8441,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#a9b6c8",
+  "icon": "⚙️",
+  "role": "settings",
+  "order": 99,
+  "section": "system",
+  "ready_timeout": 30
+}

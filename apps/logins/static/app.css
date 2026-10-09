@@ -1,0 +1,50 @@
+/* Logins' own widgets. Palette, buttons and inputs come from /shared/forge.css.
+   Each account's page is a real WebKit view forge.py lays over #viewport, so
+   nothing may sit on top of #viewport while a page is showing. */
+
+.small { font-size: 12px; }
+.logins { display: flex; flex-direction: column; height: 100vh; }
+
+.tabs { display: flex; align-items: flex-end; gap: 4px; padding: 6px 8px 0; background: var(--panel);
+  overflow-x: auto; flex: none; scrollbar-width: none; }
+.tab { display: flex; align-items: center; gap: 8px; min-width: 120px; max-width: 220px; flex: 0 1 200px;
+  padding: 7px 12px; border-radius: 9px 9px 0 0; border: 1px solid transparent; border-bottom: 0;
+  background: transparent; color: var(--muted); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+  transition: background-color .15s ease, color .15s ease; }
+.tab:hover { background: var(--panel-2); color: var(--text); }
+.tab.active { background: var(--bg); color: var(--text); border-color: var(--border); }
+.tab .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex: none; }
+.tab.in .dot { background: var(--accent); }
+.tab .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.toolbar { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--border);
+  background: var(--bg); flex: none; }
+.toolbar .nav { width: 30px; height: 30px; border-radius: 8px; border: 0; background: transparent;
+  color: var(--text); font-size: 15px; cursor: pointer; }
+.toolbar .nav:hover { background: var(--panel-2); }
+.toolbar .where { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 6px; }
+.small-btn { padding: 5px 10px; font-size: 12px; }
+
+.viewport { flex: 1; position: relative; min-height: 0; }
+.empty { max-width: 560px; margin: 48px auto; padding: 0 16px; }
+.empty h2 { margin: 0 0 8px; }
+.steps { line-height: 1.7; padding-left: 18px; }
+.status { padding: 4px 10px; flex: none; min-height: 22px; }
+
+/* --- U1 sweep (2026-10-08) ---------------------------------------------------- */
+/* WebKitGTK (the hub) ignores scrollbar-width: none, so hide the tab strip's bar both ways. */
+.tabs::-webkit-scrollbar { display: none; }
+.tab:focus-visible, .toolbar .nav:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.toolbar .nav { transition: background-color .15s ease; }
+.toolbar .btn:disabled { opacity: .55; cursor: progress; }
+.empty .btn { margin: 4px 0 12px; }
+.empty.problem .steps, .empty.problem .steps + p { display: none; }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+@media (prefers-reduced-motion: no-preference) {
+  .empty { animation: logins-in .2s ease-out; }
+  @keyframes logins-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+[hidden] { display: none !important; }

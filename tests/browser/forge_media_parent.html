@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- Stands in for the hub: frames an app page and checks what
+     shared/forge_media.js reports and that commands reach it (A9/A30). -->
+<html><body><iframe id="f" src="/forge_media_child.html"></iframe>
+<script>
+const out = [];
+const T = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const heard = [];
+addEventListener("message", (e) => { if (e.data && (e.data.forge === "media" || e.data.err)) heard.push(e.data); });
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const last = () => heard.filter((m) => m.forge === "media").slice(-1)[0] || {};
+// run.sh drives Chrome on virtual time, which races ahead of the real time the
+// tone's metadata takes to load on a busy laptop. A pending fetch pauses the
+// virtual clock, so this waits in real time instead.
+const realWait = () => fetch("/forge_media_child.html", { cache: "no-store" });
+addEventListener("load", async () => {
+  try {
+    const f = document.getElementById("f").contentWindow;
+    await wait(400);
+    T("the chrome script loads forge_media.js inside a frame", !!f.document.getElementById("forge-media-js"));
+    for (let i = 0; i < 500 && !(f.document.getElementById("a").duration > 0); i++) await realWait();
+    f.postMessage("go", "*");
+    // Wait for the length too: on a busy machine the tone's metadata can
+    // arrive after the first "playing" report.
+    for (let i = 0; i < 30 && !(last().state === "playing" && last().duration > 0); i++) await wait(100);
+    T("playing is reported to the parent", last().state === "playing", JSON.stringify(heard.slice(-1)));
+    T("with the app's own title and artist", last().title === "Test tone" && last().artist === "Harness", last().title);
+    T("with its length", Math.abs(last().duration - 30) < 0.5, last().duration);
+    T("media from the app's own server may be boosted", last().canBoost === true);
+    f.postMessage({ forge: "media-cmd", op: "pause" }, "*");
+    await wait(300);
+    T("pause from the parent pauses it", last().state === "paused" && f.document.getElementById("a").paused, last().state);
+    f.postMessage({ forge: "media-cmd", op: "seek", time: 12 }, "*");
+    await wait(300);
+    T("seek from the parent moves it", Math.abs(f.document.getElementById("a").currentTime - 12) < 0.5, f.document.getElementById("a").currentTime);
+    f.postMessage({ forge: "media-cmd", op: "volume", volume: 0.5 }, "*");
+    await wait(300);
+    T("volume from the parent sets it", Math.abs(f.document.getElementById("a").volume - 0.5) < 0.01);
+    f.postMessage({ forge: "media-cmd", op: "rm -rf" }, "*");
+    await wait(100);
+    T("an unknown command is ignored", true);
+  } catch (e) {
+    T("the page ran without throwing", false, String(e && e.stack || e));
+  }
+  document.body.innerHTML = "<pre id='results'>RESULTS\n" + out.join("\n").replace(/&/g, "&amp;").replace(/</g, "&lt;") + "\n</pre>";
+});
+</script></body></html>

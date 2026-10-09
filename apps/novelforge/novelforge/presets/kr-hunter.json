@@ -1,0 +1,118 @@
+{
+  "id": "kr-hunter",
+  "label": "Korean hunter / system web novel",
+  "group": "Korean",
+  "description": "Modern Korea with gates, ranked hunters and a system only the hero can see. Short punchy paragraphs, status windows, weak-to-strong progression, a hook at the end of every chapter.",
+  "keywords": [
+    "korean",
+    "hunter",
+    "hunters",
+    "system",
+    "gate",
+    "gates",
+    "dungeon",
+    "rank",
+    "ranks",
+    "solo",
+    "leveling",
+    "awakened",
+    "awakening",
+    "power",
+    "fantasy"
+  ],
+  "words_per_chapter": 2200,
+  "voice": [
+    "Short paragraphs: one to three sentences, often a single line. White space is part of the rhythm.",
+    "Close third person, past tense, on the protagonist unless the bible says otherwise. His inner voice is dry, understated and a little cold.",
+    "System messages sit on their own line in square brackets, terse and mechanical: [Quest complete.] [Strength +3] [A hidden condition has been met.] Never chatty.",
+    "Korean names keep the family name first (Kang Jin-Woo); after the first mention use the given name. Honorifics only where Koreans would use them: hyung, noona, sunbae, Director Choi, Guild Master Baek.",
+    "Show power through numbers, reactions and consequences: a stat change, a room going quiet, a guild calling back the same night.",
+    "Modern Korean texture: Seoul districts, subway lines, convenience-store kimbap, hagwons, part-time shifts, Hunter Association paperwork, news tickers about gate breaks.",
+    "End every chapter on a hook: a new notification, a reveal, an enemy stepping in, a rank being read aloud."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "Open with the protagonist at the bottom: weakest rank, exploited or humiliated, inside a concrete dangerous situation. Make the gap between him and everyone else hurt.",
+      "then": "Show the new power's first small uses and its rules; the people who looked down on him still see nothing.",
+      "key": true
+    },
+    {
+      "at": 0.06,
+      "role": "awakening",
+      "guide": "The system appears in a life-or-death moment: the first quest window, its absurd demand and its penalty. He survives by a hair.",
+      "then": "Train and level: each chapter gives one concrete gain (a skill, an item, a stat) and one person noticing he has changed."
+    },
+    {
+      "at": 0.14,
+      "role": "first proof",
+      "guide": "His first fight won alone with the new power, with a visible reward and a cost nobody else understands."
+    },
+    {
+      "at": 0.25,
+      "role": "public reveal",
+      "guide": "Someone important sees what he can do: a guild scout, the Association, a top-rank hunter. Interest turns into pressure.",
+      "then": "Bigger gates, harder choices; his hidden class is at risk of being found out."
+    },
+    {
+      "at": 0.4,
+      "role": "rival clash",
+      "guide": "He faces the rival or the people who abandoned him and wins in a way that costs them face in public."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint reveal",
+      "guide": "A truth about the system or the gates recasts everything: the power has an owner, a price or a purpose.",
+      "then": "He acts on the new truth; allies and enemies realign; the stakes grow from personal to national.",
+      "key": true
+    },
+    {
+      "at": 0.66,
+      "role": "loss",
+      "guide": "Something he could not prevent: an ally hurt, a gate breaking in the city, his secret leaking."
+    },
+    {
+      "at": 0.8,
+      "role": "arc boss",
+      "guide": "The big raid or gate break: the strongest enemy so far, the whole cast watching, every earlier upgrade paying off.",
+      "then": "Consequences land: rank re-evaluated, public reaction, the relationships move forward.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "arc ending",
+      "guide": "Close this arc and open the next: a larger threat, a new system message, a door that should not exist.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Every chapter needs a gain or a loss the reader can count: a level, a skill, an item, money, a rank, or someone's respect. Chapters are short and end on a hook. No chapter is only a training montage or only talking.",
+  "outline_example": "Ten Minutes | In the collapsing boss room Han Do-Yun drags Lee Ha-Eun behind a pillar while the stone knight hunts the survivors | A quest window only he can see orders him to survive ten minutes | The timer starts and the knight turns toward the pillar",
+  "scene_guidance": [
+    "Open in motion, in a specific place.",
+    "At most one system window per scene unless the scene is about the system.",
+    "Let bystanders react: whispers, phones out, a guild scout making a call.",
+    "Fights stay readable: where everyone stands, what the move is, what it costs."
+  ],
+  "worldbuilding": [
+    "Gates or dungeons ranked E to S, with a break timer and what happens when it runs out.",
+    "The Hunter Association and the big guilds as institutions with politics, contracts and money.",
+    "The system's rules: what it gives, what it demands, what failure costs.",
+    "Ordinary life under the gates: insurance, evacuations, damaged districts, hunter celebrities."
+  ],
+  "naming": "Korean names, family name first: Kang, Choi, Yoo, Baek, Seo, Han, Park, Lee, Jung, Yoon, Cha, Go, with hyphenated two-syllable given names (Jin-Woo, Soo-Ah, Min-Jae, Ha-Eun). Guilds get strong names (White Tiger Guild, Reaper Guild).",
+  "cliches": [
+    "jaws dropped",
+    "gasped in unison",
+    "an overwhelming aura",
+    "flashed with a cold light",
+    "courting death",
+    "how is this possible",
+    "a chill ran down everyone"
+  ],
+  "sample": "The window opened while the others were still screaming.\n\n[Daily Quest: Survive.]\n\nDo-Yun read it twice. Then a third time, because the stone knight was walking toward him and his hands would not stop shaking.\n\n[Time remaining: 09:58]\n\nBehind him, someone was crying. In front of him, the knight raised its sword.\n\nHe did not run. There was nowhere left to run to.",
+  "example_names": [
+    "Do-Yun",
+    "Ha-Eun"
+  ]
+}

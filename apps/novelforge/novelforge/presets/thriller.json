@@ -1,0 +1,92 @@
+{
+  "id": "thriller",
+  "label": "Thriller",
+  "group": "Western",
+  "description": "High-stakes suspense: a ticking clock, a capable protagonist under pressure, planted twists and short, propulsive chapters.",
+  "keywords": [
+    "thriller",
+    "suspense",
+    "spy",
+    "assassin",
+    "heist",
+    "conspiracy",
+    "killer",
+    "fbi",
+    "cia",
+    "agent",
+    "chase"
+  ],
+  "words_per_chapter": 3000,
+  "voice": [
+    "Tight third person, past tense; short chapters and short paragraphs in action.",
+    "A ticking clock is always visible: a deadline, a countdown, a hostage.",
+    "Procedure grounds it: how the lock, the gun, the database actually works.",
+    "Twists are planted early and paid off fairly.",
+    "Dialogue is clipped, subtext-heavy, often lying.",
+    "Every chapter ends on a hook or a turn."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "A crime, an attack or a discovery that cannot be ignored.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "inciting",
+      "guide": "The protagonist is pulled in personally; the clock starts."
+    },
+    {
+      "at": 0.25,
+      "role": "first lead",
+      "guide": "The first lead pays off and makes things worse.",
+      "then": "Investigate and survive; each chapter a clue and an attack."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint twist",
+      "guide": "The enemy is not who they seemed, or the protagonist is now the hunted.",
+      "key": true
+    },
+    {
+      "at": 0.75,
+      "role": "all is lost",
+      "guide": "The clock nearly runs out; an ally dies or turns."
+    },
+    {
+      "at": 0.87,
+      "role": "confrontation",
+      "guide": "Face-to-face with the antagonist on their ground.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "resolution",
+      "guide": "The truth out, the cost paid, one last twist.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter has one clue and one threat. Keep the clock visible. Plant the twist ingredients early.",
+  "outline_example": "Cold Storage | In the basement of the Harwick Clinic, Dana Ruiz finds the missing courier's phone in a freezer drawer | The call log shows her own partner phoned him an hour before he vanished | The freezer's lock clicks shut behind her",
+  "scene_guidance": [
+    "Enter late, leave on a turn.",
+    "Use concrete procedure.",
+    "Let the reader know one thing the hero does not."
+  ],
+  "worldbuilding": [
+    "The antagonist's plan in full",
+    "The institutions involved and their rules"
+  ],
+  "naming": "Real-world plausible names and places.",
+  "cliches": [
+    "it was quiet. too quiet",
+    "the ticking clock of his heart",
+    "we have a problem"
+  ],
+  "sample": "The drawer was labelled 14 and should have held tissue samples.\n\nIt held a phone in a freezer bag, screen fogged, battery at nine percent.\n\nDana thumbed it awake through the plastic. Last call: 21:04. Duration: two minutes.\n\nShe knew the number. She had it saved under 'Mike'.\n\nBehind her, the door to the cold room swung shut, and the lock made a small, polite sound.",
+  "example_names": [
+    "Dana Ruiz",
+    "Harwick"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+ "agent": "worlds-data",
+ "model": "haiku",
+ "task": "Destinations as content data",
+ "status": "done",
+ "doing": "finished: 14 worlds",
+ "done": [
+  "4 planets, 2 moons, 2 stars, 2 stations, 1 ship, 1 wreck, 2 fields",
+  "each visible_from real viewport rooms",
+  "7 tests"
+ ],
+ "files": [
+  "apps/janhollow/tools/seed_worlds.py",
+  "apps/janhollow/tests/test_worlds.py"
+ ],
+ "updated": 1789557366.7522101
+}

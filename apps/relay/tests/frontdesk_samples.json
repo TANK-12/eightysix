@@ -1,0 +1,21 @@
+{
+  "about": "Sample WhatsApp messages and the front desk call Jan should make: answer (itself), chat (hand to the Claude chat) or work (start a work task). Run against live Jan with: .venv/bin/python frontdesk.py --samples",
+  "samples": [
+    {"text": "oi tetsu hows it going", "want": "answer"},
+    {"text": "whats running rn", "want": "answer"},
+    {"text": "how much usage have i got left", "want": "answer"},
+    {"text": "whats the derivative of x^2 sin x", "want": "answer"},
+    {"text": "thanks mate", "want": "answer"},
+    {"text": "what does pause do", "want": "answer"},
+    {"text": "tell me a joke", "want": "answer"},
+    {"text": "what is a fourier transform in simple words", "want": "answer"},
+    {"text": "fix the bug in cosmos where the orbit lines flicker", "want": "work"},
+    {"text": "add a dark mode toggle to novelforge", "want": "work"},
+    {"text": "research the best local tts models and write it up for me", "want": "work"},
+    {"text": "make the relay page show the full report text", "want": "work"},
+    {"text": "think harder about this, use claude: is my plan for emberfield's save system sound", "want": "chat"},
+    {"text": "can you look at what the eightysix task changed today and explain it", "want": "chat"},
+    {"text": "prove that the integral of 1/x from 1 to infinity diverges, step by step and check my working in ~/uni/calc/ws3.pdf", "want": "chat"},
+    {"text": "i was thinking maybe pulseforge could have a beat grid one day, what do you reckon", "want": "answer"}
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "extraPaths": ["../../shared", "../../../.claude/skills/crew", "."],
+  "reportMissingImports": "error"
+}

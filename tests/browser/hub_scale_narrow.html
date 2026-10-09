@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Hub at phone widths</title></head>
+<body style="margin:0">
+<!-- 390 window pixels at App size 100, 125 and 150%. -->
+<iframe src="index.html" style="width:390px;height:800px;border:0"></iframe>
+<iframe src="index.html" style="width:312px;height:640px;border:0"></iframe>
+<iframe src="index.html" style="width:260px;height:533px;border:0"></iframe>
+<script>
+const lines = [];
+let got = 0;
+addEventListener("message", (e) => {
+  if (!e.data || !Array.isArray(e.data.hubScale)) return;
+  lines.push(...e.data.hubScale);
+  if (++got === 3) document.body.insertAdjacentHTML("beforeend", "<pre id='results'>RESULTS\n" + lines.join("\n") + "\n</pre>");
+});
+</script>
+</body></html>

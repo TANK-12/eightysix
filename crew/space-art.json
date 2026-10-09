@@ -1,0 +1,17 @@
+{
+ "agent": "space-art",
+ "model": "sonnet",
+ "task": "Ships, planets, moons, stars, event props",
+ "status": "done",
+ "doing": "finished: 33 sprites in janhollow-space",
+ "done": [
+  "5 ships at 2 sizes, 4 planets, 3 moons, 6 stars, 7 event props",
+  "6 tests; palette untouched",
+  "redrew the ships after spotting they all looked alike"
+ ],
+ "files": [
+  "apps/janhollow/tools/make_space_art.py",
+  "apps/janhollow/tests/test_space_art.py"
+ ],
+ "updated": 1789557366.7522097
+}

@@ -1,0 +1,196 @@
+{
+  "_about": "Which Claude model and effort to use per kind of task. Read by the model-pick skill; meant for the Claude app's suggestion chip later. First matching rule wins (folder prefix and/or any keyword in the first message). Sources and figures: docs/library/models/2026-09-30-model-benchmarks.md",
+  "default": {
+    "model": "opus",
+    "effort": "medium",
+    "why": "Emerson 2026-10-03: most work runs on Opus 5.5 at an effort picked for the job; Sonnet 5.5 at medium only for basic tasks it can clearly handle (rule below)"
+  },
+  "rules": [
+    {
+      "keywords": [
+        "rename",
+        "bulk",
+        "fill in",
+        "copy",
+        "list",
+        "format",
+        "typo",
+        "move files",
+        "mechanical",
+        "data entry"
+      ],
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "why": "Emerson 2026-10-03: rather basic, exactly specified tasks go to Sonnet 5.5 at medium to save usage"
+    },
+    {
+      "keywords": [
+        "important",
+        "critical",
+        "must not break",
+        "release"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "Emerson 2026-10-01: important work always runs at high effort; checked before the bug-fix rule below"
+    },
+    {
+      "keywords": [
+        "bug",
+        "fix",
+        "broken",
+        "crash",
+        "test run",
+        "run the tests",
+        "flaky",
+        "failing test"
+      ],
+      "model": "opus",
+      "effort": "medium",
+      "why": "Emerson 2026-10-01: bug fixes and test runs use Opus 5.5 at medium effort as a rule (important ones go high, rule above)"
+    },
+    {
+      "folder": [
+        "~/Models/juggernaut",
+        "~/Games/eightysix",
+        "~/Forge/sessions/juggernaut-alpha"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "Emerson's standing rule: Juggernaut / Eighty Six runs on Opus 5.5 at high (bug fixes and test runs at medium); basic mechanical jobs may use Sonnet 5.5 at medium (2026-10-03)"
+    },
+    {
+      "keywords": [
+        "blender",
+        "3d model",
+        "mech",
+        "render",
+        "sculpt"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "long visual judgement work; Opus leads on sustained open-ended judgement"
+    },
+    {
+      "keywords": [
+        "architecture",
+        "redesign",
+        "design the",
+        "plan the",
+        "new app",
+        "commander",
+        "crew",
+        "refactor everything"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "open-ended design needing sustained judgement: Opus leads FrontierCode 54.4% vs 46.2%"
+    },
+    {
+      "keywords": [
+        "still broken",
+        "still not working",
+        "again",
+        "tried everything",
+        "can't figure"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "Sonnet already failed at it: move up a model rather than to max effort"
+    },
+    {
+      "keywords": [
+        "review",
+        "audit",
+        "find bugs",
+        "check my code",
+        "security",
+        "is this safe"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "CodeRabbit: Opus 5.5 caught 8-10 of 13 real bugs vs Sonnet 5.5's 6, precision 66.7% vs 41.2%"
+    },
+    {
+      "keywords": [
+        "research",
+        "facts",
+        "sources",
+        "dossier",
+        "look up",
+        "history of"
+      ],
+      "model": "opus",
+      "effort": "high",
+      "why": "factual recall (AA-Omniscience) Opus 66% vs Sonnet 54%"
+    },
+    {
+      "keywords": [
+        "unattended",
+        "overnight",
+        "relay",
+        "while i'm out",
+        "while im out"
+      ],
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "why": "long runs nobody watches: more care per step; routine lanes do not need Opus"
+    },
+    {
+      "keywords": [
+        "rename",
+        "bulk",
+        "fill in",
+        "run the tests",
+        "typo",
+        "format"
+      ],
+      "model": "haiku",
+      "effort": "",
+      "why": "mechanical work with exact instructions"
+    },
+    {
+      "keywords": [
+        "status",
+        "tldr",
+        "how's it going",
+        "hows it going",
+        "what is",
+        "explain",
+        "quick question"
+      ],
+      "model": "claude-sonnet-5-5",
+      "effort": "low",
+      "why": "short answers; low effort is enough and fast"
+    },
+    {
+      "keywords": [
+        "fix",
+        "bug",
+        "error",
+        "feature",
+        "add",
+        "test",
+        "doc",
+        "manifest",
+        "handoff",
+        "slides",
+        "spreadsheet"
+      ],
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "why": "everyday code work, Sonnet 5.5's strength; high effort because its score drops a lot at medium (47 vs 41)"
+    }
+  ],
+  "ladder": "If a result is not good enough: Sonnet medium -> Sonnet high -> Opus high -> Fable 5.1 at high (2.5x Opus; only when Opus high still falls short). Never xhigh or max unless Emerson asks (2026-10-01). Skip Sonnet xhigh/max: Sonnet is very wordy there (about 193k output tokens per test task at max), so it saves only about 30% per task against Opus and Opus high is the better buy.",
+  "never": [
+    "Sonnet 5 (claude-sonnet-5): Sonnet 5.5 beats it everywhere, e.g. Terminal-Bench 70.6% vs 10.3%",
+    "max effort as a first try",
+    "Sonnet 5.5 at xhigh or max: step up to Opus high instead",
+    "any effort above high (xhigh, max) unless Emerson sets or explicitly asks for it (2026-10-01)"
+  ],
+  "max_effort": {
+    "effort": "high",
+    "why": "Emerson 2026-10-01: never pick an effort above high (no xhigh, no max) unless Emerson sets it himself or explicitly asks for it"
+  }
+}

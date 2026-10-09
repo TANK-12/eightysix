@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jan Tune</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 18px 16px 40px; display: grid; gap: 16px; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 20px; margin: 0; flex: 1; }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  select, input, button { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; }
+  select { min-width: 260px; max-width: 100%; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+  .field { display: flex; align-items: center; gap: 8px; }
+  .field input[type=range] { width: 120px; padding: 0; }
+  .field input[type=number] { width: 64px; }
+  .advanced { display: grid; gap: 10px; margin-top: 12px; }
+  .knob { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .knob b { width: 110px; font-weight: 600; }
+  .knob label { display: flex; gap: 4px; align-items: center; font-size: 13px; }
+  .bar-wrap { position: relative; height: 8px; background: var(--bg); border-radius: 4px; min-width: 80px; }
+  .bar { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--border); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 500; border-top: 0; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.best td { background: color-mix(in srgb, var(--good) 14%, transparent); }
+  .err { color: var(--bad); }
+  .progress { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .progress div { height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .25s ease-out; }
+  .win { font-size: 15px; }
+  .table-scroll { overflow-x: auto; }
+  label.toggle { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+  [hidden] { display: none !important; }
+  section { animation: fade-in .2s ease-out; }
+  @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } }
+  .offline { color: var(--warn); font-size: 12px; margin-top: 8px; }
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { section { animation: none; } .progress div { transition: none; } }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<main>
+  <header>
+    <h1>🎚️ Jan Tune</h1>
+    <label class="toggle"><input type="checkbox" id="advancedToggle"> Advanced</label>
+  </header>
+
+  <section>
+    <h2>Model</h2>
+    <div class="controls">
+      <select id="model" aria-label="Model"></select>
+      <button class="primary" id="runBtn">Find fastest settings</button>
+      <button id="stopBtn" hidden>Stop</button>
+    </div>
+    <div class="muted" id="modelInfo" style="margin-top:8px">Looking for Jan models…</div>
+    <div class="muted" id="emptyHint" hidden>Not tuned yet. Find fastest settings tries each setting in turn: it takes a few minutes and keeps Jan busy meanwhile.</div>
+    <div class="offline" id="offline" hidden>Jan Tune's server is not answering. Trying again by itself…</div>
+    <div class="advanced" id="advanced" hidden>
+      <div class="controls">
+        <div class="field">Runs per setting
+          <input type="range" id="repeatsR" min="1" max="5" value="2">
+          <input type="number" id="repeats" min="1" max="5" value="2">
+        </div>
+        <div class="field">Pause between tests (s)
+          <input type="range" id="intervalR" min="0" max="120" value="10">
+          <input type="number" id="interval" min="0" max="600" value="10">
+        </div>
+        <label class="toggle"><input type="checkbox" id="freeIdle" checked> Unload idle Jan models first</label>
+      </div>
+      <div id="knobs"></div>
+      <div class="muted">Never changed: the KV cache type (kept at Jan's q8_0) and the context size (kept at the model's own setting).</div>
+    </div>
+  </section>
+
+  <section id="statusBox" hidden>
+    <h2>Run</h2>
+    <div id="statusLine"></div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="winner"></div>
+  </section>
+
+  <section id="resultsBox" hidden>
+    <h2>Results</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Tried</th><th>Settings</th><th class="num">Generate tok/s</th><th></th><th class="num">Prompt tok/s</th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const LABELS = { n_gpu_layers: "iGPU layers", batch_size: "batch", ubatch_size: "ubatch", cpu_moe: "experts on CPU", threads: "threads" };
+let models = [];
+let knobValues = {};
+
+function pair(range, num) {
+  range.oninput = () => { num.value = range.value; };
+  num.oninput = () => { range.value = num.value; };
+}
+pair($("repeatsR"), $("repeats"));
+pair($("intervalR"), $("interval"));
+
+try { $("advancedToggle").checked = localStorage.getItem("janTune.advanced") === "1"; } catch (e) {}
+$("advancedToggle").onchange = () => {
+  try { localStorage.setItem("janTune.advanced", $("advancedToggle").checked ? "1" : "0"); } catch (e) {}
+  $("advanced").hidden = !$("advancedToggle").checked;
+};
+$("advanced").hidden = !$("advancedToggle").checked;
+
+function settingsText(c) {
+  return Object.entries(c).map(([k, v]) => `${LABELS[k] || k} ${v === true ? "on" : v === false ? "off" : v}`).join(" · ");
+}
+
+function detail(j, fallback) {
+  const d = j && j.detail;
+  if (Array.isArray(d)) return d.map((x) => `${(x.loc || []).slice(-1)[0] || "value"}: ${x.msg}`).join("; ");
+  return d ? String(d) : fallback;
+}
+
+function offline(on) { $("offline").hidden = !on; }
+
+let modelsLoaded = false;
+async function loadModels() {
+  let r;
+  try {
+    const res = await fetch("/api/models");
+    if (!res.ok) throw new Error(res.status);
+    r = await res.json();
+  } catch (e) {
+    offline(true);
+    return false;
+  }
+  offline(false);
+  modelsLoaded = true;
+  models = r.models || [];
+  if (!models.length) {
+    $("model").innerHTML = "";
+    $("modelInfo").textContent = "No Jan models found. Download one in Jan, then come back here.";
+    $("runBtn").disabled = true;
+    return true;
+  }
+  let pick = null;
+  try { pick = localStorage.getItem("janTune.model"); } catch (e) {}
+  $("model").innerHTML = models.map((m) =>
+    `<option value="${esc(m.id)}" ${m.id === pick ? "selected" : ""}>${esc(m.name)}${m.best_gen ? ` (best ${m.best_gen} tok/s)` : ""}</option>`).join("");
+  await modelChanged();
+  return true;
+}
+
+async function modelChanged() {
+  const id = $("model").value;
+  try { localStorage.setItem("janTune.model", id); } catch (e) {}
+  const m = models.find((x) => x.id === id);
+  if (m) {
+    $("modelInfo").textContent = `${m.id} · ${m.size_gb} GB · ${m.layers ?? "?"} layers${m.moe ? " · mixture of experts" : ""} · now: ${settingsText(m.current)}`;
+  }
+  let knobs = [];
+  try {
+    const res = await fetch(`/api/knobs?model=${encodeURIComponent(id)}`);
+    if (res.ok) knobs = await res.json();
+  } catch (e) { /* the poll shows the server is away and reloads */ }
+  knobValues = {};
+  $("knobs").innerHTML = knobs.map((k) => `
+    <div class="knob"><b>${esc(LABELS[k.name] || k.name)}</b>
+      ${k.values.map((v) => `<label><input type="checkbox" data-knob="${k.name}" value="${esc(JSON.stringify(v))}" checked> ${v === true ? "on" : v === false ? "off" : v}</label>`).join("")}
+      ${k.apply ? "" : '<span class="muted">Jan-wide: measured and reported, not applied</span>'}
+    </div>`).join("");
+  refresh();
+}
+$("model").onchange = modelChanged;
+
+function chosenKnobs() {
+  if (!$("advancedToggle").checked) return null;
+  const out = {};
+  document.querySelectorAll("[data-knob]").forEach((el) => {
+    out[el.dataset.knob] = out[el.dataset.knob] || [];
+    if (el.checked) out[el.dataset.knob].push(JSON.parse(el.value));
+  });
+  for (const k of Object.keys(out)) if (!out[k].length) delete out[k];
+  return out;
+}
+
+const clamp = (v, lo, hi, dflt) => (Number.isFinite(+v) && v !== "" ? Math.min(hi, Math.max(lo, +v)) : dflt);
+
+// One request at a time per button: a double click must not start, stop or
+// apply twice.
+let sending = false;
+// what Apply said, kept so the next status poll does not wipe it
+let applyNote = { model: "", text: "" };
+async function post(url, body) {
+  const opts = { method: "POST" };
+  if (body) Object.assign(opts, { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  try {
+    const r = await fetch(url, opts);
+    let j = null;
+    try { j = await r.json(); } catch (e) {}
+    return { ok: r.ok, j, msg: r.ok ? "" : detail(j, `the server said ${r.status}`) };
+  } catch (e) {
+    return { ok: false, j: null, msg: "Jan Tune's server is not answering. Try again in a moment." };
+  }
+}
+
+$("runBtn").onclick = async () => {
+  if (sending || !$("model").value) return;
+  sending = true;
+  $("runBtn").disabled = true;
+  const advanced = $("advancedToggle").checked;
+  const body = {
+    model: $("model").value,
+    repeats: advanced ? clamp($("repeats").value, 1, 5, 2) : 2,
+    interval: advanced ? clamp($("interval").value, 0, 600, 10) : 10,
+    free_idle: advanced ? $("freeIdle").checked : true,
+    knobs: chosenKnobs(),
+  };
+  const r = await post("/api/run", body);
+  sending = false;
+  if (!r.ok) ForgeDialog.alert(r.msg);
+  poller.now();
+};
+$("stopBtn").onclick = async () => {
+  if (sending) return;
+  sending = true;
+  $("stopBtn").disabled = true;
+  const r = await post("/api/stop");
+  sending = false;
+  $("stopBtn").disabled = false;
+  if (!r.ok) ForgeDialog.alert(r.msg);
+  poller.now();
+};
+
+async function applyBest() {
+  if (sending) return;
+  sending = true;
+  const btn = $("applyBtn");
+  if (btn) btn.disabled = true;
+  const r = await post(`/api/apply/${encodeURIComponent($("model").value)}`);
+  sending = false;
+  if (btn) btn.disabled = false;
+  applyNote = {
+    model: $("model").value,
+    text: r.ok ? `Written to model.yml: ${settingsText(r.j.written)}. Jan uses it after its next restart.` : r.msg,
+  };
+  if ($("applyMsg")) $("applyMsg").textContent = applyNote.text;
+  if (r.ok) loadModels();
+}
+
+function render(s) {
+  const tests = s.tests || [];
+  const running = s.running && s.model === $("model").value;
+  $("runBtn").disabled = !!s.running || sending || !$("model").value;
+  $("runBtn").textContent = s.running && !running ? `Busy tuning ${s.running_model || ""}` : "Find fastest settings";
+  $("stopBtn").hidden = !running;
+
+  $("statusBox").hidden = !s.status;
+  if (s.status) {
+    const done = tests.length, planned = s.planned || done || 1;
+    $("progressBar").style.transform = `scaleX(${Math.min(1, done / planned)})`;
+    const words = { running: "Running", done: "Finished", stopped: "Stopped (starting again resumes)", failed: "Failed", idle: "Not run yet" };
+    $("statusLine").innerHTML = `<b>${words[s.status] || esc(s.status)}</b> · ${done} of ${planned} tests · <span class="muted">${esc(s.message || "")}</span>`;
+    const best = s.best;
+    if (best && best.gen) {
+      const base = tests.find((t) => t.knob === "baseline");
+      const gain = base && base.gen ? Math.round((100 * (best.gen - base.gen)) / base.gen) : null;
+      let tip = "";
+      if (s.status === "done" && s.threads_report) {
+        const top = Object.entries(s.threads_report).filter(([, g]) => g).sort((a, b) => b[1] - a[1])[0];
+        const jan = s.jan && s.jan.threads;
+        if (top && jan && +top[0] !== +jan) tip = `<div class="muted">Tip: ${top[0]} threads measured ${top[1]} tok/s. Threads is a Jan-wide setting (now ${jan}), so change it in Jan's own settings if you want it.</div>`;
+      }
+      $("winner").innerHTML = `
+        <div class="win">${s.status === "done" ? "Fastest" : "Fastest so far"}: <b>${best.gen} tok/s</b> generating, ${best.prompt} tok/s reading the prompt
+          ${gain !== null ? `<span class="muted">(${gain >= 0 ? "+" : ""}${gain}% on the current settings)</span>` : ""}</div>
+        <div class="muted">${esc(settingsText(best.config))}</div>
+        ${s.status === "done" ? `<div class="controls" style="margin-top:8px"><button class="primary" id="applyBtn" onclick="applyBest()">Apply to Jan</button><span id="applyMsg" class="muted">${applyNote.model === $("model").value ? esc(applyNote.text) : ""}</span></div>` : ""}
+        ${tip}`;
+    } else {
+      $("winner").innerHTML = "";
+    }
+  }
+
+  $("resultsBox").hidden = !tests.length;
+  $("emptyHint").hidden = !!(tests.length || s.running || !$("model").value);
+  const top = Math.max(1, ...tests.map((t) => t.gen || 0));
+  const bestKey = s.best && s.best.key;
+  $("results").innerHTML = tests.map((t) => `
+    <tr class="${t.key === bestKey ? "best" : ""}">
+      <td>${esc(LABELS[t.knob] || t.knob)}</td>
+      <td>${esc(settingsText(t.config))}</td>
+      ${t.error ? `<td colspan="3" class="err">${esc(t.error)}</td>` : `
+      <td class="num">${t.gen}</td>
+      <td><div class="bar-wrap"><div class="bar" style="width:${(100 * t.gen) / top}%"></div></div></td>
+      <td class="num">${t.prompt}</td>`}
+    </tr>`).join("");
+}
+
+// Returns false while the server is away, and while nothing is running
+// anywhere, so ForgeIdle.poll stretches the wait (3 s up to 30 s); a click on
+// Run, Stop or coming back into view polls at once again.
+async function refresh() {
+  if (!modelsLoaded) return (await loadModels()) ? true : false;
+  try {
+    const r = await fetch(`/api/status?model=${encodeURIComponent($("model").value)}`);
+    if (!r.ok) throw new Error(r.status);
+    const s = await r.json();
+    offline(false);
+    render(s);
+    return s.running ? true : false;
+  } catch (e) {
+    offline(true);
+    return false;
+  }
+}
+
+const poller = ForgeIdle.poll(refresh, 3000, { backoff: 2, maxMs: 30000 });
+loadModels();
+</script>
+</body>
+</html>

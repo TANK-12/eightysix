@@ -1,0 +1,94 @@
+{
+  "id": "romance",
+  "label": "Contemporary romance",
+  "group": "Western",
+  "description": "A love story first: chemistry, a clear external obstacle and an internal wound, alternating or single POV, and a guaranteed happy ending.",
+  "keywords": [
+    "romance",
+    "love",
+    "enemies",
+    "lovers",
+    "second",
+    "chance",
+    "fake",
+    "dating",
+    "billionaire",
+    "small",
+    "town",
+    "romantic"
+  ],
+  "words_per_chapter": 3000,
+  "voice": [
+    "First or close third person, past tense; if two POVs, alternate by chapter and label nothing, just make the voices distinct.",
+    "Emotional interiority matters, but every feeling is tied to a concrete moment.",
+    "Banter with real wit; each lead has a different sense of humour.",
+    "The obstacle is concrete (a job, a family, a lie), and so is the wound.",
+    "Heat level follows the author's directives; if none are given, fade to black.",
+    "Happily ever after (or for now) is required."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "meet",
+      "guide": "A meeting with sparks and friction.",
+      "key": true
+    },
+    {
+      "at": 0.12,
+      "role": "forced together",
+      "guide": "A reason they must keep meeting.",
+      "then": "Growing attraction and resistance; one new truth per chapter."
+    },
+    {
+      "at": 0.4,
+      "role": "first kiss",
+      "guide": "The first kiss or clear crossing of a line."
+    },
+    {
+      "at": 0.5,
+      "role": "deepening",
+      "guide": "They let each other in; the obstacle grows.",
+      "key": true
+    },
+    {
+      "at": 0.75,
+      "role": "black moment",
+      "guide": "The wound and the obstacle break them apart.",
+      "key": true
+    },
+    {
+      "at": 0.9,
+      "role": "grand gesture",
+      "guide": "One of them changes and proves it."
+    },
+    {
+      "at": 1.0,
+      "role": "ever after",
+      "guide": "The ending that pays off the promise of the premise.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter moves the relationship one visible step and shows the obstacle in action.",
+  "outline_example": "Terms and Conditions | At the Larkin Bay bakery she is about to lose, Nora Kell signs Evan Shaw's fake-dating contract on the back of a flour receipt | She gets six weeks of rent; he gets a date to his ex's wedding | Evan's sister recognises Nora from the viral video",
+  "scene_guidance": [
+    "Put the leads in the same room with a problem.",
+    "Physical awareness in small details.",
+    "Let the dialogue do the work."
+  ],
+  "worldbuilding": [
+    "Each lead's job, family and wound",
+    "The setting as a character"
+  ],
+  "naming": "Contemporary names that fit the setting.",
+  "cliches": [
+    "released a breath",
+    "butterflies in her stomach",
+    "his lips crashed onto hers",
+    "mine"
+  ],
+  "sample": "\"Six weeks,\" Evan said. \"Two dinners a week, one wedding, no kissing unless someone's watching.\"\n\nNora read the receipt he had written it on. Flour, 25 kg. Sugar, 10 kg. Fake boyfriend, one.\n\n\"And if someone's always watching?\"\n\nHe opened his mouth, closed it, and took the pen back to add a clause.",
+  "example_names": [
+    "Nora Kell",
+    "Evan Shaw"
+  ]
+}

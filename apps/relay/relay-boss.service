@@ -1,0 +1,19 @@
+[Unit]
+Description=Relay boss (Forge app apps/relay): runs Claude sessions unattended, reports by mail
+After=graphical-session.target network-online.target
+
+[Service]
+WorkingDirectory=%h/Forge/apps/relay
+Environment=FORGE_SHARED_DIR=%h/Forge/shared
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/Forge/apps/relay/.venv/bin/python boss.py
+Restart=always
+RestartSec=10
+# Sessions the boss starts must outlive a boss restart: only the boss itself
+# is stopped, the claude processes carry on and are found again from runs/.
+KillMode=process
+StandardOutput=append:%h/Forge/outputs/relay-boss.log
+StandardError=append:%h/Forge/outputs/relay-boss.log
+
+[Install]
+WantedBy=default.target

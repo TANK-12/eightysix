@@ -1,0 +1,314 @@
+{
+ "_readme": "The plan for the sessions after 5. Sessions 6 to 8 are scoped tightly, one sitting each, ending with something playable. Everything under 'backlog' is a session-sized idea that is real but not yet scheduled -- the user asked for this list to keep growing, so add to it rather than treating it as fixed. A later session that finds a better order should say so in its own manifest and edit this file.",
+ "written": "2026-09-07",
+ "last_revised_at_session": 6,
+ "how_to_use_this": [
+  "Read ../MANIFEST.json first for where the project actually stands, then the newest manifests/session-NN.json, then this.",
+  "Take one session at a time and write its own manifest as you go, not at the end.",
+  "Every session ends with the game playable and every session makes content cheaper to add. If a session would leave a system half-wired, cut its scope rather than its finish.",
+  "If you disagree with the order, say so in your session's manifest and edit this file."
+ ],
+ "what_session_5_changed_about_this_plan": {
+  "absorbed": "Session 5 was planned as 'split the frontend, then add NPCs'. It also absorbed session 6's NPC scope entirely, grew the valley, made worldgen layout-driven, added house interiors, and (at the tail of the session) fixed how those interiors render and screenshotted them.",
+  "so_now": "Session 6 is what was session 6 minus NPCs: crafting, skills, tool upgrades, and the storage chest in the player's house. Sessions 7 and 8 are unchanged -- voice, then the director. The backlog below is new and the user has asked that it keep growing."
+ },
+ "session_6": {
+  "title": "Make the things you collect matter",
+  "why_now": "The economy is real but shallow: nearly every item has exactly one use, being sold. Crafting is what turns a pile of materials into decisions, and it is the last system the base game needs to feel complete on its own.",
+  "done_so_far": "The recipe content type has real fields; a workbench, a cooking hearth and a storage chest are in the player's house; there is a crafting screen and a chest screen; storage persists in the save; seven recipes are seeded including two tool upgrades (reinforce the hoe, widen the can) that make those tools work a 3x3. A later pass in the same session also reviewed the frontend and fixed two game-breaking bugs (sleeping indoors froze the game; a save made indoors went to a bogus slot), moved the synth into shared/forge_sound.js, gave Pixel Forge a Sounds tab, and added the dodge roll. Verified at 123 Python + 64 browser tests. See manifests/session-06.json.",
+  "do": [
+   "DONE: recipes as content; workbench + hearth + chest in the player's house; crafting and chest screens; storage in the save.",
+   "DONE: tool upgrades. An upgrade is a tier on the existing tool (S.toolTier, in the save), crafted at the workbench, read by the till/water verbs via toolRadius()/applyToolArea(). The recipe carries 'upgrades' (a tool id) and 'tier'; it shows only at tier-1 so you climb a rung at a time. The tier machinery supports tiers 2+; only tier 1 has content.",
+   "TODO -- skills as content: a few tracks (farming, fighting, foraging) that gain from use and gate the better recipes. Recipes already carry an unread skill/skill_level field.",
+   "TODO -- the first real economy tuning pass. The two cooked foods sell below their ingredients; more broadly, farming vs fighting vs crafting have never been balanced against each other."
+  ],
+  "explicitly_not": [
+   "A deep crafting tree. Ten recipes that each change how you play beats fifty that each change a number."
+  ],
+  "done_when": "You can take what the wilds drop, make something at the workbench that changes how a tool behaves, stash the surplus, and feel the difference the next morning on the farm. Done bar skills and the economy pass.",
+  "risk": "Nobody has farmed a plot with a 3x3 hoe to feel whether the pacing is right -- the roadmap-backlog 'a day watched at normal speed' item should catch that."
+ },
+ "session_7": {
+  "title": "The voice layer",
+  "why_now": "The first of the two experimental layers and by far the safer one. Bounded, verifiable without a model in the loop, and its failure mode is silence rather than nonsense. Hard constraint from the user: 'i dont wnat the pu to be maxed out for ages so only pregenerat woineteligently and ... only main npcs and narator'.",
+  "do": [
+   "Bake, never synthesise live. A line is generated once, written to ~/EmberfieldData/voice_cache, played from disk. Nothing in the frame loop waits on speech.",
+   "Bake incrementally and within a budget. voice_bake_budget_mb already exists in config.py and is unread. Bake on idle, a few lines at a time, through emberfield/resources.py's HeavyLane so it never runs alongside anything else heavy.",
+   "Narrator plus the seven named NPCs from session 5, and nothing else. Background lines stay text.",
+   "Reuse NovelForge's Piper voices at ~/NovelMakerData/tts_voices -- /api/capabilities already reports whether they are present.",
+   "The game is complete and correct with voice_mode off. The standing three-mode rule from session 1, not negotiable."
+  ],
+  "explicitly_not": [
+   "Live synthesis of anything, ever.",
+   "Voicing every villager -- the user was explicit twice."
+  ],
+  "done_when": "Turning voice on adds narration and main-NPC speech that plays instantly from cache, the bake never takes the machine away from you, and turning it off changes nothing else.",
+  "risk": "The bake budget is the whole design. If baking can ever run long or hot, it is wrong no matter how good it sounds."
+ },
+ "session_8": {
+  "title": "The director",
+  "why_last": "The layer the project was framed around and the one most likely not to work on this hardware. A 9B call is minutes on an Iris Xe, so the model can never be in the frame loop or be waited on. Everything else should be finished and stable first, because when this is on the game still has to be a game if the model says nothing useful.",
+  "do": [
+   "A hook registry: each director hook declares a schema, an engine-supplied vocabulary of things it may name, numeric clamps, and a deterministic fallback. The four areas from session 1: world events, quests, wilds design, the economy.",
+   "Ask at sleep, apply next morning. The only timing that fits a call measured in minutes -- it turns the latency into a fiction rather than a stall.",
+   "'Don't let it go crazy' is enforced in the engine, not the prompt: a forgiving parser, a strict validator, silent fallback to the deterministic path on anything invalid. The single most important line in the design.",
+   "NPC dialogue through the small models, with mind: canned | small | director on each NPC so background villagers stay canned.",
+   "Everything toggleable and off by default."
+  ],
+  "explicitly_not": [
+   "Any model call that blocks a frame, a save or a screen transition.",
+   "Trusting model output -- every value is clamped or discarded."
+  ],
+  "done_when": "With the director off, the game is exactly what it was. With it on, sleeping occasionally produces a world event, a quest or a price shift the engine validated before accepting -- and a model that returns garbage, or nothing, is invisible to the player.",
+  "risk": "This may simply be too slow to be fun on this machine. An acceptable outcome if discovered honestly and written down, and if the base game never depended on it. Measure a real director call early and report the number before building on it."
+ },
+ "backlog": {
+  "_why": "Session-sized ideas that are real but not scheduled. The user asked that this keep growing. Each entry names what it needs done first. Roughly ordered by how much it would add to the base game, independents first.",
+  "independent_now": [
+   {
+    "title": "Fix the town square so it does not look like mud",
+    "why": "The path tile and the tilled-soil tile read at almost the same brown, so every paved area -- now including a whole town and a village -- looks churned. Recorded as a gap since session 1 and newly conspicuous.",
+    "do": [
+     "Redraw the path tile lighter and cooler, or give settlements a distinct paving tile.",
+     "Add shoreline and cliff autotiling while in the terrain art -- edge-aware sprite selection, no new art, biggest remaining visual win."
+    ],
+    "explicitly_not": [
+     "A full autotiling system for every terrain pair. Water edges and cliff edges only."
+    ]
+   },
+   {
+    "title": "A day watched at normal speed",
+    "why": "Nobody has run the base loop end to end or watched the NPCs for a full in-game day. Bugs in pacing, schedules and the economy are invisible until someone plays.",
+    "do": [
+     "Play from a fresh valley to day 5 at the default day length.",
+     "Write down what is boring, what is confusing, and where an NPC ends up stuck or permanently walking.",
+     "Fix the top three, no new features."
+    ],
+    "explicitly_not": [
+     "Adding anything. This is a play session."
+    ]
+   },
+   {
+    "title": "Music, or at least a motif",
+    "why": "There are effects and ambience and no melodic layer. A short phrase on going down into the wilds, and a calm loop for the valley by day.",
+    "do": [
+     "Extend audio.js with a tiny sequencer over the existing synth voices -- a few bars of data in a sound file, not an audio track.",
+     "One valley-day loop, one wilds sting."
+    ],
+    "explicitly_not": [
+     "Recorded music. The whole soundtrack stays synthesised and a few kilobytes."
+    ]
+   },
+   {
+    "title": "A dodge roll -- DONE in session 6",
+    "why": "Floated by the user in session 2 and in not_done_yet ever since. Combat was only 'walk away and shoot'; the roll gives it a verb. Built as the one new feature at the end of session 6.",
+    "shipped": "q darts you a short way in the direction you hold (or face), with the same half-second mercy window a hit gives, then most of a second of cooldown. ROLL at the top of play.js holds all four numbers. No steering mid-roll; walls resolve as they do for walking.",
+    "still_open": [
+     "Nobody has played it. The numbers are reasoned about, not felt -- expect one tuning pass."
+    ],
+    "explicitly_not": [
+     "A stamina bar. One cooldown."
+    ]
+   },
+   {
+    "title": "Grow the valley, or start the chunked port",
+    "why": "128x96 is still small for the scale the user wants, and the layout refactor was done specifically so this is cheap. The open-world port the user asked about lives here.",
+    "do": [
+     "Either bump DEFAULT_LAYOUT size and check the bake still fits in memory, OR prototype a chunked generator behind the same place_in_zone seam and prove a save still round-trips.",
+     "Measure the bake and the frame cost on the actual laptop first."
+    ],
+    "explicitly_not": [
+     "A seamless infinite world in one session. A bigger fixed valley, or a proven chunk boundary."
+    ]
+   },
+   {
+    "title": "Redraw the generated art by hand in Pixel Forge",
+    "why": "The crop sprites and the new villager sprites are generated and plain. They are the art most likely to reward a hand pass, and Pixel Forge exists for exactly this.",
+    "do": [
+     "Open the emberfield packs in Pixel Forge, redraw the four crop stages for each crop and the three villager sets.",
+     "Nothing in the game changes -- the sprite names and sizes stay."
+    ],
+    "explicitly_not": [
+     "Touching code. This is an art session."
+    ]
+   },
+   {
+    "title": "A valley map you can open",
+    "why": "The valley is 128x96 now with five named places and roads between them, and the only navigation aid is the region name in the HUD when you are already standing in one. A key that opens a stylised map -- the roads, the settlements, your farm, the cave -- is cheap and the bigger the world gets the more it is needed.",
+    "do": [
+     "A map screen drawn from world.regions and the path tiles, not a second asset.",
+     "Mark where you are. Do not reveal the wilds."
+    ],
+    "explicitly_not": [
+     "Fog of war, fast travel. Just a map."
+    ]
+   },
+   {
+    "title": "A journal of firsts",
+    "why": "The tutorial is a linear script that ends. A journal that quietly logs firsts -- first harvest, first night survived, first trip down, first person met in each settlement -- gives a new player a sense of progress without a quest system, and is a natural home for achievements later.",
+    "do": [
+     "Extend the TUTORIAL data shape into a longer list of one-off entries with a condition, shown in a screen rather than a banner once unlocked.",
+     "Persist which are unlocked in the save."
+    ],
+    "explicitly_not": [
+     "Rewards. The entry is the reward."
+    ]
+   },
+   {
+    "title": "Give the roll a tell",
+    "why": "The roll is invisible: you move faster for a quarter-second and that is all. A player cannot see the mercy window, cannot see the cooldown, and so cannot learn the timing. Combat verbs have to be legible before they are fun.",
+    "do": [
+     "Squash the player sprite along the roll direction, or spin the existing frames, for the roll's length.",
+     "A dust puff at the start, drawn with the palette's ground role so it recolours with the season.",
+     "A thin arc on the hotbar or under the health pips that refills over the cooldown."
+    ],
+    "explicitly_not": [
+     "A new sprite sheet. Squash and a puff are enough, and they cost no art."
+    ]
+   },
+   {
+    "title": "A Pixel Forge pass over the sound the game actually makes",
+    "why": "Every sound in the game was written blind, as numbers in a seeder, and heard by nobody. Now there is an editor with a waveform and a play button, so an hour spent listening to all 21 and nudging them is finally possible -- and it is the sort of polish that changes how the whole game feels more than another system would.",
+    "do": [
+     "Play every sound in Pixel Forge, fix the ones that read wrong, and save them.",
+     "Then decide whether the seeder should be updated to match, or whether the store is now the truth and the seeder only bootstraps an empty machine. Write the answer down -- it has been ambiguous since session 1 and it caused a mistake in session 6."
+    ],
+    "explicitly_not": [
+     "Recording samples. The synth is the trade and it is the right one."
+    ]
+   },
+   {
+    "title": "A second consumer for the shared stores",
+    "why": "Two shared art modules, a shared content store and now a shared synth were all built on the claim that a second game would reuse them. That claim is untested: Emberfield is the only consumer, so nothing has pushed back on the interfaces. A small second game -- one screen, one mechanic -- would find out cheaply whether the seams are real or imagined.",
+    "do": [
+     "Something tiny that reads ForgeArtData and ForgeGameData and plays ForgeSound recipes.",
+     "Write down every place it had to reach past the shared modules into Emberfield's assumptions."
+    ],
+    "explicitly_not": [
+     "A second full game. The point is to test the seams, not to start over."
+    ]
+   }
+  ],
+  "needs_session_6_first": [
+   {
+    "title": "Cooking at the hearth",
+    "why": "Every house has a hearth sprite doing nothing. Once crafting exists, cooking is a second station with its own recipe list -- turning crops into food that restores more hearts than eating them raw.",
+    "needs": "session 6 (recipes, stations)"
+   },
+   {
+    "title": "Fishing",
+    "why": "The valley has a shoreline and the wilds have pools, both currently just solid water. A rod is a tool with a new verb; fish are items that feed cooking and the shop.",
+    "needs": "session 6 (tool verbs, item sinks)"
+   },
+   {
+    "title": "Mining depth",
+    "why": "The wilds are one cavern per cycle with a chest at the end. Depth -- descend further for better ore, at more risk -- gives the wilds progression, and ore feeds tool upgrades.",
+    "needs": "session 6 (tool tiers to spend ore on)"
+   },
+   {
+    "title": "Animals and a barn",
+    "why": "A farm with only crops is half a farm. A coop or a barn as a buildable structure, animals as content with a daily produce cycle like crops have.",
+    "needs": "session 6 (building/crafting to construct the barn)"
+   },
+   {
+    "title": "Furnishing your house",
+    "why": "The player interior is a bed and a marked corner. Once storage and crafting exist, furniture is craftable objects the player places inside -- the first player-authored change to a map.",
+    "needs": "session 6 (crafting), and a placement mode"
+   },
+   {
+    "title": "Sprinklers",
+    "why": "Watering by hand every morning is the chore Stardew players automate first. A crafted sprinkler is an object placed on the plot that waters the tiles around it overnight -- it turns the watering can from a daily grind into an early goal to build past.",
+    "needs": "session 6 (crafting), and placed objects that act during the sleep resolve"
+   },
+   {
+    "title": "Soil quality and fertilizer",
+    "why": "Every tilled tile is identical. Fertilizer as a crafted item that raises a tile's quality -- faster growth, or a better-grade yield that sells higher -- gives the crafting materials a second destination and the plot some texture.",
+    "needs": "session 6 (crafting), a quality field on a planted crop"
+   }
+  ],
+  "needs_the_npc_and_time_systems_deepened": [
+   {
+    "title": "NPC relationships",
+    "why": "Session 5 gave NPCs schedules and canned lines and explicitly not gifts or affection. This is that: a friendship value per NPC, raised by talking and giving, that unlocks new lines and small favours.",
+    "needs": "NPC memory persisted in the save (below)"
+   },
+   {
+    "title": "NPC memory in the save",
+    "why": "NPCs currently reset every load. For relationships, quests from people, and the director speaking as an NPC, their state has to persist.",
+    "needs": "a decision on how much NPC state a save carries"
+   },
+   {
+    "title": "A calendar and festivals",
+    "why": "Seasons exist but nothing marks time except crops. A festival day -- the whole town at the square, a stall selling something rare, a minigame -- is what a calendar is for.",
+    "needs": "the schedule system to support one-off day overrides"
+   },
+   {
+    "title": "Quests from people",
+    "why": "Session 8 has the director generating quests. Before that, hand-authored quests as content, given by an NPC, tracked against the same conditions the tutorial already uses.",
+    "needs": "the quests content type (declared, empty) and NPC memory"
+   },
+   {
+    "title": "Weather",
+    "why": "Rain that waters your crops for you, a storm that keeps NPCs indoors, fog in the wilds. A weather value per day, deterministic from the seed and the day.",
+    "needs": "nothing hard, but it touches farming, NPC schedules and the renderer at once -- a session on its own"
+   },
+   {
+    "title": "A marriage candidate",
+    "why": "The Stardew comparison invites it. One or two NPCs with a deeper relationship track that ends in them moving into the player's house -- which is why interiors and the player house were built to be real.",
+    "needs": "relationships, and a second room in the player interior"
+   },
+   {
+    "title": "A tavern in the town",
+    "why": "The town has a stall and houses and a well, and nowhere that is a room the public shares. A tavern -- an interior you enter like any house, with a keeper who sells cooked food and where off-shift NPCs gather in the evening -- is the social centre a schedule wants to point at.",
+    "needs": "a public interior (not tied to one resident), cooking (for the menu)"
+   },
+   {
+    "title": "Letters",
+    "why": "NPCs only exist when you are standing near them. A letter in a box by your door -- a recipe an NPC sends once you have met them, a thank-you after a favour, a warning about the wilds -- lets a relationship reach you across the valley.",
+    "needs": "NPC memory, and a mailbox object on the player's farm"
+   }
+  ],
+  "long_horizon": [
+   {
+    "title": "A second biome past the wilds",
+    "why": "The wilds are one kind of dangerous place. A second, reached through the first -- different tileset, different foes, different loot -- is how the RotMG half of the pitch grows.",
+    "needs": "the wilds generator generalised the way the valley's was in session 5"
+   },
+   {
+    "title": "Tool tiers to an endgame",
+    "why": "Session 6 adds the first upgrade. A full progression -- copper, iron, gold, and a rare final tier from the deep wilds -- is the long spine of a farming game.",
+    "needs": "session 6, mining depth, an ore economy"
+   },
+   {
+    "title": "A museum or a collection",
+    "why": "A reason to keep one of everything: a building in the town where you donate finds and see what you are missing. Cheap to build on the content store, strong pull on play.",
+    "needs": "nothing hard; a good candidate once there are enough collectible items"
+   },
+   {
+    "title": "Controller support",
+    "why": "It is a game you would want to play from the sofa. The input layer in index.html is small and centralised -- a gamepad path there plus an on-screen aim cursor.",
+    "needs": "nothing; a self-contained session"
+   },
+   {
+    "title": "Performance pass",
+    "why": "The valley keeps growing and the actor count keeps rising, none of it measured on the actual laptop. A session that profiles the bake, the frame loop and the memory footprint and writes the numbers down before they become a problem.",
+    "needs": "nothing; should happen before the valley grows much further"
+   },
+   {
+    "title": "A scenario format",
+    "why": "The studio direction implies more than one game off this engine. A scenario is a named bundle -- a layout, a content namespace, a starting kit, win/lose rules -- that the title screen can offer instead of only 'new valley'. It is the seam between 'Emberfield' and 'a second game built the same way'.",
+    "needs": "the layout, content and settings systems to all take an explicit namespace rather than assuming 'emberfield-'"
+   },
+   {
+    "title": "Achievements",
+    "why": "The journal of firsts (in the independent list) is the data; this is the presentation -- a grid of what you have and have not done, per save and across all saves. A small, self-contained pull that rewards trying things.",
+    "needs": "the journal, and a cross-save store in ~/EmberfieldData"
+   },
+   {
+    "title": "New Game Plus / prestige",
+    "why": "Full permadeath already rolls a new valley on death. A deliberate version -- carry a fraction of your tools or recipes into a fresh, harder valley -- turns a finished run into the start of the next one.",
+    "needs": "tool tiers, recipes, and a decision on what carries"
+   }
+  ]
+ }
+}

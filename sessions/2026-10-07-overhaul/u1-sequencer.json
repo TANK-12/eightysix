@@ -1,0 +1,96 @@
+{
+ "groups": {
+  "G1": {
+   "task": 75,
+   "queued_at": 1791393703.8104553,
+   "status": "done"
+  },
+  "G2": {
+   "task": 76,
+   "queued_at": 1791393763.8814194,
+   "status": "done"
+  },
+  "G12": {
+   "task": 77,
+   "queued_at": 1791393823.954685,
+   "status": "done"
+  },
+  "G3": {
+   "task": 78,
+   "queued_at": 1791395444.0493653,
+   "status": "done"
+  },
+  "G4": {
+   "task": 79,
+   "queued_at": 1791396104.1328514,
+   "status": "done"
+  },
+  "G5": {
+   "task": 80,
+   "queued_at": 1791397784.2290926,
+   "status": "done"
+  },
+  "G6": {
+   "task": 81,
+   "queued_at": 1791397964.307736,
+   "status": "done"
+  },
+  "G7": {
+   "task": 82,
+   "queued_at": 1791399104.405107,
+   "status": "done"
+  },
+  "G8": {
+   "task": 83,
+   "queued_at": 1791400004.4910831,
+   "status": "done"
+  },
+  "G9": {
+   "task": 84,
+   "queued_at": 1791400484.5865707,
+   "status": "done"
+  },
+  "G10": {
+   "task": 85,
+   "queued_at": 1791401384.7082305,
+   "status": "done"
+  },
+  "G11": {
+   "task": 86,
+   "queued_at": 1791401504.7935185,
+   "status": "done"
+  },
+  "G13": {
+   "task": 87,
+   "queued_at": 1791403304.9097106,
+   "status": "done"
+  },
+  "G14": {
+   "task": 88,
+   "queued_at": 1791404925.8966131,
+   "status": "done"
+  },
+  "G15": {
+   "task": 89,
+   "queued_at": 1791404985.9705172,
+   "status": "done"
+  },
+  "G16": {
+   "task": 90,
+   "queued_at": 1791405466.0602756,
+   "status": "done"
+  },
+  "G17": {
+   "task": 91,
+   "queued_at": 1791407146.181085,
+   "status": "done"
+  },
+  "G18": {
+   "task": 92,
+   "queued_at": 1791407266.2552438,
+   "status": "done"
+  }
+ },
+ "summary": 93,
+ "started": 1791393703.8103633
+}

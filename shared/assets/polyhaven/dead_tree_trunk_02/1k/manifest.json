@@ -1,0 +1,21 @@
+{
+  "id": "dead_tree_trunk_02",
+  "name": "Dead Tree Trunk 02",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/dead_tree_trunk_02",
+  "license": "CC0",
+  "authors": [
+    "Jenelle van Heerden",
+    "Rico Cilliers"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/dead_tree_trunk_02/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/dead_tree_trunk_02/1k/dead_tree_trunk_02_1k.gltf",
+  "files": [
+    "dead_tree_trunk_02_1k.gltf",
+    "textures/dead_tree_trunk_02_diff_1k.jpg",
+    "textures/dead_tree_trunk_02_arm_1k.jpg",
+    "textures/dead_tree_trunk_02_nor_gl_1k.jpg",
+    "dead_tree_trunk_02.bin"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "name": "claude",
+  "label": "Claude",
+  "tagline": "Claude Code with a live avatar and voice",
+  "port": 8445,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e0916b",
+  "icon": "✳️",
+  "role": "claude",
+  "order": 14,
+  "ready_timeout": 30,
+  "start_at_launch": true,
+  "voice": {
+    "listens": true,
+    "speaks": true
+  },
+  "manifest": {
+    "summary": "A chat panel over the local Claude Code CLI. Each conversation is a streaming `claude -p` process that can open, search and read pages in the Forge Browser through an MCP server, takes attached files and images, opens links from its answers in the Browser, and resumes after a stop or restart.",
+    "features": [
+      {
+        "name": "Conversations",
+        "description": "Listed, renamed, deleted; history kept on disk and resumed with the Claude Code session id. Live streaming text, tool calls as cards with results, cost per turn and per conversation."
+      },
+      {
+        "name": "Tabs",
+        "description": "The side list is the history, the tab bar is the live set. Clicking a conversation opens it as a tab; + or Ctrl+T starts a new one on the default account. Each tab is locked to one account (shown on the tab when there is more than one) and keeps running while another is shown; a pulsing dot marks a busy tab. Ctrl+Tab and Ctrl+PageUp/PageDown switch, Ctrl+W or middle-click closes (the conversation stays). Open tabs and unsent drafts come back after a reload (localStorage forge.claude.tabs)."
+      },
+      {
+        "name": "Send while Claude works",
+        "description": "Messages sent during a turn go straight to the running Claude Code process, which folds them into that turn; Send stays next to Stop and such messages are marked \"added while Claude was working\"."
+      },
+      {
+        "name": "Command menu",
+        "description": "Typing / or . at the start of a message opens the commands and skills, filtered on every keystroke (name first, then description), each with its one-line description. The list is Claude Code's own from its last init event plus a scan of the skills and commands on disk (~/.claude/skills, synced skills, plugin skills and commands, ~/.claude/commands), shared by every account (/api/commands). Arrows move, Tab or Enter picks, Esc closes; a pick is written as /name. Built-ins such as /context, /model and /config answer in the panel as they do with claude -p; they have no description."
+      },
+      {
+        "name": "Folders",
+        "description": "Conversations can be filed into folders: + folder, drag a chat onto a folder or use its folder button, rename, collapse, delete (the chats are kept). folders.json in the data folder; each conversation's meta has folder."
+      },
+      {
+        "name": "Forge Browser tools",
+        "description": "browser_mcp.py exposes open, search, read, tabs, back, forward, reload, switch and close, each one command to the Browser app's queue, so Claude uses the Browser the user sees, logins included."
+      },
+      {
+        "name": "Attachments",
+        "description": "Paperclip, drag and drop, or paste. Images go to Claude inline; every file is saved under the conversation's attachment folder and listed by path for the Read tool. The globe button attaches the page open in the Browser as a text file."
+      },
+      {
+        "name": "Links open in the Browser",
+        "description": "Clicking a link in an answer opens it as a new tab in the Forge Browser and brings the Browser forward."
+      },
+      {
+        "name": "Accounts",
+        "description": "Two or more Claude accounts, one Claude Code config directory each (the default is ~/.claude, the others are CLAUDE_CONFIG_DIR profiles under the data folder). The list shows who is signed in and each account's 5-hour usage bar; one click makes it the default for new tabs; a conversation stays on the account it was created on. Signing in relays claude auth login: the address, the pasted code. Below them, the web logins from shared/accounts.json (claude.ai x2, Gemini, Gmail x2) open in the Logins app."
+      },
+      {
+        "name": "Per-conversation settings",
+        "description": "Working folder, model, effort (claude --effort: low to max, or the default), and what Claude can do: read and browse only (default), plan, edit files, auto mode, or everything. Nothing can prompt for permission; anything that would is refused."
+      },
+      {
+        "name": "Normal / Ultracode",
+        "description": "A switch per conversation in both layouts. Ultracode is Claude Code's standing dynamic-workflow orchestration (--settings ultracode + enableWorkflows); the panel asks Claude Code at start whether it really took effect and warns when not. Haiku cannot run it."
+      },
+      {
+        "name": "Agent limits",
+        "description": "A Limits fold beside the switch: helpers at once, helper nesting depth and helper model (Claude Code's CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS, CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH, CLAUDE_CODE_SUBAGENT_MODEL); empty is Claude Code's default. One registry, runner.AGENT_LIMITS."
+      },
+      {
+        "name": "Avatar stage and personas",
+        "description": "Off at every page load; the mask button or \"Turn on the avatar\" turns it on until the page reloads. A live anime avatar beside the conversation: the persona for each message is picked by mood (Tetsu by default, Kira for builds, Shizu for fixes, Arch-chan for status, Yui or Ren for downtime) or pinned. It reacts to Claude's status, lip-moves, follows the mouse and can speak replies with a Kokoro voice. Personas are files in personas/; the roster goes into the system prompt once and each message carries a short persona tag."
+      },
+      {
+        "name": "Avatar Studio",
+        "description": "avatars.html: 19 working Live2D models (Arch-chan from Nyarch, Live2D's free Cubism 4 and Cubism 2 samples, Unity-chan), each with its own motions plus 24 generated ones; new motions improvised or described to Jan and saved to the shared library; a puppet generator and editor with save, delete, undo and redo; each persona's avatar and voice."
+      },
+      {
+        "name": "Chat with the avatar",
+        "description": "A chat box under the stage talks to the persona through this app's own Jan model (no Claude Code turn, no Claude tokens). Replies are 1 to 3 sentences with a reaction tag the avatar plays; spoken with the persona's Kokoro voice when the speaker is on. Click the avatar's head or body to poke it, drag to move it, scroll to zoom."
+      },
+      {
+        "name": "Docs",
+        "description": "docs.html (the docs button in both layouts): every important text document for Emerson and Claude as a folder tree, newest first, read-only, with search over titles and text and a Copy path button. Sources are declared in doc_sources.json (library, sessions, Forge docs, app docs, ~/.claude self/memory/skills, ~/Models, codec lab, Desktop); new docs go in ~/Forge/docs/library/<topic>/YYYY-MM-DD-name.md. A doc is dated by its file name, else a date: line near the top, else its last change (shown in italics). docs_library.py, GET /api/docs?q= and /api/docs/read?path= (only listed paths)."
+      }
+    ],
+    "data_dir": "~/.local/share/forge/claude (conversations, attachments, mcp.json, profiles.json, profiles/<name>/ for extra accounts); Claude Code's own session files in ~/.claude",
+    "services": [],
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "claude (Claude Code CLI, logged in)"
+      ],
+      "optional": [
+        "the Browser app, for the browser tools and links",
+        "PanelForge's venv (kokoro-onnx) for speaking replies",
+        "Jan, for making motions from a description and for chatting with the avatar"
+      ]
+    },
+    "standalone_launch": "cd ~/Forge/apps/claude && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8445",
+    "api_base": "/api",
+    "known_gaps": [
+      "Permission prompts cannot be answered from the panel; pick a level that allows the work.",
+      "Browser tools only work while the Browser app is open inside Forge.",
+      "Every message is real Claude Code usage and costs what a terminal session would.",
+      "The second account's real sign-in has not been done yet; the account list was not screenshotted (headless Chrome hung on the page).",
+      "The Live2D sample Ren (Cubism 5.3 format) needs a newer viewer and is hidden.",
+      "Speaking replies uses PanelForge's venv for Kokoro; if that venv moves, set FORGE_KOKORO_PYTHON."
+    ],
+    "docs": [
+      "README.md",
+      "MANIFEST.md",
+      "WIP.md",
+      "~/Forge/docs/library/2026-09-29-how-this-library-works.md"
+    ]
+  },
+  "section": "assistants"
+}

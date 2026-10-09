@@ -1,0 +1,20 @@
+{
+  "id": "red_brick_03",
+  "name": "Red Brick 03",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/red_brick_03",
+  "license": "CC0",
+  "authors": [
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/red_brick_03/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/red_brick_03/1k/red_brick_03_1k.gltf",
+  "files": [
+    "red_brick_03_1k.gltf",
+    "textures/red_brick_03_diff_1k.jpg",
+    "red_brick_03.bin",
+    "textures/red_brick_03_nor_gl_1k.jpg",
+    "textures/red_brick_03_rough_1k.jpg"
+  ]
+}

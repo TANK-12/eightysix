@@ -1,0 +1,1 @@
+Hello, I'm Qwen35-0_8b-spectralquant-calib360-q4_k_m. Today is Monday September 28, 2026 in your Linux home folder. I can help with coding, writing files, and more. Ask me anything!

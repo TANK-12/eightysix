@@ -1,0 +1,20 @@
+{
+  "id": "grass_path_2",
+  "name": "Grass Path 2",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/grass_path_2",
+  "license": "CC0",
+  "authors": [
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/grass_path_2/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/grass_path_2/1k/grass_path_2_1k.gltf",
+  "files": [
+    "grass_path_2_1k.gltf",
+    "grass_path_2.bin",
+    "textures/grass_path_2_rough_1k.jpg",
+    "textures/grass_path_2_diff_1k.jpg",
+    "textures/grass_path_2_nor_gl_1k.jpg"
+  ]
+}

@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Eighty Six</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #8fe3ff; --accent-2: #5cc3e0; --on-accent: #05141a; }
+  body { background: #05080c; }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .head h1 { margin: 0; font-size: 22px; }
+  .head .root-path { font-size: 12px; opacity: 0.6; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .card { background: var(--panel, #10161c); border: 1px solid rgba(143, 227, 255, 0.15); border-radius: 12px; padding: 16px; }
+  .card h2 { margin: 0 0 10px; font-size: 15px; opacity: 0.85; }
+  .empty { opacity: 0.55; font-size: 13px; }
+
+  table.fps { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.fps th, table.fps td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .met-yes { color: #8fe3ae; }
+  .met-no { color: #ff9d8f; }
+  .met-none { opacity: 0.6; }
+
+  .tests-summary { display: flex; gap: 18px; align-items: baseline; margin-bottom: 8px; }
+  .tests-summary .n { font-size: 24px; font-weight: 600; }
+  ul.test-list { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow: auto; font-size: 12px; }
+  ul.test-list li { padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  ul.test-list li.fail { color: #ff9d8f; }
+
+  .version-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .version-row span { flex: 1; }
+  .version-share { padding: 0 0 8px; overflow-wrap: anywhere; }
+  .thumbs { display: flex; gap: 10px; flex-wrap: wrap; }
+  .thumbs img { width: 140px; height: 90px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
+  .folder-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; }
+  .folder-picker button { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: inherit; border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+  .folder-picker button.active { border-color: var(--accent); color: var(--accent); }
+
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 50; }
+  .lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
+  .lightbox[hidden] { display: none; }
+
+  pre.readme { white-space: pre-wrap; font-family: inherit; font-size: 13px; line-height: 1.5; margin: 0; }
+  pre.readme + pre.readme { margin-top: 12px; }
+
+  /* thin scrollbars (the hub runs WebKitGTK: the -webkit- form too) */
+  * { scrollbar-width: thin; scrollbar-color: rgba(143, 227, 255, 0.25) transparent; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(143, 227, 255, 0.22); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: rgba(143, 227, 255, 0.4); }
+  ::-webkit-scrollbar-corner { background: transparent; }
+
+  .lightbox { animation: fade-in 0.18s ease-out; }
+  .lightbox img { animation: zoom-in 0.2s ease-out; }
+  .thumbs img { transition: transform 0.15s, border-color 0.15s; }
+  .thumbs img:hover { transform: translateY(-1px); border-color: var(--accent); }
+  @keyframes fade-in { from { opacity: 0; } }
+  @keyframes zoom-in { from { opacity: 0; transform: scale(0.97); } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <div>
+      <h1>🦾 Eighty Six</h1>
+      <div class="root-path" id="root-path">-</div>
+    </div>
+    <div class="actions">
+      <button id="go-fullscreen" class="btn">Full screen</button>
+      <button id="btn-play" class="btn btn-primary">Play</button>
+      <button id="btn-editor" class="btn">Open in Godot editor</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Versions</h2>
+    <div class="empty" style="margin-bottom: 8px;">Play always rebuilds the game first if it changed, and each changed build is saved here.</div>
+    <div id="versions-body"><div class="empty">Loading&hellip;</div></div>
+    <div class="actions" style="margin-top: 10px;">
+      <button id="btn-share" class="btn">Make share zips (Windows, Linux, macOS)</button>
+      <button id="btn-share-clear" class="btn">Delete all share zips</button>
+    </div>
+    <div id="share-body" class="root-path version-share" style="margin-top: 8px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Tests</h2>
+    <div id="tests-body"><div class="empty">Loading&hellip;</div></div>
+    <div class="actions" style="margin-top: 10px;">
+      <button id="btn-run-tests" class="btn">Run tests</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Frame rates</h2>
+    <div id="fps-body"><div class="empty">Loading&hellip;</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Check images</h2>
+    <div id="images-body"><div class="empty">Loading&hellip;</div></div>
+  </div>
+
+  <div class="card">
+    <h2>README</h2>
+    <div id="readme-body"><div class="empty">Loading&hellip;</div></div>
+  </div>
+</div>
+
+<div id="lightbox" class="lightbox" hidden>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  async function getJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(await errText(res, res.statusText));
+    return res.json();
+  }
+
+  async function postJSON(url, body) {
+    const opts = { method: "POST" };
+    if (body !== undefined) {
+      opts.headers = { "Content-Type": "application/json" };
+      opts.body = JSON.stringify(body);
+    }
+    const res = await fetch(url, opts);
+    if (!res.ok) throw Object.assign(new Error(await errText(res, res.statusText)), { status: res.status });
+    return res.json();
+  }
+
+  // A launch refused as a repeat (409, "Already starting") is not a failure.
+  function launchFailed(what, e) {
+    if (e.status === 409) toast(e.message);
+    else toast(what + " failed: " + e.message, "err");
+  }
+
+  async function loadStatus() {
+    try {
+      const s = await getJSON("/api/status");
+      document.getElementById("root-path").textContent =
+        s.root + (s.root_exists ? "" : "  (not found yet)");
+      return true;
+    } catch (e) {
+      document.getElementById("root-path").textContent =
+        "Eighty Six's server is not answering. Trying again by itself\u2026";
+      return false;
+    }
+  }
+
+  let testsWatch = null;
+  function watchTests(running) {
+    const btn = document.getElementById("btn-run-tests");
+    btn.textContent = running ? "Tests running\u2026" : "Run tests";
+    btn.disabled = running;
+    if (running && !testsWatch && window.ForgeIdle) {
+      testsWatch = ForgeIdle.poll(loadTests, 4000, { backoff: 2, maxMs: 30000 });
+    } else if (!running && testsWatch) {
+      testsWatch.stop();
+      testsWatch = null;
+    }
+  }
+
+  async function loadTests() {
+    const body = document.getElementById("tests-body");
+    try {
+      const t = await getJSON("/api/tests");
+      watchTests(!!t.running);
+      if (!t.available) {
+        body.innerHTML = '<div class="empty">No logs/tests-last.json yet.</div>';
+        return;
+      }
+      const items = (t.tests || [])
+        .map(
+          (x) =>
+            `<li class="${x.ok ? "" : "fail"}">${x.ok ? "✓" : "✗"} ${escapeHtml(x.name)}${x.message ? " — " + escapeHtml(x.message) : ""}</li>`
+        )
+        .join("");
+      body.innerHTML = `
+        <div class="tests-summary">
+          <div><span class="n">${escapeHtml(t.passed)}</span> passed</div>
+          <div><span class="n">${escapeHtml(t.failed)}</span> failed</div>
+          <div class="empty">${escapeHtml(t.seconds)}s · ${escapeHtml(t.when || "")}</div>
+        </div>
+        <ul class="test-list">${items}</ul>`;
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Could not read test results.</div>';
+      return false;
+    }
+  }
+
+  // fps logs are written by the game's tools: show "-" for anything not a number
+  function fixed(v, digits) {
+    return typeof v === "number" && isFinite(v) ? v.toFixed(digits) : "-";
+  }
+
+  async function loadFps() {
+    const body = document.getElementById("fps-body");
+    try {
+      const f = await getJSON("/api/fps");
+      // The uncapped estimate only matters when vsync held a run to the refresh rate.
+      const capped = f.presets.some((p) => p.record && p.record.vsync_cap_hz);
+      const rows = f.presets
+        .map((p) => {
+          if (!p.record) {
+            return `<tr><td>${escapeHtml(p.preset)}</td><td colspan="${capped ? 5 : 4}" class="empty">no data yet</td></tr>`;
+          }
+          const r = p.record;
+          const target = r.target_fps === null ? "no target" : escapeHtml(r.target_fps);
+          const est = p.met_by === "estimate" ? " (est.)" : "";
+          let metCell = '<span class="met-none">-</span>';
+          if (p.met_target === true) metCell = `<span class="met-yes">met${est}</span>`;
+          if (p.met_target === false) metCell = `<span class="met-no">missed${est}</span>`;
+          const cap = r.vsync_cap_hz ? ` <span class="met-none">(cap ${escapeHtml(r.vsync_cap_hz)})</span>` : "";
+          const low = fixed(r.p1_low_fps, 1);
+          const unc = fixed(r.est_uncapped_fps, 0);
+          const uncCell = capped ? `<td>${unc}</td>` : "";
+          return `<tr><td>${escapeHtml(p.preset)}</td><td>${fixed(r.avg_fps, 1)}${cap}</td><td>${low}</td>${uncCell}<td>${target}</td><td>${metCell}</td></tr>`;
+        })
+        .join("");
+      const note = capped
+        ? '<div class="empty">Off-screen runs are held to the compositor\'s refresh by vsync, so the average cannot pass it. "Est. uncapped" comes from the GPU and CPU frame times.</div>'
+        : "";
+      body.innerHTML = `
+        <table class="fps">
+          <thead><tr><th>Preset</th><th>Avg fps</th><th>1% low</th>${capped ? "<th>Est. uncapped</th>" : ""}<th>Target</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>${note}`;
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Could not read fps logs.</div>';
+    }
+  }
+
+  let currentFolder = null;
+
+  async function loadImages() {
+    const body = document.getElementById("images-body");
+    try {
+      const idx = await getJSON("/api/images");
+      if (!idx.folders.length) {
+        body.innerHTML = '<div class="empty">No check images yet.</div>';
+        return;
+      }
+      // the folder picked before may be gone (renamed or cleared) by a refresh
+      if (!idx.folders.includes(currentFolder)) currentFolder = idx.newest;
+      const picker = idx.folders
+        .map(
+          (f) =>
+            `<button data-folder="${escapeHtml(f)}" class="${f === currentFolder ? "active" : ""}">${escapeHtml(f)}</button>`
+        )
+        .join("");
+      body.innerHTML = `<div class="thumbs" id="thumbs"></div><div class="folder-picker">${picker}</div>`;
+      body.querySelectorAll(".folder-picker button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          currentFolder = btn.dataset.folder;
+          loadImages();
+        });
+      });
+      const folderData = await getJSON(`/api/images/${encodeURIComponent(currentFolder)}`);
+      const thumbs = document.getElementById("thumbs");
+      thumbs.innerHTML = folderData.files
+        .map(
+          (name) =>
+            `<img src="/api/images/${encodeURIComponent(currentFolder)}/${encodeURIComponent(name)}" alt="${escapeHtml(name)}" loading="lazy">`
+        )
+        .join("");
+      thumbs.querySelectorAll("img").forEach((img) => {
+        img.addEventListener("click", () => {
+          document.getElementById("lightbox-img").src = img.src;
+          document.getElementById("lightbox").hidden = false;
+        });
+      });
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Could not read check images.</div>';
+    }
+  }
+
+  document.getElementById("lightbox").addEventListener("click", () => {
+    document.getElementById("lightbox").hidden = true;
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") document.getElementById("lightbox").hidden = true;
+  });
+
+  async function loadReadme() {
+    const body = document.getElementById("readme-body");
+    try {
+      const r = await getJSON("/api/readme");
+      if (!r.available) {
+        body.innerHTML = '<div class="empty">No README.md yet.</div>';
+        return;
+      }
+      body.innerHTML = `
+        <pre class="readme">${escapeHtml(r.current_state || "(empty)")}</pre>
+        <pre class="readme">${escapeHtml(r.newest_log_entry || "(no log entries)")}</pre>`;
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Could not read the README.</div>';
+    }
+  }
+
+  function escapeHtml(s) {
+    const div = document.createElement("div");
+    div.textContent = s == null ? "" : String(s);
+    return div.innerHTML.replace(/"/g, "&quot;");
+  }
+
+  // One request per button at a time: a double click starts nothing twice.
+  async function busy(btn, job) {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    try {
+      await job();
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function loadVersions() {
+    const body = document.getElementById("versions-body");
+    try {
+      const data = await getJSON("/api/versions");
+      if (!data.available) {
+        body.innerHTML = '<div class="empty">No saved versions yet. Press Play once to make the first.</div>';
+        return;
+      }
+      body.innerHTML = "";
+      data.versions.forEach((v, i) => {
+        const row = document.createElement("div");
+        row.className = "version-row";
+        const num = String(v.number).padStart(3, "0");
+        const label = document.createElement("span");
+        label.textContent = num + " \u00b7 " + (v.made || "").replace("T", " ") + " \u00b7 " + (v.commit || "?") + (v.dirty ? " (uncommitted changes)" : "") + (i === 0 ? " \u00b7 newest" : "");
+        const btn = document.createElement("button");
+        btn.className = "btn";
+        btn.textContent = "Play " + num;
+        btn.addEventListener("click", () => busy(btn, async () => {
+          try {
+            await postJSON("/api/play", { version: String(v.number) });
+            toast("Launched version " + num);
+          } catch (e) {
+            launchFailed("Play", e);
+          }
+        }));
+        row.append(label, btn);
+        body.append(row);
+        const zips = v.share || [];
+        if (zips.length) {
+          const share = document.createElement("div");
+          share.className = "root-path version-share";
+          const names = zips.map((z) => z.split("/").pop()).join(" \u00b7 ");
+          share.textContent = "Share zips: " + names + "  (in " + zips[0].slice(0, zips[0].lastIndexOf("/")) + ")";
+          body.append(share);
+        }
+      });
+    } catch (e) {
+      body.innerHTML = '<div class="empty">Could not read the versions.</div>';
+    }
+  }
+
+  let shareWatch = null;
+  async function loadShare() {
+    const body = document.getElementById("share-body");
+    try {
+      const r = await getJSON("/api/share");
+      const shareBtn = document.getElementById("btn-share");
+      shareBtn.disabled = r.running;
+      shareBtn.textContent = r.running ? "Making share zips\u2026" : "Make share zips (Windows, Linux, macOS)";
+      if (r.running) {
+        body.textContent = "Making the zips of the newest version (a few minutes). " + (r.last_log || "");
+      } else if (r.zips.length) {
+        body.textContent = "Share zips (each has an install script and HOW-TO-RUN.txt): " + r.zips.map((z) => z.name + " (" + z.mb + " MB)").join(" \u00b7 ") + "  in " + r.folder;
+      } else {
+        body.textContent = "No share zips on disk." + (r.last_log ? " Last run: " + r.last_log : "");
+      }
+      if (r.running && !shareWatch && window.ForgeIdle) {
+        shareWatch = ForgeIdle.poll(loadShare, 5000, { backoff: 2, maxMs: 30000 });
+      } else if (!r.running && shareWatch) {
+        shareWatch.stop();
+        shareWatch = null;
+        loadVersions();
+      }
+    } catch (e) {
+      body.textContent = "Could not read the share zips.";
+      return false;
+    }
+  }
+
+  document.getElementById("btn-share").addEventListener("click", (ev) => busy(ev.currentTarget, async () => {
+    try {
+      const r = await postJSON("/api/share");
+      if (!r.started) {
+        toast(r.reason, "err");
+        return;
+      }
+      toast("Making share zips of the newest version; the old ones are deleted when the new ones are ready");
+      loadShare();
+    } catch (e) {
+      toast("Could not start: " + e.message, "err");
+    }
+  }));
+
+  document.getElementById("btn-share-clear").addEventListener("click", (ev) => busy(ev.currentTarget, async () => {
+    if (!confirm("Delete every share zip? Saved versions stay; zips can be made again at any time.")) return;
+    try {
+      const r = await postJSON("/api/share/clear");
+      toast(r.cleared ? r.message : r.reason, r.cleared ? undefined : "err");
+      loadShare();
+      loadVersions();
+    } catch (e) {
+      toast("Could not delete: " + e.message, "err");
+    }
+  }));
+
+  document.getElementById("btn-play").addEventListener("click", (ev) => busy(ev.currentTarget, async () => {
+    try {
+      const r = await postJSON("/api/play");
+      toast(r.mode === "auto" ? "Launching (updating first if the game changed)" : r.mode === "build" ? "Launched the build" : "Launched via Godot (--path)");
+      setTimeout(loadVersions, 15000);
+    } catch (e) {
+      launchFailed("Play", e);
+    }
+  }));
+
+  document.getElementById("btn-editor").addEventListener("click", (ev) => busy(ev.currentTarget, async () => {
+    try {
+      await postJSON("/api/play/editor");
+      toast("Opening the Godot editor");
+    } catch (e) {
+      launchFailed("Editor", e);
+    }
+  }));
+
+  document.getElementById("btn-run-tests").addEventListener("click", (ev) => busy(ev.currentTarget, async () => {
+    try {
+      const r = await postJSON("/api/tests/run");
+      if (!r.started) {
+        toast(r.reason, "err");
+        return;
+      }
+      toast("Tests started");
+      loadTests();
+    } catch (e) {
+      toast("Could not start tests: " + e.message, "err");
+    }
+  }));
+
+  // Everything on the page, read again. Not answering at first (Forge still
+  // starting the backend, or it went down): say so and keep trying, less often
+  // the longer it takes, never while hidden.
+  let lastLoad = 0;
+  let serverWait = null;
+  function loadAll() {
+    lastLoad = Date.now();
+    loadVersions();
+    loadShare();
+    loadTests();
+    loadFps();
+    loadImages();
+    loadReadme();
+  }
+  async function start() {
+    if (await loadStatus()) {
+      loadAll();
+      return;
+    }
+    if (serverWait || !window.ForgeIdle) return;
+    serverWait = ForgeIdle.poll(
+      async () => {
+        if (!(await loadStatus())) return false;
+        serverWait.stop();
+        serverWait = null;
+        loadAll();
+      },
+      3000,
+      { backoff: 2, maxMs: 30000 }
+    );
+  }
+  // Back in view after a while: the game's logs may have moved on.
+  const STALE_MS = 60000;
+  function onShown() {
+    const shown = window.ForgeIdle ? ForgeIdle.shown() : !document.hidden;
+    if (shown && lastLoad && Date.now() - lastLoad > STALE_MS && !serverWait) start();
+  }
+  document.addEventListener("visibilitychange", onShown);
+  document.addEventListener("forge-visible", onShown);
+  start();
+})();
+</script>
+</body>
+</html>

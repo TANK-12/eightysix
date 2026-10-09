@@ -1,0 +1,20 @@
+{
+  "name": "auto",
+  "label": "Auto",
+  "order": 2,
+  "description": "The CPU decides moment to moment: turbo available, no frequency cap, balanced energy preference and idle devices allowed to sleep. Your throttled power limits apply, with the sustained-power window at its stock 28 s. The screen is left as it is.",
+  "settings": {
+    "governor": "powersave",
+    "turbo": "on",
+    "max_freq_mhz": "max",
+    "epp": "balance_performance",
+    "platform_profile": "balanced",
+    "pl1_duration_s": 28,
+    "pci_runtime_pm": "auto",
+    "nmi_watchdog": false,
+    "dirty_writeback_cs": 500,
+    "audio_power_save": 1,
+    "wifi_power_save": true,
+    "gpu_max_freq_mhz": "max"
+  }
+}

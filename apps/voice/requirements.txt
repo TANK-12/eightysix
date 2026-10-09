@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+numpy
+onnxruntime
+kokoro-onnx
+pytest
+httpx

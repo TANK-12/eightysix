@@ -1,0 +1,20 @@
+{
+  "id": "dry_branches_medium_01",
+  "name": "Dry Branches Medium 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/dry_branches_medium_01",
+  "license": "CC0",
+  "authors": [
+    "Rico Cilliers"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/dry_branches_medium_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/dry_branches_medium_01/1k/dry_branches_medium_01_1k.gltf",
+  "files": [
+    "dry_branches_medium_01_1k.gltf",
+    "textures/dry_branches_medium_01_arm_1k.jpg",
+    "textures/dry_branches_medium_01_diff_1k.jpg",
+    "textures/dry_branches_medium_01_nor_gl_1k.jpg",
+    "dry_branches_medium_01.bin"
+  ]
+}

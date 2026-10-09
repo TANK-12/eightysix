@@ -1,0 +1,20 @@
+{
+  "id": "leafy_grass",
+  "name": "Leafy Grass",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/leafy_grass",
+  "license": "CC0",
+  "authors": [
+    "Charlotte Baglioni"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/leafy_grass/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/leafy_grass/1k/leafy_grass_1k.gltf",
+  "files": [
+    "leafy_grass_1k.gltf",
+    "leafy_grass.bin",
+    "textures/leafy_grass_diff_1k.jpg",
+    "textures/leafy_grass_arm_1k.jpg",
+    "textures/leafy_grass_nor_gl_1k.jpg"
+  ]
+}

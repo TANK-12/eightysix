@@ -1,0 +1,83 @@
+{
+ "_readme": "Start here. This is the entry point for a session with zero conversation history: read this, then manifests/roadmap.json, then the newest file in manifests/, then README.md, then the module docstrings. This file holds the current state and the index; each session's own record lives in manifests/session-NN.json and is never rewritten afterwards.",
+ "project": "Emberfield",
+ "one_line": "A Stardew-style valley crossed with Realm of the Mad God, inside the Forge hub, with an optional layer where local models direct the world.",
+ "last_updated": "2026-09-07",
+ "current_session": 6,
+ "session_6_status": "crafting, storage and tool upgrades done, plus a code-review pass that fixed two game-breaking bugs, the synth engine moved into shared/, a sound editor in Pixel Forge, and the dodge roll. Skills and economy tuning still pending; see manifests/session-06.json/not_done_yet.",
+ "read_in_this_order": [
+  "MANIFEST.json (this file) — where the project stands and what to do next",
+  "manifests/roadmap.json — the plan for the rest of session 6 onward, plus a long backlog",
+  "manifests/session-06.json — the most recent record (session 6, first half only)",
+  "manifests/session-05.json, -04, -03, -02, -01 — earlier sessions, kept as written",
+  "README.md — how to run it, how to add a crop, a sound, a shop item, a house or an NPC",
+  "the module docstrings, which carry the design intent for each file"
+ ],
+ "how_this_is_built": {
+  "multi_session": "The user asked for this to be built over many sessions of Claude, with a new manifest each time rather than one file that gets overwritten. Session records are history and are not edited by later sessions; this file is the only one kept current. The user has also asked that manifests/roadmap.json keep growing with new session ideas that reach well past what is currently planned — extending the backlog is part of the work, not an extra.",
+  "the_constraint_that_matters": "The user's standing requirement is that the game stay easy to add to and edit. Every session should make content cheaper to add, not just add content. Art is palette-indexed JSON in ~/ForgeArtData; game content is JSON in ~/ForgeGameData; both are discovered by scanning a directory. Nothing anywhere lists what exists. As of session 5 the valley's layout is data too — emberfield/layout.py — so adding a settlement is a spec entry, not a code edit.",
+  "the_open_world_direction": "The user wants generation built so it can later be ported toward an open world (procedural, chunked). Session 5's worldgen refactor is the down payment: world size and settlement layout are parameters, and worldgen.place_in_zone is the one seam a chunked generator would replace. The renderer, the save format and the frontend depend only on the seed, the width, the height and the regions dict — never on a fixed map size.",
+  "the_destination": "A pixel game studio rather than one game. That is why the art library and the content store both sit outside the app and are namespaced per game, and why Pixel Forge is a separate app rather than a tab."
+ },
+ "where_things_live": {
+  "the_game": "~/Forge/apps/emberfield — port 8434. Since 2026-09-16 it has no tile of its own in the Forge hub: its manifest says \"group\": \"pixel-games\", so it sits behind the single Pixel games tile, which opens a chooser of the pixel games. Opening it from there is the same window as before, and #app=emberfield, its saves, its full screen and its lazy start are unchanged. The group is one file, ~/Forge/groups/pixel-games.json.",
+  "the_sprite_editor": "~/Forge/apps/pixelforge — port 8435. Two halves: Sprites edits the art in ~/ForgeArtData, Sounds edits the sound recipes in ~/ForgeGameData. Both stores are the game's.",
+  "the_frontend": "static/index.html (CSS, DOM, the state object S, boot) plus world.js (loading, baking, collision, saves), render.js (the frame), play.js (simulation, farming, combat, the dodge roll, wilds, interiors, NPCs), ui.js (HUD and every screen), audio.js (the game's half of sound: event mapping, volume, ambience beds), selftest.js (64 in-browser checks)",
+  "world_generation": "emberfield/worldgen.py (the valley, layout-driven), emberfield/layout.py (DEFAULT_LAYOUT), emberfield/wilds.py (the nightly cavern), emberfield/interiors.py (house interiors)",
+  "art": "~/ForgeArtData/{packs,palettes}/*.json — 7 packs (items, foes, terrain, nature, actors, buildings, villagers), 5 palettes, written by tools/seed_art.py",
+  "content": "~/ForgeGameData/{items,tools,crops,foes,weapons,sounds,loot,npcs,recipes,quests,skills}/*.json — written by tools/seed_content.py. recipes now has 5 entries (session 6, first half); quests and skills are still declared and empty.",
+  "saves_and_settings": "~/EmberfieldData",
+  "shared_modules": "~/Forge/shared/forge_art.py, forge_content.py, forge_art.js and forge_sound.js — owned by no app. forge_sound.js is the synth: Emberfield plays these recipes, Pixel Forge edits them, and both use the one implementation so the editor cannot drift from the game."
+ },
+ "state_of_play": {
+  "playable_now": "Generate a valley, walk it, farm your plot, sleep in your house to grow crops, sell what grew at the town stall and buy better seeds, craft materials into goods at the workbench and cook at the hearth, craft upgrades that make the hoe and can work a 3x3, stash the surplus in a chest that the save remembers, walk the road out to a town, a village and two farmsteads where seven people keep a daily schedule and talk, step inside any house, fight what comes out in the open after dark (roll with q to break out of a corner), go down the cave mouth into a torchlit cavern that is different every day and worse at night, loot the chest at the far end, die under the rule you chose, and pick the save up tomorrow. Day and night with moving shadows, four seasons, sound, a hotbar, and full screen.",
+  "verified": "123 Python tests and 59 in-browser self-tests pass; black and pyright are clean. Interiors, the craft screen (with tool upgrades) and the chest screen have been screenshotted. See manifests/session-06.json/verification_status. The standing caveat, still true: almost everything is verified to work and almost none of it is verified to be any good — the base game has not been played through.",
+  "biggest_gaps": [
+   "Nobody has played it. Farming, combat, wilds, economy, a populated overworld, crafting and tool upgrades — the base loop has never been run end to end.",
+   "No skills yet — the 'skills' content type is declared and empty; recipes carry an unread skill gate ready for it.",
+   "The economy is real and untuned — prices chosen by eye, and the two cooked foods sell for less than their ingredients (fine only because food will heal, which is not built).",
+   "The path tile reads almost the same brown as tilled soil, so a paved town square looks muddy. More visible now that settlements are bigger. First item in the roadmap backlog.",
+   "The voice layer and the LLM director are both unbuilt; only their settings toggles exist."
+  ]
+ },
+ "next_session_should": [
+  "Finish session 6: skills as content (a few tracks — farming, fighting, foraging — that gain from use; recipes already carry an unread skill/skill_level gate), then the first real economy tuning pass (the two cooked foods sell below their ingredients; more broadly, farming vs fighting vs crafting have never been balanced against each other).",
+  "Crafting, storage and tool upgrades are all in place — build skills as the gate on the better recipes, and use the tier machinery (which supports tiers 2+) if a fuller tool ladder makes sense.",
+  "Or take the roadmap-backlog 'fix the town square' item as a short session — it is the most visible rough edge."
+ ],
+ "conventions_a_new_session_must_not_break": [
+  "Adding a crop, a tool, a foe, a weapon, a sound or an NPC is writing one JSON file in ~/ForgeGameData. If a change would need a new hardcoded list, the content type needs a new field instead.",
+  "Adding a settlement is one entry in emberfield/layout.py DEFAULT_LAYOUT plus a kind branch in worldgen._lay_place. Zones are fractions of the world, never tile coordinates.",
+  "worldgen.place_in_zone is the seam an open-world port replaces. Nothing else may learn the map's size — the renderer, the save and the frontend read only seed, width, height and regions.",
+  "Adding a sprite is one entry in an art pack — but a NEW sprite goes in a NEW pack, never appended to an existing pack file, because the seeder skips packs that already exist and the append is silently lost until --force.",
+  "A broken art or content file is skipped and reported, never raised. The user edits these by hand; a bad edit must never stop the game booting.",
+  "The world is never stored in a save — only its seed. The wilds regenerate from seed + day + night; a house interior regenerates from its building id + the valley seed. Generation must stay deterministic or every existing save silently loads a different valley.",
+  "A save made in the wilds or indoors describes the valley and the tile you will step back out onto — never the cavern or the room.",
+  "An object's collision shape is not its footprint. See manifests/session-02.json/inherited_bugs.tree_hitboxes. A house's door tile sits one row south of the sprite so the solid box never covers it.",
+  "The frontend does the per-frame work; the backend never blocks on anything. This is what keeps the door open for the LLM layer on a machine where a director call takes minutes.",
+  "Verify in a browser, not by reading. static/selftest.js exists because two things session 1 recorded as verified turned out to be wrong.",
+  "Sound is synthesised from recipes in ~/ForgeGameData/sounds — there are no audio files.",
+  "Interaction dispatches on an object's 'use' field ('sleep', 'shop', 'chest', 'door', 'exit', 'craft', 'cook', 'storage'), not on its sprite name. An NPC within reach is talked to before any of that.",
+  "The storage chest in the player's house is the only interior state a save carries — the room regenerates, the contents are in the save. Any future persistent interior state follows that split.",
+  "Shadows fall away from their light source — the sun outdoors, the player's torch underground, nothing indoors. There is a test on the sun vector.",
+  "The frontend is five files. Keep it that way: index.html holds state and boot, the systems live in world/render/play/ui.js. Do not grow index.html back."
+ ],
+ "hardware_constraints_that_shape_the_design": {
+  "cpu": "12th Gen i5-1245U: 10 physical cores, 12 logical. 2 performance, 8 efficiency.",
+  "gpu": "Intel Iris Xe iGPU only. No discrete GPU. Jan runs llama.cpp on Vulkan.",
+  "memory": "31 GiB shared between CPU and iGPU. NO SWAP — an out-of-memory condition freezes the laptop outright. The valley bake is now ~12 MB per palette, three cached.",
+  "disk": "~34 GB free. The user asked explicitly not to consume storage; the art and content stores together are still well under 200 KB.",
+  "measured_llm_speed": "~5 tokens/sec on a 4B model. A 9B director call is minutes, not seconds.",
+  "the_consequence": "The model can never be in the frame loop, and speech (CPU) must not run at the same time as generation (iGPU) because they share one memory bus. See emberfield/resources.py."
+ },
+ "how_to_run": {
+  "inside_forge": "Launch Forge normally; Emberfield is in the sidebar. Press f for full screen without it.",
+  "standalone": "cd apps/emberfield && FORGE_SHARED_DIR=../../shared ./.venv/bin/python -m uvicorn web_app:app --port 8434 --reload",
+  "python_tests": "./.venv/bin/python -m pytest tests/ -q",
+  "browser_tests": "http://127.0.0.1:8434/?seed=777&selftest=1 — reports pass/fail on the page and posts it to /api/selftest",
+  "reseed_art": "FORGE_SHARED_DIR=../../shared ./.venv/bin/python tools/seed_art.py       (--force overwrites your edits)",
+  "reseed_content": "FORGE_SHARED_DIR=../../shared ./.venv/bin/python tools/seed_content.py   (--list shows the store)",
+  "dev_links": "?seed= ?hour= ?season= ?zoom= ?daysec= ?screen=settings|shop|craft|storage ?selftest=1 ?demo=farm|tree|night|both|wilds|wilds-night|town|village|farmstead|house|npc-house",
+  "headless_screenshot": "flatpak run com.google.Chrome --headless --virtual-time-budget=13000 --screenshot=<path under ~/.var/app/com.google.Chrome/data/> '<url>' — the flatpak Chrome can only write inside its own data dir. Interiors do not capture this way (async fetch vs virtual time)."
+ }
+}

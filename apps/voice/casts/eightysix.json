@@ -1,0 +1,50 @@
+{
+ "label": "Eighty Six (the game in ~/Games/eightysix)",
+ "about": "Voices for the Eighty Six game. Riku's crew owns the game: this file only reads its dialogue and writes clips to outputs/, nothing in the game is edited. Until Emerson's season 1 episodes are cut into clips, Lena and Shin speak with stand-in voices, not cloned from the anime's voice actors: in English a Kokoro preset voice reads the sample (AuK's design mode made breathy clips that clone badly, docs/library/voice/2026-10-09-voice-cloning-bakeoff.md), in Japanese Irodori designs the voice from the game's speaker notes. A voice later cloned from an actor gets private: true in its profile: fine on this laptop, never shared.",
+ "lines": "~/Games/eightysix/data/dialogue/*.json",
+ "format": {"entries": "entries", "speaker": "speaker", "note": "note", "channel": "channel"},
+ "out": "outputs/voice-cast/eightysix",
+ "skip_channels": ["console"],
+ "languages": {
+  "en": {"model": "breeze-tts-2", "preset_model": "kokoro-v1", "text": "text"},
+  "ja": {"model": "irodori-anime", "design_model": "irodori-anime", "text": "text_ja"}
+ },
+ "note_moods": {
+  "very quiet": "whisper",
+  "quiet": "gentle",
+  "quieter": "gentle",
+  "bored": "tired",
+  "out of breath": "tired",
+  "a little nervous": "worried"
+ },
+ "speakers": {
+  "lena": {
+   "en": {
+    "voice": "86-lena-en",
+    "label": "Lena (stand-in)",
+    "preset": "af_bella",
+    "sample": "This is Handler One. From today I will be in charge of your squadron. I look forward to working with all of you."
+   },
+   "ja": {
+    "voice": "86-lena-ja",
+    "label": "Lena (stand-in, Japanese)",
+    "describe": "十八歳くらいの若い女性の指揮官。澄んだ柔らかい声で、丁寧で真面目、礼儀正しく、内に温かさがある。落ち着いた速さで話す。",
+    "sample": "こちらハンドラー・ワン。本日より、皆さんの指揮を担当します。よろしくお願いします。"
+   }
+  },
+  "shin": {
+   "en": {
+    "voice": "86-shin-en",
+    "label": "Shin (stand-in)",
+    "preset": "am_michael",
+    "sample": "Undertaker to all units. The Legion are moving. Hold your positions and wait for my signal."
+   },
+   "ja": {
+    "voice": "86-shin-ja",
+    "label": "Shin (stand-in, Japanese)",
+    "describe": "十七歳くらいの若い男性の隊長。低めの落ち着いた男性の声で、静かで淡々としている。感情をほとんど見せず、短く話す。",
+    "sample": "アンダーテイカーより各機へ。レギオンが動き出した。持ち場を維持し、合図を待て。"
+   }
+  }
+ }
+}

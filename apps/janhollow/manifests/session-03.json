@@ -1,0 +1,48 @@
+{
+ "session": 3,
+ "title": "Higher-resolution art, and Jan drawing in Pixel Forge",
+ "date": "2026-09-16",
+ "started_from": "Emerson: \"o mroe and more make it lookk better higehr res pixel textures ad also make a jan able to make sprits and structure in pixel forge\"",
+ "intended": "Two things: make Janhollow look better with higher-resolution pixel textures, and give Pixel Forge a way to have Jan make sprites and structures.",
+ "the_art": {
+  "what_changed": "The station was drawn with 16px crewroom tiles, where a metal floor is four pixels of detail. It now renders at 32px from a generated janhollow-deck pack: floor plates with panel seams, bolts and wear, corridor grating, a lit strip down the middle of a run, soil for the garden deck, a two-panel door with a light over it, a lift pad with chevrons, and a sixteen-variant autotile wall set.",
+  "how_the_crew_kept_up": "Mixing 16px characters with 32px tiles is the thing that actually looks wrong. Rather than redraw eight anime crew, they are upscaled with EPX (Scale2x), the pixel-art doubling rule that rounds a diagonal instead of turning one pixel into a 2x2 block. The crewroom props go through the same pass. Everything on screen is now native 32px.",
+  "autotiling": "A wall picks one of wall_0..wall_15 from which of its four sides have another wall beside them, so a corner is drawn as a corner and a face onto a room gets a bright lip. Nothing in the data says where a corner is; it falls out of the map.",
+  "lighting": "One dark overlay per deck with light punched out of it at lamps, consoles, reactors, viewports, doors and the lift, then a warm or cold glow added back on top of each. Rebuilt only when the deck or the view changes. Tuned by eye against screenshots: the first version at 0.62 opacity was so dark the new texture was invisible, which defeated the point of drawing it.",
+  "two_atlases": "Tiles bake against the new janhollow palette and the crew against the crewroom one, so the deck can be re-skinned (night shift, red alert) without touching a character. Sprites are asked for by qualified pack/name because the 32px packs deliberately reuse the 16px names.",
+  "still_data": "Deck files name their floor sprite and palette; rooms may override the floor, which is how the garden decks got soil and the engineering rooms got worn plate. Adding a tile is still one entry in tools/make_art32.py, and everything it writes is editable in Pixel Forge."
+ },
+ "jan_in_pixel_forge": {
+  "the_finding_that_shaped_it": "Local models cannot draw pixels. Measured on 2026-09-16: asked for a 16x16 grid of palette characters, the 4B returned sixteen rows of pure transparency — an empty image — and the 9B returned rows of 16, 17 and 18 characters with scattered diagonal noise. Asked instead for a short list of shapes, both models produced sensible, well-formed parts first time. So the model composes and the code draws.",
+  "what_was_built": "apps/pixelforge/janart.py: the two prompts, a parser that repairs what these models actually get wrong (hex codes in the colour field, fenced code blocks, a legend where a palette was asked for, coordinates off the canvas, trailing commas), a rasteriser for rect, ellipse, line and pixel, and a guard that refuses an empty, single-colour or runaway drawing.",
+  "structures": "The same shape list at tile scale is a floor plan: each key is a tile id from the library rather than a colour, and the tile list offered to the model is read from the library so a tile drawn today is offered tomorrow. Saved as shared content under the new 'structures' type in forge_content, where any game can read it.",
+  "what_it_actually_produces": "A red toolbox at 16x16 in 66 s: recognisable, two colours, crude. A 12x9 crew cabin in 82 s: a wall border, a wood floor, a rug, a bed and a door in the wall — genuinely usable. Floor plans are where this earns its keep; sprites are a sketching aid."
+ },
+ "shared_work": [
+  "shared/forge_jan.py gained chat(): one Jan request, thinking off by default, serialised through a process-wide lane. Every Forge app that talks to Jan now gets the thinking-off default, which the measurements in session 2 showed is not optional. janhollow/janclient.py was rewired to use it and lost its duplicate HTTP code.",
+  "shared/forge_content.py gained the 'structures' type — one registry entry, because a hut is a hut whichever game stamps it."
+ ],
+ "verified": [
+  "apps/janhollow tests → 57 pass (8 new: EPX doubling and diagonal rounding, transparency, every autotile variant present and correctly lit, the generator being deterministic, and the packs on disk validating against the palette with no stray colours).",
+  "apps/pixelforge tests → 15 pass, all without Jan: every malformed reply in them is one a model actually sent.",
+  "apps/emberfield → 123 pass, and tests/test_forge_jan.py → 6 pass, against both shared changes.",
+  "Live through the real 4B: a sprite and two floor plans, end to end through the HTTP API, including one saved and reloaded into the page.",
+  "Screenshots looked at: the habitat deck and the garden deck at 32px, and the Ask Jan panel showing a generated cabin rendered with real tile sprites.",
+  "black and pyright clean on everything touched."
+ ],
+ "got_wrong_and_fixed": [
+  "The first lighting pass was far too dark: the new texture was invisible. Opacity down from 0.62 to 0.38, ambient reworked, and a warm additive glow added so a lamp looks lit rather than like a hole in the shadow.",
+  "The lift's glow was a green blob covering the pad. Reach and strength cut by half.",
+  "A room of one repeated plate read as wallpaper; every seventh tile, chosen from its own coordinates, is the worn variant now.",
+  "The floor-plan guard rejected a perfectly good room for 'one shape covered the whole canvas'. A floor plan is supposed to cover the canvas; that rule is for sprites only.",
+  "A plan naming only tiles the library does not have raised out of the rasteriser before the guard could explain why. It reports the problem now.",
+  "Two patches failed silently partway through because black had reflowed the lines I was matching on. Both were re-applied against the real text."
+ ],
+ "not_done_yet": [
+  "The crew are upscaled, not redrawn: EPX smooths them but does not add detail a 16px sprite never had.",
+  "Props do not block movement, still.",
+  "Structures can be generated and saved but no game reads them yet — Janhollow does not stamp one into a deck.",
+  "The sprite results are crude. The 9B draws better and takes roughly twice as long; it is one choice in the Jan panel.",
+  "No player (roadmap session 4)."
+ ]
+}

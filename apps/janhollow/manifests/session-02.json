@@ -1,0 +1,53 @@
+{
+ "session": 2,
+ "title": "Chatter and the narrator (sessions 2 and 3 of the roadmap, done together)",
+ "date": "2026-09-16",
+ "claude_session": "the same background job that built session 1",
+ "started_from": "Emerson: \"make the rest of the full crew jan thing\"",
+ "intended": "Give the crew voices: the 0.8B chatter lane with the quality guard the plan demands, then the 4B narrator for the day's event and the time-skip summary.",
+ "the_two_open_questions_the_plan_left": {
+  "does_qwen3.5_thinking_need_turning_off": "Yes, and it is not optional. Measured on the 0.8B: a plain request for one line of dialogue spent all 160 tokens in reasoning_content and returned EMPTY content in 5.7 s. The same request with chat_template_kwargs {enable_thinking: false} returned the line in 0.9 s. janclient.py sends that flag on every request and there is a test pinning it.",
+  "what_the_models_actually_cost": "0.8B chatter: 0.6-0.9 s a line, so a three-line conversation is about 3 s. 4B narrator: 21 s for 74 tokens on an empty machine, 34 s with both models loaded and a longer prompt. That gap is why the narrator runs once a station day and never where a request is waiting."
+ },
+ "did": [
+  "janhollow/janclient.py — the only way to Jan: thinking off on every call, ONE lane so two requests can never run at once (two concurrent calls once froze this laptop), a lane wait so the chatter skips its turn rather than queueing behind the narrator, and per-call stats.",
+  "janhollow/roles.py — which model each role wants and why, as a registry. This exists because of a bug found in live testing: with no setting, forge_jan falls back to whatever Jan lists FIRST, which was an unrelated 2B that leaked thinking into the crew's mouths. Precedence is now: the person's setting, then this preference, then Jan's first model.",
+  "janhollow/guard.py — the quality guard. Ten named rules in a registry, every one a pure function, every one traceable to real bad output from the 0.8B. It also salvages the line from a reply truncated mid-JSON, which is what a token limit does.",
+  "janhollow/chatter.py — picks two crew who are in the same room, standing still and not already talking; builds the prompt from persona, job, room, activity, relationship warmth and their last memory; runs two or three turns; retries a rejected line once and then ends the conversation rather than showing junk.",
+  "janhollow/narrator.py — the day's event, chosen from the seeded events/ templates by weight and by whether the station can host it (an event needing a dock cannot fire on a station without one), written up from what the crew actually did; and the time-skip paragraph that session 1 left as a placeholder.",
+  "janhollow/director.py — the one thread that calls Jan, with a priority order (a waiting time-skip first, then a new day, then a conversation), the chatter interval from the setting, and exponential backoff from 5 s to 2 minutes when Jan is not there.",
+  "sim.py — crew now carry what they are saying, their memories and their own drifting relationships; conversations are recorded, both sides remember them, and talking to someone warms them to you by one, capped at three. A new station day raises a flag the director picks up, so nothing slow ever runs on the tick.",
+  "'Off' is now a chatter level like any other, because the levels are a registry.",
+  "static/ — speech bubbles that wrap and are drawn in a pass above every sprite, the log styled by kind (spoken lines, the narrator's story, movements dimmed), and a Voices panel with live counts, what the director is doing, and a button each for a conversation and for the narrator.",
+  "web_app.py — /api/world/voices, /api/world/talk and /api/world/narrate."
+ ],
+ "verified": [
+  "tests: 49 pass (19 from session 1, 30 new). The 30 run with Jan switched off: the guard's rules each pinned by the real bad sample that made them exist, the client's thinking flag and its one-at-a-time lane (four threads, maximum overlap of one), the role preference, pair selection, a conversation applied to the world, a rejected line retried then dropped, Jan being down staying quiet, the chatter interval including off, the away mode forbidding models, the director's priority order, and backoff.",
+  "Live, through the real models: conversations in the mess hall on the 0.8B, and the narrator on the 4B producing 'Morning Hum on Janhollow — The crew gathers for breakfast, enjoying Bo's fresh fruit and coffee while Cobalt brews to settle the lingering dust...' which wove the crew's ACTUAL conversations together with the quiet-fault event template.",
+  "Live away-mode gate: with idle_closed set and no page heartbeat for 13 s, /api/world/voices reported allowed_now false and the director idle; one heartbeat later it was true again.",
+  "Screenshots looked at: two speech bubbles over the right crew with the speakers' name labels suppressed; the log showing crew lines, the narrator's story in its own block and movement lines dimmed; the settings pane showing the Off level and the live voices readout.",
+  "black and pyright clean on every file touched."
+ ],
+ "got_wrong_and_fixed": [
+  "The app asked forge_jan for a model, got nothing, and silently used whatever Jan listed first — an unrelated 2B. Fixed by roles.py; found only because the live output was worse than the probe's.",
+  "A reply cut off at the token limit never closes its JSON, so raw {\"line\": \"... went into a speech bubble. The guard now salvages the value from unterminated JSON, and rejects any scaffolding that still gets through.",
+  "The 0.8B parroted the previous line back three times running ('I'll check Vessa...'). The exact-match echo rule never fired because it never repeats verbatim, it repeats the shape. Added the parrot rule: a shared four-word run, or the same three opening words.",
+  "Conversations degraded at the fourth turn, so they are now two or three.",
+  "Lines rambled well past the eighteen words asked for, including first-person prose ('A small smile tugged at the corners of my mouth...'). The hard cap is twenty words and the retry after a rejection is usually speech.",
+  "A bubble drawn inline in the sorted pass was painted over by anyone standing south of the speaker. Bubbles are their own pass now.",
+  "Killed my own shell twice with pgrep -f, whose pattern matched the command line that contained it. Saved PIDs instead."
+ ],
+ "not_done_yet": [
+  "No player: you still cannot walk in or type at anyone. That is session 4, and it needs no model work.",
+  "Quests and consequences (session 5).",
+  "Memories are only the last thing someone said to you plus the day's story; nothing summarises them yet.",
+  "The narrator never transfers crew off the station or brings new ones in, which Emerson allowed.",
+  "Props still do not block movement."
+ ],
+ "what_the_quality_is_actually_like": "Honest assessment: the 0.8B produces short, in-character, station-appropriate lines that are sometimes slightly odd ('You think like a lady, Vessa, don't you?'). It is coherent and never garbage now — no other languages, no narration, no JSON, no parroting, no third-person self-reference — but it is a 416 MB model and it reads like one. The 4B narrator is genuinely good. If the chatter is not good enough, the cheapest lever is the model: roles.py is one edit, and Jan already has a 2B, a 4B and a 9B.",
+ "notes_for_the_next_session": [
+  "Rejected lines are written to ~/ForgeGameData/janhollow/rejected.jsonl, capped at 200. Read it before tuning a prompt — it is the record of how this model actually fails.",
+  "Never call Jan from the tick thread or a request handler; the director is the only caller and everything it does is on its own thread.",
+  "guard.judge is pure and cheap. Reuse it for anything a model says to the player in session 4 rather than writing a second set of rules."
+ ]
+}

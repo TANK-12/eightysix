@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Backup</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>:root { --accent: #8fd18b; --accent-2: #6cb868; --on-accent: #0b1a0a; }</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">💾 <span>Backup</span></div>
+    <span class="pill" id="drive-pill">checking the drive…</span>
+    <span class="spacer"></span>
+    <button type="button" class="btn" id="go-fullscreen" title="Full screen">⛶</button>
+  </header>
+  <nav>
+    <div class="tab active" data-tab="code">Code</div>
+    <div class="tab" data-tab="snapshots">Snapshots</div>
+    <div class="tab" data-tab="status">Status</div>
+    <div class="tab" data-tab="help">Help</div>
+  </nav>
+  <main>
+    <section class="panel active" data-panel="code">
+      <div id="code"></div>
+    </section>
+
+    <section class="panel" data-panel="snapshots">
+      <div class="card picker">
+        <div class="seg" id="snap-area">
+          <button type="button" class="btn" data-area="rescue">Rescue (whole laptop)</button>
+          <button type="button" class="btn" data-area="vault">Vault (work and history)</button>
+        </div>
+        <label>Set <select id="snap-set"></select></label>
+        <label>Date <select id="snap-date"></select></label>
+      </div>
+      <div id="snap"></div>
+    </section>
+
+    <section class="panel" data-panel="status">
+      <div id="status"></div>
+    </section>
+
+    <section class="panel" data-panel="help">
+      <div id="help"></div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_convo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

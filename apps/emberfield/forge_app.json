@@ -1,0 +1,15 @@
+{
+  "name": "emberfield",
+  "label": "Emberfield",
+  "tagline": "Farm the valley, raid the wilds",
+  "port": 8434,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e08a3c",
+  "icon": "🔥",
+  "fullscreen": "auto",
+  "group": "pixel-games",
+  "order": 7,
+  "section": "play",
+  "ready_timeout": 45
+}

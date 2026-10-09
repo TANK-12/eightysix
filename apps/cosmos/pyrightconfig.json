@@ -1,0 +1,6 @@
+{
+  "extraPaths": ["../../shared", ".", "tools"],
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportMissingImports": "error"
+}

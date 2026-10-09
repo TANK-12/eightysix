@@ -1,0 +1,74 @@
+{
+  "id": "general",
+  "label": "General fiction",
+  "group": "Other",
+  "description": "No genre template: good craft rules and a classic three-act shape.",
+  "keywords": [],
+  "words_per_chapter": 3000,
+  "voice": [
+    "Consistent point of view and tense, chosen by the story; no head-hopping.",
+    "Concrete scenes with action and dialogue rather than summary.",
+    "Characters want specific things and act to get them.",
+    "End chapters on a change or a question."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "Open on a character in motion with a concrete problem.",
+      "key": true
+    },
+    {
+      "at": 0.12,
+      "role": "inciting",
+      "guide": "The event that makes the story's question unavoidable.",
+      "then": "Rising action: attempts, obstacles and complications, one per chapter."
+    },
+    {
+      "at": 0.25,
+      "role": "commitment",
+      "guide": "The protagonist commits and crosses into the story's main conflict."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "A reversal or revelation that changes the goal.",
+      "then": "Pressure rises; allies and plans are tested.",
+      "key": true
+    },
+    {
+      "at": 0.75,
+      "role": "crisis",
+      "guide": "The lowest point; the choice that follows."
+    },
+    {
+      "at": 0.87,
+      "role": "climax",
+      "guide": "The decisive confrontation.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "resolution",
+      "guide": "What changed, and what it cost.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Every chapter names who does what, where, and what changes.",
+  "outline_example": "The Second Key | In the back office of Delaney's Hardware, Ruth Amsel finds a second key taped under her late father's desk | The shop's debts were paid with money from a box she never knew existed | The key's tag names a storage unit in her ex-husband's name",
+  "scene_guidance": [
+    "Open in motion",
+    "Concrete detail",
+    "End on change"
+  ],
+  "worldbuilding": [
+    "Setting, key people and the central conflict"
+  ],
+  "naming": "Names that fit the setting and are easy to tell apart.",
+  "cliches": [],
+  "sample": "",
+  "example_names": [
+    "Ruth Amsel",
+    "Delaney"
+  ]
+}

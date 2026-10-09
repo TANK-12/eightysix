@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root { --accent: #a9b6c8; --accent-2: #8a98ac; --on-accent: #0b1220; }
+</style>
+</head>
+<body class="booting">
+<div id="app">
+  <header>
+    <div class="brand">Forge <span>Settings</span></div>
+    <div class="spacer"></div>
+    <span class="muted small" id="saved">Changes apply as you make them.</span>
+    <button class="btn" id="go-fullscreen" type="button">Full screen</button>
+  </header>
+
+  <main>
+    <div class="layout">
+    <!-- The sections, one page each: the hand-made cards below plus one per
+         group, listed by app.js. Searching shows matches from every section. -->
+    <nav id="nav" aria-label="Settings sections">
+      <input type="search" id="search" placeholder="Search settings…" autocomplete="off" spellcheck="false">
+      <div id="nav-list"></div>
+    </nav>
+    <div class="settings">
+
+      <div class="card boot-card" id="boot-card" aria-live="polite">
+        <h3 id="boot-title">Loading settings…</h3>
+        <div class="muted small" id="boot-text"></div>
+        <button class="btn" id="boot-retry" type="button" hidden>Try now</button>
+      </div>
+
+      <section class="card" data-section="wallpaper" data-title="Wallpaper" data-keywords="wallpaper desktop background picture image favourites follow">
+        <div class="section-head">
+          <h3>Wallpaper</h3>
+          <label class="switch"><input type="checkbox" id="follow-desktop"> Follow my desktop wallpaper</label>
+        </div>
+        <div class="current">
+          <img id="current-thumb" alt="">
+          <div>
+            <div class="big" id="current-name">…</div>
+            <div class="muted small" id="current-note"></div>
+          </div>
+        </div>
+        <div class="section-head fav-head">
+          <h3>★ Favourites</h3>
+          <button class="btn btn-primary" id="open-wallpapers" type="button">Open Wallpapers</button>
+        </div>
+        <div id="favs" class="favs"></div>
+        <div class="muted small">The Wallpapers app has the whole collection with hidden copies, sizes and
+          favourites, and sets a wallpaper on the desktop, in Forge, or both.</div>
+        <details class="quick">
+          <summary>Quick picker for Forge's wallpaper</summary>
+          <input type="search" id="wall-filter" placeholder="Search wallpapers…">
+          <div id="walls" class="walls"></div>
+        </details>
+      </section>
+
+      <section class="card" data-section="colour" data-title="Colour" data-keywords="colour color accent tint swatch">
+        <h3>Colour</h3>
+        <div class="muted small">Taken from the wallpaper unless you pick one. It tints the bar,
+          the window borders and the dock.</div>
+        <div id="swatches" class="swatches"></div>
+        <div class="choices">
+          <label class="switch"><input type="checkbox" data-key="unify_accent"> Use this colour inside every app</label>
+          <label class="custom">Pick any colour <input type="color" id="custom-accent"></label>
+        </div>
+      </section>
+
+      <!-- Every other setting: one card per group, built by app.js from the
+           table in shared/forge_theme.py, so a new setting needs no markup. -->
+      <div id="groups" class="groups"></div>
+
+      <section class="card" id="layout-panel" data-section="layout" data-title="Layout" data-keywords="layout sidebar tabs one page density compact comfortable width wide pin pinned">
+        <h3>Layout</h3>
+        <div class="muted small">How this Settings app is laid out. Kept in this browser only.</div>
+        <div class="lp-rows">
+          <div class="lp-row"><span>Sections</span><div class="seg" data-pref="nav">
+            <button type="button" data-v="sidebar">Sidebar</button><button type="button" data-v="tabs">Tabs</button><button type="button" data-v="page">One page</button></div></div>
+          <div class="lp-row"><span>Density</span><div class="seg" data-pref="density">
+            <button type="button" data-v="comfy">Comfortable</button><button type="button" data-v="compact">Compact</button></div></div>
+          <div class="lp-row"><span>Width</span><div class="seg" data-pref="width">
+            <button type="button" data-v="normal">Normal</button><button type="button" data-v="wide">Wide</button></div></div>
+          <div class="muted small">Pin a section with the ☆ beside it in the list. Pinned ones go to the top.</div>
+          <button class="btn" id="layout-reset" type="button">Reset layout</button>
+        </div>
+      </section>
+
+      <section class="card" data-section="about" data-title="About" data-keywords="about reset defaults where kept cache">
+        <h3>About</h3>
+        <div class="muted small" id="where"></div>
+        <div class="choices"><button class="btn" id="reset" type="button">Reset to defaults</button></div>
+      </section>
+
+      <div class="card muted" id="no-match" hidden>No setting matches that search.</div>
+    </div>
+    </div>
+  </main>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

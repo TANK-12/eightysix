@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "about": "Every speech model Forge knows, one row each. The Voice app (apps/voice, port 8467) is the only process that loads them. File paths are relative to the model home (env FORGE_MODELS_DIR, default ~/Forge/models). A new model is one row here; a new engine is one file in apps/voice/engines/. Research behind the picks: docs/library/voice/.",
+  "defaults": {
+    "stt": "whisper-base-en-q5",
+    "tts": "kokoro-v1",
+    "tts_best": "breeze-tts-2"
+  },
+  "wake": {
+    "claude": ["claude", "claud", "clod", "clawed", "cloud", "clowd", "tetsu", "tet sue", "tetsuo"],
+    "jan": ["jan", "jen", "acchan", "a chan", "ah chan", "achan", "atchan"]
+  },
+  "models": [
+    {
+      "id": "whisper-tiny-en",
+      "kind": "stt",
+      "label": "Whisper tiny.en (whisper.cpp)",
+      "engine": "whisper_cpp",
+      "tier": "fast",
+      "files": {"model": "voice/stt/whisper-tiny-en/ggml-tiny.en.bin"},
+      "size_mb": 74,
+      "source": "https://huggingface.co/ggerganov/whisper.cpp",
+      "license": "MIT",
+      "urls": {"model": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin"},
+      "notes": "Hardlinked from Nyarch's whisper.cpp folder (no extra disk). The quickest option (RTF 0.13 measured here), less robust than base.en on published figures."
+    },
+    {
+      "id": "whisper-base-en-q5",
+      "kind": "stt",
+      "label": "Whisper base.en q5_1 (whisper.cpp)",
+      "engine": "whisper_cpp",
+      "tier": "fast",
+      "files": {"model": "voice/stt/whisper-base-en-q5/ggml-base.en-q5_1.bin"},
+      "short_ctx": true,
+      "size_mb": 60,
+      "source": "https://huggingface.co/ggerganov/whisper.cpp",
+      "license": "MIT",
+      "urls": {"model": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en-q5_1.bin"},
+      "notes": "Default STT (research pick, docs/library/voice/2026-10-08-stt-under-100mb.md): 8.1% WER on 9 clips, RTF 0.23 at 4 threads under load, about 200 MB RSS, English only. short_ctx: a short clip is read with a cut audio context (1 s command 0.8 s instead of 1.9 s, same WER on 10 clips), and again in full if the answer repeats itself."
+    },
+    {
+      "id": "kokoro-v1",
+      "kind": "tts",
+      "label": "Kokoro 82M v1.0",
+      "engine": "kokoro_onnx",
+      "tier": "fast",
+      "files": {
+        "model": "voice/tts/kokoro-v1/kokoro-v1.0.onnx",
+        "voices": "voice/tts/kokoro-v1/voices-v1.0.bin"
+      },
+      "size_mb": 338,
+      "voices": ["af_heart", "af_bella", "af_nicole", "af_sarah", "af_sky", "am_adam", "am_michael", "am_puck", "bf_emma", "bf_isabella", "bm_george", "bm_lewis"],
+      "default_voice": "af_heart",
+      "source": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "license": "Apache-2.0",
+      "urls": {
+        "model": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx",
+        "voices": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin"
+      },
+      "notes": "Hardlinked from ~/NovelMakerData/tts_voices (no extra disk). The engine lists every voice in the file; these are the English ones."
+    },
+    {
+      "id": "breeze-tts-2",
+      "kind": "tts",
+      "label": "Breeze TTS 2 q4_k (near-human, slow)",
+      "engine": "breeze_cpp",
+      "tier": "best",
+      "heavy": true,
+      "ram_mb": 3500,
+      "idle_unload_s": 120,
+      "files": {
+        "model": "voice/tts/breeze-tts-2/breeze-tts-2-q4_k.gguf",
+        "ref": "voice/tts/breeze-tts-2/ref_voice.wav",
+        "server": "voice/bin/Breeze-TTS-2.cpp/build/breeze-server",
+        "profiles": "voice/profiles"
+      },
+      "ref_text": "The harbour lights came on one by one as the evening tide began to turn.",
+      "size_mb": 2421,
+      "voices": ["harbour"],
+      "languages": ["en"],
+      "default_voice": "harbour",
+      "expressive": "breeze",
+      "source": "https://github.com/HoppouAI/Breeze-TTS-2.cpp (v0.1.0, built here with Vulkan) and https://huggingface.co/HoppouAI/Breeze-TTS-2.cpp",
+      "license": "Weights: BreezeBlue Research and Non-Commercial License; code: Apache-2.0",
+      "urls": {
+        "model": "https://huggingface.co/HoppouAI/Breeze-TTS-2.cpp/resolve/main/breeze-tts-2-q4_k.gguf",
+        "ref": "https://huggingface.co/HoppouAI/Breeze-TTS-2.cpp/resolve/main/ref_voice.wav"
+      },
+      "notes": "The near-human option (docs/library/voice/2026-10-08-tts-small-fast-and-best.md). Heavy: the Voice app loads it only with ram_mb + 1500 MB free and Jan idle, else Kokoro speaks (X-Voice-Fell-Back). Unloads after 2 min idle. Saved voices: voice/tts/breeze-tts-2/voices/<name>.breeze. The server has no download: build it with cmake (see the how-to doc)."
+    },
+    {
+      "id": "auk-flash",
+      "kind": "tts",
+      "label": "AuK-Flash q8 (clones a voice, English)",
+      "engine": "audio_cpp",
+      "tier": "best",
+      "heavy": true,
+      "ram_mb": 7500,
+      "idle_unload_s": 120,
+      "family": "auk",
+      "task": "tts",
+      "session_options": {"auk.variant": "flash", "auk.model_gguf": "auk-flash-q8_0.gguf", "auk.qwen_gguf": "qwen2.5-omni-3b-q8_0.gguf"},
+      "tasks": {"edit": "gen"},
+      "languages": ["en"],
+      "expressive": "auk",
+      "prompt": "Say the following with the same voice: \"{text}\"",
+      "design_option": "instruct",
+      "duration": "estimate",
+      "files": {
+        "model": "voice/tts/auk",
+        "server": "voice/bin/audio.cpp-src/build/linux-vulkan-release/bin/audiocpp_server",
+        "runtime": "voice/bin/audio.cpp-src",
+        "profiles": "voice/profiles"
+      },
+      "default_voice": "harbour",
+      "size_mb": 3300,
+      "source": "https://huggingface.co/tencent/AuK (Tencent Hunyuan + SJTU, open 2026-09-09), run by https://github.com/0xShug0/audio.cpp v0.9.1 (built here with Vulkan); GGUF from https://huggingface.co/audio-cpp/audio.cpp-gguf",
+      "license": "MIT",
+      "notes": "The voice cloner from AI Search's 2026-09-13 news (docs/library/voice/2026-10-08-voice-cloning-and-emotion-tts.md). Voices are profiles (models/voice/profiles/<id>/, apps/voice/profiles.py): a clip of the voice plus clips of it in moods, which AuK makes from the calm clip by its own edit instructions. A line's first mood tag ([angry], [whisper] ...) picks that clip. English and Chinese only. The server is audio.cpp's, one per loaded row (apps/voice/engines/audio_cpp.py)."
+    },
+    {
+      "id": "irodori-anime",
+      "kind": "tts",
+      "label": "Irodori-TTS v4.1 Anime q8 (clones a voice, Japanese)",
+      "engine": "audio_cpp",
+      "tier": "best",
+      "heavy": true,
+      "ram_mb": 3000,
+      "idle_unload_s": 120,
+      "family": "irodori_tts",
+      "task": "clon",
+      "tasks": {"design": "vdes"},
+      "options": {"language": "ja", "no_ref": false},
+      "design_options": {"language": "ja", "no_ref": true},
+      "speed_option": "duration_scale",
+      "speed_invert": true,
+      "languages": ["ja"],
+      "expressive": "irodori",
+      "files": {
+        "model": "voice/tts/irodori-v4.1-anime/irodori-tts-v4.1-anime-q8_0.gguf",
+        "server": "voice/bin/audio.cpp-src/build/linux-vulkan-release/bin/audiocpp_server",
+        "runtime": "voice/bin/audio.cpp-src",
+        "profiles": "voice/profiles"
+      },
+      "default_voice": "handler-ja",
+      "size_mb": 1110,
+      "source": "https://huggingface.co/Aratako/Irodori-TTS-v4.1-Small (the Anime fine-tune; GGUF from https://huggingface.co/audio-cpp/audio.cpp-gguf, Irodori-TTS-v4-Small-GGUF), run by audio.cpp v0.9.1",
+      "license": "MIT, with the model card's rule: no cloning of a voice actor without consent (such a profile is marked private and stays on this laptop)",
+      "notes": "Japanese anime-style speech. Mood and sound tags become the model's emoji in place ([angry] 😠, [whisper] 👂, [laugh] 🤭 ...). A voice is a profile clip (cloned, no transcript needed) or designed from a description (profiles.py design). v4 may add a short extra phrase at the end of a cloned line now and then (audio.cpp's note)."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "media",
+  "label": "Media",
+  "tagline": "Music, videos, YouTube and Crunchyroll",
+  "port": 8450,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#f28c6b",
+  "icon": "🎧",
+  "fullscreen": "auto",
+  "order": 16,
+  "section": "watch",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "One place for media: a player for the mp3, mp4 and other files in your folders, YouTube and Crunchyroll as real web pages inside the Forge window (the same native views the Browser uses), and a yt-dlp downloader that lists a channel, playlist or search and saves picked videos as mp3 or mp4 into the library.",
+    "features": [
+      {"name": "Library player", "description": "Scans the folders in Settings (default ~/Music, ~/Videos, ~/Downloads/MediaForge/Music) for audio and video, plays them in the page with a queue, shuffle, repeat, keyboard control and full screen."},
+      {"name": "YouTube", "description": "youtube.com in a native WebKit view; videos play. Signing in works like any page."},
+      {"name": "Crunchyroll", "description": "crunchyroll.com in a native view for browsing. Playback needs Widevine DRM, which WebKitGTK does not have, so the Watch in Firefox button opens the same page in Firefox where the login already is."},
+      {"name": "Download", "description": "Paste a channel, playlist or video link, or type a name (Tokyo Echo Sounds). Lists what is there, tick what you want, save as mp3 (audio) or mp4 (video) with yt-dlp and ffmpeg into the download folder; the library picks them up."}
+    ],
+    "data_dir": "~/.local/share/forge/media/settings.json (folders); downloads default to ~/Music/Forge",
+    "services": [],
+    "dependencies": {"required": ["fastapi", "uvicorn", "yt-dlp (system, /usr/bin/yt-dlp)", "ffmpeg"], "optional": ["firefox (for Crunchyroll playback)"]},
+    "standalone_launch": "cd ~/Forge/apps/media && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8450",
+    "api_base": "/api",
+    "known_gaps": [
+      "Crunchyroll video cannot play inside Forge (no Widevine in WebKitGTK); it hands off to Firefox.",
+      "YouTube live streams (HLS) showed 'unavailable' in WebKitGTK on 2026-09-20; ordinary videos play."
+    ],
+    "docs": ["README.md", "WIP.md"]
+  }
+}

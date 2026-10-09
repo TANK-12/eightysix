@@ -1,0 +1,71 @@
+{
+  "name": "crewroom",
+  "label": "Crew Room",
+  "tagline": "Claude sessions and Jan at work, pixel-style",
+  "port": 8447,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#f38ab3",
+  "icon": "🛋️",
+  "order": 21,
+  "section": "system",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "A living anime pixel-art room (Office, Spaceship bridge, Beach, Relaxed room) where every live Claude session is a character at a station, crew helpers sit beside their commander colour-coded by type, and each loaded Jan model is a glowing spirit that grows busier with its CPU use. Click any character for its task, claimed files, recent actions and token use.",
+    "features": [
+      {
+        "name": "Live sessions",
+        "description": "Reads ~/.claude/sessions/*.json and the tail of each transcript for model, effort, latest tool action and token averages. Read-only."
+      },
+      {
+        "name": "Crew helpers",
+        "description": "Background helpers from each session's subagents folder, typed by ~/.claude/agents/*.md frontmatter (model and effort)."
+      },
+      {
+        "name": "Crew board",
+        "description": "~/.claude/crew/*/board.json tasks, claims and log shown on the room's board, with claimed files as items on the owner's desk."
+      },
+      {
+        "name": "Jan models",
+        "description": "One character per running llama-server model process, glow and bob speed from its CPU share. Process info only; Jan is never queried or restarted."
+      },
+      {
+        "name": "Rooms as data",
+        "description": "Rooms are JSON files in ~/ForgeArtData/packs/crewroom/rooms/, sprites are the crewroom packs PixelForge edits. Missing files are seeded from the app's seed/ folder; existing ones are never overwritten."
+      },
+      {
+        "name": "New session",
+        "description": "Opens claude in GNOME Terminal in a chosen folder, or starts a headless background task (claude -p, auto mode, prompt on stdin) whose character shows while it runs. The only part of the app that writes; posts from other pages are refused."
+      },
+      {
+        "name": "Conversation and where",
+        "description": "The details panel reads a session's whole conversation backwards in 256 KB pages (prompts, replies, tool calls in plain words, results by size) and shows where it runs: folder, terminal device and program, name, start time, and a resume command once it has ended."
+      }
+    ],
+    "data_dir": "~/ForgeArtData (crewroom-* packs, crewroom palette, packs/crewroom/rooms/*.json); background tasks in ~/.local/share/forge/crewroom/tasks/; reads ~/.claude and /proc",
+    "dependencies": {
+      "required": ["fastapi", "uvicorn"],
+      "optional": []
+    },
+    "standalone_launch": "cd ~/Forge/apps/crewroom && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8447",
+    "api_base": "/api",
+    "known_gaps": [
+      "Background task permission mode is disputed: this build uses auto (Emerson's answer here), another session reports he said bypass. One constant, launch.MODE.",
+      "claude -p reported permissionMode default in its init event despite --permission-mode auto; not yet checked with a task that edits.",
+      "A terminal session in a brand-new folder shows no character until the folder-trust question is answered.",
+      "Not yet seen with a real crew helper; only the sample crew and fixture tests exercise that.",
+      "Helpers crowd their commander's desk when there are three or more.",
+      "Token averages come from the last 64 KB of a transcript and can cover only a few replies."
+    ],
+    "improvements": [
+      "Settle the background permission mode with Emerson, then run one task that edits a file to see which mode applies.",
+      "Tell the person to answer the trust question when a terminal opens in a new folder.",
+      "Keep open result toggles and tool labels when Load earlier re-renders the conversation.",
+      "Watch a real crew once, because helper walking and reporting are only fixture-tested.",
+      "Spread helpers along a row or a bench so they stop overlapping.",
+      "Keep a per-session running token average in memory between polls.",
+      "Art polish in PixelForge: palm leaves, side-walk frames, helper side views."
+    ],
+    "docs": ["MANIFEST.md", "WIP.md"]
+  }
+}

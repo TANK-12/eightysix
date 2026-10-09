@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InkForge</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, sans-serif; color-scheme: dark; }
+  main { max-width: 1100px; margin: 0 auto; padding: 18px 16px 40px; display: grid; gap: 16px; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 20px; margin: 0; flex: 1; }
+  section { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .err { color: var(--bad); }
+  button, input[type=file] { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  button:disabled { opacity: .55; cursor: default; }
+  input[type=file] { max-width: 260px; color: var(--muted); padding: 4px 6px; }
+  input[type=file]::file-selector-button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 3px 9px; margin-right: 8px; cursor: pointer; }
+  input[type=file]::-webkit-file-upload-button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 3px 9px; margin-right: 8px; cursor: pointer; }
+  #importForm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #importErr:empty, #libraryNote:empty { display: none; }
+  .note { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
+  .note button { margin-left: 10px; padding: 3px 10px; }
+
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  .shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; min-height: 40px; align-items: start; }
+  .tile { display: grid; gap: 6px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--bg); transition: transform .18s ease; }
+  .tile:hover, .tile:focus-visible { border-color: var(--accent); transform: translateY(-2px); outline: none; }
+  .tile .cover { aspect-ratio: 2/3; border-radius: 6px; background: var(--panel); display: flex; align-items: center; justify-content: center; font-size: 34px; }
+  /* A long title stops at three lines (full name on hover) so it cannot
+     stretch the row and push the other covers out of their tiles. */
+  .tile .title { font-size: 13px; font-weight: 600; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .tile .sub { font-size: 11px; color: var(--muted); }
+
+  #chapterList { display: grid; gap: 6px; margin-top: 8px; }
+  .chapRow { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+  .chapRow:hover, .chapRow:focus-visible { border-color: var(--accent); outline: none; }
+  .chapRow.busy { opacity: .6; }
+
+  /* Pages are read on black whatever the theme, like a real reader. */
+  #reader { position: fixed; inset: 0; background: #000; display: none; z-index: 20; flex-direction: column; opacity: 0; transition: opacity .2s ease; }
+  #reader.open { display: flex; }
+  #reader.shown { opacity: 1; }
+  #readerBar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(0,0,0,.55); color: #fff; flex-wrap: wrap; }
+  #readerBar .grow { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #readerStage { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+  #readerStage img { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity .15s ease; }
+  #readerStage img.loading { opacity: .35; }
+  /* Fit width: the page can be taller than the window, so it scrolls. */
+  #readerStage.fitWidth { overflow-y: auto; align-items: flex-start; }
+  #readerStage.fitWidth img { max-width: 100%; max-height: none; width: 100%; height: auto; }
+  #readerMsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ccc; pointer-events: none; }
+  #readerMsg:empty { display: none; }
+  #readerBar button { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+  #readerBar .muted { color: #bbb; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tile, #reader, #readerStage img { transition: none; }
+    .tile:hover { transform: none; }
+  }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<main>
+  <header>
+    <h1>📖 InkForge</h1>
+    <form id="importForm">
+      <input type="file" id="pdfFile" accept="application/pdf">
+      <button class="primary" type="submit">Import PDF</button>
+    </form>
+  </header>
+  <div id="importErr" class="err muted" role="status"></div>
+  <div id="libraryNote" class="note muted" role="status"></div>
+
+  <section>
+    <h2>Manga (from Komikku)</h2>
+    <div id="mangaShelf" class="shelf"><div class="muted">Loading library…</div></div>
+  </section>
+
+  <section>
+    <h2>PDFs</h2>
+    <div id="pdfShelf" class="shelf"><div class="muted">Loading library…</div></div>
+  </section>
+
+  <section id="chapterSection" hidden>
+    <h2 id="chapterSeriesName">Chapters</h2>
+    <div id="chapterList"></div>
+  </section>
+</main>
+
+<div id="reader">
+  <div id="readerBar">
+    <button id="readerClose">✕ Close</button>
+    <div class="grow muted" id="readerLabel"></div>
+    <button id="fitToggle" title="Fit the page to the window's width (scroll down a tall page)">Fit width</button>
+    <button id="prevPage">◀</button>
+    <span id="pageIndicator" class="muted"></span>
+    <button id="nextPage">▶</button>
+  </div>
+  <div id="readerStage" title="Click the left or right side to turn the page"><img id="readerImg" alt=""><div id="readerMsg"></div></div>
+</div>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

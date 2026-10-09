@@ -1,0 +1,211 @@
+{
+  "_readme": "The forward plan for Cosmos after session 1. Each numbered session is scoped to one sitting and ends with something the user can play or use. 'backlog' holds real, session-sized ideas that are not scheduled yet; keep adding to it. A session that finds a better order says so in its own manifest and edits this file.",
+  "written": "2026-09-15",
+  "last_revised_at_session": 2,
+  "what_the_user_asked_for": "A cool astronomy, galaxy and solar-system map plus gravity games: all of a sandbox, orbit puzzles, a Kerbal-style spaceflight sim (3D), an arcade shooter, and a music visualizer built both into Cosmos and as PulseForge scenes. The real galaxy map starts from HYG, and a Gaia layer comes later on the AN3 drive. Session 1 was the map and the sandbox.",
+  "rules_that_hold_for_every_session": [
+    "Adding a mode is one folder under static/modes with a mode.json; nothing else lists modes.",
+    "Adding a body, level, part or preset is one JSON file in its folder, never a new hardcoded list.",
+    "Physics and orbital maths live in static/core, stay DOM-free and are tested with node --test before any drawing is built on them.",
+    "Large data goes on AN3 (/run/media/ejb/AN3/Cosmos) with a graceful fallback when the drive is out; ask before any download over about 50 MB.",
+    "When the honest simulation looks wrong, improve the drawing, not the physics.",
+    "Every mode works fullscreen (shared forge_chrome.js, f key) and Esc backs out one level."
+  ],
+  "session_2": {
+    "title": "Orbit puzzles",
+    "why": "The sandbox proves the engine; puzzles give it goals. Slingshot puzzles teach real orbital intuition, and the engine's predict() already draws a probe's future path.",
+    "user_decisions_2026-09-16": {
+      "_note": "The user answered 15 design questions before this session was built. These override anything older in this block. They said no more questions after these, so build from them.",
+      "view": "3D, like the map (Three.js). NOT 2D like the sandbox.",
+      "launch_controls": "Both: drag to aim, plus number fields for speed and angle to fine-tune.",
+      "burns": "Pure launches in early levels; later levels give a small fuel budget for mid-flight burns.",
+      "path_preview": "Full predicted path on early levels, shortening as levels get harder.",
+      "realism": "Made-up toy systems early; late levels use real bodies from data/bodies.",
+      "levels": "10 hand-made levels plus an endless mode of generated levels, each checked as solvable before it is shown.",
+      "stars": "A mix: one star for finishing, one for par fuel or speed, one for a bonus goal.",
+      "goal_types": "Reach a moving planet, settle into an orbit, pass waypoints in order, land on a body, and also an open 'just explore the galaxy' level with no goal to fail.",
+      "hazards": "Crashing into bodies, black holes, asteroid fields, and out of bounds. Set out of bounds VERY far away: the user wants to try long shots.",
+      "after_failure": "Instant retry with the previous attempts' paths drawn faintly (ghosts).",
+      "teaching": "A short plain-language caption per level on the real orbital idea it uses.",
+      "sound": "A small set (launch, burn, crash, win) as JSON recipes in ~/ForgeGameData/sounds, no audio files.",
+      "progress_saving": "A JSON file in ~/ForgeGameData/cosmos/ through the backend, not localStorage.",
+      "level_editor": "Stays in the backlog."
+    },
+    "consequence_of_3d": "static/core/nbody.js is 2D. 3D puzzles need a 3D n-body integrator with predict() in static/core first, tested under node like nbody.js. Pulling that forward is overlap with session 7's orbit3d.js, so build it to be reused there.",
+    "do": [
+      "static/core: a 3D n-body integrator with prediction, DOM-free, node tests for energy conservation and a reference solution per level.",
+      "static/modes/puzzles/ in Three.js with a level select, star ratings, ghosts of past attempts and per-level captions.",
+      "Levels as JSON in ~/ForgeGameData/cosmos/levels/*.json: bodies, a launch point, allowed launch speed and angle range, a goal (moving target, orbit capture, waypoints, landing, or none for explore), hazards, a fuel budget and a very large bounds radius.",
+      "Ten hand-made levels climbing from a straight shot to a double gravity assist, plus an endless generator that only serves levels its own solver can finish.",
+      "Backend endpoints to read and write puzzle progress in ~/ForgeGameData/cosmos/, with pytest.",
+      "Sound recipes in ~/ForgeGameData/sounds."
+    ],
+    "explicitly_not": [
+      "No level editor yet (backlog)"
+    ],
+    "independent": true,
+    "status": "Done in session 2 (2026-09-16). See manifests/session-02.json for what was built, verified and left.",
+    "level_order_as_built": "Levels 1-7 are made-up systems, 8-10 real bodies: 1 First light, 2 Lead the target, 3 Around the corner, 4 Slingshot, 5 Ring road, 6 Event horizon, 7 Parking orbit (first burns), 8 Moonfall (land on the real Moon), 9 Belt run (real Mars to a Jupiter orbit), 10 Grand tour (real Jupiter slingshot to Saturn). Parking orbit moved from 4 to 7 so burns arrive late, as the user chose.",
+    "endless_note": "Endless levels use reach and ring goals only, because they are proven solvable with a launch and no burns. Orbit and landing goals live in the hand-made levels."
+  },
+  "session_3": {
+    "title": "Arcade gravity shooter",
+    "why": "The fast, fun mode. Spacewar with real gravity wells: bullets and ships both fall toward the star.",
+    "do": [
+      "static/modes/shooter/: one or two players on one keyboard, thrust and turn, shots as particles, respawn, a score limit.",
+      "Arenas as JSON (star mass, extra planets, wraparound or bounded).",
+      "Sounds through shared/forge_sound.js recipes in ~/ForgeGameData/sounds, not audio files.",
+      "A simple computer opponent that aims using predict()."
+    ],
+    "explicitly_not": [
+      "No online play",
+      "No gamepad until asked"
+    ],
+    "independent": true
+  },
+  "session_4": {
+    "title": "Live music visualizer mode",
+    "why": "The user asked for a space visualizer in Cosmos itself. The galaxy model, star shader and n-body particles are already the visual vocabulary.",
+    "do": [
+      "static/modes/visualizer/: open an audio file (stays in the browser; nothing uploaded), a Web Audio AnalyserNode driving scenes.",
+      "Scenes as small modules listed by a scenes.json in the mode folder: galaxy pulse (arms brighten on bass), orbit rings (planets spin with tempo), nebula particles (n-body dust thrown by transients), starfield warp.",
+      "Test whether WebKitGTK inside Forge allows getUserMedia for system or monitor audio. If it does not, say so plainly in the mode and the manifest; do not fake it."
+    ],
+    "explicitly_not": [
+      "No video export here; that is PulseForge's job (session 5)"
+    ],
+    "independent": true
+  },
+  "session_5": {
+    "title": "Cosmos scenes for PulseForge",
+    "why": "The user wants the same space visuals exportable as music videos, and PulseForge already renders and muxes.",
+    "do": [
+      "pulseforge/scenes/cosmos_galaxy.py and cosmos_orbits.py following that app's contract: SCENE metadata plus frames(ctx) yielding (H, W, 3) uint8 frames, and one line each in scenes/registry.py _MODULES.",
+      "Port only the maths needed (galaxy model, star colour) to numpy; do not import the browser code.",
+      "Use the scene's music analysis (beats, sections) the way aurora.py does.",
+      "Render a 10-second test clip and look at frames before calling it done."
+    ],
+    "explicitly_not": [
+      "Do not change PulseForge's render pipeline"
+    ],
+    "prerequisites": [
+      "session_4 is useful for agreeing the look, but not required"
+    ],
+    "independent": true
+  },
+  "session_6": {
+    "title": "3D spaceflight sim, part 1: rockets from parts",
+    "why": "The Kerbal-style sim is the biggest piece, so it gets four sessions. Building a rocket comes first because every later part needs a vehicle with mass, thrust and stages.",
+    "do": [
+      "static/core/rocket.js: parts from ~/ForgeGameData/cosmos/parts/*.json (mass dry and wet, thrust, Isp, drag area, size), stacking, stages, and delta-v per stage by the rocket equation, with node tests.",
+      "static/modes/flight/ builder screen in Three.js: stack parts vertically, see mass, thrust-to-weight and delta-v update live."
+    ],
+    "explicitly_not": [
+      "No flying yet",
+      "No radial or symmetry attachment yet"
+    ],
+    "independent": true
+  },
+  "session_7": {
+    "title": "3D spaceflight sim, part 2: flight in one gravity well",
+    "why": "Launch to orbit around one body is the core loop.",
+    "do": [
+      "static/core/orbit3d.js: state vectors <-> Keplerian elements, 3D integration with thrust, time warp that switches to on-rails Kepler propagation when not thrusting.",
+      "Flight view: chase camera, navball-style attitude readout, apoapsis/periapsis markers, the orbit line.",
+      "Bodies come from data/bodies with real radii and GM, optionally scaled down (a 'kerbal scale' setting) because real Earth orbit is slow to reach."
+    ],
+    "prerequisites": [
+      "session_6"
+    ],
+    "independent": false
+  },
+  "session_8": {
+    "title": "3D spaceflight sim, part 3: spheres of influence and manoeuvre nodes",
+    "why": "Going to the Moon and to other planets.",
+    "do": [
+      "Patched conics: sphere-of-influence changes, planned manoeuvre nodes with a predicted trajectory, transfer windows using the real ephemeris."
+    ],
+    "prerequisites": [
+      "session_7"
+    ],
+    "independent": false
+  },
+  "session_9": {
+    "title": "3D spaceflight sim, part 4: atmosphere, landing and docking",
+    "why": "The payoff moments.",
+    "do": [
+      "An exponential atmosphere with drag and heating for bodies that have one (data in body JSON), landing legs and touchdown speed, a docking target with relative-velocity readouts."
+    ],
+    "prerequisites": [
+      "session_8"
+    ],
+    "independent": false
+  },
+  "session_10": {
+    "title": "Gaia layer on AN3",
+    "why": "The user asked for a realistic star map of the galaxy, put on AN3 if too big. HYG is only the Sun's neighbourhood.",
+    "do": [
+      "Measure the real download size first and ask the user before pulling anything (their disk memory says so).",
+      "A tool that builds a Gaia DR3 subset (for example, G < 16 with good parallax) into distance-sorted chunks on AN3, plus a small cache copy of the brightest part.",
+      "Streaming in the map: load chunks by camera distance, same star shader."
+    ],
+    "explicitly_not": [
+      "Never write the chunks to the internal disk except the small cache"
+    ],
+    "independent": true
+  },
+  "backlog": [
+    {
+      "title": "Constellation lines and a sky view from Earth",
+      "why": "Standing on Earth looking up is the most familiar view of the stars; HYG already has constellation membership.",
+      "independent": true
+    },
+    {
+      "title": "Exoplanet systems",
+      "why": "Known planets around nearby stars, from the NASA Exoplanet Archive, shown when you fly to a star.",
+      "independent": true
+    },
+    {
+      "title": "Comets and asteroids",
+      "why": "Named comets and the brightest asteroids from JPL SBDB as more body files, plus an asteroid-belt particle layer in the map.",
+      "independent": true
+    },
+    {
+      "title": "Eclipse and conjunction finder",
+      "why": "Search the ephemeris for eclipses and planet alignments, then fly the camera there at that moment.",
+      "independent": true
+    },
+    {
+      "title": "Sandbox level editor for puzzles",
+      "why": "Make puzzle levels by placing things in the sandbox and marking a target.",
+      "prerequisites": [
+        "session_2"
+      ]
+    },
+    {
+      "title": "Barnes-Hut gravity for massive swarms",
+      "why": "Let particles pull on each other for real galaxy formation, which needs O(n log n) gravity and probably a Web Worker.",
+      "independent": true
+    },
+    {
+      "title": "Guided tours",
+      "why": "Scripted camera flights with captions: scale of the universe, Voyager's route, where the Sun goes in 250 million years.",
+      "independent": true
+    },
+    {
+      "title": "Spacecraft trajectories",
+      "why": "Voyager, New Horizons and JWST paths from JPL Horizons vectors, drawn in the map for their real dates.",
+      "independent": true
+    },
+    {
+      "title": "Puzzle tuning from real play",
+      "why": "Every level has a solver-found reference and 3 achievable stars, but nobody has played them. Pars, bonus thresholds, launch-speed ranges and preview lengths should be tuned from the user's first tries.",
+      "independent": true
+    },
+    {
+      "title": "Orbit and landing goals in endless mode",
+      "why": "The generator only makes reach and ring levels; it could build capture and landing levels with the solver's braking autopilot as proof.",
+      "independent": true
+    }
+  ]
+}

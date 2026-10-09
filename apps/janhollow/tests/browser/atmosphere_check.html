@@ -1,0 +1,402 @@
+<!doctype html>
+<!-- Standalone harness for static/atmosphere.js.
+     Draws a fake deck in roughly the way render.js does -- dark base, autotiled
+     wall lips, light pools punched out of a dark overlay -- then runs the five
+     atmosphere passes over it, so a screenshot of this page shows the module's
+     contribution and nothing else. It also times each pass over 120 frames and
+     writes the result into #stats for --dump-dom. No backend needed. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Janhollow atmosphere check</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05070d; overflow: hidden; }
+  canvas { display: block; }
+  #stats { position: fixed; left: 6px; bottom: 4px; color: #6f8; font: 11px monospace; opacity: 0.85; }
+  body.clean #stats { display: none; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1400" height="900"></canvas>
+<div id="stats">measuring...</div>
+<script src="/static/atmosphere.js"></script>
+<script>
+"use strict";
+const W = 1400, H = 900;
+const canvas = document.getElementById("stage");
+const ctx = canvas.getContext("2d");
+
+/* --- a fake deck ---------------------------------------------------------- */
+const DECK_W = 42, DECK_H = 25;
+function buildRows() {
+  const rows = [];
+  for (let y = 0; y < DECK_H; y++) rows.push(new Array(DECK_W).fill(" "));
+  const room = (x0, y0, w, h) => {
+    for (let y = y0; y < y0 + h; y++)
+      for (let x = x0; x < x0 + w; x++)
+        rows[y][x] = (x === x0 || x === x0 + w - 1 || y === y0 || y === y0 + h - 1) ? "#" : ".";
+  };
+  room(2, 2, 16, 11);      // mess hall
+  room(17, 4, 13, 9);      // corridor-ish middle room
+  room(29, 2, 11, 14);     // bridge
+  room(5, 13, 20, 10);     // hold
+  rows[12][9] = "+"; rows[12][10] = "+";   // door mess -> hold
+  rows[8][17] = "+";                       // door mess -> middle
+  rows[8][29] = "+";                       // door middle -> bridge
+  rows[15][31] = "+";
+  rows[17][22] = "L"; rows[17][23] = "L";  // lift, inside the hold
+  return rows.map(r => r.join(""));
+}
+const rows = buildRows();
+
+const lights = [
+  { x: 7,  y: 5,  reach: 4.2, colour: "#ffc27a", flicker: 0.15 },
+  { x: 13, y: 9,  reach: 3.2, colour: "#ffb45e", flicker: 0.6  },
+  { x: 23, y: 7,  reach: 2.8, colour: "#7fd4ff", flicker: 0.0  },
+  { x: 34, y: 5,  reach: 4.6, colour: "#5fd0ff", flicker: 0.05 },
+  { x: 35, y: 12, reach: 3.0, colour: "#79ffe0", flicker: 0.0  },
+  { x: 10, y: 18, reach: 3.6, colour: "#ff9f57", flicker: 0.35 },
+  { x: 19, y: 20, reach: 2.4, colour: "#ffd9a0", flicker: 0.0  },
+  { x: 30, y: 2,  reach: 3.4, colour: "#8fc4ff", flicker: 0.0  }, // against hull
+];
+const props = [
+  { x: 7,  y: 5,  sprite: "lamp",    solid: true },
+  { x: 13, y: 9,  sprite: "lamp",    solid: true },
+  { x: 23, y: 7,  sprite: "console", solid: true },
+  { x: 34, y: 5,  sprite: "bridge_display", solid: true },
+  { x: 35, y: 12, sprite: "reactor", solid: true },
+  { x: 10, y: 18, sprite: "coffee_machine", solid: true },
+  { x: 19, y: 20, sprite: "server_rack", solid: true },
+  { x: 15, y: 16, sprite: "crate",   solid: true },
+  { x: 16, y: 16, sprite: "crate",   solid: true },
+  { x: 6,  y: 9,  sprite: "table",   solid: true },
+];
+const actors = [
+  { x: 8.4,  y: 7.2,  h: 46 },
+  { x: 12.1, y: 10.4, h: 44 },
+  { x: 22.6, y: 8.1,  h: 48 },
+  { x: 33.2, y: 7.5,  h: 46 },
+  { x: 11.8, y: 19.3, h: 44 },
+];
+
+const tile = 32;
+const scale = Math.min(W / (DECK_W * tile), H / (DECK_H * tile));
+const ox = Math.round((W - DECK_W * tile * scale) / 2);
+const oy = Math.round((H - DECK_H * tile * scale) / 2);
+const scene = { tile, scale, ox, oy, width: DECK_W, height: DECK_H, rows, lights, props, actors,
+                timeOfDay: 0.8, now: 0 };
+
+/* --- a stand-in for render.js's deck drawing ------------------------------ */
+const px = (x) => ox + x * tile * scale;
+const T = tile * scale;
+
+function hash(x, y) { let h = (x * 374761393 + y * 668265263) >>> 0; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967296; }
+
+let deckCache = null;
+function deckLayer() {
+  if (deckCache) return deckCache;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#04060b"; g.fillRect(0, 0, W, H);
+  /* stars behind the hull */
+  for (let i = 0; i < 160; i++) {
+    const r = hash(i, 7), r2 = hash(i, 19);
+    g.fillStyle = `rgba(200,220,255,${0.15 + r2 * 0.35})`;
+    g.fillRect(Math.floor(r * W), Math.floor(r2 * H), 1, 1);
+  }
+  for (let y = 0; y < DECK_H; y++) {
+    for (let x = 0; x < DECK_W; x++) {
+      const ch = rows[y][x];
+      if (ch === " ") continue;
+      const sx = px(x), sy = oy + y * T;
+      if (ch === "#") {
+        const n = hash(x, y);
+        g.fillStyle = `rgb(${34 + n * 10 | 0},${37 + n * 10 | 0},${48 + n * 12 | 0})`;
+        g.fillRect(sx, sy, T + 1, T + 1);
+        /* lit lip on the side facing a room below */
+        if (y + 1 < DECK_H && rows[y + 1][x] !== "#" && rows[y + 1][x] !== " ") {
+          g.fillStyle = "rgba(150,165,190,0.20)";
+          g.fillRect(sx, sy + T - Math.max(2, T * 0.14), T + 1, Math.max(2, T * 0.14));
+        }
+      } else {
+        const n = hash(x + 91, y + 13);
+        const base = ch === "+" ? 30 : ch === "L" ? 26 : 22;
+        g.fillStyle = `rgb(${base + n * 8 | 0},${base + 4 + n * 8 | 0},${base + 10 + n * 9 | 0})`;
+        g.fillRect(sx, sy, T + 1, T + 1);
+        /* floor plate seams */
+        g.fillStyle = "rgba(0,0,0,0.22)";
+        g.fillRect(sx, sy, T + 1, 1); g.fillRect(sx, sy, 1, T + 1);
+        if (n > 0.86) { g.fillStyle = "rgba(120,140,165,0.10)"; g.fillRect(sx + 3, sy + 3, T - 6, T - 6); }
+      }
+    }
+  }
+  deckCache = c; return c;
+}
+
+let poolCache = null;
+function poolLayer() {
+  if (poolCache) return poolCache;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "rgba(6,10,20,0.42)"; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = "destination-out";
+  for (const l of lights) {
+    const cx = ox + (l.x + 0.5) * T, cy = oy + (l.y + 0.5) * T, r = l.reach * T;
+    const gr = g.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gr.addColorStop(0, "rgba(0,0,0,0.95)");
+    gr.addColorStop(0.55, "rgba(0,0,0,0.43)");
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
+  g.fillStyle = "rgba(0,0,0,0.5)";
+  for (let y = 0; y < DECK_H; y++) for (let x = 0; x < DECK_W; x++) {
+    if (rows[y][x] === " ") continue;
+    g.fillRect(px(x), oy + y * T, T + 1, T + 1);
+  }
+  poolCache = c; return c;
+}
+
+function drawProps(g) {
+  for (const p of props) {
+    const sx = px(p.x) + T * 0.18, sy = oy + p.y * T + T * 0.12;
+    g.fillStyle = "#3a4152"; g.fillRect(sx, sy, T * 0.64, T * 0.74);
+    g.fillStyle = "#586074"; g.fillRect(sx, sy, T * 0.64, T * 0.16);
+    const lit = lights.find(l => l.x === p.x && l.y === p.y);
+    if (lit) { g.fillStyle = lit.colour; g.fillRect(sx + T * 0.14, sy + T * 0.22, T * 0.36, T * 0.24); }
+  }
+}
+function drawActors(g) {
+  for (const a of actors) {
+    const cx = ox + (a.x + 0.5) * T, feet = oy + (a.y + 0.9) * T;
+    const h = a.h * scale, w = T * 0.42;
+    g.fillStyle = "#4b5570"; g.fillRect(cx - w / 2, feet - h, w, h);
+    g.fillStyle = "#c9a07a"; g.fillRect(cx - w / 2, feet - h, w, h * 0.3);
+    g.fillStyle = "#2b3247"; g.fillRect(cx - w / 2, feet - h * 0.45, w, h * 0.45);
+  }
+}
+
+/* --- frame ---------------------------------------------------------------- */
+const A = window.Atmosphere;
+A.init({ width: W, height: H });
+if (location.search.indexOf("off") >= 0) A.settings.enabled = false;
+
+const timing = { shadow: 0, light: 0, dust: 0, screen: 0, total: 0, frames: 0 };
+function frame(now, measure) {
+  scene.now = now;
+  const t0 = performance.now();
+  ctx.drawImage(deckLayer(), 0, 0);
+  drawProps(ctx);
+  ctx.drawImage(poolLayer(), 0, 0);
+  const t1 = performance.now();
+  A.groundShadowPass(ctx, scene);
+  const t2 = performance.now();
+  drawActors(ctx);
+  A.lightPass(ctx, scene);
+  const t3 = performance.now();
+  A.dustPass(ctx, scene, 1 / 60);
+  const t4 = performance.now();
+  A.screenPass(ctx, scene);
+  /* Canvas2d queues work, so a naive performance.now() around the passes
+     measures command-buffer time, not rasterisation. Reading one pixel back
+     forces the flush, which is the number that matters for 60fps. */
+  if (location.search.indexOf("sync") >= 0) ctx.getImageData(0, 0, 1, 1);
+  const t5 = performance.now();
+  if (measure) {
+    timing.shadow += t2 - t1; timing.light += t3 - t2; timing.dust += t4 - t3;
+    timing.screen += t5 - t4; timing.total += t5 - t1; timing.frames++;
+  }
+}
+
+/* Warm the bakes, then measure 120 frames of steady state, then leave the
+   canvas showing a representative frame for the screenshot. */
+frame(0, false);
+const FRAMES = 120;
+for (let i = 0; i < FRAMES; i++) frame(1000 + i * 16.7, true);
+const f = timing.frames || 1;
+const fmt = (v) => (v / f).toFixed(3);
+document.getElementById("stats").textContent =
+  `atmosphere ms/frame @${W}x${H}: shadow ${fmt(timing.shadow)} light ${fmt(timing.light)} ` +
+  `dust ${fmt(timing.dust)} screen ${fmt(timing.screen)} TOTAL ${fmt(timing.total)} ` +
+  `(motes ${A.settings.dustCount}, lights ${lights.length})`;
+document.title = "atmos " + fmt(timing.total) + "ms";
+frame(4200, false);
+/* --- measured checks ------------------------------------------------------
+   Eyeballing a screenshot proves a pass ran; it does not prove it ran
+   *everywhere*. Each check below renders the frame twice, once with the pass
+   off and once on, and sweeps every site the pass should have touched. The
+   pass counts only if it changed all of them in the right direction. */
+function renderWith(flags) {
+  const keep = {};
+  for (const k in flags) { keep[k] = A.settings[k]; A.settings[k] = flags[k]; }
+  ctx.drawImage(deckLayer(), 0, 0);
+  drawProps(ctx);
+  ctx.drawImage(poolLayer(), 0, 0);
+  A.groundShadowPass(ctx, scene);
+  drawActors(ctx);
+  A.lightPass(ctx, scene);
+  A.dustPass(ctx, scene, 1 / 60);
+  A.screenPass(ctx, scene);
+  const data = ctx.getImageData(0, 0, W, H).data;
+  for (const k in keep) A.settings[k] = keep[k];
+  return data;
+}
+function lum(d, x, y) { const i = ((y | 0) * W + (x | 0)) * 4; return d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11; }
+
+function runChecks() {
+  scene.now = 4200;
+  const out = [];
+  const off = renderWith({ contact: 0, ambientOcclusion: 0, propShadow: 0, actorShadow: 0,
+                           bloom: 0, lightShafts: 0, dust: 0, vignette: 0, grain: 0,
+                           split: 0, chromatic: 0 });
+
+  /* 1. contact shadow at every wall base that faces an open tile */
+  const shadowOnly = renderWith({ bloom: 0, lightShafts: 0, dust: 0, vignette: 0, grain: 0,
+                                  split: 0, chromatic: 0 });
+  let sites = 0, darker = 0, worst = 99;
+  for (let y = 0; y < DECK_H; y++) for (let x = 0; x < DECK_W; x++) {
+    if (rows[y][x] !== "#") continue;
+    const below = y + 1 < DECK_H ? rows[y + 1][x] : " ";
+    if (below !== "." && below !== "+" && below !== "L") continue;
+    const sx = px(x) + T * 0.5, sy = oy + (y + 1) * T + 3;
+    sites++;
+    const d = lum(off, sx, sy) - lum(shadowOnly, sx, sy);
+    if (d > 0.5) darker++; else worst = Math.min(worst, d);
+  }
+  out.push(`contact/wall-base ${darker}/${sites} darker` + (darker === sites ? " PASS" : ` FAIL(min ${worst.toFixed(2)})`));
+
+  /* 2. contact shadow under every actor and every solid prop */
+  let aOk = 0; const deltas = [];
+  for (const a of actors) {
+    const sx = ox + (a.x + 0.5) * T, sy = oy + (a.y + 0.86) * T + T * 0.1;
+    const d = lum(off, sx, sy) - lum(shadowOnly, sx, sy);
+    deltas.push(d.toFixed(1));
+    if (d > 0.5) aOk++;
+  }
+  out.push(`contact/actors ${aOk}/${actors.length} darker [${deltas.join(" ")}]` + (aOk === actors.length ? " PASS" : " FAIL"));
+  let pOk = 0;
+  for (const p of props) {
+    const sx = ox + (p.x + 0.5) * T, sy = oy + (p.y + 0.86) * T + T * 0.12;
+    if (lum(off, sx, sy) - lum(shadowOnly, sx, sy) > 0.5) pOk++;
+  }
+  out.push(`contact/props ${pOk}/${props.length} darker` + (pOk === props.length ? " PASS" : " FAIL"));
+
+  /* 3. bloom brightens every light's centre and its surround */
+  const bloomOn = renderWith({ contact: 0, ambientOcclusion: 0, propShadow: 0, actorShadow: 0,
+                               lightShafts: 0, dust: 0, vignette: 0, grain: 0, split: 0, chromatic: 0 });
+  let lOk = 0, ringOk = 0;
+  for (const l of lights) {
+    const cx = ox + (l.x + 0.5) * T, cy = oy + (l.y + 0.5) * T;
+    if (lum(bloomOn, cx, cy) - lum(off, cx, cy) > 1) lOk++;
+    if (lum(bloomOn, cx + l.reach * T * 0.5, cy) - lum(off, cx + l.reach * T * 0.5, cy) > 0.5) ringOk++;
+  }
+  out.push(`bloom/core ${lOk}/${lights.length}, bloom/falloff ${ringOk}/${lights.length}` +
+           (lOk === lights.length && ringOk === lights.length ? " PASS" : " FAIL"));
+
+  /* 4. dust exists inside pools and nowhere else */
+  const dustOn = renderWith({ contact: 0, ambientOcclusion: 0, propShadow: 0, actorShadow: 0,
+                              bloom: 0, lightShafts: 0, vignette: 0, grain: 0, split: 0, chromatic: 0 });
+  let inPool = 0, outside = 0;
+  for (let i = 0; i < off.length; i += 4) {
+    if (Math.abs(dustOn[i] - off[i]) > 2) {
+      const pxi = (i / 4) % W, pyi = (i / 4 / W) | 0;
+      let near = false;
+      for (const l of lights) {
+        const cx = ox + (l.x + 0.5) * T, cy = oy + (l.y + 0.5) * T;
+        if (Math.hypot(pxi - cx, pyi - cy) < l.reach * T * 1.4) { near = true; break; }
+      }
+      if (near) inPool++; else outside++;
+    }
+  }
+  out.push(`dust ${inPool}px lit / ${outside}px unlit` + (inPool > 150 && outside === 0 ? " PASS" : " FAIL"));
+
+  /* 5. screen pass: corners darker than centre, grain present everywhere */
+  const screenOn = renderWith({ contact: 0, ambientOcclusion: 0, propShadow: 0, actorShadow: 0,
+                                bloom: 0, lightShafts: 0, dust: 0 });
+  const vig = lum(off, 20, 20) - lum(screenOn, 20, 20);
+  const mid = lum(off, W / 2, H / 2) - lum(screenOn, W / 2, H / 2);
+  let grainTiles = 0, grainSites = 0;
+  for (let gy = 40; gy < H; gy += 137) for (let gx = 40; gx < W; gx += 149) {
+    grainSites++;
+    let diff = 0;
+    for (let k = 0; k < 24; k++) diff += Math.abs(lum(screenOn, gx + k, gy) - lum(off, gx + k, gy));
+    if (diff > 4) grainTiles++;
+  }
+  out.push(`vignette corner ${vig.toFixed(1)} vs centre ${mid.toFixed(1)}` + (vig > mid ? " PASS" : " FAIL"));
+  out.push(`grain present at ${grainTiles}/${grainSites} sites` + (grainTiles === grainSites ? " PASS" : " FAIL"));
+
+  /* 6. no-op safety: a scene missing everything must not throw */
+  let safe = "PASS";
+  try {
+    for (const bad of [{}, { tile: 32 }, { rows: null, lights: "x", props: 3, actors: null },
+                       { tile: NaN, scale: 0, ox: "a", width: -5, rows: ["##"] }]) {
+      A.groundShadowPass(ctx, bad); A.lightPass(ctx, bad);
+      A.dustPass(ctx, bad, NaN); A.screenPass(ctx, bad);
+    }
+    A.lightPass(null, scene); A.dustPass(ctx, null, 1);
+  } catch (e) { safe = "FAIL " + e.message; }
+  out.push("degenerate scenes " + safe);
+  return out;
+}
+
+/* ?cost: real per-pass cost. Each configuration is rendered for 60 frames with
+   a 1x1 readback at the end of every frame to force rasterisation, and the
+   cost of a pass is the delta against the configuration without it. Layered
+   rather than isolated, because that is how they actually run. */
+function runCost() {
+  const layers = [
+    ["deck only (baseline)", { contact: 0, ambientOcclusion: 0, propShadow: 0, actorShadow: 0,
+                               bloom: 0, lightShafts: 0, dust: 0, vignette: 0, grain: 0,
+                               split: 0, chromatic: 0 }],
+    ["+ contact shadow", { bloom: 0, lightShafts: 0, dust: 0, vignette: 0, grain: 0,
+                           split: 0, chromatic: 0 }],
+    ["+ bloom", { lightShafts: 0, dust: 0, vignette: 0, grain: 0, split: 0, chromatic: 0 }],
+    ["+ shafts", { dust: 0, vignette: 0, grain: 0, split: 0, chromatic: 0 }],
+    ["+ dust", { vignette: 0, grain: 0, split: 0, chromatic: 0 }],
+    ["+ screen pass", {}],
+  ];
+  const lines = []; let prev = 0;
+  for (const [name, flags] of layers) {
+    const keep = {};
+    for (const k in flags) { keep[k] = A.settings[k]; A.settings[k] = flags[k]; }
+    for (let i = 0; i < 10; i++) frame(2000 + i * 16.7, false);   // warm the bakes
+    const t0 = performance.now();
+    for (let i = 0; i < 60; i++) { frame(3000 + i * 16.7, false); ctx.getImageData(0, 0, 1, 1); }
+    const ms = (performance.now() - t0) / 60;
+    for (const k in keep) A.settings[k] = keep[k];
+    lines.push(`${name}: ${ms.toFixed(2)} ms/frame` + (prev ? ` (+${(ms - prev).toFixed(2)})` : ""));
+    prev = ms;
+  }
+  return lines;
+}
+if (location.search.indexOf("cost") >= 0) {
+  document.getElementById("stats").innerHTML =
+    "SOFTWARE RASTER (--disable-gpu), 1400x900, 8 lights, " + A.settings.dustCount + " motes<br>" +
+    runCost().join("<br>");
+}
+
+if (location.search.indexOf("probe") >= 0) {
+  const lines = runChecks();
+  document.getElementById("stats").innerHTML = "CHECKS<br>" + lines.join("<br>");
+  document.title = lines.every(l => l.indexOf("FAIL") < 0) ? "ALL PASS" : "SOME FAIL";
+  A.resize(W, H); frame(0, false); frame(4200, false);
+}
+
+if (location.search.indexOf("clean") >= 0) document.body.classList.add("clean");
+
+/* ?zoom=x,y magnifies a 280x180 patch of the finished frame 5x into the middle
+   of the canvas, because dust motes and grain are single pixels and vanish in
+   a downscaled screenshot. Nearest-neighbour, so a mote stays a square. */
+const zm = /zoom=(\d+),(\d+)/.exec(location.search);
+if (zm) {
+  const zx = +zm[1], zy = +zm[2], zw = 280, zh = 180, k = 5;
+  const patch = document.createElement("canvas");
+  patch.width = zw; patch.height = zh;
+  patch.getContext("2d").drawImage(canvas, zx, zy, zw, zh, 0, 0, zw, zh);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(patch, 0, 0, zw, zh, 0, 0, zw * k, zh * k);
+  ctx.strokeStyle = "#0f0"; ctx.lineWidth = 2;
+  ctx.strokeRect(0, 0, zw * k, zh * k);
+}
+</script>
+</body>
+</html>

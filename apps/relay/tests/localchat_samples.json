@@ -1,0 +1,165 @@
+{
+ "about": "Messages for `localchat.py --bench`: fixed facts, so a reply can be scored. A reply passes with one of `any` (case-insensitive), none of `not`, the `lookup` it should ask for, and the `action` it should end with (\"\" = no action).",
+ "facts": "Now: Wednesday 07 October 2026, 10:40\nWhy you are answering: Claude is out of usage (hey 5-hour at 96%), so you stand in.\nRelay:\nRunning (2):\n  task 54 Eighty Six: add 6 new features [work, hey, high] 42m, 96k context, last: Bash\n  task 61 Cosmos orbit flicker fix [work, default, high] 8m, 30k context, last: Edit\nQueued (1):\n  62 NovelForge chapter export\nClaude usage:\ndefault: 64% of its 5-hour window used, 31% of the week\nhey: 96% of its 5-hour window used, 30% of the week; full, back 14:23 (in 3h43m)\nLaptop:\nCPU 41%, 71°C, fan 3900 rpm, load 3.10 2.80 2.40\nMemory 63% used\nGPU 22% busy (mostly Godot)\nBattery 81%, plugged in\nFullest disk System 72% used (140.2 GB free)\nJan up: Qwen3_5-2B\nUp 9h12m",
+ "lookups": {
+  "cpu": "godot 167% CPU, 551 MB\nWebKitWebProces 5% CPU, 1242 MB\nwhatsie 2% CPU, 4803 MB",
+  "gpu": "Godot 21% GPU\nForge 3% GPU",
+  "progress": "#54 Eighty Six: add 6 new features [running], 42m in, last: Bash\nState: features 1-4 built and tested; 5 (radar ping) in progress; 6 not started.",
+  "forge": "Forge window open. Apps up: Relay, Claude, Board, NovelForge. Not running: 15.",
+  "disks": "System (/): 72% used, 140.2 GB free",
+  "usage": "default: 64% of its 5-hour window used\nhey: 96% used; full, back 14:23 (in 3h43m)",
+  "events": "10:31 start: task 61 on default\n10:02 done: task 58",
+  "board": "Izumi (relay-54-work): GPU slot: running one Eighty Six bot now",
+  "tasks": "Running (2): 54 Eighty Six features, 61 Cosmos orbit flicker. Queued: 62 NovelForge chapter export.",
+  "stats": "CPU 41%, 71°C",
+  "file": "(file text)",
+  "shell": "(command output)"
+ },
+ "samples": [
+  {
+   "text": "hey whats up",
+   "any": [
+    ""
+   ],
+   "not": [
+    "LOOKUP"
+   ],
+   "action": ""
+  },
+  {
+   "text": "hows the laptop, is it running hot",
+   "any": [
+    "71",
+    "warm",
+    "hot",
+    "fine",
+    "ok"
+   ],
+   "action": ""
+  },
+  {
+   "text": "whats running rn",
+   "any": [
+    "54",
+    "eighty",
+    "61",
+    "cosmos"
+   ],
+   "action": ""
+  },
+  {
+   "text": "how much usage is left and when does it come back",
+   "any": [
+    "14:23",
+    "2:23",
+    "96"
+   ],
+   "action": ""
+  },
+  {
+   "text": "how far is the eighty six job",
+   "any": [
+    "4",
+    "radar",
+    "feature"
+   ],
+   "lookup": "progress",
+   "action": ""
+  },
+  {
+   "text": "whats using all the cpu",
+   "any": [
+    "godot"
+   ],
+   "lookup": "cpu",
+   "action": ""
+  },
+  {
+   "text": "is the gpu busy",
+   "any": [
+    "22",
+    "godot"
+   ],
+   "action": ""
+  },
+  {
+   "text": "stop task 61 please",
+   "action": "stop 61"
+  },
+  {
+   "text": "which forge apps are open",
+   "any": [
+    "relay",
+    "novelforge",
+    "board"
+   ],
+   "lookup": "forge"
+  },
+  {
+   "text": "whats the capital of australia",
+   "any": [
+    "canberra"
+   ],
+   "action": ""
+  },
+  {
+   "text": "what is 17 times 23",
+   "any": [
+    "391"
+   ],
+   "action": ""
+  },
+  {
+   "text": "can you fix the cosmos app for me",
+   "any": [
+    "new:",
+    "claude",
+    "queue"
+   ],
+   "not": [
+    "done",
+    "fixed it"
+   ]
+  },
+  {
+   "text": "how much disk space do i have",
+   "any": [
+    "140",
+    "72"
+   ],
+   "action": ""
+  },
+  {
+   "text": "is jan running",
+   "any": [
+    "yes",
+    "up",
+    "running"
+   ],
+   "action": ""
+  },
+  {
+   "text": "how many tasks are running and queued in total",
+   "any": [
+    "3",
+    "three"
+   ],
+   "action": ""
+  },
+  {
+   "text": "which account has used more of its 5 hour window and by how much",
+   "any": [
+    "32"
+   ],
+   "action": ""
+  },
+  {
+   "text": "which running task has eaten more context so far",
+   "any": [
+    "54",
+    "eighty"
+   ],
+   "action": ""
+  }
+ ]
+}

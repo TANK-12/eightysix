@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mission Control</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="/shared/forge_convo.css">
+<link rel="stylesheet" href="/claude-ui/run_controls.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="convos.css">
+</head>
+<body class="simple">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-sessions" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="7" height="7" rx="2"/><rect x="13.5" y="4.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="6" rx="2"/><rect x="13.5" y="13.5" width="7" height="6" rx="2"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="5.5" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5.5" cy="18.5" r="1.8"/><circle cx="18.5" cy="18" r="1.8"/><path d="M6.4 6.8l3.4 3.2M17.6 7.3l-3.4 2.9M7 17.2l2.9-3M17.1 16.7l-2.9-2.6"/></symbol>
+    <symbol id="i-crews" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3"/><circle cx="17" cy="9.5" r="2.3"/><path d="M3.5 19c0-3.2 2.5-5 5.5-5s5.5 1.8 5.5 5M15.5 14.4c2.8 0 5 1.4 5 4.6"/></symbol>
+    <symbol id="i-relay" viewBox="0 0 24 24"><path d="M4 11.5l16-7-6.5 16-2.6-6.4z"/><path d="M10.9 14.1l3.6-3.6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></symbol>
+    <symbol id="i-swarm" viewBox="0 0 24 24"><circle cx="12" cy="7" r="2.6"/><circle cx="5.5" cy="16" r="2.2"/><circle cx="12" cy="17.5" r="2.2"/><circle cx="18.5" cy="16" r="2.2"/><path d="M10.6 9.2l-3.6 4.9M12 9.6v5.7M13.4 9.2l3.6 4.9"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M3.5 5.5h11v7.5h-6l-3.5 3v-3h-1.5z"/><path d="M17 9h3.5v7.5H19v3l-3.5-3h-5v-2"/></symbol>
+    <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4.5 5.5h15v10h-9l-4.5 3.5v-3.5h-1.5z"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 3.6a8.4 8.4 0 0 0-7.3 12.6l-1.1 4.2 4.3-1.1A8.4 8.4 0 1 0 12 3.6z"/><path d="M9.3 8.4c.3-.4.7-.4.9 0l.8 1.6c.1.3 0 .6-.2.8l-.5.5c.5 1 1.3 1.8 2.3 2.3l.5-.5c.2-.2.5-.3.8-.2l1.6.8c.4.2.4.6 0 .9-1.7 1.5-6.8-1.4-6.2-6.2z"/></symbol>
+    <symbol id="i-go" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7.5 10l2.5 2-2.5 2M12 14.5h4"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M13.5 4.5h6v6M19.5 4.5l-8 8M17 13.5v5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h5"/></symbol>
+    <symbol id="i-now" viewBox="0 0 24 24"><path d="M5 12h11M12 7l5 5-5 5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3.5v4M15 3.5v4M6.5 7.5h11v3a5.5 5.5 0 0 1-11 0zM12 16v4.5"/></symbol>
+    <symbol id="i-anvil" viewBox="0 0 24 24"><path d="M3.5 7.5h12.5c0 2.5 2 3.5 4.5 3.5v1c-3 0-5 1.2-5.5 3h-6c-.5-1.8-2.5-3-5.5-3z"/><path d="M8.5 15v3M15 15v3M6 19.5h12"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/><path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-task" viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="15" height="15" rx="3"/><path d="M8.5 12.5l2.4 2.3 4.6-5"/></symbol>
+    <symbol id="i-empty" viewBox="0 0 24 24"><path d="M4 13.5l2.5-7h11l2.5 7v5H4z"/><path d="M4 13.5h5l1 2h4l1-2h5"/></symbol>
+    <symbol id="i-off" viewBox="0 0 24 24"><path d="M5 9.5a11 11 0 0 1 14 0M8 13a6.5 6.5 0 0 1 8 0"/><circle cx="12" cy="17" r="1.2"/><path d="M4 4l16 16"/></symbol>
+  </defs>
+</svg>
+<header class="mc-top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 26 26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9db2ff"/><stop offset="1" stop-color="#c9a2ff"/></linearGradient></defs><rect x="1" y="1" width="24" height="24" rx="8" fill="#1b2030" stroke="url(#lg)" stroke-width="1.4"/><circle cx="13" cy="13" r="3.2" fill="url(#lg)"/><circle cx="6.8" cy="8" r="1.7" fill="#4fd69c"/><circle cx="19.4" cy="8.6" r="1.7" fill="#ff6f8e"/><circle cx="8" cy="19" r="1.7" fill="#8f9bb3"/><path d="M8.2 9.2l2.6 2.2M18 9.8l-2.4 1.9M9.3 17.8l1.9-2.2" stroke="#9db2ff" stroke-opacity=".6" stroke-width="1"/></svg>
+    <div class="brand-txt"><span class="brand-name">Mission Control</span><span class="brand-sub"><span id="live" class="live" title="Live"></span><span id="liveTxt">connecting</span></span></div>
+  </div>
+  <div id="pulse" class="pulse" aria-live="polite"></div>
+  <div class="spacer"></div>
+  <button type="button" id="relayStrip" class="relay-strip" title="Relay"></button>
+  <div class="mode-switch" role="group" aria-label="Detail">
+    <button type="button" data-mode="simple">Simple</button>
+    <button type="button" data-mode="advanced">Advanced</button>
+  </div>
+  <div class="top-acts">
+    <button type="button" class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings"><svg class="ic"><use href="#i-gear"/></svg></button>
+    <button type="button" class="ghost" id="go-fullscreen">Full screen</button>
+  </div>
+</header>
+
+<div class="mc-body">
+  <aside class="mc-side">
+    <nav class="views" aria-label="Views">
+      <button type="button" data-view="sessions" title="Sessions"><svg class="ic"><use href="#i-sessions"/></svg><span class="lbl">Sessions</span></button>
+      <button type="button" data-view="convos" title="Conversations"><svg class="ic"><use href="#i-chat"/></svg><span class="lbl">Conversations</span></button>
+      <button type="button" data-view="convos" data-chat="whatsapp" title="Your WhatsApp chat with Relay, live"><svg class="ic"><use href="#i-wa"/></svg><span class="lbl">WhatsApp</span></button>
+      <button type="button" data-view="swarm" title="Swarm"><svg class="ic"><use href="#i-swarm"/></svg><span class="lbl">Swarm</span></button>
+      <button type="button" data-view="map" title="Map"><svg class="ic"><use href="#i-map"/></svg><span class="lbl">Map</span></button>
+      <button type="button" data-view="messages" title="Messages"><svg class="ic"><use href="#i-msg"/></svg><span class="lbl">Messages</span></button>
+      <button type="button" data-view="crews" title="Crews"><svg class="ic"><use href="#i-crews"/></svg><span class="lbl">Crews</span></button>
+      <button type="button" data-view="relay" title="Relay"><svg class="ic"><use href="#i-relay"/></svg><span class="lbl">Relay</span></button>
+    </nav>
+    <h4>Show</h4>
+    <div id="filters" class="filters"></div>
+    <button type="button" class="link" id="markRead">Mark all read</button>
+    <h4>Folders</h4>
+    <div id="places" class="places"></div>
+    <h4>Crews</h4>
+    <div id="crewList" class="crew-list"></div>
+  </aside>
+
+  <main class="mc-main">
+    <div id="needs" class="needs" aria-live="polite"></div>
+    <div id="errors" class="errors"></div>
+
+    <section class="view" id="view-sessions">
+      <div class="toolbar">
+        <h2 class="view-title">Sessions</h2>
+        <label class="search"><svg class="ic"><use href="#i-search"/></svg><input id="search" type="search" placeholder="Find a session, folder or action" aria-label="Find"></label>
+        <div class="spacer"></div>
+        <button type="button" class="btn" id="noteAll"><svg class="ic"><use href="#i-msg"/></svg>Note to everyone</button>
+      </div>
+      <div id="grid" class="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </section>
+
+    <section class="view" id="view-map">
+      <div class="toolbar"><h2 class="view-title">Map</h2><span class="muted small">Crews with their commander first, then Relay, shared boards, sessions with their helpers, and Jan. Click anyone for details.</span><div class="spacer"></div><div class="zoom" role="group" aria-label="Map size"><button type="button" class="icon-btn" data-zoom="out" title="Smaller">−</button><button type="button" class="ghost zfit" data-zoom="fit" title="Fit the window"><span id="zoomPct">fit</span></button><button type="button" class="icon-btn" data-zoom="in" title="Bigger">+</button></div></div>
+      <div class="map-wrap"><div id="map" role="list" aria-label="Map of the wave"></div></div>
+      <div class="legend">
+        <span><i class="dot working"></i>working</span><span><i class="dot needs_you"></i>needs you</span>
+        <span><i class="dot idle"></i>idle</span><span><i class="dot ended"></i>done or ended</span>
+        <span><i class="fam-line opus"></i>Opus</span><span><i class="fam-line sonnet"></i>Sonnet</span><span><i class="fam-line haiku"></i>Haiku</span>
+        <span><b class="legend-b">task 71</b>run by Relay</span><span><b class="legend-b">2 notes</b>board notes in the last hour</span>
+      </div>
+    </section>
+
+    <section class="view" id="view-convos" aria-label="Conversations"><div id="fx" class="fx"></div></section>
+    <section class="view" id="view-swarm"><div class="toolbar"><h2 class="view-title">Swarm</h2><span class="muted small">Every live agent at once: who leads, who helps, what each is doing. Click one for its chat.</span></div><div id="swarm" class="swarm"></div></section>
+    <section class="view" id="view-messages">
+      <div class="toolbar"><h2 class="view-title">Messages</h2><span class="muted small">What you asked from here, and the answers that came back.</span><div class="spacer"></div><button type="button" class="btn" id="askAll"><svg class="ic"><use href="#i-msg"/></svg>Ask everyone</button></div>
+      <div id="messages" class="messages"></div>
+    </section>
+    <section class="view" id="view-crews"><div class="toolbar"><h2 class="view-title">Crews</h2></div><div id="crews"></div></section>
+    <section class="view" id="view-relay"><div class="toolbar"><h2 class="view-title">Relay</h2></div><div id="relay"></div></section>
+  </main>
+
+  <aside id="drawer" class="mc-drawer" hidden aria-label="Session details">
+    <div class="drawer-head">
+      <div id="dTitle" class="d-title"></div>
+      <button type="button" class="ghost" id="dClose" aria-label="Close details">Close</button>
+    </div>
+    <div id="dBody" class="d-body"></div>
+  </aside>
+</div>
+
+<dialog id="settings">
+  <form method="dialog">
+    <h3>Settings</h3>
+    <div id="settingsFields"></div>
+    <div class="row end"><button class="btn" value="reset" id="settingsReset">Defaults</button><button class="btn btn-primary" value="ok">Done</button></div>
+  </form>
+</dialog>
+
+<dialog id="compose">
+  <form method="dialog" id="composeForm">
+    <h3 id="composeTitle">Note</h3>
+    <p class="muted small" id="composeHint"></p>
+    <textarea id="composeText" rows="5" maxlength="4000" placeholder="What should they know or do?"></textarea>
+    <div class="row end"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" value="send" id="composeSend">Send</button></div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_art.js"></script>
+<script src="/shared/forge_convo.js"></script>
+<script src="/shared/forge_session_title.js"></script>
+<script src="/shared/forge_attach.js"></script>
+<script src="logic.js"></script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+<script src="messages.js"></script>
+<script src="swarm.js"></script>
+<script src="/claude-ui/enjoy_logic.js"></script>
+<script src="/claude-ui/run_controls.js"></script>
+<script src="chat_logic.js"></script>
+<script src="/shared/forge_voice.js"></script>
+<script src="convos.js"></script>
+</body>
+</html>

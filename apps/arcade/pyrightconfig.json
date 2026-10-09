@@ -1,0 +1,6 @@
+{
+  "extraPaths": ["../../shared", "../../tests", "."],
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportMissingImports": "error"
+}

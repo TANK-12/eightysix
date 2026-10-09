@@ -1,0 +1,109 @@
+{
+  "id": "kr-rofan",
+  "label": "Korean romance fantasy (rofan)",
+  "group": "Korean",
+  "description": "A woman wakes up inside a novel as the doomed villainess or side character and rewrites her fate among dukes, contracts and court intrigue. Witty first person, slow-burn romance.",
+  "keywords": [
+    "rofan",
+    "romance",
+    "villainess",
+    "duke",
+    "duchess",
+    "transmigrated",
+    "possessed",
+    "reincarnated",
+    "court",
+    "noble",
+    "empress",
+    "princess",
+    "contract",
+    "marriage"
+  ],
+  "words_per_chapter": 2300,
+  "voice": [
+    "First person, past tense, from the heroine. Her inner voice is sharp, self-aware and funny; she knows the 'original story' and comments on how this scene differs from it.",
+    "Noble society is a battlefield of etiquette: titles (Grand Duke, Duke, Marquis, Count, Lady, Young Lord), forms of address, who sits where, who speaks first.",
+    "Romance grows through small, loaded moments: a glove returned, a hand steadied on a staircase, a sentence said at the wrong time. Slow burn; no instant love.",
+    "Dresses, tea, estates and magic stones are described with tactile, specific detail, never generic luxury.",
+    "Villains scheme with reasons; the 'original heroine' is a person, not a cartoon.",
+    "End chapters on a line of dialogue or a reveal that flips a relationship."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "She wakes as the doomed character in a novel she once read, and knows exactly when and how she is supposed to die.",
+      "then": "She tests how much of the original story still holds; small changes, sharp consequences.",
+      "key": true
+    },
+    {
+      "at": 0.07,
+      "role": "first deviation",
+      "guide": "She breaks the original plot on purpose: refuses the engagement, meets the dangerous male lead early, or leaves the house she should stay in."
+    },
+    {
+      "at": 0.15,
+      "role": "bargain",
+      "guide": "A contract or deal with someone powerful: a contract marriage, an adoption, a pact with the cursed duke. Terms and a deadline are stated.",
+      "then": "Life under the bargain: public appearances, private truths, the male lead acting against his reputation."
+    },
+    {
+      "at": 0.3,
+      "role": "social victory",
+      "guide": "A ball, tea party or trial where she turns the tables on a schemer in public."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint secret",
+      "guide": "The original story pushes back: its events start happening anyway, or a secret about her or the male lead (a curse, a true parentage) comes out.",
+      "then": "Feelings neither admits; the plot of the original novel closes in.",
+      "key": true
+    },
+    {
+      "at": 0.66,
+      "role": "rift",
+      "guide": "A misunderstanding or betrayal splits them; her death flag returns."
+    },
+    {
+      "at": 0.82,
+      "role": "climax",
+      "guide": "The day she was supposed to die: she changes the ending herself, with the allies she earned.",
+      "key": true
+    },
+    {
+      "at": 0.93,
+      "role": "confession",
+      "guide": "The truth said out loud between them, with a cost paid."
+    },
+    {
+      "at": 1.0,
+      "role": "new ending",
+      "guide": "A new ending that the original novel never had, and a small hook for what comes after.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter moves either the survival plot or the romance, ideally both. Name the social stakes: who is watching, whose reputation rises or falls. The heroine acts; she does not wait to be rescued.",
+  "outline_example": "The Wrong Staircase | At the Marquis Everly's spring ball, Lady Ines Carvell trips the scheme to frame her by showing the forged letter to the Crown Prince herself | The court sees her as dangerous instead of foolish | The cursed Grand Duke asks her for the next dance",
+  "scene_guidance": [
+    "Open on a specific room, dress or ritual.",
+    "Let her compare the moment to the original novel in one sharp line, not a paragraph.",
+    "Dialogue carries power plays: who interrupts, who uses whose title."
+  ],
+  "worldbuilding": [
+    "An empire with a clear ladder of titles and the laws of inheritance that trap her.",
+    "The 'original novel': its plot, its heroine, its ending, and where this world already differs.",
+    "One form of magic with a social cost (divine power, mana stones, curses)."
+  ],
+  "naming": "European-fantasy names with rofan flavour: long given names (Ines, Seraphine, Aurelie, Cassian, Lucius) and house names (Carvell, Everly, Valtair). Titles are used more than first names in public.",
+  "cliches": [
+    "possessive grip on her wrist",
+    "his eyes softened only for her",
+    "you've caught my interest",
+    "evil for no reason"
+  ],
+  "sample": "In the original novel, this was the night Ines Carvell spilled wine on the heroine and was sent home in disgrace.\n\nI held my glass very carefully.\n\n\"Lady Carvell.\" The Grand Duke did not bow; men like him never had to. \"You look as if you expect the floor to open.\"\n\n\"I expect a great many things, Your Grace. Most of them unpleasant.\"\n\nHe almost smiled. That was not in the book either.",
+  "example_names": [
+    "Ines Carvell",
+    "Everly"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+ "_readme": "Session 6's record. It covers only the FIRST HALF of the session the roadmap plans -- crafting and storage. The second half (tool upgrades, skills, economy tuning) is not done and is listed under not_done_yet. A later session that finishes session 6 should amend this file, keeping the session number, the way session 5 amended its own record when it finished the interior render fix. Entry point is ../MANIFEST.json; the plan is ../manifests/roadmap.json.",
+ "project": "Emberfield",
+ "session": 6,
+ "status": "crafting, storage, tool upgrades, a code-review pass, the shared sound engine and the dodge roll are done; skills and economy tuning still pending",
+ "date": "2026-09-07",
+ "session_theme": "Make the things you collect matter. Raw drops had exactly one use, being sold. Now there is a workbench and a hearth in your house that turn them into goods worth more, a chest that persists across a save, and -- the payoff -- crafted upgrades that make the hoe and the watering can work a 3x3 instead of a single tile. It then grew a tail the roadmap did not plan: a review pass that found two genuinely game-breaking bugs, the synth engine moved out into shared/ so Pixel Forge can edit sounds, and one new feature -- the dodge roll.",
+ "user_intent": {
+  "the_ask": "'do half a sessions worth now' -- a bounded slice of the roadmap's session 6, following two earlier 'keep going' instructions in the same conversation that also produced session 5.",
+  "taken_to_mean": "The coherent front half of session 6: crafting as content, the workbench and the storage chest in the player's house, a crafting screen and a chest screen, and the recipes to seed. Tool upgrades, skills and the economy pass are the back half and were left for a fresh session."
+ },
+ "done_this_session": [
+  {
+   "what": "The 'recipes' content type, declared empty since session 1, now has real fields.",
+   "status": "verified",
+   "note": "output + output_qty, inputs as {item: qty}, station ('workbench' or 'cook'), and an unread skill/skill_level gate for when skills land. Adding a recipe is one JSON file in ~/ForgeGameData/recipes -- the crafting screen scans the directory like everything else."
+  },
+  {
+   "what": "A workbench, a cooking hearth and a storage chest in the player's house interior.",
+   "status": "verified",
+   "note": "interiors.py places them in the player interior only -- a villager's house still has a decorative bed, a plain hearth and a table. The workbench carries use:'craft' and station:'workbench'; the player's hearth carries use:'cook' and station:'cook' (a villager's hearth carries no use); the chest carries use:'storage'. All three are reachable from the spawn, which is tested."
+  },
+  {
+   "what": "A crafting screen and a chest screen, styled like the shop.",
+   "status": "verified",
+   "note": "Pressing space at the workbench or the hearth opens the recipe list filtered to that station, each row showing its input cost and greyed if you cannot afford it. Pressing space at the chest opens a deposit/withdraw screen -- tools and the bow are filtered out so they cannot be lost in there."
+  },
+  {
+   "what": "Storage persists in the save. S.storage, written to savePayload and read back in startWorld.",
+   "status": "verified",
+   "note": "The first interior state a save carries. The room itself still regenerates from its building id; what is in the chest is written like your pack and your gold. A save made anywhere -- valley, wilds, indoors -- carries it."
+  },
+  {
+   "what": "Five recipes seeded: glue, charcoal, ember glass (workbench); field ration, hearty stew (hearth).",
+   "status": "verified",
+   "note": "The three workbench recipes each sell for well above the sum of their inputs -- a test enforces that. The two hearth foods are exempt from that test: their value is that they will heal more than raw produce once that mechanic exists, and balancing their gold value is part of the economy pass in the back half."
+  },
+  {
+   "what": "Tool upgrades: crafted at the workbench, they raise a tool's tier, which the till and water verbs read to work a 3x3.",
+   "status": "verified",
+   "note": "A recipe with an 'upgrades' field (a tool id) and a 'tier' raises S.toolTier[tool] instead of yielding an item -- 'output' points at the tool for the schema's sake. The recipe shows only while the tool is exactly one tier below, so you climb a rung at a time and a done upgrade drops off the list. applyToolArea runs the verb over the (2*tier+1) square and only nags if the centre tile failed, so an upgraded hoe by a fence does not complain about the edges. The aim reticle grows to show the square. Two seeded: reinforce the hoe (charcoal + glue), widen the can (ember glass + glue). S.toolTier is in the save."
+  },
+  {
+   "what": "5 new Python tests (123 total) and 10 new browser self-tests (59 total). All passing.",
+   "status": "verified",
+   "note": "Python: every recipe names real items (or, for an upgrade, a real tool); the upgrade ladder has no tier gaps; workbench goods beat their inputs on value; the player interior has the three stations and they are reachable while villager interiors have none. Browser: crafting spends inputs and yields the output; you cannot craft what you cannot afford; a recipe shows only at its own station; the chest round-trips an item and is in the save; crafting an upgrade raises the tier not the pack; an upgraded hoe tills a 3x3; a finished upgrade drops off the list; the tier is in the save; the player's house has all three stations inside."
+  },
+  {
+   "what": "A code-review pass over the frontend found and fixed two bugs that broke the core loop.",
+   "status": "verified",
+   "note": "Both were proved with a failing self-test first, then fixed. (A) Sleeping in your house froze the game: dryTheField() wrote valley tile coordinates into S.world, which since session 5 is a 15x11 interior when you are indoors, so S.world.tiles[70] was undefined and the TypeError inside sleep()'s setTimeout meant applyPalette, autosave, S.running and requestAnimationFrame never ran -- the screen simply stayed black on the fade. Sleeping is the only way crops grow, so this was the whole game. (B) A save made indoors went to a bogus slot: saveSlot() returned the interior's seed ('valley-1205097866' instead of 'valley-777'), and sleep() autosaves, so every night's save was written to a junk file. The fix is valleyWorld() / valleyGround() in world.js -- one place that answers 'which world is the valley', whether you are in the wilds, indoors, or outside. Also fixed in the pass: a 3x3 tool stroke played its sound nine times (moved out of the verbs into interact()), the pause screen showed the interior's seed, and dying indoors left you indoors."
+  },
+  {
+   "what": "The sound synthesis moved out of Emberfield into shared/forge_sound.js.",
+   "status": "verified",
+   "note": "ForgeSound is the companion to forge_art.js -- one turns character rows into pixels, the other turns a dozen numbers into a noise -- and it is shared because Emberfield plays these recipes and Pixel Forge edits them. It exposes makeNoise, voice, schedule, totalDuration and renderOffline (which now also returns the raw samples, so an editor can draw the waveform), plus a FIELDS list describing every editable field with its range and a line of help. static/audio.js is now only the game's half: event-to-recipe mapping, master volume, and the ambience beds the clock steers. Sound.play's API did not change, so the ~40 call sites and the four sound self-tests were untouched. index.html loads /shared/forge_sound.js before /audio.js."
+  },
+  {
+   "what": "Pixel Forge grew a Sounds tab -- the sound editor for this game and future ones.",
+   "status": "verified",
+   "note": "A Sprites/Sounds switch in the header. The sound list on the left, a rendered waveform in the middle with peak/rms/length under it, and a parameter form on the right built by reading ForgeSound.FIELDS -- so a new field is one entry in that list plus one in forge_content.TYPES['sounds'], and the editor does not change. The waveform is the sound rendered offline and measured, not a drawing of the settings, which is what catches a recipe that comes out silent (a filter below the pitch, an attack longer than the sound) before you reach for the speakers. Backend: GET/POST /api/sounds in pixelforge/web_app.py, writing through forge_content.save with validation and an atomic replace."
+  },
+  {
+   "what": "The new feature: a dodge roll (q).",
+   "status": "verified",
+   "note": "A short dart in whatever direction you are already holding -- or the way you face, if none -- with the same half-second mercy window a hit gives you, then most of a second of cooldown. The four numbers live in ROLL at the top of play.js. Mid-roll you cannot steer: committing is the price of the invulnerability. Deliberately not a stamina bar; one cooldown you can feel reads better mid-fight than a draining meter, and a bar would want a UI, a regen rate and a food that refilled it. It resolves against walls exactly like walking, so it cannot clip you through a fence. A new 'roll' sound, a tutorial step, and three self-tests: it moves you and grants mercy, the cooldown blocks a chained roll, and rolling hard into all four directions always ends somewhere you may stand."
+  }
+ ],
+ "not_done_yet": [
+  "Skills. The 'skills' content type is still declared and empty. Recipes carry an unread skill/skill_level gate ready for it.",
+  "Economy tuning. Prices are still chosen by eye. The two hearth foods in particular sell for less than their ingredients on paper -- fine only because food will heal, which is not built.",
+  "The town paving still reads as mud -- carried from session 5, first item in the roadmap backlog.",
+  "Nothing has been played end to end."
+ ],
+ "assessment": {
+  "what_went_well": "Crafting reused the shop wholesale -- craftScreen is shopScreen with recipes instead of prices, storageScreen is the same two-column pattern. The workbench and the chest slotted into interiors.py's _furnish with a helper each. The recipe content type was already the right shape from session 1; this session only filled in the defaults.",
+  "what_i_got_wrong": [
+   "Ran tools/seed_content.py --force to fix two mispriced food items, which rewrote all 58 content files to the seeder defaults. The manifests record the store as the seeded defaults with no hand edits, so the practical damage is nil, but --force across the whole store to fix two numbers was the wrong tool -- editing the two files directly (which I then did) was the right one.",
+   "First priced the hearth foods below their ingredients, tripped the 'crafted goods beat their inputs' test, and had to decide between raising the prices and exempting food. Exempted food and noted the economy pass owes it a real answer."
+  ],
+  "risks": [
+   "The tool upgrades clear the 'does this change what I do tomorrow' bar on paper -- a 3x3 hoe changes the morning routine -- but nobody has farmed a plot with one to feel whether the pacing is right.",
+   "Storage is unbounded -- no slot limit, no weight. Fine for now, a design choice to revisit if it makes the shop pointless.",
+   "Only one tier exists per tool. The ladder machinery supports more (tiers 2, 3...) but the content stops at 1; a fuller progression is backlog."
+  ]
+ },
+ "verification_status": {
+  "python_tests": "123 passed (unchanged -- this pass was all frontend and Pixel Forge).",
+  "browser_selftest": "64 passed / 64 (59 from the first half, +2 for the sleep and save-slot bugs, +3 for the dodge roll). Note: the two 'render a sound offline' checks time out under Chrome's --virtual-time-budget, which races past the audio thread; run the self-test through the CDP script (scratchpad/shot.js) so it runs in real time. That is a harness artifact, not a regression -- they pass every time under CDP.",
+  "black": "clean; pyright 0 errors on touched files (pixelforge/web_app.py, tools/seed_content.py).",
+  "screenshots": "s6b-craft / s6c-craft (the workbench screen -- s6c shows the two tool-upgrade recipes), s6b-storage (the chest), s6b-house (the player interior with the workbench and chest). Also s6-interior / s6-npc from the session 5 render fix. In ~/.var/app/com.google.Chrome/data/shots. Plus s6d-sounds (Pixel Forge's Sounds tab, showing the coin recipe's three repeats in the waveform) and s6d-sprites (the Sprites half still intact after the mode switch).",
+  "not_verified": [
+   "Playing the loop -- crafting an upgrade, farming a plot with it, feeling whether the pacing is right.",
+   "Whether the dodge roll feels good. Its numbers are reasoned about, not played.",
+   "Skills and a tuned economy -- still pending.",
+   "A full Forge GTK launch."
+  ]
+ },
+ "conventions_this_session_adds": [
+  "Crafting stations carry a 'station' field ('workbench' or 'cook'); a recipe's 'station' must match. Adding a station is a new use-value branch in interact() plus one in _furnish.",
+  "The storage chest is the only interior state a save carries. If a later session makes more interior state persistent (furniture placement, a second room), it follows this pattern: the room regenerates, the contents are in the save.",
+  "A recipe file lives in ~/ForgeGameData/recipes and is discovered by scanning. inputs is {item: qty}; output is one item id -- unless it carries 'upgrades' (a tool id) and 'tier', in which case it raises that tool's tier in S.toolTier and yields nothing.",
+  "A tool upgrade is a tier on the existing tool, never a new tool file -- startingKit hands out every tool, so a new one would be free. The till and water verbs read S.toolTier via toolRadius() and applyToolArea().",
+  "Anything a second app would need goes in shared/, not copied. forge_sound.js followed forge_art.py and forge_art.js out of the app for exactly this reason: Pixel Forge has to make the noise the game makes, and two copies of a synth would drift within a session.",
+  "An editor reads a FIELDS list rather than hardcoding a form. Pixel Forge's sound panel is generated from ForgeSound.FIELDS, so adding a field to a sound recipe never means editing the editor.",
+  "Verify a synthesised sound by rendering and measuring it, never by checking that the code ran. A wrong envelope or a filter cutoff below the fundamental produces a perfectly valid, perfectly silent graph that throws nothing at all."
+ ]
+}

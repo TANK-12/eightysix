@@ -1,0 +1,16 @@
+{
+  "id": "abandoned_bakery",
+  "name": "Abandoned Bakery",
+  "kind": "hdri",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/abandoned_bakery",
+  "license": "CC0",
+  "authors": [
+    "Sergej Majboroda"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/abandoned_bakery/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/abandoned_bakery/1k/abandoned_bakery_1k.hdr",
+  "files": [
+    "abandoned_bakery_1k.hdr"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "meadow_2",
+  "name": "Meadow 2",
+  "kind": "hdri",
+  "res": "2k",
+  "source": "https://polyhaven.com/a/meadow_2",
+  "license": "CC0",
+  "authors": [
+    "Sergej Majboroda"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/meadow_2/2k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/meadow_2/2k/meadow_2_2k.hdr",
+  "files": [
+    "meadow_2_2k.hdr"
+  ]
+}

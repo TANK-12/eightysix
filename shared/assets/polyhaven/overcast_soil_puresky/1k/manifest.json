@@ -1,0 +1,17 @@
+{
+  "id": "overcast_soil_puresky",
+  "name": "Overcast Soil (Pure Sky)",
+  "kind": "hdri",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/overcast_soil_puresky",
+  "license": "CC0",
+  "authors": [
+    "Jarod Guest",
+    "Sergej Majboroda"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/overcast_soil_puresky/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/overcast_soil_puresky/1k/overcast_soil_puresky_1k.hdr",
+  "files": [
+    "overcast_soil_puresky_1k.hdr"
+  ]
+}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="run_controls.css">
+<script>
+  // Open the layout used last: the Enjoy layout remembers itself, and its
+  // "classic layout" link sets this back (A15).
+  try { if (localStorage.getItem("claude.layout") === "enjoy") location.replace("enjoy.html"); } catch (e) {}
+</script>
+<style>
+  :root { --accent: #e0916b; --accent-2: #d97757; --on-accent: #1a0c05; }
+</style>
+</head>
+<body>
+<div id="app" class="claude">
+  <aside class="list" id="list">
+    <div class="new-row">
+      <button type="button" class="btn btn-primary new" id="new-chat">+ New conversation</button>
+      <button type="button" class="btn new-folder" id="new-folder" title="New folder; drag conversations onto it">+ folder</button>
+      <button type="button" class="btn new-folder" id="to-enjoy" title="The Enjoy layout: projects with their tasks, plans and progress, notes, workflows and the roadmap">enjoy ↗</button>
+      <button type="button" class="btn new-folder" id="to-everyone" title="Everyone: every Claude session on this laptop (working, idle or ended), their helper agents, and a way to message them">everyone</button>
+      <a class="btn new-folder" id="to-docs" href="docs.html" title="Docs: every important text document for you and Claude, dated and in folders">docs</a>
+    </div>
+    <div id="chats" class="chats"></div>
+    <div id="everyone" class="everyone hidden"></div>
+
+    <div class="split split-h" id="split-accounts" data-pane="accounts" data-side="top" title="Drag to make the accounts taller or shorter; double-click resets"></div>
+    <section class="accounts" id="accounts">
+      <div class="accounts-head">
+        <button type="button" class="linkish fold" id="fold-accounts" title="Fold the accounts away for more room">▾ Account</button>
+        <button type="button" class="linkish" id="add-account" title="Add a second Claude account, with its own sign-in">+ add</button>
+      </div>
+      <div id="account-list" class="account-list"></div>
+      <div class="accounts-head">
+        <button type="button" class="linkish fold" id="fold-web" title="Web logins from Forge/shared/accounts.json; each opens in its own Firefox window or container, so all can be signed in at once. Click to fold them away">▾ Web logins</button>
+      </div>
+      <div id="web-account-list" class="account-list"></div>
+      <div id="signin" class="signin hidden">
+        <div class="small" id="signin-title"></div>
+        <div class="small muted" id="signin-hint">Sign in on the page that opened in your browser, as the account you want here (sign out there first if it is the other one). If nothing opened, use the address below, then paste the code the page shows.</div>
+        <div class="signin-url"><a id="signin-url" target="_blank" rel="noopener"></a></div>
+        <div class="signin-row">
+          <button type="button" class="btn small-btn" id="signin-open">Open in the Browser</button>
+          <button type="button" class="btn small-btn" id="signin-copy">Copy address</button>
+        </div>
+        <div class="signin-row">
+          <input id="signin-code" spellcheck="false" placeholder="Paste the code here">
+          <button type="button" class="btn btn-primary small-btn" id="signin-submit">Done</button>
+          <button type="button" class="btn small-btn" id="signin-cancel">Cancel</button>
+        </div>
+        <div class="small" id="signin-state"></div>
+      </div>
+    </section>
+    <div class="muted small foot" id="version"></div>
+  </aside>
+
+  <div class="split" id="split-list" data-pane="list" data-side="left" title="Drag to resize; double-click resets"></div>
+
+  <section class="chat">
+    <nav class="tabs" id="tabs"></nav>
+    <header class="chat-head">
+      <input id="title" class="title" spellcheck="false" placeholder="New conversation">
+      <span class="field-inline" id="conv-account" title="The account this conversation runs on; switch it from the account list"></span>
+      <button type="button" class="btn" id="go-fullscreen">Full screen</button>
+      <!-- the settings; they wrap onto a second row on narrow windows -->
+      <div class="head-controls">
+        <label class="field-inline" title="Where Claude Code works: its files and commands start here">Folder
+          <input id="cwd" spellcheck="false"></label>
+        <label class="field-inline" title="Applies from the next message in this tab">Model <select id="model"></select></label>
+        <label class="field-inline" title="How hard Claude thinks (claude --effort); applies from the next message">Effort <select id="effort"></select></label>
+        <span id="run-host"></span>
+        <label class="field-inline">Can <select id="mode"></select></label>
+      </div>
+    </header>
+    <div id="notice" class="notice hidden"></div>
+
+    <div id="log" class="log">
+      <div class="empty" id="empty">
+        <div class="empty-mark">✳</div>
+        <h2>Claude Code, inside Forge</h2>
+        <p class="muted">Claude can open, search and read pages in the Forge Browser, where you can watch it.
+          Attach files with 📎, drop them here, or paste an image. Links in answers open in the Browser.</p>
+      </div>
+    </div>
+
+    <div class="composer" id="composer">
+      <div class="chips" id="chips"></div>
+      <div class="cmd-menu hidden" id="cmd-menu" role="listbox"></div>
+      <div class="row-input">
+        <button type="button" class="tool" id="attach" title="Attach files">📎</button>
+        <button type="button" class="tool" id="attach-page" title="Attach the page open in the Forge Browser">🌐</button>
+        <textarea id="input" rows="1" placeholder="Ask Claude… (Enter sends, Shift+Enter for a new line, / or . for commands)"></textarea>
+        <button type="button" class="btn btn-primary" id="send">Send</button>
+        <button type="button" class="btn btn-danger hidden" id="stop">Stop</button>
+      </div>
+      <div class="muted small status" id="status"></div>
+      <input type="file" id="file" multiple hidden>
+    </div>
+  </section>
+
+  <div class="split" id="split-stage" data-pane="stage-pane" data-side="right" title="Drag to resize; double-click resets"></div>
+
+  <aside class="stage-pane" id="stage-pane">
+    <header class="stage-top">
+      <button type="button" class="stage-toggle" id="stage-toggle" title="Hide the avatar">⟩</button>
+      <b id="stage-name">…</b>
+      <span class="stage-mood hidden" id="stage-mood"></span>
+      <span class="grow"></span>
+      <select id="stage-who" title="Who answers: picked by the mood of your message, or always one persona"></select>
+      <select id="stage-look" title="The avatar this persona wears (saved; the Avatar Studio has previews)"></select>
+      <button type="button" class="stage-btn" id="stage-avatar" title="Turn the animated avatar on">🎭</button>
+      <button type="button" class="stage-btn" id="stage-speak" title="Speak replies aloud (Kokoro, on the CPU)">🔇</button>
+      <a class="stage-btn" href="avatars.html" title="Avatar Studio: models, motions, the generator and persona settings">🎨</a>
+    </header>
+    <div class="stage-view" id="stage-view"></div>
+    <div class="muted small stage-note" id="stage-note"></div>
+    <div class="stage-chat" id="stage-chat">
+      <div class="stage-log" id="stage-log"></div>
+      <form class="stage-say" id="stage-say">
+        <input id="stage-input" autocomplete="off" maxlength="600" placeholder="Chat with the avatar (Jan, no Claude tokens)">
+        <button type="submit" class="stage-btn" title="Send">➤</button>
+        <button type="button" class="stage-btn" id="stage-forget" title="Forget this chat">↺</button>
+      </form>
+    </div>
+  </aside>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge_dialog.js"></script>
+<script src="/shared/forge_avatar.js"></script>
+<script src="stage.js"></script>
+<script src="/shared/forge_convo.js"></script>
+<script src="/shared/forge_session_title.js"></script>
+<script src="/shared/forge_voice.js"></script>
+<script src="claude_common.js"></script>
+<script src="run_controls.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

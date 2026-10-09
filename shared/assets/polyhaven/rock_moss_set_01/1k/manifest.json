@@ -1,0 +1,20 @@
+{
+  "id": "rock_moss_set_01",
+  "name": "Rock Moss Set 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/rock_moss_set_01",
+  "license": "CC0",
+  "authors": [
+    "Kless Gyzen"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/rock_moss_set_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/rock_moss_set_01/1k/rock_moss_set_01_1k.gltf",
+  "files": [
+    "rock_moss_set_01_1k.gltf",
+    "textures/rock_moss_set_01_nor_gl_1k.jpg",
+    "rock_moss_set_01.bin",
+    "textures/rock_moss_set_01_rough_1k.jpg",
+    "textures/rock_moss_set_01_diff_1k.jpg"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+ "name": "[1]",
+ "hair_style": "short",
+ "bangs": "straight",
+ "eye_shape": "round",
+ "mouth_style": "small",
+ "outfit": "hoodie",
+ "accessory": "none",
+ "body": "girl",
+ "colours": {
+  "skin": "#888888",
+  "hair": "#888888",
+  "hair_streak": "#888888",
+  "eyes": "#888888",
+  "outfit": "#888888",
+  "outfit_trim": "#888888",
+  "accent": "#888888"
+ },
+ "eye_size": 1.0,
+ "face_width": 1.0,
+ "hair_volume": 1.0,
+ "blush": 1,
+ "soot": 1,
+ "head_tilt": 0.0,
+ "notes": "",
+ "saved": 1791390982.1109562
+}

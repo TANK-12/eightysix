@@ -1,0 +1,19 @@
+{
+  "_about": "Caches that cache_trim.py keeps under a size limit. One entry per cache: when the folder grows past limit_mb, the oldest matching entries are removed until it is back under half the limit. Entries touched in the last min_age_minutes are never removed, so a running program keeps its files.",
+  "caches": [
+    {
+      "name": "Headless Chrome leftover profiles (cache side)",
+      "path": "~/.var/app/com.google.Chrome/cache/google-chrome-headless",
+      "pattern": "scoped_dir*",
+      "limit_mb": 500,
+      "min_age_minutes": 60
+    },
+    {
+      "name": "Headless Chrome leftover profiles (config side)",
+      "path": "~/.var/app/com.google.Chrome/config/google-chrome-headless",
+      "pattern": "scoped_dir*",
+      "limit_mb": 500,
+      "min_age_minutes": 60
+    }
+  ]
+}

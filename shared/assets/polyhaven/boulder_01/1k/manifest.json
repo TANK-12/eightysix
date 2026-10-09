@@ -1,0 +1,20 @@
+{
+  "id": "boulder_01",
+  "name": "Boulder 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/boulder_01",
+  "license": "CC0",
+  "authors": [
+    "Rico Cilliers"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/boulder_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/boulder_01/1k/boulder_01_1k.gltf",
+  "files": [
+    "boulder_01_1k.gltf",
+    "textures/boulder_01_arm_1k.jpg",
+    "textures/boulder_01_diff_1k.jpg",
+    "boulder_01.bin",
+    "textures/boulder_01_nor_gl_1k.jpg"
+  ]
+}

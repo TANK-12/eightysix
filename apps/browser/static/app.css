@@ -1,0 +1,130 @@
+/* Browser's own widgets. Palette, buttons and inputs come from /shared/forge.css.
+   The web page itself is not drawn here: forge.py lays a real WebKit view over
+   #viewport, so nothing may sit on top of #viewport while a page is showing
+   (the menu and the import dialog hide the page while they are open). */
+
+.small { font-size: 12px; }
+.browser { display: flex; flex-direction: column; height: 100vh; }
+
+/* --- tabs ------------------------------------------------------------------- */
+.tabs { display: flex; align-items: flex-end; gap: 4px; padding: 6px 8px 0; background: var(--panel);
+  overflow-x: auto; flex: none; scrollbar-width: none; }
+.tab { display: flex; align-items: center; gap: 8px; min-width: 120px; max-width: 220px; flex: 0 1 220px;
+  padding: 7px 8px 7px 12px; border-radius: 9px 9px 0 0; border: 1px solid transparent; border-bottom: 0;
+  background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+.tab:hover { background: var(--panel-2); color: var(--text); }
+.tab.active { background: var(--bg); color: var(--text); border-color: var(--border); }
+.tab .ico { width: 16px; height: 16px; flex: none; border-radius: 4px; display: grid; place-items: center;
+  font-size: 10px; font-weight: 700; background: var(--panel-2); color: var(--accent); }
+.tab.loading .ico { background: none; border: 2px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+.tab .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.tab .x { flex: none; width: 20px; height: 20px; border: 0; border-radius: 5px; background: none; color: var(--muted);
+  line-height: 1; padding: 0; }
+.tab .x:hover { background: var(--panel-2); color: var(--text); }
+.tab-new { flex: none; width: 30px; height: 30px; margin-bottom: 3px; border-radius: 8px; border: 0;
+  background: none; color: var(--muted); font-size: 18px; }
+.tabs .tab-new { position: sticky; right: 0; background: var(--panel); }
+.tab-new:hover { background: var(--panel-2); color: var(--text); }
+
+/* --- toolbar ---------------------------------------------------------------- */
+.toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 8px; background: var(--bg);
+  border-bottom: 1px solid var(--border); flex: none; }
+.nav { width: 34px; height: 34px; flex: none; border: 0; border-radius: 8px; background: none;
+  color: var(--text); font-size: 16px; line-height: 1; }
+.nav:hover:not(:disabled) { background: var(--panel-2); }
+.nav:disabled { opacity: .35; cursor: default; }
+.nav.on { color: #ffd36b; }
+.address { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; margin: 0 6px;
+  padding: 0 12px; height: 36px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); }
+.address:focus-within { border-color: var(--accent); }
+.address input { flex: 1; min-width: 0; border: 0; background: none; padding: 0; height: 100%; }
+.lock { font-size: 12px; color: var(--good); }
+.progress { height: 2px; background: transparent; flex: none; }
+.progress div { height: 100%; width: 0; background: var(--accent); transition: width .2s, opacity .3s; }
+
+.bookmark-bar { display: flex; gap: 4px; padding: 4px 8px; background: var(--bg); border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex: none; scrollbar-width: none; }
+.bookmark-bar button { flex: none; max-width: 180px; padding: 4px 10px; border: 0; border-radius: 6px; background: none;
+  color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bookmark-bar button:hover { background: var(--panel-2); color: var(--text); }
+
+/* --- the page area ------------------------------------------------------------ */
+.body { flex: 1; min-height: 0; display: flex; }
+.viewport { flex: 1; min-width: 0; position: relative; background: var(--bg); overflow: auto; }
+
+.start { position: absolute; inset: 0; overflow: auto; }
+.start-inner { max-width: 860px; margin: 0 auto; padding: 8vh 24px 40px; display: flex; flex-direction: column; gap: 14px; }
+.start-clock { font-size: 56px; font-weight: 300; text-align: center; letter-spacing: -.02em; }
+#start-form input { width: 100%; height: 50px; padding: 0 22px; border-radius: 999px; font-size: 16px; }
+.section-label { margin-top: 14px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tiles:empty, .section-label.empty { display: none; }
+.site { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-align: left;
+  border: 1px solid var(--border); background: var(--panel); color: var(--text); min-width: 0; }
+.site:hover { border-color: var(--accent); }
+.site .ico { width: 28px; height: 28px; flex: none; border-radius: 8px; display: grid; place-items: center;
+  font-weight: 700; color: var(--accent); background: var(--panel-2); }
+.site .words { min-width: 0; }
+.site .words div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.site .words .host { color: var(--muted); font-size: 11px; }
+.notice { margin-top: 18px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--warn); color: var(--warn); font-size: 13px; }
+
+/* --- side panel -------------------------------------------------------------------- */
+.side { width: 340px; flex: none; display: flex; flex-direction: column; gap: 8px; padding: 12px;
+  background: var(--panel); border-left: 1px solid var(--border); }
+.side-head { display: flex; align-items: center; gap: 8px; }
+.side-head h3 { flex: 1; margin: 0; font-size: 15px; }
+.btn.icon { padding: 4px 10px; }
+.side-list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.row { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: 8px; width: 100%; padding: 7px 8px;
+  border: 0; border-radius: 8px; background: none; color: var(--text); text-align: left; cursor: pointer;
+  transition: background-color .15s; }
+.row:hover { background: var(--panel-2); }
+.row .ico { width: 24px; height: 24px; flex: none; border-radius: 7px; display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; color: var(--accent); background: var(--panel-2); }
+.row .words { flex: 1; min-width: 0; }
+.row .words div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+.row .words .host { color: var(--muted); font-size: 11px; }
+.row .x { border: 0; background: none; color: var(--muted); border-radius: 6px; padding: 2px 7px; }
+.row .x:hover { color: var(--bad); background: var(--panel); }
+.row .folder { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 6px; }
+
+/* --- menu and dialog ------------------------------------------------------------------ */
+.menu { position: fixed; top: 84px; right: 10px; z-index: 30; width: 260px; padding: 6px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--border); box-shadow: 0 12px 34px rgba(0, 0, 0, .4);
+  display: flex; flex-direction: column; gap: 2px; }
+.menu > button, .menu-row { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: var(--text); font-size: 13px; margin: 0; text-align: left; }
+.menu > button:hover { background: var(--panel-2); }
+.menu-row select { padding: 4px 6px; }
+.zoom { display: inline-flex; align-items: center; gap: 6px; }
+.zoom button { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); padding: 0; }
+.dialog { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: rgba(0, 0, 0, .45); }
+.dialog .card { width: min(480px, calc(100vw - 32px)); margin: 0; }
+.dialog h3 { margin: 0 0 6px; }
+label.check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--text); margin: 8px 0; }
+label.check input { margin-top: 3px; }
+.row-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+#imp-result { margin-top: 10px; }
+
+/* --- notes, the offline strip, empty lists ------------------------------------------- */
+/* A note sits over the tab strip: a native page covers anything drawn over #viewport. */
+#note { top: 3px; bottom: auto; right: 12px; max-width: min(420px, 36vw); padding: 4px 10px;
+  font-size: 12px; line-height: 1.25; pointer-events: none; overflow: hidden;
+  /* up to two lines, so a narrow window keeps it readable within the strip's height */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35); animation: note-in .18s ease-out; }
+@keyframes note-in { from { opacity: 0; transform: translateY(-4px); } }
+.offline { flex: none; padding: 6px 14px; font-size: 12px; color: var(--warn); background: var(--panel);
+  border-bottom: 1px solid var(--border); animation: note-in .2s ease-out; }
+.side-empty { margin: 22px 10px; color: var(--muted); font-size: 13px; line-height: 1.5; text-align: center; }
+
+/* --- thin scrollbars (the hub runs WebKitGTK, so both spellings) ------------------------- */
+.side-list, .start { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.side-list::-webkit-scrollbar, .start::-webkit-scrollbar { width: 8px; height: 8px; }
+.side-list::-webkit-scrollbar-thumb, .start::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.side-list::-webkit-scrollbar-thumb:hover, .start::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+.side-list::-webkit-scrollbar-track, .start::-webkit-scrollbar-track { background: transparent; }
+.tabs::-webkit-scrollbar, .bookmark-bar::-webkit-scrollbar { display: none; }

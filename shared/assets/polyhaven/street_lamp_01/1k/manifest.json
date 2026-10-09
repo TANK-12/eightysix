@@ -1,0 +1,20 @@
+{
+  "id": "street_lamp_01",
+  "name": "Street Lamp 01",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/street_lamp_01",
+  "license": "CC0",
+  "authors": [
+    "Josh Dean"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/street_lamp_01/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/street_lamp_01/1k/street_lamp_01_1k.gltf",
+  "files": [
+    "street_lamp_01_1k.gltf",
+    "textures/street_lamp_01_arm_1k.jpg",
+    "textures/street_lamp_01_diff_1k.jpg",
+    "textures/street_lamp_01_nor_gl_1k.jpg",
+    "street_lamp_01.bin"
+  ]
+}

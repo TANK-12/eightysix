@@ -1,0 +1,252 @@
+{
+ "_readme": "Every session planned from here. Each entry says why it exists, what to do, and what NOT to do in it — the 'explicitly_not' is there so a session does not quietly swallow the next one. Read MANIFEST.json first, then this. Everything here comes from something Emerson actually asked for; his words are kept in the session records rather than paraphrased here.",
+ "project": "Janhollow",
+ "last_updated": "2026-09-17",
+ "done": [
+  {
+   "session": 1,
+   "title": "Foundation",
+   "landed": "2026-09-16",
+   "record": "manifests/session-01.json"
+  },
+  {
+   "session": 2,
+   "title": "Chatter and the narrator (roadmap sessions 2 and 3, built together)",
+   "landed": "2026-09-16",
+   "record": "manifests/session-02.json",
+   "note": "Both model lanes landed in one session. The two open questions the plan carried are answered there: thinking must be off, and what each model costs."
+  },
+  {
+   "session": 3,
+   "title": "32px art, autotiling, lighting, and Jan drawing in Pixel Forge",
+   "landed": "2026-09-16",
+   "record": "manifests/session-03.json",
+   "note": "Also answers what a local model can draw: not pixels, but shape lists it can compose well enough to rasterise."
+  },
+  {
+   "session": 4,
+   "title": "The player: walking, talking, sitting, sleeping — plus the close button and voices-off",
+   "landed": "2026-09-16",
+   "record": "manifests/session-04.json",
+   "note": "Built alongside four subagents. His 15 answers about how life aboard should work are in that record verbatim; read them before designing anything in this list."
+  },
+  {
+   "session": 5,
+   "title": "Carrying and giving things (first half of roadmap session 5)",
+   "landed": "2026-09-17",
+   "record": "manifests/session-05.json",
+   "note": "Emerson asked for 'a bit but not to much', so errands were split off into 5b. His answers for the job board and errands are already in the record."
+  }
+ ],
+ "next": [
+  {
+   "session": "5b",
+   "title": "The job board and errands",
+   "dependent_on": [
+    5
+   ],
+   "why": "The other half of his 'what comes next'. Carrying exists now; errands give it a reason.",
+   "do": [
+    "A job board: a console in Command. Walk up, press E, a small panel lists a few open errands; take one. One errand at a time (his answer).",
+    "Three kinds: fetch and deliver, pass a message (no item, talk to someone), find a lost thing (the hint names the deck, and the item is placed in a random room on it).",
+    "Errand templates as data in ~/ForgeGameData/janhollow/errands/ for when voices are off; with voices on the narrator writes errands, choosing only from the items that exist.",
+    "Finishing one: warmth +1 through World.warm, a thank-you line, and a log entry the narrator can mention that evening. No expiry; you can abandon one.",
+    "Crew tidy up: overnight, things you left lying around go back to a room they start in (he chose 'Crew pick up dropped things')."
+   ],
+   "explicitly_not": [
+    "No crafting, no economy, no shop.",
+    "The narrator still may not change your job or your relationships on its own: errands only.",
+    "Do not let the narrator invent items with no sprite."
+   ]
+  },
+  {
+   "session": "5a",
+   "title": "Voices for the crew, and real music",
+   "dependent_on": [
+    4
+   ],
+   "why": "He asked for 'kokoro voices to thre gender' and for open sound and music libraries. The station now has synthesised ambience, which is the floor, not the ceiling.",
+   "do": [
+    "Give each crew file a `voice` field and pick a Kokoro voice to match. NovelForge's venv already has Piper and Kokoro and its voices are downloaded; Emberfield reuses them rather than duplicating 453 MB, and so should this.",
+    "Speak a line AFTER it has passed the guard, never before, and never on the path of anything waiting: synthesis takes seconds.",
+    "Cache by (voice, line) on disk with a cap, because the same greeting will recur.",
+    "For music, list real open sources with their licences and let Emerson pick before downloading anything: disk is short and a licence is his call. Kenney (CC0), OpenGameArt (mixed, check each), Freesound (filter to CC0) and the Free Music Archive (CC-BY) are the honest candidates."
+   ],
+   "explicitly_not": [
+    "Do not block a conversation on speech finishing.",
+    "Do not download an asset pack without asking first.",
+    "Do not add a second sound engine: static/sound.js and shared/forge_sound.js already exist."
+   ]
+  },
+  {
+   "session": 6,
+   "title": "Show the worlds",
+   "dependent_on": [
+    3
+   ],
+   "independent_of_player": true,
+   "why": "Two agents produced 14 destinations and 33 space sprites and nothing draws any of it. A viewport that actually looks out at a planet is the cheapest large gain available.",
+   "do": [
+    "A viewport room (observation, bridge, docking_ring, arboretum) shows the worlds whose `visible_from` names it, drawn from the janhollow-space pack.",
+    "Wire each world's `sprite` field to a real sprite id — the seeder deliberately left them empty.",
+    "Slow drift, so the view out of the window changes over a station day.",
+    "A ship at the docking ring when the narrator's supply-barge event fires."
+   ],
+   "explicitly_not": [
+    "No flying anything yet. This session only looks out of the window."
+   ]
+  },
+  {
+   "session": 7,
+   "title": "A story that runs across days",
+   "dependent_on": [
+    4
+   ],
+   "why": "He asked for long-form life aboard — 'anythting form set job to littl quests to romantic interest'. The narrator currently writes one day and forgets it by morning.",
+   "do": [
+    "A story thread the narrator keeps and advances: a few sentences of state, carried in the save.",
+    "Let a thread touch a crew member's memories, so they refer to what happened last week.",
+    "Romance grows out of warmth passing a threshold, which is how he asked for it to work — not a menu.",
+    "Nightly, fold a crew member's memories into one or two lines so the prompt does not grow."
+   ],
+   "explicitly_not": [
+    "No branching plot tree. This is a station, not a visual novel.",
+    "The narrator still may not change your job or your relationships without you: 'Only small things'.",
+    "Do not grow the prompt fed to the 0.8B — it gets worse with more context, not better."
+   ]
+  },
+  {
+   "session": 8,
+   "title": "Things to do aboard",
+   "dependent_on": [
+    5
+   ],
+   "why": "His list: 'live life play mini games chat drink whatever'. Sitting is in; the rest is not.",
+   "do": [
+    "Join a meal: sit in the mess at mealtime and the crew there talk to you over food.",
+    "Use a console: stand at one and get a short readout the narrator wrote.",
+    "One real mini-game in the lounge — cards with a crew member is the obvious one, and it gives the chatter lane something to comment on."
+   ],
+   "explicitly_not": [
+    "Do not build three mini-games badly. One that works beats three that do not."
+   ]
+  },
+  {
+   "session": 9,
+   "title": "Flying, and plotting a course",
+   "dependent_on": [
+    6
+   ],
+   "why": "The biggest thing he asked for: 'fly space ships paln courses'. The docking ring, the ships and the 14 worlds all exist already, which is most of the groundwork.",
+   "do": [
+    "Take a shuttle out from the docking ring; the station becomes something you can see from outside.",
+    "Plot a course to one of the worlds, with the trip taking station time.",
+    "Arriving somewhere gives the narrator a new setting to write about."
+   ],
+   "explicitly_not": [
+    "No combat, no trading. The tone he chose is cosy crew life.",
+    "Do not rebuild the simulation for space: a trip is a clock and a destination, not a new physics engine."
+   ]
+  }
+ ],
+ "backlog": [
+  {
+   "title": "Festivals and station events",
+   "why": "A shared meal or a supply barge gives the narrator something to build a day around.",
+   "dependent_on": [
+    3
+   ]
+  },
+  {
+   "title": "Claude sessions from the Crew Room visiting the station",
+   "why": "Emerson's own idea in the plan; the Crew Room already models sessions as characters.",
+   "dependent_on": [
+    4
+   ]
+  },
+  {
+   "title": "A room editor inside Pixel Forge",
+   "why": "Rooms are rectangles in JSON; dragging them would make the station editable without a text editor.",
+   "independent": true
+  },
+  {
+   "title": "Crew portraits",
+   "why": "The crewroom pack has faces at 16x24; a larger portrait per crew member would make conversations read better.",
+   "independent": true
+  },
+  {
+   "title": "A second station or a docked ship",
+   "why": "Decks are data and the lift is the only link, so a second location is mostly content.",
+   "dependent_on": [
+    4
+   ]
+  },
+  {
+   "title": "Sound: hums, doors and the reactor",
+   "why": "shared/forge_sound.js already exists and Emberfield uses it.",
+   "independent": true
+  },
+  {
+   "title": "A day-in-review card",
+   "why": "Something to read after a time-skip that is nicer than a log line.",
+   "dependent_on": [
+    3
+   ]
+  },
+  {
+   "title": "Crew needs (sleep, food, company) nudging the schedule",
+   "why": "Schedules are fixed today, so a crew member never improvises.",
+   "dependent_on": [
+    3
+   ]
+  },
+  {
+   "title": "NPC voices through Forge's TTS",
+   "why": "Piper and Kokoro already live in NovelForge's venv and Emberfield reuses them. Lines are short and already validated, so speaking them is mostly plumbing.",
+   "dependent_on": [
+    2
+   ]
+  },
+  {
+   "title": "A bigger chatter model, measured",
+   "why": "roles.py makes the swap one edit. Worth timing the 2B and 4B a line against the 0.8B's 0.8 s before choosing.",
+   "independent": true
+  },
+  {
+   "title": "Show the rejected lines in the app",
+   "why": "rejected.jsonl is the record of how the model fails and it is only readable in a text editor.",
+   "independent": true
+  },
+  {
+   "title": "Seasons and shifts as palette swaps",
+   "why": "The deck now has its own janhollow palette, separate from the crew's, so a night shift or a red alert is one palette file and no new art.",
+   "independent": true
+  },
+  {
+   "title": "Stamp a Pixel Forge structure into a deck",
+   "why": "Pixel Forge can have Jan draw a floor plan and saves it as a shared 'structures' entry; nothing reads them. A generated cabin becoming a real room is most of a content pipeline.",
+   "dependent_on": [
+    3
+   ]
+  },
+  {
+   "title": "Crew drawn at 32px",
+   "why": "They are EPX upscales of 16px art. Real 32px characters would carry faces and uniforms the originals never had.",
+   "independent": true
+  }
+ ],
+ "cleanups": [
+  {
+   "what": "Move the `worlds` content type into shared/forge_content.py",
+   "why": "Janhollow declares it in janhollow/content.py and Pixel Forge hand-copied it into web_app.py during session 4, because the two were being edited at once. They will drift."
+  },
+  {
+   "what": "shared/forge_jan.py cannot unload an idle model",
+   "why": "This Jan build answers 401 Invalid API Key on the router's /models/unload, so the whole 'give the memory back' feature silently never worked. It now says so in the log once. Fixing it needs the router's key or another way to unload, and that is Emerson's call."
+  },
+  {
+   "what": "Pixel Forge has no backups/ directory",
+   "why": "There is no version control here and the convention is a pre-edit copy. Session 4 edited it without one."
+  }
+ ]
+}

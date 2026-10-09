@@ -1,0 +1,1092 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>MediaForge</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  /* MediaForge's identity and its genuinely unique widgets. Everything else
+     -- palette, buttons, fields, cards, tabs, toasts, log boxes, advanced
+     mode, clear buttons, thumbnails -- comes from /shared/forge.css. */
+  :root { --accent: #22b8cf; --accent-2: #17a2b8; --on-accent: #06181a; }
+  .panel { max-width: 960px; }
+  /* MediaForge puts action buttons on the same row as labelled inputs, so its
+     rows bottom-align; the shared default is top-aligned. */
+  .row { align-items: flex-end; }
+  /* room under the last card for the floating Close app / Full screen pills */
+  main { padding-bottom: 56px; }
+  .panel.active { animation: mf-fade .18s ease-out; }
+  @keyframes mf-fade { from { opacity: 0; } }
+  .offline { max-width: 960px; margin: 12px auto; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--panel-2); color: var(--muted); }
+  /* thin, quiet scrollbars: Chrome and WebKitGTK draw ::-webkit-scrollbar,
+     Firefox the standard properties */
+  @supports not selector(::-webkit-scrollbar) {
+    * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent; }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-button { display: none; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px;
+    border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--text) 30%, transparent); }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Media<span>Forge</span></div>
+    <div style="flex:1"></div>
+    <div class="mode-switch" title="Advanced mode reveals the encoder, conflict-handling and scraper tuning controls">
+      <button id="modeSimple">Simple</button><button id="modeAdvanced" class="on">Advanced</button>
+    </div>
+  </header>
+  <nav id="tabs">
+    <div class="tab active" data-tab="subtitles">Subtitle Studio</div>
+    <div class="tab" data-tab="anime">Anime Library</div>
+    <div class="tab" data-tab="storage">Storage Tools</div>
+    <div class="tab" data-tab="enhance">Video Enhancer</div>
+    <div class="tab" data-tab="organizer">Library Organiser</div>
+    <div class="tab" data-tab="dedupe">Duplicate Slayer</div>
+    <div class="tab" data-tab="manga">Manga Downloader</div>
+    <div class="tab" data-tab="imagestudio">AI Image Studio</div>
+    <div class="tab" data-tab="jptutor">Japanese Tutor</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </nav>
+  <main>
+    <div id="mf_offline" class="offline" hidden>Can't reach the MediaForge server. Trying again by itself…</div>
+    <div class="panel active" data-panel="subtitles">
+      <div class="card">
+        <h3>1 &middot; Folder</h3>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Video folder</label><input id="sub_folder" placeholder="/path/to/videos"></div>
+          <div class="field" style="flex:0"><button class="btn" id="sub_scanBtn">Scan folder</button></div>
+        </div>
+        <div id="sub_fileList" class="muted" style="font-size:12px"></div>
+      </div>
+
+      <div class="card">
+        <h3>2 &middot; Track Inspector</h3>
+        <div class="row">
+          <div class="field" style="flex:2"><label>File to inspect</label><select id="sub_pickFile"></select></div>
+          <div class="field" style="flex:0"><button class="btn" id="sub_probeBtn">Scan tracks</button></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Audio track</label><select id="sub_audioIdx"></select></div>
+          <div class="field"><label>Subtitle track</label><select id="sub_subIdx"></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3 &middot; Mode</h3>
+        <div class="field">
+          <label>What to do</label>
+          <select id="sub_mode">
+            <option value="hardbake_embedded">Hardbake an embedded subtitle track</option>
+            <option value="hardbake_file">Hardbake an external .srt/.ass file</option>
+            <option value="translate_hardbake">Translate a track/file, then hardbake</option>
+            <option value="transcribe_hardbake">Transcribe audio (Whisper), then hardbake</option>
+            <option value="convert_only">No subtitles -- just convert/compress/resize</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="field"><label>External subtitle path (for hardbake_file/translate)</label><input id="sub_extSub" placeholder="optional"></div>
+          <div class="field"><label>Target language</label><input id="sub_targetLang" value="English"></div>
+          <div class="field adv"><label>Whisper model</label>
+            <select id="sub_whisperModel"><option>tiny</option><option selected>base</option><option>small</option><option>medium</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>4 &middot; Encoding</h3>
+        <div class="row adv">
+          <div class="field"><label>Encoder</label><select id="sub_hwEncoder"><option value="cpu">cpu</option></select></div>
+          <div class="field"><label>Codec</label><select id="sub_encFamily"><option value="x264">x264</option><option value="x265">x265</option></select></div>
+          <div class="field"><label>CRF</label><input id="sub_crf" type="number" value="22"></div>
+          <div class="field"><label>Preset</label>
+            <select id="sub_preset"><option>ultrafast</option><option>veryfast</option><option>fast</option><option selected>medium</option><option>slow</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Width</label><input id="sub_w" type="number" value="1280"></div>
+          <div class="field"><label>Height</label><input id="sub_h" type="number" value="720"></div>
+          <div class="field"><label><input type="checkbox" id="sub_keepSize"> keep original size</label></div>
+          <div class="field" style="flex:2"><label>Output folder</label><input id="sub_outDir" placeholder="~/Videos/MediaForge"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>5 &middot; Run</h3>
+        <div class="row">
+          <button class="btn btn-primary" id="sub_startBtn">&#9654; Start batch</button>
+          <button class="btn btn-danger" id="sub_killBtn" disabled>&#9632; Kill</button>
+        </div>
+        <div class="progress-bar"><div id="sub_prog"></div></div>
+        <div id="logBox" class="logbox" data-clearable style="height:260px"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="anime">
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2"><label>Library root</label><input id="an_root"></div>
+          <div class="field" style="flex:0"><button class="btn btn-primary" id="an_scanBtn">Scan</button></div>
+          <div class="field" style="flex:0"><button class="btn" id="an_namecheckBtn">Name check</button></div>
+          <div class="field" style="flex:0"><button class="btn" id="an_exportBtn">Export report</button></div>
+        </div>
+      </div>
+      <pre id="an_report" class="card" data-clearable style="white-space:pre-wrap; font-size:12px; max-height:520px; overflow-y:auto"></pre>
+    </div>
+
+    <div class="panel" data-panel="storage">
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2"><label>Root to scan</label><input id="st_root"></div>
+          <div class="field" style="flex:0"><button class="btn btn-primary" id="st_scanBtn">Scan</button></div>
+          <div class="field" style="flex:0"><button class="btn" id="st_dupBtn">Find duplicates</button></div>
+          <div class="field" style="flex:0"><button class="btn" id="st_cleanBtn">Clean dead entries</button></div>
+        </div>
+        <div class="muted" id="st_status" style="font-size:12px"></div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2"><label>Search</label><input id="st_term" placeholder="filename contains..."></div>
+          <div class="field"><label>Min MB</label><input id="st_minmb" type="number" value="0"></div>
+          <div class="field"><label>Extension</label><input id="st_ext" placeholder=".mkv"></div>
+          <div class="field" style="flex:0"><button class="btn" id="st_searchBtn">Search</button></div>
+        </div>
+        <table><thead><tr><th></th><th>Name</th><th>Ext</th><th>Size</th></tr></thead><tbody id="st_results"></tbody></table>
+      </div>
+      <pre id="st_dupResults" class="card" data-clearable style="white-space:pre-wrap; font-size:12px; max-height:300px; overflow-y:auto"></pre>
+    </div>
+
+    <div class="panel" data-panel="enhance">
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2"><label>Files (comma-separated paths)</label><input id="en_files" placeholder="/path/a.mkv, /path/b.mkv"></div>
+          <div class="field" style="flex:1"><label>Output folder</label><input id="en_outDir" placeholder="~/Videos/MediaForge"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Target resolution</label>
+            <select id="en_res"><option value="original">Original</option><option value="720p">720p</option><option value="1080p">1080p</option><option value="1440p">1440p</option><option value="4k">4K</option></select>
+          </div>
+          <div class="field"><label>Scaler</label>
+            <select id="en_scaler"><option>lanczos</option><option>spline</option><option>bicubic</option><option>bilinear</option></select>
+          </div>
+          <div class="field"><label><input type="checkbox" id="en_interp"> Motion interpolation</label>
+            <select id="en_fps"><option>30</option><option>48</option><option selected>60</option><option>90</option><option>120</option><option>144</option></select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Codec</label><select id="en_fam"><option value="x264">x264</option><option value="x265">x265</option></select></div>
+          <div class="field"><label>Encoder</label><select id="en_hw"><option value="cpu">cpu</option></select></div>
+          <div class="field"><label>CRF</label><input id="en_crf" type="number" value="20"></div>
+          <div class="field adv"><label>GOP</label><input id="en_gop" type="number" value="250"></div>
+          <div class="field adv"><label>Scene threshold</label><input id="en_sc" type="number" value="40"></div>
+          <div class="field"><label><input type="checkbox" id="en_copyAudio" checked> Copy audio</label></div>
+        </div>
+        <button class="btn btn-primary" id="en_startBtn">&#9654; Start</button>
+        <button class="btn btn-danger" id="en_killBtn" disabled>&#9632; Kill</button>
+        <div class="progress-bar"><div id="en_prog"></div></div>
+        <div id="en_logBox" class="logbox" data-clearable></div>
+      </div>
+    </div>
+    <div class="panel" data-panel="organizer">
+      <div class="card">
+        <div class="row">
+          <div class="field" style="flex:2"><label>Messy source folder</label><input id="og_src" placeholder="/path/to/unsorted"></div>
+          <div class="field" style="flex:2"><label>Library root</label><input id="og_root"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Naming pattern</label><input id="og_pattern"></div>
+          <div class="field"><label>Metadata</label><select id="og_provider"><option value="anilist">anilist</option><option value="jikan">jikan</option><option value="tmdb">tmdb</option><option value="none">none</option></select></div>
+          <div class="field"><label>Action</label><select id="og_action"><option value="move">move</option><option value="copy">copy</option><option value="hardlink">hardlink</option></select></div>
+          <div class="field adv"><label>On name clash</label><select id="og_conflict"><option value="skip">skip</option><option value="number">number</option><option value="conflicts_folder">conflicts_folder</option><option value="duplicates_folder">duplicates_folder</option></select></div>
+        </div>
+        <div class="row adv">
+          <div class="field"><label><input type="checkbox" id="og_hashcheck" checked> hash-check (skip already-sorted / exact dupes)</label></div>
+        </div>
+        <button class="btn btn-primary" id="og_previewBtn">1 &middot; Build preview</button>
+        <button class="btn" id="og_applyBtn">2 &middot; Apply</button>
+        <button class="btn" id="og_toggleBtn">Select all/none</button>
+      </div>
+      <div class="card">
+        <div id="og_count" class="muted" style="font-size:12px; margin-bottom:8px"></div>
+        <div id="og_preview" style="max-height:420px; overflow-y:auto; font-size:12px"></div>
+      </div>
+      <div class="card">
+        <h3>History / Revert</h3>
+        <div class="row">
+          <div class="field" style="flex:2"><select id="og_history"></select></div>
+          <div class="field" style="flex:0"><button class="btn" id="og_refreshHistBtn">Refresh</button></div>
+          <div class="field" style="flex:0"><button class="btn btn-danger" id="og_revertBtn">Revert selected</button></div>
+        </div>
+        <div id="og_histLog" class="muted" style="font-size:12px; white-space:pre-wrap"></div>
+      </div>
+    </div>
+    <div class="panel" data-panel="dedupe">
+      <div class="card">
+        <div class="row">
+          <div class="field"><label>Target type</label><select id="dd_type"><option value="pdf">PDF</option><option value="dir">Image folder</option></select></div>
+          <div class="field" style="flex:2"><label>Path</label><input id="dd_target" placeholder="/path/to/file.pdf or folder"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Similarity</label><select id="dd_thresh"><option value="exact">exact</option><option value="near" selected>near</option><option value="loose">loose</option></select></div>
+          <div class="field"><label>Resolve</label><select id="dd_mode"><option value="manual">manual review</option><option value="auto">auto keep first</option></select></div>
+          <div class="field"><label>Output</label><select id="dd_fmt"><option value="pdf">pdf</option><option value="cbz">cbz</option></select></div>
+          <div class="field"><label><input type="checkbox" id="dd_compress" checked> compress output</label></div>
+        </div>
+        <button class="btn btn-primary" id="dd_scanBtn">Scan &amp; optimise</button>
+        <div id="dd_status" class="muted" style="font-size:12px; margin-top:8px"></div>
+      </div>
+      <div id="dd_review" class="hidden"></div>
+    </div>
+    <div class="panel" data-panel="manga">
+      <div class="card">
+        <h3>1 &middot; Series</h3>
+        <div class="muted" style="font-size:12px; margin-bottom:6px">
+          Paste the series page link, like <code>https://comix.to/title/3nlg-bad-born-blood</code>.
+          <a href="https://comix.to" target="_blank" rel="noopener">Open comix.to</a> to find one.
+          comix.to is read in a headless browser: every chapter on every page of the list, with the scan group that made it.
+        </div>
+        <div class="row">
+          <div class="field" style="flex:3"><label>Series link</label><input id="mg_url1" placeholder="https://comix.to/title/..."></div>
+          <div class="field mg-other" style="flex:2"><label>Page-2 link (pattern mode, other sites)</label><input id="mg_url2"></div>
+          <div class="field mg-other"><label><input type="checkbox" id="mg_headless"> headless browser</label></div>
+        </div>
+        <button class="btn btn-primary" id="mg_fetchBtn">Fetch chapter list</button>
+        <div id="mg_fetchLog" class="muted" data-clearable style="font-size:12px; margin-top:8px; white-space:pre-wrap"></div>
+      </div>
+      <div class="card">
+        <h3>2 &middot; Chapters</h3>
+        <div id="mg_groups" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:6px; font-size:12px"></div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px; font-size:12px">
+          <button class="btn" id="mg_selAll">Select all shown</button>
+          <button class="btn" id="mg_selNone">Select none</button>
+          <span class="muted" id="mg_selCount">No chapters yet</span>
+        </div>
+        <div id="mg_chapters" style="max-height:320px; overflow-y:auto; font-size:12px"></div>
+      </div>
+      <div class="card">
+        <h3>3 &middot; Output</h3>
+        <div class="row mg-other">
+          <div class="field"><label>Navigation</label>
+            <select id="mg_nav"><option>Vertical scroll (long strip)</option><option>Key press (next-page)</option></select>
+          </div>
+          <div class="field"><label>Next-page key</label><input id="mg_key" value="ArrowRight"></div>
+          <div class="field adv"><label>Step delay (s)</label><input id="mg_delay" type="number" step="0.5" value="1.5"></div>
+          <div class="field adv"><label>Patience (empty steps)</label><input id="mg_patience" type="number" value="10"></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Save folder</label><input id="mg_outDir" placeholder="~/Downloads/MediaForge/Manga"></div>
+          <div class="field adv"><label>Parallel chapters</label><select id="mg_threads"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></div>
+          <div class="field"><label><input type="checkbox" id="mg_pdf" checked> make PDF</label></div>
+          <div class="field"><label><input type="checkbox" id="mg_cbz"> make CBZ</label></div>
+          <div class="field"><label><input type="checkbox" id="mg_delRaw"> delete raw images after</label></div>
+        </div>
+        <div class="muted" style="font-size:12px; margin-bottom:6px">Each chapter is saved as a folder of page images under <code>&lt;save folder&gt;/&lt;series&gt;/Chapter_NNNN/</code>, plus the PDF or CBZ beside it.</div>
+        <button class="btn btn-primary" id="mg_downloadBtn">&#9654; Download selected</button>
+        <button class="btn btn-danger" id="mg_stopBtn" disabled>&#9632; Stop</button>
+        <progress id="mg_progress" value="0" max="1" style="width:100%; margin-top:6px; display:none"></progress>
+        <div id="mg_dlLog" class="logbox" data-clearable style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="panel" data-panel="imagestudio">
+      <p class="muted">For local, offline image generation, use the AI Studio tab instead -- this panel talks to
+        fal.ai's cloud API and needs your own API key and internet access.</p>
+      <div class="card">
+        <h3>Generate (fal.ai)</h3>
+        <div class="row">
+          <div class="field" style="flex:2"><label>FAL_KEY</label><input id="is_key" type="password"></div>
+          <div class="field"><label>Model</label><select id="is_model"></select></div>
+          <div class="field"><label>Size</label>
+            <select id="is_size"><option value="square">square</option><option value="portrait_4_3">portrait_4_3</option><option value="landscape_16_9" selected>landscape_16_9</option><option value="portrait_16_9">portrait_16_9</option></select>
+          </div>
+          <div class="field"><label>Steps</label><input id="is_steps" type="number" value="4"></div>
+        </div>
+        <div class="field"><label>Prompt</label><textarea id="is_prompt" rows="2">a cozy seaside town at dawn, anime background art</textarea></div>
+        <div class="row">
+          <div class="field" style="flex:2"><label>img2img source (optional)</label><input id="is_img2img" placeholder="/path/to/image.png"></div>
+          <div class="field adv"><label>strength</label><input id="is_strength" type="number" step="0.05" value="0.75"></div>
+          <div class="field" style="flex:2"><label>Save folder</label><input id="is_outDir" placeholder="~/Downloads/MediaForge/Images"></div>
+        </div>
+        <button class="btn btn-primary" id="is_genBtn">Generate</button>
+        <div id="is_log" class="muted" data-clearable style="font-size:12px; margin-top:8px; white-space:pre-wrap"></div>
+      </div>
+      <div class="card">
+        <h3>Local upscale (no API, Pillow only)</h3>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Input image or folder</label><input id="up_in"></div>
+          <div class="field"><label>Scale</label><select id="up_scale"><option>1.5</option><option selected>2</option><option>3</option><option>4</option></select></div>
+          <div class="field"><label>Method</label><select id="up_method"><option>lanczos</option><option>bicubic</option><option>hamming</option></select></div>
+          <div class="field"><label><input type="checkbox" id="up_sharp" checked> unsharp mask</label></div>
+        </div>
+        <div class="field" style="max-width:400px"><label>Save folder</label><input id="up_outDir" placeholder="~/Downloads/MediaForge/Upscaled"></div>
+        <button class="btn btn-primary" id="up_runBtn">Upscale</button>
+        <div id="up_log" class="muted" data-clearable style="font-size:12px; margin-top:8px; white-space:pre-wrap"></div>
+      </div>
+    </div>
+    <div class="panel" data-panel="jptutor">
+      <div class="card">
+        <div class="row">
+          <div class="field"><label>Jan model</label><select id="jp_model"></select></div>
+          <div class="field"><label>Register</label>
+            <select id="jp_register"><option>Casual / plain</option><option selected>Polite (desu/masu)</option><option>Formal keigo</option></select>
+          </div>
+          <div class="field"><label>Persona</label>
+            <select id="jp_persona"><option>Strict translator</option><option selected>Balanced tutor</option><option>Free conversation partner</option></select>
+          </div>
+          <div class="field"><label><input type="checkbox" id="jp_romaji" checked> romaji + gloss</label></div>
+        </div>
+        <div id="jp_status" class="muted" style="font-size:12px"></div>
+      </div>
+      <div class="card">
+        <div id="jp_view" data-clearable style="height:280px; overflow-y:auto; font-size:14px; white-space:pre-wrap; margin-bottom:10px"></div>
+        <div class="row">
+          <input id="jp_entry" style="flex:1" placeholder="Type a message...">
+          <button class="btn btn-primary" id="jp_sendBtn">Send</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Kana keyboard -- click to insert</h3>
+        <div id="jp_kana" style="display:flex; flex-wrap:wrap; gap:4px"></div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="settings">
+      <div class="card">
+        <div class="row">
+          <div class="field"><label>Jan API base</label><input id="se_janBase"></div>
+        </div>
+        <button class="btn btn-primary" id="se_saveBtn">Save Settings</button>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script>
+// A request that fails with no handler of its own (the server is down, or
+// answered with an error page) shows a calm toast instead of nothing at all.
+addEventListener("unhandledrejection", (e) => {
+  const m = String((e.reason && e.reason.message) || e.reason || "");
+  toast(/fetch|network|load failed/i.test(m) ? "MediaForge's server is not answering: try again in a moment"
+    : "That did not work: " + m, "err");
+});
+
+// One request per click: a second click while the first is still starting
+// (or a confirm dialog is open) is ignored.
+function onClickOnce(id, fn) {
+  const b = document.getElementById(id);
+  b.addEventListener("click", async (e) => {
+    if (b.dataset.busy) return;
+    b.dataset.busy = "1";
+    try { await fn(e); } finally { delete b.dataset.busy; }
+  });
+}
+
+// Panels that need to refresh when opened hook in here.
+const selectTab = initTabs((name) => {
+  if (name === "jptutor") jpRefreshStatus();
+});
+
+// Thin adapter over the shared forgeStream(): appends log lines to a box and
+// hands progress through as a fraction. The one-EventSource-per-job rule and
+// the reconnect handling live in /shared/forge.js.
+function streamJob(jobId, box, { onDone, onError, onProgress, onLog } = {}) {
+  return forgeStream(jobId, {
+    onLog: (text) => {
+      if (box) { box.textContent += text + "\n"; box.scrollTop = box.scrollHeight; }
+      onLog && onLog(text);
+    },
+    onProgress: (e) => onProgress && onProgress(e.frac),
+    onDone, onError,
+  });
+}
+
+// ---------------- Subtitle Studio ----------------
+let subFiles = [];
+let subActiveJob = null;
+
+onClickOnce("sub_scanBtn", async () => {
+  const folder = val("sub_folder").trim();
+  if (!folder) return toast("Enter a folder path", "err");
+  const res = await fetch(`/api/subtitles/scan-folder?folder=${encodeURIComponent(folder)}`);
+  if (!res.ok) return toast(await errText(res, "scan failed"), "err");
+  const data = await res.json();
+  subFiles = data.files;
+  document.getElementById("sub_fileList").textContent = `${subFiles.length} video file(s) found`;
+  const sel = document.getElementById("sub_pickFile");
+  sel.innerHTML = "";
+  for (const f of subFiles) { const o = document.createElement("option"); o.value = f; o.textContent = f.split("/").pop(); sel.appendChild(o); }
+  if (!val("sub_outDir")) document.getElementById("sub_outDir").value = folder + "/MediaForge_out";
+});
+
+onClickOnce("sub_probeBtn", async () => {
+  const path = val("sub_pickFile");
+  if (!path) return toast("Scan a folder first", "err");
+  const res = await fetch(`/api/subtitles/probe?path=${encodeURIComponent(path)}`);
+  if (!res.ok) return toast(await errText(res, "couldn't read the tracks"), "err");
+  const data = await res.json();
+  const aSel = document.getElementById("sub_audioIdx"), sSel = document.getElementById("sub_subIdx");
+  aSel.innerHTML = ""; sSel.innerHTML = "";
+  for (const t of data.audio) { const o = document.createElement("option"); o.value = t.index; o.textContent = t.label; aSel.appendChild(o); }
+  for (const t of data.subtitle) { const o = document.createElement("option"); o.value = t.index; o.textContent = t.label; sSel.appendChild(o); }
+  toast(`${data.audio.length} audio / ${data.subtitle.length} subtitle tracks, ${data.duration.toFixed(0)}s`, "ok");
+});
+
+onClickOnce("sub_startBtn", async () => {
+  if (subFiles.length === 0) return toast("Scan a folder with videos first", "err");
+  const body = {
+    files: subFiles, out_dir: val("sub_outDir"), mode: val("sub_mode"),
+    audio_idx: parseInt(val("sub_audioIdx")) || 0, sub_idx: parseInt(val("sub_subIdx")) || 0,
+    ext_sub_path: val("sub_extSub").trim() || null, keep_size: checked("sub_keepSize"),
+    width: parseInt(val("sub_w")) || 1280, height: parseInt(val("sub_h")) || 720,
+    encoder_family: val("sub_encFamily"), hw_encoder: val("sub_hwEncoder"),
+    crf: parseInt(val("sub_crf")) || 22, preset: val("sub_preset"),
+    target_language: val("sub_targetLang"), whisper_model: val("sub_whisperModel"),
+  };
+  const res = await fetch("/api/subtitles/start", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  subActiveJob = job_id;
+  document.getElementById("sub_startBtn").disabled = true;
+  document.getElementById("sub_killBtn").disabled = false;
+  const box = document.getElementById("logBox"); box.textContent = "";
+  streamJob(job_id, box, {
+    onProgress: (f) => document.getElementById("sub_prog").style.width = `${f * 100}%`,
+    onDone: () => { document.getElementById("sub_startBtn").disabled = false; document.getElementById("sub_killBtn").disabled = true; toast("Batch complete", "ok"); },
+    onError: (msg) => { document.getElementById("sub_startBtn").disabled = false; document.getElementById("sub_killBtn").disabled = true; toast("Batch failed: " + msg, "err"); },
+  });
+});
+document.getElementById("sub_killBtn").addEventListener("click", async () => {
+  if (subActiveJob) await fetch(`/api/jobs/${subActiveJob}/stop`, { method: "POST" });
+});
+
+async function loadEncoders() {
+  const res = await fetch("/api/encoders");
+  if (!res.ok) throw new Error("encoders: HTTP " + res.status);
+  const d = await res.json();
+  for (const id of ["sub_hwEncoder", "en_hw"]) {
+    const sel = document.getElementById(id);
+    const was = sel.value;
+    sel.innerHTML = "";
+    for (const e of d.encoders) { const o = document.createElement("option"); o.value = e; o.textContent = e; sel.appendChild(o); }
+    if (d.encoders.includes(was)) sel.value = was;
+  }
+}
+
+// ---------------- Anime Library ----------------
+onClickOnce("an_scanBtn", async () => {
+  const root = val("an_root").trim();
+  if (!root) return toast("Enter a library root", "err");
+  const res = await fetch(`/api/anime-library/report?root=${encodeURIComponent(root)}`);
+  if (!res.ok) return toast(await errText(res, "report failed"), "err");
+  const data = await res.json();
+  document.getElementById("an_report").textContent = data.text;
+});
+onClickOnce("an_namecheckBtn", async () => {
+  const root = val("an_root").trim();
+  const res = await fetch(`/api/anime-library/namecheck?root=${encodeURIComponent(root)}`);
+  if (!res.ok) return toast(await errText(res, "failed"), "err");
+  const { job_id } = await res.json();
+  toast("Checking names...");
+  // pollJob rides out a failed tick; the old setInterval threw on each one
+  pollJob(job_id, {
+    onDone: async () => {
+      const r = await (await fetch(`/api/anime-library/namecheck/${job_id}/result`)).json();
+      document.getElementById("an_report").textContent = `${r.flagged} flagged\n\n` + (r.lines || []).join("\n");
+      toast("Name check done", "ok");
+    },
+    onError: (m) => toast("Name check failed: " + m, "err"),
+  });
+});
+onClickOnce("an_exportBtn", async () => {
+  const root = val("an_root").trim();
+  const res = await fetch(`/api/anime-library/export?root=${encodeURIComponent(root)}`, { method: "POST" });
+  if (!res.ok) return toast(await errText(res, "export failed"), "err");
+  toast("Report exported to _library_report.txt", "ok");
+});
+
+// ---------------- Storage Tools ----------------
+onClickOnce("st_scanBtn", async () => {
+  const root = val("st_root").trim();
+  if (!root) return toast("Enter a root path", "err");
+  const res = await fetch("/api/storage/scan", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ root }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start scan"), "err");
+  const { job_id } = await res.json();
+  const status = document.getElementById("st_status");
+  status.textContent = "Scanning...";
+  const btn = document.getElementById("st_scanBtn");
+  btn.disabled = true;
+  streamJob(job_id, null, {
+    // The scan's log lines are its progress display, so they come back through
+    // onLog on this same connection rather than a second EventSource.
+    onLog: (text) => { status.textContent = text; },
+    onDone: async () => {
+      btn.disabled = false;
+      const c = await (await fetch("/api/storage/count")).json();
+      status.textContent = `${c.count} files indexed`;
+      toast("Scan complete", "ok");
+    },
+    onError: (m) => { btn.disabled = false; status.textContent = "Scan failed."; toast("Scan failed: " + m, "err"); },
+  });
+});
+onClickOnce("st_dupBtn", async () => {
+  const res = await fetch("/api/storage/duplicates", { method: "POST" });
+  if (!res.ok) return toast(await errText(res, "Couldn't start"), "err");
+  const { job_id } = await res.json();
+  toast("Finding duplicates...");
+  pollJob(job_id, {
+    onDone: async () => {
+      const r = await (await fetch(`/api/storage/duplicates/${job_id}/result`)).json();
+      const groups = r.groups || [];
+      document.getElementById("st_dupResults").textContent = groups.length
+        ? `${groups.length} duplicate group(s)\n\n` + groups.map(g => g.join("\n  = ")).join("\n\n")
+        : "No duplicates found.";
+      toast("Duplicate scan done", "ok");
+    },
+    onError: (m) => toast("Duplicate scan failed: " + m, "err"),
+  });
+});
+onClickOnce("st_cleanBtn", async () => {
+  const res = await fetch("/api/storage/clean-dead", { method: "POST" });
+  if (!res.ok) return toast(await errText(res, "clean-up failed"), "err");
+  const r = await res.json();
+  toast(`Removed ${r.removed} dead entries`, "ok");
+});
+onClickOnce("st_searchBtn", async () => {
+  const params = new URLSearchParams({ term: val("st_term"), min_mb: val("st_minmb"), ext: val("st_ext") });
+  const sres = await fetch(`/api/storage/search?${params}`);
+  if (!sres.ok) return toast(await errText(sres, "search failed"), "err");
+  const rows = await sres.json();
+  const tbody = document.getElementById("st_results");
+  tbody.innerHTML = "";
+  if (rows.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 4; td.className = "muted"; td.textContent = "No matches.";
+    tr.appendChild(td); tbody.appendChild(tr);
+    return;
+  }
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    const tdThumb = document.createElement("td");
+    tdThumb.style.width = "80px";
+    if (r.path) tdThumb.appendChild(fileThumb(r.path, 96));
+    const tdName = document.createElement("td");
+    tdName.textContent = r.name;
+    if (r.path) tdName.title = r.path;
+    const tdExt = document.createElement("td");
+    tdExt.textContent = r.ext;
+    const tdSize = document.createElement("td");
+    tdSize.textContent = `${(r.size / 1e6).toFixed(1)} MB`;
+    tr.append(tdThumb, tdName, tdExt, tdSize);
+    tbody.appendChild(tr);
+  }
+});
+
+// ---------------- Video Enhancer ----------------
+let enhanceActiveJob = null;
+onClickOnce("en_startBtn", async () => {
+  const files = val("en_files").split(",").map(s => s.trim()).filter(Boolean);
+  if (files.length === 0) return toast("Enter at least one file path", "err");
+  const body = {
+    files, out_dir: val("en_outDir"), resolution: val("en_res"), scaler: val("en_scaler"),
+    interpolate: checked("en_interp"), fps: parseInt(val("en_fps")) || 60,
+    encoder_family: val("en_fam"), hw_encoder: val("en_hw"), crf: parseInt(val("en_crf")) || 20,
+    gop: parseInt(val("en_gop")) || 250, scene_threshold: parseInt(val("en_sc")) || 40,
+    copy_audio: checked("en_copyAudio"),
+  };
+  const res = await fetch("/api/enhance/start", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  enhanceActiveJob = job_id;
+  document.getElementById("en_startBtn").disabled = true;
+  document.getElementById("en_killBtn").disabled = false;
+  const box = document.getElementById("en_logBox"); box.textContent = "";
+  streamJob(job_id, box, {
+    onProgress: (f) => document.getElementById("en_prog").style.width = `${f * 100}%`,
+    onDone: () => { document.getElementById("en_startBtn").disabled = false; document.getElementById("en_killBtn").disabled = true; toast("Enhance complete", "ok"); },
+    onError: (m) => { document.getElementById("en_startBtn").disabled = false; document.getElementById("en_killBtn").disabled = true; toast("Enhance failed: " + m, "err"); },
+  });
+});
+document.getElementById("en_killBtn").addEventListener("click", async () => {
+  if (enhanceActiveJob) await fetch(`/api/jobs/${enhanceActiveJob}/stop`, { method: "POST" });
+});
+
+// ---------------- Duplicate Slayer ----------------
+onClickOnce("dd_scanBtn", async () => {
+  const target = val("dd_target").trim();
+  if (!target) return toast("Enter a path", "err");
+  const body = {
+    target, target_type: val("dd_type"), threshold: val("dd_thresh"),
+    auto: val("dd_mode") === "auto", compress: checked("dd_compress"), out_format: val("dd_fmt"),
+  };
+  const res = await fetch("/api/dedupe/scan", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  document.getElementById("dd_status").textContent = "Scanning...";
+  pollJob(job_id, {
+    onDone: async () => {
+      const r = await (await fetch(`/api/dedupe/${job_id}/result`)).json();
+      if (r.needs_review) { renderDedupeReview(job_id, r); document.getElementById("dd_status").textContent = "Review the groups below."; }
+      else { document.getElementById("dd_status").textContent = r.output ? `Wrote ${r.output}` : "No duplicates found."; toast("Done", "ok"); }
+    },
+    onError: (m) => { document.getElementById("dd_status").textContent = "Scan failed."; toast("Scan failed: " + m, "err"); },
+  });
+});
+
+function renderDedupeReview(jobId, r) {
+  const box = document.getElementById("dd_review");
+  box.classList.remove("hidden");
+  box.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "section-head";
+  const h = document.createElement("h3");
+  h.textContent = `${r.groups.length} duplicate group(s) -- pick which page to keep in each`;
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "btn";
+  closeBtn.textContent = "\u00d7";
+  closeBtn.title = "Discard this review without compiling";
+  closeBtn.addEventListener("click", () => {
+    box.classList.add("hidden"); box.innerHTML = "";
+    document.getElementById("dd_status").textContent = "Review dismissed -- nothing was written.";
+  });
+  head.append(h, closeBtn);
+  box.appendChild(head);
+  const choices = new Array(r.groups.length).fill(null);
+  r.groups.forEach((grp, gi) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `<div class="muted" style="margin-bottom:8px">Group ${gi + 1}/${r.groups.length} -- ${grp.length} similar pages</div>`;
+    const strip = document.createElement("div");
+    strip.style.cssText = "display:flex; gap:10px; overflow-x:auto";
+    grp.forEach((path, pi) => {
+      const cell = document.createElement("label");
+      cell.style.cssText = "display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer";
+      cell.innerHTML = `<img src="/api/dedupe/thumbnail?path=${encodeURIComponent(path)}" style="width:140px; height:180px; object-fit:cover; border-radius:6px; border:2px solid ${pi===0 ? 'var(--accent)' : 'var(--border)'}">
+        <input type="radio" name="grp${gi}" value="${path}" ${pi === 0 ? "checked" : ""}>
+        <span class="muted" style="font-size:11px">${path.split("/").pop()}</span>`;
+      cell.querySelector("input").addEventListener("change", (e) => { choices[gi] = e.target.value; });
+      strip.appendChild(cell);
+    });
+    choices[gi] = grp[0];
+    card.appendChild(strip);
+    box.appendChild(card);
+  });
+  const finishBtn = document.createElement("button");
+  finishBtn.className = "btn btn-primary";
+  finishBtn.textContent = "Finish -- compile with these choices";
+  finishBtn.addEventListener("click", async () => {
+    const res = await fetch(`/api/dedupe/${jobId}/finish`, { method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ keep_from_groups: choices }) });
+    if (!res.ok) return toast(await errText(res, "couldn't compile"), "err");
+    const data = await res.json();
+    box.classList.add("hidden"); box.innerHTML = "";
+    document.getElementById("dd_status").textContent = data.output ? `Wrote ${data.output}` : "Nothing written.";
+    toast("Compiled", "ok");
+  });
+  box.appendChild(finishBtn);
+}
+
+// ---------------- Library Organiser ----------------
+let ogRows = [];
+
+onClickOnce("og_previewBtn", async () => {
+  const body = {
+    src_dir: val("og_src"), library_root: val("og_root"), naming_pattern: val("og_pattern"),
+    metadata_provider: val("og_provider"),
+  };
+  if (!body.src_dir || !body.library_root) return toast("Enter a source folder and library root", "err");
+  const res = await fetch("/api/organizer/preview", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start preview"), "err");
+  const { job_id } = await res.json();
+  const btn = document.getElementById("og_previewBtn");
+  btn.disabled = true;
+  toast("Scanning & looking up metadata...");
+  pollJob(job_id, {
+    onDone: async () => {
+      btn.disabled = false;
+      const r = await (await fetch(`/api/organizer/preview/${job_id}/result`)).json();
+      ogRows = r.rows || [];
+      renderOrganizerPreview();
+      toast(`Preview ready: ${ogRows.length} files`, "ok");
+    },
+    onError: (m) => { btn.disabled = false; toast("Preview failed: " + m, "err"); },
+  });
+});
+
+function renderOrganizerPreview() {
+  const root = val("og_root");
+  const box = document.getElementById("og_preview");
+  box.innerHTML = "";
+  ogRows.forEach((r, i) => {
+    const row = document.createElement("div");
+    row.style.cssText = "padding:6px 0; border-bottom:1px solid var(--border)";
+    const label = document.createElement("label");
+    label.style.cssText = "display:flex; gap:10px; align-items:center; cursor:pointer";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = !!r.on;
+    cb.style.cssText = "width:auto; flex:none";
+    cb.addEventListener("change", (e) => { ogRows[i].on = e.target.checked; updateOgCount(); });
+
+    // Filenames and scraped titles are arbitrary text, so these go in as text
+    // nodes -- an innerHTML template would break on a name containing < or &.
+    const text = document.createElement("span");
+    text.style.minWidth = "0";
+    const name = document.createElement("b");
+    name.textContent = r.src.split("/").pop();
+    const dest = document.createElement("span");
+    dest.textContent = "\u2192 " + r.target + " ";
+    const note = document.createElement("span");
+    note.className = "muted";
+    note.textContent = `(${r.note})`;
+    text.append(name, document.createElement("br"), dest, note);
+
+    label.append(cb, fileThumb(r.src), text);
+    row.appendChild(label);
+    box.appendChild(row);
+  });
+  updateOgCount();
+}
+function updateOgCount() {
+  const on = ogRows.filter(r => r.on).length;
+  document.getElementById("og_count").textContent = `${on} of ${ogRows.length} selected -- action = ${val("og_action")}`;
+}
+document.getElementById("og_toggleBtn").addEventListener("click", () => {
+  const anyOn = ogRows.some(r => r.on);
+  ogRows.forEach(r => r.on = !anyOn);
+  renderOrganizerPreview();
+});
+
+onClickOnce("og_applyBtn", async () => {
+  const picked = ogRows.filter(r => r.on);
+  if (picked.length === 0) return toast("Nothing selected -- build a preview first", "err");
+  if (!await ForgeDialog.confirm(`${val("og_action")} ${picked.length} files into\n${val("og_root")} ?\n\nA manifest is saved so you can revert.`)) return;
+  const body = {
+    rows: ogRows, src_dir: val("og_src"), library_root: val("og_root"),
+    action: val("og_action"), on_conflict: val("og_conflict"), hash_check: checked("og_hashcheck"),
+  };
+  const res = await fetch("/api/organizer/apply", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start apply"), "err");
+  const { job_id } = await res.json();
+  toast("Applying...");
+  pollJob(job_id, {
+    onDone: (j) => {
+      toast(`Applied: ${j.result?.done ?? 0} done, ${j.result?.skipped ?? 0} skipped`, "ok");
+      loadOrganizerHistory();
+    },
+    onError: (m) => { toast("Apply failed: " + m, "err"); loadOrganizerHistory().catch(() => {}); },
+  });
+});
+
+async function loadOrganizerHistory() {
+  const res = await fetch("/api/organizer/history");
+  if (!res.ok) throw new Error("history: HTTP " + res.status);
+  const mans = await res.json();
+  const sel = document.getElementById("og_history");
+  sel.innerHTML = "";
+  window._ogMans = mans;
+  for (const m of mans) {
+    const o = document.createElement("option"); o.value = m.path; o.textContent = `${m.id} -- ${m.label} -- ${m.count} files`;
+    sel.appendChild(o);
+  }
+}
+document.getElementById("og_refreshHistBtn").addEventListener("click", () =>
+  loadOrganizerHistory().catch((e) => toast("Couldn't read the history: " + e.message, "err")));
+onClickOnce("og_revertBtn", async () => {
+  const manifest_path = val("og_history");
+  if (!manifest_path) return;
+  if (!await ForgeDialog.confirm("Revert this operation? Files move back to where they were.")) return;
+  const res = await fetch("/api/organizer/revert", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ manifest_path }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start revert"), "err");
+  const { job_id } = await res.json();
+  const log = document.getElementById("og_histLog");
+  log.textContent = "Reverting...";
+  pollJob(job_id, {
+    onDone: (j) => {
+      const r = j.result || {};
+      log.textContent = `Reverted ${r.reverted ?? 0}, skipped ${r.skipped ?? 0}.` +
+        (r.new_manifest ? `\nNew manifest: ${r.new_manifest}` : "");
+      toast("Revert complete", "ok");
+      loadOrganizerHistory();
+    },
+    onError: (m) => { log.textContent = "Revert failed: " + m; toast("Revert failed", "err"); loadOrganizerHistory().catch(() => {}); },
+  });
+});
+
+// ---------------- Japanese Tutor ----------------
+const HIRA = ["あ い う え お", "か き く け こ", "さ し す せ そ", "た ち つ て と",
+  "な に ぬ ね の", "は ひ ふ へ ほ", "ま み む め も", "や ゆ よ",
+  "ら り る れ ろ", "わ を ん",
+  "が ぎ ぐ げ ご", "ざ じ ず ぜ ぞ", "だ ぢ づ で ど", "ば び ぶ べ ぼ", "ぱ ぴ ぷ ぺ ぽ",
+  "きゃ きゅ きょ", "しゃ しゅ しょ", "ちゃ ちゅ ちょ", "にゃ にゅ にょ"];
+const KATA = ["ア イ ウ エ オ", "カ キ ク ケ コ", "サ シ ス セ ソ", "タ チ ツ テ ト",
+  "ナ ニ ヌ ネ ノ", "ハ ヒ フ ヘ ホ", "マ ミ ム メ モ", "ヤ ユ ヨ",
+  "ラ リ ル レ ロ", "ワ ヲ ン", "ー 、 。"];
+(function initKana() {
+  const box = document.getElementById("jp_kana");
+  for (const group of [...HIRA, ...KATA]) {
+    for (const ch of group.split(" ")) {
+      const btn = document.createElement("button");
+      btn.className = "btn"; btn.textContent = ch; btn.style.minWidth = "40px";
+      btn.addEventListener("click", () => {
+        const el = document.getElementById("jp_entry");
+        el.value += ch; el.focus();
+      });
+      box.appendChild(btn);
+    }
+  }
+})();
+
+async function jpRefreshStatus() {
+  let s;
+  try { s = await (await fetch("/api/jptutor/status")).json(); }
+  catch (e) { document.getElementById("jp_status").textContent = "Can't reach the MediaForge server"; return; }
+  document.getElementById("jp_status").textContent = s.jan_up ? "Jan online" : "Jan is offline: open Jan and start its local API server";
+  const sel = document.getElementById("jp_model");
+  sel.innerHTML = "";
+  for (const m of s.models) { const o = document.createElement("option"); o.value = m; o.textContent = m; sel.appendChild(o); }
+}
+
+function jpAppend(who, text) {
+  const view = document.getElementById("jp_view");
+  view.textContent += `[${who}]  ${text}\n\n`;
+  view.scrollTop = view.scrollHeight;
+}
+onClickOnce("jp_sendBtn", async () => {
+  const entry = document.getElementById("jp_entry");
+  const msg = entry.value.trim();
+  if (!msg) return;
+  entry.value = "";
+  jpAppend("You", msg);
+  const res = await fetch("/api/jptutor/send", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ message: msg, model: val("jp_model"), register: val("jp_register"),
+      persona: val("jp_persona"), romaji: checked("jp_romaji") }) });
+  if (!res.ok) { jpAppend("System", await errText(res, "error")); return; }
+  const data = await res.json();
+  jpAppend("Sensei", data.reply);
+});
+document.getElementById("jp_entry").addEventListener("keydown", (e) => { if (e.key === "Enter") document.getElementById("jp_sendBtn").click(); });
+
+// ---------------- AI Image Studio ----------------
+async function loadImageModels() {
+  const res = await fetch("/api/imagestudio/models");
+  if (!res.ok) throw new Error("models: HTTP " + res.status);
+  const models = await res.json();
+  const sel = document.getElementById("is_model"); const was = sel.value; sel.innerHTML = "";
+  for (const m of models) { const o = document.createElement("option"); o.value = m; o.textContent = m; sel.appendChild(o); }
+  if (models.includes(was)) sel.value = was;
+}
+
+onClickOnce("is_genBtn", async () => {
+  const body = {
+    fal_key: val("is_key"), model: val("is_model"), prompt: val("is_prompt"), size: val("is_size"),
+    steps: parseInt(val("is_steps")) || 4, img2img_path: val("is_img2img").trim() || null,
+    strength: parseFloat(val("is_strength")) || 0.75, out_dir: val("is_outDir"),
+  };
+  if (!body.prompt || !body.out_dir) return toast("Enter a prompt and save folder", "err");
+  const res = await fetch("/api/imagestudio/generate", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  const box = document.getElementById("is_log"); box.textContent = "";
+  streamJob(job_id, box, {
+    onDone: () => toast("Generation complete", "ok"),
+    onError: (m) => toast("Generation failed: " + m, "err"),
+  });
+});
+
+onClickOnce("up_runBtn", async () => {
+  const body = { input_path: val("up_in"), scale: parseFloat(val("up_scale")), method: val("up_method"),
+    sharpen: checked("up_sharp"), out_dir: val("up_outDir") };
+  if (!body.input_path || !body.out_dir) return toast("Enter an input and save folder", "err");
+  const res = await fetch("/api/imagestudio/upscale", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  const box = document.getElementById("up_log"); box.textContent = "";
+  streamJob(job_id, box, {
+    onDone: () => toast("Upscale complete", "ok"),
+    onError: (m) => toast("Upscale failed: " + m, "err"),
+  });
+});
+
+// ---------------- Manga Downloader ----------------
+let mgTitle = "Manga";
+let mgChapters = [];   // {num, title, url, group, on}
+let mgGroups = [];
+let mgGroupFilter = "";  // "" = every group
+let mgActiveJob = null;
+const MG_CDP_SITES = ["comix.to"];
+const mgIsCdp = (u) => MG_CDP_SITES.some(s => (u || "").includes(s));
+
+// The pattern / key-press controls only apply to the Selenium scrape of
+// other sites; for comix.to the headless-Chrome fetcher does it all.
+function mgSyncControls() {
+  const other = !mgIsCdp(val("mg_url1"));
+  document.querySelectorAll(".mg-other").forEach(el => { el.style.display = other ? "" : "none"; });
+}
+document.getElementById("mg_url1").addEventListener("input", mgSyncControls);
+try {
+  setVal("mg_url1", localStorage.getItem("mg_url1") || "");
+  setVal("mg_outDir", localStorage.getItem("mg_outDir") || "");
+} catch (e) {}
+mgSyncControls();
+
+onClickOnce("mg_fetchBtn", async () => {
+  const url1 = val("mg_url1").trim();
+  if (!url1) return toast("Enter a series link", "err");
+  try { localStorage.setItem("mg_url1", url1); } catch (e) {}
+  const btn = document.getElementById("mg_fetchBtn"); btn.disabled = true;
+  const res = await fetch("/api/manga/fetch", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ url1, url2: val("mg_url2").trim(), headless: checked("mg_headless") }) });
+  if (!res.ok) { btn.disabled = false; return toast(await errText(res, "couldn't start"), "err"); }
+  const { job_id } = await res.json();
+  const box = document.getElementById("mg_fetchLog"); box.textContent = "";
+  streamJob(job_id, box, {
+    onDone: async () => {
+      btn.disabled = false;
+      const j = await (await fetch(`/api/jobs/${job_id}`)).json();
+      const r = j.result || {};
+      if (!r.chapters || r.chapters.length === 0) return toast("No chapters found on that page -- use the series page's link", "err");
+      mgTitle = r.title || "Manga"; mgChapters = r.chapters.map(c => ({ ...c, on: true }));
+      mgGroups = r.groups || []; mgGroupFilter = "";
+      renderMangaGroups(); renderMangaChapters();
+      const nums = new Set(mgChapters.map(c => c.num));
+      toast(`'${mgTitle}' -- ${nums.size} chapters` + (mgGroups.length ? ` from ${mgGroups.length} scan groups` : ""), "ok");
+    },
+    onError: (m) => { btn.disabled = false; toast("Fetch failed: " + m, "err"); },
+  });
+});
+
+function renderMangaGroups() {
+  const box = document.getElementById("mg_groups");
+  box.innerHTML = "";
+  if (!mgGroups.length) return;
+  const lab = document.createElement("span"); lab.className = "muted"; lab.textContent = "Scanned by:";
+  box.appendChild(lab);
+  for (const g of ["", ...mgGroups]) {
+    const n = g ? mgChapters.filter(c => c.group === g).length : mgChapters.length;
+    const b = document.createElement("button");
+    b.className = "btn" + (mgGroupFilter === g ? " btn-primary" : "");
+    b.textContent = (g || "All groups") + ` (${n})`;
+    b.title = g ? `Show only ${g}'s chapters and select them` : "Show every listed chapter";
+    b.addEventListener("click", () => {
+      mgGroupFilter = g;
+      // picking a group selects exactly that group's chapters: what "download the WebToon scans" means
+      mgChapters.forEach(c => { c.on = !g || c.group === g; });
+      renderMangaGroups(); renderMangaChapters();
+    });
+    box.appendChild(b);
+  }
+}
+
+function mgShown() { return mgChapters.filter(c => !mgGroupFilter || c.group === mgGroupFilter); }
+
+function mgUpdateCount() {
+  const on = mgChapters.filter(c => c.on).length;
+  document.getElementById("mg_selCount").textContent = mgChapters.length
+    ? `${on} of ${mgChapters.length} selected` : "No chapters yet";
+  document.getElementById("mg_downloadBtn").textContent = `\u25B6 Download ${on ? on + " selected" : "selected"}`;
+}
+
+function renderMangaChapters() {
+  const box = document.getElementById("mg_chapters");
+  box.innerHTML = "";
+  for (const c of mgShown()) {
+    const row = document.createElement("label");
+    row.style.cssText = "display:flex; gap:8px; align-items:center; padding:2px 0";
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!c.on;
+    cb.addEventListener("change", () => { c.on = cb.checked; mgUpdateCount(); });
+    const num = document.createElement("span"); num.style.cssText = "min-width:4em; font-variant-numeric:tabular-nums"; num.textContent = c.num;
+    const t = document.createElement("span"); t.textContent = c.title;
+    row.append(cb, num, t);
+    if (c.group) { const g = document.createElement("span"); g.className = "muted"; g.textContent = c.group; row.appendChild(g); }
+    box.appendChild(row);
+  }
+  mgUpdateCount();
+}
+document.getElementById("mg_selAll").addEventListener("click", () => { mgShown().forEach(c => { c.on = true; }); renderMangaChapters(); });
+document.getElementById("mg_selNone").addEventListener("click", () => { mgChapters.forEach(c => { c.on = false; }); renderMangaChapters(); });
+
+function mgChapterName(c) {
+  // Chapter_0012, Chapter_0012.5 -- the site's number, not the list position,
+  // so a partial download still sorts and a re-run lands in the same folder
+  const n = Number(c.num);
+  const whole = String(Math.floor(n)).padStart(4, "0");
+  const frac = n % 1 ? String(n % 1).slice(1) : "";
+  return `Chapter_${whole}${frac}`;
+}
+
+onClickOnce("mg_downloadBtn", async () => {
+  const picked = mgChapters.filter(c => c.on);
+  if (picked.length === 0) return toast("Fetch a chapter list and tick some chapters first", "err");
+  const chapters = picked.map(c => [mgChapterName(c), c.url]);
+  try { localStorage.setItem("mg_outDir", val("mg_outDir")); } catch (e) {}
+  const body = {
+    chapters, out_dir: val("mg_outDir"), title: mgTitle, nav: val("mg_nav"), key: val("mg_key"),
+    delay: parseFloat(val("mg_delay")) || 1.5, patience: parseInt(val("mg_patience")) || 10,
+    headless: checked("mg_headless"), threads: parseInt(val("mg_threads")) || 2,
+    pdf: checked("mg_pdf"), cbz: checked("mg_cbz"), del_raw: checked("mg_delRaw"),
+  };
+  const res = await fetch("/api/manga/download", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  mgActiveJob = job_id;
+  const prog = document.getElementById("mg_progress"); prog.value = 0; prog.style.display = "";
+  document.getElementById("mg_downloadBtn").disabled = true;
+  document.getElementById("mg_stopBtn").disabled = false;
+  const box = document.getElementById("mg_dlLog"); box.textContent = "";
+  const finish = () => { document.getElementById("mg_downloadBtn").disabled = false; document.getElementById("mg_stopBtn").disabled = true; mgActiveJob = null; };
+  streamJob(job_id, box, {
+    onProgress: (f) => { prog.value = f; },
+    onDone: () => { finish(); prog.value = 1; toast("Download complete", "ok"); },
+    onError: (m) => { finish(); toast("Download failed: " + m, "err"); },
+  });
+});
+document.getElementById("mg_stopBtn").addEventListener("click", async () => {
+  if (mgActiveJob) await fetch(`/api/jobs/${mgActiveJob}/stop`, { method: "POST" });
+});
+
+// ---------------- Settings ----------------
+async function loadSettings() {
+  const res = await fetch("/api/settings");
+  if (!res.ok) throw new Error("settings: HTTP " + res.status);
+  const s = await res.json();
+  document.getElementById("se_janBase").value = s.jan_base || "";
+  ForgeMode.init(s.advanced_mode !== false);
+}
+onClickOnce("se_saveBtn", async () => {
+  const res = await fetch("/api/settings", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ values: { jan_base: val("se_janBase"), advanced_mode: ForgeMode.on } }) });
+  if (!res.ok) return toast(await errText(res, "not saved"), "err");
+  toast("Settings saved", "ok");
+});
+initClearButtons();
+
+// Start: the dropdowns and settings the panels need. A server that is not up
+// yet gets a note over the panels and a retry that slows from 2 s to 30 s,
+// only while the page is in view; it stops once everything has loaded.
+const booted = new Set();
+async function boot() {
+  const steps = { settings: loadSettings, encoders: loadEncoders, history: loadOrganizerHistory, models: loadImageModels };
+  const todo = Object.keys(steps).filter((k) => !booted.has(k));
+  const results = await Promise.allSettled(todo.map((k) => steps[k]()));
+  results.forEach((r, i) => { if (r.status === "fulfilled") booted.add(todo[i]); });
+  const down = booted.size < Object.keys(steps).length;
+  document.getElementById("mf_offline").hidden = !down;
+  if (down) {
+    if (!boot.retry) boot.retry = ForgeIdle.poll(boot, 2000, { backoff: 2, maxMs: 30000 });
+    return false;
+  }
+  if (boot.retry) { boot.retry.stop(); boot.retry = null; }
+}
+boot();
+</script>
+</body>
+</html>

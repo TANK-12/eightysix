@@ -1,0 +1,24 @@
+{
+  "id": "charon",
+  "name": "Charon",
+  "kind": "moon",
+  "parent": "pluto",
+  "order": 91,
+  "radius_km": 606.0,
+  "gm_km3_s2": 106.1,
+  "color": "#9d958c",
+  "summary": "Half Pluto's size. The two are locked face to face, each always showing the other the same side.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 19600,
+    "e": 0.0,
+    "i_deg": 0.0,
+    "node_deg": 0.0,
+    "peri_deg": 0.0,
+    "M_deg": 304.1,
+    "period_days": 6.387222,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000"
+  }
+}

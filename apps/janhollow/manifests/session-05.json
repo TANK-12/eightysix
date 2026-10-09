@@ -1,0 +1,65 @@
+{
+ "session": 5,
+ "title": "Carrying and giving things (first half of roadmap session 5)",
+ "date": "2026-09-17",
+ "status": "landed 2026-09-17",
+ "started_from": "MANIFEST.json improve_next rank 1, 'Carrying things and errands'. Emerson said 'do the nect part of the crew jnahollow game', then, asked how far to go: 'do a bit but not to much i have a nothe rnew huge task happening'. So the roadmap's session 5 is split: carrying and gifts now, the job board and errands next.",
+ "intended": [
+  "An inventory of 4 slots, shown in the play bar, with the selected item drawn in your hands, saved with your life.",
+  "Carryable items as data: one file per item in ~/ForgeGameData/janhollow/items/, naming its sprite and the rooms a copy starts in.",
+  "Pick up, put down anywhere (it stays there and is saved), and give to whoever is next to you.",
+  "Gifts: each crew file gets a 'likes' list. A liked gift warms them by one, anything else gets a polite thanks and no change, and only one gift per person per station day counts."
+ ],
+ "his_answers_verbatim": {
+  "_note": "Asked in three batches of four before building, on 2026-09-17. Where he picked the recommended option the label is kept as shown to him.",
+  "Which part should this session build?": "Session 5: carry + errands (Recommended)",
+  "Solo, or commander with helpers?": "Solo (Recommended)",
+  "Where do carryable things come from?": "Placed props + errand spawns (Recommended)",
+  "How many things can you carry?": "4 slots (Recommended)",
+  "Who hands out errands?": "A job board",
+  "What should errands be like?": "Fetch & deliver (Recommended), Pass a message, Find a lost thing, Gifts you choose",
+  "What does finishing an errand give you?": "Warmth + a thank-you (Recommended)",
+  "How many errands at once?": "One at a time",
+  "Where is the job board, and how do you use it?": "A console in Command (Recommended)",
+  "With voices off (no Jan), where do errands come from?": "Written templates (Recommended)",
+  "How do carried items show on screen?": "Play bar + held item (Recommended)",
+  "Can you drop things, and do errands expire?": "Drop anywhere, no expiry (Recommended)",
+  "How do crew react when you give them something that isn't an errand?": "Likes and dislikes (Recommended)",
+  "Lost things: how hard to find?": "Hint names the deck (Recommended)",
+  "Can crew move items around too?": "Crew pick up dropped things",
+  "How far should this session go?": "do a bit but not to much i have a nothe rnew huge task happening",
+  "Mid-session": "make sure to write the manifets"
+ },
+ "option_text_he_saw": {
+  "Likes and dislikes (Recommended)": "Each crew file gets a short 'likes' list (botanist likes the sapling). A liked gift warms by 1; anything else gets a polite thanks and no change. Once a day per person, so gifts can't be farmed.",
+  "A console in Command (Recommended)": "Walk up, press E, a small panel lists 3 open errands; pick one to take it. One spot on the station.",
+  "Hint names the deck (Recommended)": "'Ines lost her mail sack somewhere on the Garden deck.' It sits in a random room on that deck.",
+  "Crew pick up dropped things": "Tidy crew put stuff you leave lying around back where it belongs, overnight.",
+  "Drop anywhere, no expiry (Recommended)": "Dropped items stay on the floor where you left them (saved). Errands wait until you finish or abandon them.",
+  "Play bar + held item (Recommended)": "4 slots in the play bar; the one you picked up last is drawn in your character's hands."
+ },
+ "did": {
+  "items_are_data": "New content type `items` in janhollow/content.py (label, sprite, pack, article, starts_in, tags) and a `likes` default on crew. tools/seed_items.py wrote five items from existing janhollow-space sprites — toolbox (workshop), sapling (hydroponics), mail-sack (comms), cake (galley), crate (cargo_bay) — and merged a likes list into all eight crew files without touching anything else in them (checked: the only new key is likes).",
+  "carry_py": "janhollow/carry.py holds every rule: SLOTS=4, pick-up reach 1.3 tiles, seed_floor for a new life, pick_up, put_down, select, give, and the menu entries. Reactions are written lines, so gifts work with voices off. The gift is noted in the log and the crew member remembers it, which feeds their next prompt.",
+  "wiring": "Player gains inventory and held (saved). World gains floor_items and gifts_given (saved; an old save without them keeps the seeded floor), a warm() helper and Crew.remember(). The snapshot carries `items` and `player.carrying`. One route: POST /api/player/carry {do: pickup|drop|give|select, slot}.",
+  "page": "Four slots in the play bar (click or 1–4 to choose), the chosen item drawn at half size in your hands (behind you when walking away from the camera), floor items drawn in the same depth-sorted pass as props, and a pulsing glint over each floor item.",
+  "found_while_looking": "The first screenshot showed floor items all but invisible — the space-pack props are dark and sit in the unlit part of the deck. Fixed in the drawing, not the lighting: a soft ring and a four-point sparkle drawn over the light, like the labels."
+ },
+ "verified": [
+  "tests/test_carry.py: 16 new tests, written before the code, covering the data, seeding, pick up, the four-slot limit, put down, select, liked/polite/once-a-day/capped gifts, the menu, the snapshot, and save/load including a save from before carrying. Full suite: 114 passed.",
+  "Live against a scratch server on a free port with FORGE_CONTENT_DIR pointed at a copy of the game data (the real autosave was never touched), voices off: pickup → ok cake; pickup with nothing near → 'nothing to pick up here'; select; bad verb → 400; give with nobody near → refused; drop → item at your tile; give a sapling to Bo Ferreira → liked, warmed, 'That is the nicest thing today. Thank you.', his warmth to you 1 in the saved file; a second gift the same day → 'Twice in one day? You spoil me.', no warmth.",
+  "Screenshots looked at: slots with the held one outlined, the cake and the mail sack in your hands, Bo's thank-you bubble, and floor items before and after the glint.",
+  "black on the touched Python files; pyright --pythonpath ./.venv/bin/python: 0 errors. node --check on game.js and render.js."
+ ],
+ "not_verified": [
+  "Walking to an item with the keyboard and using the E menu by hand in the real Forge window — the menu entries were checked through the API and tests, the clicks were not.",
+  "How the held item looks on every crew sprite facing left and right; only the default helper sprite facing down was seen."
+ ],
+ "left_for_next_time": [
+  "The job board: a console in Command listing open errands, one errand at a time.",
+  "Three errand kinds: fetch and deliver, pass a message, find a lost thing (the hint names the deck).",
+  "Errand templates as data for when voices are off; the narrator writes errands from the same item list when they are on.",
+  "Finishing an errand: warmth +1 and a thank-you, and the narrator mentions it that evening.",
+  "Crew tidying up things you leave lying around, overnight."
+ ]
+}

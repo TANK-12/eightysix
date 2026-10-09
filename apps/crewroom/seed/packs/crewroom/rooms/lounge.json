@@ -1,0 +1,63 @@
+{
+ "id": "lounge",
+ "label": "Relaxed room",
+ "order": 4,
+ "palette": "crewroom",
+ "background": "#2b2440",
+ "legend": {
+  "#": {"sprite": "wall_lounge", "solid": true},
+  ".": {"sprite": "floor_wood"},
+  "t": {"sprite": "floor_tatami"},
+  "~": {"sprite": "rug"}
+ },
+ "tiles": [
+  "####################",
+  "####################",
+  "....................",
+  ".tttttttttttt.......",
+  ".tttttttttttt.~~~~~.",
+  ".tttttttttttt.~~~~~.",
+  ".tttttttttttt.~~~~~.",
+  ".tttttttttttt.~~~~~.",
+  ".tttttttttttt.~~~~~.",
+  ".tttttttttttt.......",
+  "....................",
+  "...................."
+ ],
+ "ambient": {"type": "motes", "rect": [0, 32, 320, 160]},
+ "props": [
+  {"sprite": "window_night", "x": 0.6, "y": 0},
+  {"sprite": "window_night", "x": 10.3, "y": 0},
+  {"sprite": "lamp", "x": 13.8, "y": 0.4, "solid": true},
+  {"sprite": "bookshelf", "x": 15.0, "y": 0, "solid": true},
+  {"sprite": "plant", "x": 17.2, "y": 0.9, "solid": true},
+  {"sprite": "beanbag", "x": 14.1, "y": 4.1, "layer": "back"},
+  {"sprite": "beanbag_green", "x": 16.9, "y": 4.1, "layer": "back"},
+  {"sprite": "couch", "x": 13.5, "y": 8.9, "layer": "back", "solid": true},
+  {"sprite": "cat", "x": 15.5, "y": 6.6, "layer": "back"}
+ ],
+ "board": {"sprite": "corkboard", "x": 4.3, "y": 0, "text": [4, 4, 56, 28], "ink": "#2a1a10", "title": "Corkboard"},
+ "seat": {"dx": 1, "dy": 0.7},
+ "stations": [
+  {"sprite": "kotatsu", "x": 1.5, "y": 3.9},
+  {"sprite": "kotatsu", "x": 5.5, "y": 3.9},
+  {"sprite": "kotatsu", "x": 9.5, "y": 3.9},
+  {"sprite": "kotatsu", "x": 1.5, "y": 7.3},
+  {"sprite": "kotatsu", "x": 5.5, "y": 7.3},
+  {"sprite": "kotatsu", "x": 9.5, "y": 7.3}
+ ],
+ "helper_offsets": [[-1.1, 0.45], [1.1, 0.45], [-1.1, 1.25], [1.1, 1.25]],
+ "lounge": [
+  {"x": 14.72, "y": 4.95, "pose": "relax"},
+  {"x": 17.52, "y": 4.95, "pose": "relax"},
+  {"x": 14.1, "y": 10.55, "pose": "relax"},
+  {"x": 15.0, "y": 10.55, "pose": "relax"},
+  {"x": 15.9, "y": 10.55, "pose": "relax"},
+  {"x": 13.4, "y": 2.9, "pose": "idle"}
+ ],
+ "jan": {
+  "prop": {"sprite": "aquarium", "x": 17.6, "y": 6.9, "solid": true},
+  "spots": [{"x": 18.4, "y": 10.4}, {"x": 17.3, "y": 11.4}, {"x": 19.2, "y": 11.6}]
+ },
+ "door": {"x": 6.5, "y": 11.9}
+}

@@ -1,0 +1,14 @@
+# Brief R3: first person with the whole mech still there
+date: 2026-10-03 · for: Claude (Relay, hey account) · written by Tetsu (v015 session)
+
+Emerson, after 014: **"the first-person model is still bad; I want the whole mech to still be there."** Earlier (after 012): "the first-person model is trash and its shadows are bad; the guns look bad in first person." In 014 the barrel showed as a long spike from the top of the screen and the sub-arms as dark blobs in the bottom corners (images/462), and the player's own hull is put on a "cockpit shell" layer that the first-person camera hides (results/V014.md note 13, `tests/test_cockpit.gd`).
+
+Rules for every brief in this wave: read ~/Forge/sessions/juggernaut-alpha/PLAN.md (top part and "Emerson's notes during the wave") first. Work in ~/Games/eightysix (Godot 4.7.2, git; commit your own files only, never `git add -A`: another session (Tetsu, hey) is editing scripts/combat/*, scripts/ui/main_menu.gd, scripts/ui/settings_screen.gd, data/weapons.json, data/settings.json and data/input.json at the same time; if you must add a setting, add only your one line to data/settings.json with a small script edit, then commit straight away). Real physics only, no faked forces (PLAN). Tests: `tools/run_tests.sh <file>` (check the log for SCRIPT ERROR too); screenshots with `tools/bot_run.sh <bot json>`; keep every image. At the end: results in ~/Forge/sessions/juggernaut-alpha/results/<your id>.md with a 3-line "try this" note at the top, what is verified (with the check) vs only reasoned, and your one line in PLAN.md's status table. Do not save a version (Tetsu saves 015). Stop and write the handoff at 95% of the hey 5-hour meter (python3 ~/.claude/tools/usage.py).
+Also: Tetsu is changing scripts/camera/chase_camera.gd only to add a near-miss shake call; coordinate with SendMessage or the crew board before editing it.
+
+What to do:
+1. Screenshots first: cockpit view standing, walking, firing the 57 mm and the 12.7 mm, on the test range and the small map (bot v14_cockpit_fx and your own). Find where the first-person camera sits relative to the export's cockpit socket (B1's export, ~/Models/juggernaut/model2/export/game) and which parts are hidden.
+2. Make the whole mech visible from inside: the camera sits where the pilot's eyes are in the real cockpit, the hull, legs, sub-arms and gun are drawn (only the canopy glass or the few faces right in front of the eye may be hidden or see-through), with correct shadows (camera-near geometry: check the shadow split/bias and near plane so nothing goes dark or flickers), and the near parts lit and textured like in third person. If the eye point is inside closed geometry, a pilot's view slot in the hull (as the anime's Juggernaut has none, use the canopy/sensor position) is better than hiding parts.
+3. Keep test_cockpit green (update its expectations if hiding changes) and show before/after screenshots of the same views.
+
+Results id: R3.

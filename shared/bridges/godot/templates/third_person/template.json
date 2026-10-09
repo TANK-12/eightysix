@@ -1,0 +1,12 @@
+{
+  "summary": "Third-person player: an anime VRoid character with idle/jog animations, WASD + mouse, jump, Phantom Camera follow",
+  "assets": {
+    "characters/HairSample_Female.vrm": "characters/hairsample_female/HairSample_Female.vrm",
+    "characters/AnimationLibrary_Godot_Standard.gltf": "animations/universal_animation_library/AnimationLibrary_Godot_Standard.gltf",
+    "characters/AnimationLibrary_Godot_Standard.bin": "animations/universal_animation_library/AnimationLibrary_Godot_Standard.bin"
+  },
+  "retarget": [
+    "characters/HairSample_Female.vrm",
+    "characters/AnimationLibrary_Godot_Standard.gltf"
+  ]
+}

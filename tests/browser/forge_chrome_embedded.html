@@ -1,0 +1,61 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ForgeChrome inside the hub</title></head>
+<body>
+<iframe id="app" src="forge_chrome_child.html"></iframe>
+<iframe id="plain" src="forge_chrome_child_plain.html"></iframe>
+<script>
+const out = [];
+function t(name, ok, extra) { out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra ? " :: " + extra : "")); }
+const seen = [];
+addEventListener("message", (e) => { if (e.data && e.data.forge === "chrome") seen.push(e.data); });
+addEventListener("load", () => setTimeout(() => {
+  const w = document.getElementById("app").contentWindow;
+  const btn = w.document.getElementById("go-fullscreen");
+  btn.click();
+  setTimeout(() => {
+    t("embedded click asks the hub for the window", seen.length === 1 && seen[0].hidden === true && seen[0].window === true, JSON.stringify(seen));
+    t("embedded click takes no element fullscreen", w.fsCalls === 0, "calls=" + w.fsCalls);
+    // The hub leaving full screen on its own (Esc/F11 caught by the window).
+    w.postMessage({ forge: "chrome-state", hidden: false }, "*");
+    setTimeout(() => {
+      t("hub's chrome-state resets the app", w.ForgeChrome.hidden === false && btn.textContent === "Full screen", btn.textContent);
+      t("resetting does not echo back to the hub", seen.length === 1, "messages=" + seen.length);
+      // App size is window zoom now (forge.py); an old theme carrying ui_scale
+      // must not CSS-zoom the app, which is what made the sideways scroll.
+      w.postMessage({ forge: "theme", theme: { ui_scale: 1.25, accent: "#88a7d3" } }, "*");
+      w.postMessage({ forge: "theme", theme: { text_scale: 1.5, accent: "#88a7d3" } }, "*");
+      setTimeout(() => {
+      const size = parseFloat(w.getComputedStyle(w.document.getElementById("label")).fontSize);
+      const plain = document.getElementById("plain").contentDocument;
+      t("inside the hub nothing floats over an app's corner", !plain.querySelector(".forge-chrome-btn"), plain.querySelectorAll(".forge-chrome-btn").length + " floating");
+      const keyDown = (init) => w.dispatchEvent(new w.KeyboardEvent("keydown", init));
+      const before = w.ForgeChrome.hidden;
+      keyDown({ key: "f", code: "KeyF" });
+      t("a bare f no longer toggles full screen", w.ForgeChrome.hidden === before);
+      keyDown({ key: "f", code: "KeyF", altKey: true });
+      t("Alt+F toggles it", w.ForgeChrome.hidden !== before);
+      keyDown({ key: "f", code: "KeyF", altKey: true });
+      t("Text size reaches the app's own px font sizes", Math.abs(size - 21) < 0.5, size + "px (14px x 1.5)");
+      t("a theme with ui_scale leaves the app unzoomed", w.document.documentElement.style.zoom === "", "zoom=" + w.document.documentElement.style.zoom);
+      // #225 Lighter effects: the hub sends lite; loops play once, blur goes flat
+      const probe = w.document.body.appendChild(w.document.createElement("div"));
+      probe.style.cssText = "animation: pulse 1s linear infinite; backdrop-filter: blur(8px)";
+      const cs = () => w.getComputedStyle(probe);
+      t("full effects: a looping animation loops", cs().animationIterationCount === "infinite", cs().animationIterationCount);
+      w.postMessage({ forge: "theme", theme: { lite: true } }, "*");
+      setTimeout(() => {
+        t("lighter effects: it plays once", cs().animationIterationCount === "1", cs().animationIterationCount);
+        t("lighter effects: the blur goes flat", cs().backdropFilter === "none", cs().backdropFilter);
+        w.postMessage({ forge: "theme", theme: { lite: false } }, "*");
+        setTimeout(() => {
+          t("back to full, the loop and blur return", cs().animationIterationCount === "infinite" && cs().backdropFilter !== "none",
+            cs().animationIterationCount + " " + cs().backdropFilter);
+          document.title = out.every(l => l.startsWith("PASS")) ? "ALL PASS" : "FAILURES";
+          document.body.innerHTML = "<pre id='results'>RESULTS\n" + out.join("\n") + "\n</pre>";
+        }, 60);
+      }, 60);
+      }, 700);
+    }, 60);
+  }, 60);
+}, 60));
+</script>
+</body></html>

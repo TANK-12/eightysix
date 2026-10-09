@@ -1,0 +1,4 @@
+{
+  "extraPaths": ["helper", "../../shared"],
+  "reportMissingImports": "error"
+}

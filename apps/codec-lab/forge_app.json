@@ -1,0 +1,76 @@
+{
+  "name": "codec-lab",
+  "label": "Codec Lab",
+  "tagline": "Experimental anime video codecs",
+  "root": "~/anime-codec-lab",
+  "port": 8431,
+  "module": "server:app",
+  "src_dir": ".",
+  "accent": "#e0a458",
+  "icon": "🧪",
+  "order": 4,
+  "section": "watch",
+  "ready_timeout": 60,
+  "manifest": {
+    "summary": "This apps/codec-lab/ folder is only a pointer - the real code is the separate git repo at ~/anime-codec-lab (its own .venv, its own Wine cross-build tooling, its own history). Codec Lab is a research harness that races experimental anime-compression ideas against a real AV1 control on the same clip, judged by the same numbers: file size, bits/pixel, PSNR, SSIM, encode/decode time.",
+    "features": [
+      {
+        "name": "Clip + run setup",
+        "description": "Pick or upload a source clip, set trim/scale/fps, configure any strategy's parameters via a form built from its schema, queue several configs as one batch (a real parameter sweep)."
+      },
+      {
+        "name": "Automatic control run",
+        "description": "Every batch gets or reuses a fixed AV1 baseline (libsvtav1 crf 30) for that exact clip+trim, so every comparison has a real codec to beat."
+      },
+      {
+        "name": "Results database",
+        "description": "SQLite (lab.db): search by strategy/clip/params text, filter by min ratio/PSNR/SSIM, sort any column. Every run ever done persists across restarts; tracks is_control per run."
+      },
+      {
+        "name": "Three-way comparison",
+        "description": "Click a row for original vs control codec vs result, each playable with audio; a dropdown swaps in any other completed run against the same clip+trim."
+      },
+      {
+        "name": ".acv export",
+        "description": "Package a run's raw encoded bytes + trimmed passthrough audio (WAV) into a standalone .acv file (core/container.py) that Codec Player and player.py can open with no lab, no ffmpeg, no source clip."
+      },
+      {
+        "name": "Strategies",
+        "description": "ffmpeg_baseline (control), palette_motion (palette quant + whole-frame-vectorized motion-compensated block copy), downscale_proxy (downscale + codec + sharp upscale - current practical leader), vector_art (per-frame vectorization, no motion), optical_flow (dense Farneback warp + quantized residual - best quality, worst ratio), frame_memory (whole-clip content-addressable block dictionary), temporal_skip (keyframes + flow-interpolated skip frames). Add one by dropping a class in strategies/ and one entry in strategies/registry.py."
+      }
+    ],
+    "data_dir": "resolved by ~/anime-codec-lab/core/paths.py data_dir(): lab.db, results/runs/<id>/ (decoded.mp4, original.mp4, encoded.bin, audio.wav), clips/. Frozen builds put these next to the executable.",
+    "services": [
+      "None networked. Requires ffmpeg + ffprobe at runtime (core/clip_loader.py shells out to load/trim/scale video and mux/extract audio)."
+    ],
+    "dependencies": {
+      "required": [
+        "numpy",
+        "opencv (non-headless / T-API)",
+        "scipy",
+        "fastapi",
+        "uvicorn",
+        "python-pywebview (system, for the native desktop_app.py window)",
+        "ffmpeg + ffprobe (system)"
+      ],
+      "optional": [
+        "intel-compute-runtime - OpenCL / cv2.UMat path in palette_motion (the bigger speed win was algorithmic, see repo README)"
+      ]
+    },
+    "standalone_launch": "cd ~/anime-codec-lab && python3 desktop_app.py   (native window; or `uvicorn server:app --host 127.0.0.1 --port 8731` for a browser tab; or `python3 harness.py` for the scriptable CLI). In Forge it runs on port 8431 from the root path.",
+    "api_base": "/api/  (server.py: /api/clips, /api/clips/upload, /api/strategies, /api/runs, /api/runs/resumable, /api/runs/resume, /api/results, /api/runs/{id}, /api/runs/{id}/video/{which}, /api/runs/{id}/export.acv)",
+    "memory_guard": "core/limits.py projects peak RAM from ffprobe dimensions before allocating. POST /api/runs returns 413 with a suggested scale when a run would exceed the ceiling (default 4 GiB, env CODEC_LAB_RUN_BUDGET_BYTES). Interrupted 'running' rows are reaped to 'interrupted' at startup; resuming is an explicit choice and re-checks the budget. This machine has 31 GiB and no swap, so overshoot freezes it.",
+    "known_gaps": [
+      "Custom formats carry video only - audio is passthrough (muxed onto previews so comparisons are watchable, but no strategy encodes audio).",
+      "Localhost / no auth - a personal research tool, not meant past 127.0.0.1.",
+      "Two workers process the queue sequentially; a big batch of slow configs queues rather than runs at once.",
+      "The identified bottleneck in every custom codec here is the entropy coder (plain zlib), not the prediction idea - fixing residual/entropy coding is the top priority in the repo README."
+    ],
+    "docs": [
+      "README.md",
+      "MANIFEST.md",
+      "~/anime-codec-lab/README.md",
+      "~/anime-codec-lab/BUILD_MANIFEST.json"
+    ]
+  }
+}

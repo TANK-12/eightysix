@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Media</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root { --accent: #f28c6b; --accent-2: #d9714f; --on-accent: #1a0f0b; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Forge <span>Media</span></div>
+    <nav>
+      <div class="tab active" data-tab="library">Library</div>
+      <div class="tab" data-tab="youtube">YouTube</div>
+      <div class="tab" data-tab="crunchyroll">Crunchyroll</div>
+      <div class="tab" data-tab="download">Download</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </nav>
+    <div class="spacer"></div>
+    <div class="mode-switch"><button id="modeSimple" class="on">Simple</button><button id="modeAdvanced">Advanced</button></div>
+    <button class="btn" id="go-fullscreen" type="button">Full screen</button>
+  </header>
+
+  <!-- ---------------------------------------------------------- Library -->
+  <div class="panel active" data-panel="library">
+    <div class="player card" id="player">
+      <video id="media" playsinline></video>
+      <div class="art" id="art"><span id="art-note">Pick something from the list</span></div>
+      <div class="controls">
+        <button class="btn" id="prev" title="Previous (Shift+←)">&#9198;</button>
+        <button class="btn btn-primary" id="play" title="Play / pause (Space)">&#9654;</button>
+        <button class="btn" id="next" title="Next (Shift+→)">&#9197;</button>
+        <div class="now">
+          <div class="title" id="now-title">Nothing playing</div>
+          <div class="muted small" id="now-sub"></div>
+        </div>
+        <span class="time" id="time">0:00 / 0:00</span>
+        <button class="btn toggle" id="shuffle" title="Shuffle">&#128256;</button>
+        <button class="btn toggle" id="repeat" title="Repeat">&#128257;</button>
+        <label class="vol">&#128266; <input type="range" id="vol" min="0" max="100" value="80"> <input type="number" id="vol-n" min="0" max="100" value="80"></label>
+      </div>
+      <input type="range" id="seek" min="0" max="1000" value="0">
+    </div>
+    <div class="list-head">
+      <input type="search" id="q" placeholder="Search your library… ( / )" autocomplete="off" spellcheck="false">
+      <div class="seg" id="kind">
+        <button type="button" data-kind="" class="on">All</button>
+        <button type="button" data-kind="audio">Music</button>
+        <button type="button" data-kind="video">Video</button>
+      </div>
+      <button class="btn" id="rescan" title="Read the folders again">Rescan</button>
+      <span class="muted small" id="count"></span>
+    </div>
+    <div id="list" class="card list"></div>
+  </div>
+
+  <!-- ---------------------------------------------------------- YouTube -->
+  <div class="panel site" data-panel="youtube">
+    <div class="sitebar">
+      <button class="btn" data-nav="back" data-site="youtube">&#8592;</button>
+      <button class="btn" data-nav="forward" data-site="youtube">&#8594;</button>
+      <button class="btn" data-nav="reload" data-site="youtube">&#8635;</button>
+      <button class="btn" data-home="youtube">YouTube home</button>
+      <input class="addr" id="addr-youtube" placeholder="Search YouTube or paste a link" autocomplete="off" spellcheck="false">
+      <button class="btn" data-firefox="youtube" title="Open this page in Firefox">&#129418;</button>
+      <button class="btn" data-download="youtube" title="Download this video">&#8615; Download</button>
+    </div>
+    <div class="viewport" id="view-youtube"><div class="placeholder">YouTube shows here inside Forge. Standalone in a browser there is no page area; open Media from the Forge window.</div></div>
+  </div>
+
+  <!-- ------------------------------------------------------ Crunchyroll -->
+  <div class="panel site" data-panel="crunchyroll">
+    <div class="sitebar">
+      <button class="btn" data-nav="back" data-site="crunchyroll">&#8592;</button>
+      <button class="btn" data-nav="forward" data-site="crunchyroll">&#8594;</button>
+      <button class="btn" data-nav="reload" data-site="crunchyroll">&#8635;</button>
+      <button class="btn" data-home="crunchyroll">Crunchyroll home</button>
+      <input class="addr" id="addr-crunchyroll" placeholder="Paste a Crunchyroll link" autocomplete="off" spellcheck="false">
+      <button class="btn btn-primary" data-firefox="crunchyroll" title="Episodes need the DRM Firefox has; this opens the same page there, signed in">Watch in Firefox &#129418;</button>
+    </div>
+    <div class="muted small note">Browse and pick episodes here. Playing one needs Widevine DRM, which this window does not have, so <b>Watch in Firefox</b> opens the same page in Firefox where you are already signed in.</div>
+    <div class="viewport" id="view-crunchyroll"><div class="placeholder">Crunchyroll shows here inside Forge.</div></div>
+  </div>
+
+  <!-- --------------------------------------------------------- Download -->
+  <div class="panel" data-panel="download">
+    <div class="card">
+      <h3>1 &middot; Find</h3>
+      <div class="row">
+        <div class="field" style="flex:3"><label>Channel, playlist or video link, or a name</label><input id="dl-text" placeholder="Tokyo Echo Sounds, or https://www.youtube.com/@..."></div>
+        <div class="field adv"><label>Up to</label><input id="dl-limit" type="number" min="1" max="500" value="60"></div>
+      </div>
+      <button class="btn btn-primary" id="dl-find">Find</button>
+      <span class="muted small" id="dl-found"></span>
+      <div id="dl-findlog" class="muted small" data-clearable style="white-space:pre-wrap; margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <h3>2 &middot; Pick</h3>
+      <div class="row" style="align-items:center; gap:8px">
+        <button class="btn" id="dl-all">Select all</button>
+        <button class="btn" id="dl-none">Select none</button>
+        <button class="btn" id="dl-channel" hidden>List this channel's videos</button>
+        <span class="muted small" id="dl-count"></span>
+      </div>
+      <div id="dl-list" class="list picks"></div>
+    </div>
+    <div class="card">
+      <h3>3 &middot; Save</h3>
+      <div class="row">
+        <div class="field"><label>Save as</label><select id="dl-kind"><option value="audio">mp3 (music)</option><option value="video">mp4 (video)</option></select></div>
+        <div class="field" style="flex:2"><label>Into</label><input id="dl-folder" placeholder="~/Music/Forge"></div>
+      </div>
+      <button class="btn btn-primary" id="dl-go">&#8615; Download selected</button>
+      <button class="btn btn-danger" id="dl-stop" disabled>&#9632; Stop</button>
+      <progress id="dl-progress" value="0" max="1" style="width:100%; margin-top:6px; display:none"></progress>
+      <div id="dl-log" class="logbox" data-clearable style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------------- Settings -->
+  <div class="panel" data-panel="settings">
+    <div class="card">
+      <h3>Library folders</h3>
+      <div class="muted small">One per line. Sub-folders a few levels down are included. The download folder is always part of the library.</div>
+      <textarea id="set-folders" rows="4" spellcheck="false"></textarea>
+      <div class="row">
+        <div class="field" style="flex:2"><label>Download folder</label><input id="set-download"></div>
+      </div>
+      <button class="btn btn-primary" id="set-save">Save</button>
+      <span class="muted small" id="set-note"></span>
+    </div>
+    <div class="card">
+      <h3>Tools</h3>
+      <div class="muted small" id="tools"></div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

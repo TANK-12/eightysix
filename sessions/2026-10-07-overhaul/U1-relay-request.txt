@@ -1,0 +1,18 @@
+folder: ~/Forge
+effort: xhigh
+model: opus
+account: default
+done when: every app in scope has had its sweep (looks, rest-when-hidden, robustness, a critic + breaker pass) or is reported skipped/blocked with the reason, its tests green and its changes committed per app, and docs/library/power/2026-10-07-every-app-sweep.md plus each touched app's WIP.md say what was done and what was verified
+
+Forge overhaul wave, U1 every-app sweep (commander). Queued by Relay task 63 (Nene), 2026-10-08.
+date: 2026-10-08 · for: Claude
+
+Read ~/Forge/sessions/2026-10-07-overhaul/U1-every-app-sweep-brief.md first, then HANDOFF.md in that folder ("Update" sections at the bottom are the newest). Do what the U1 brief says, with these changes from Relay task 63:
+- Commit per app (only that app's paths, `git add <paths>`, never -A; split a mixed file by hunk with `git apply --cached`). The brief's "do not commit" is out of date.
+- Opus only, never Sonnet or Haiku (Emerson). Pace workers by `python3 ~/.claude/tools/usage.py`: under 70% of the 5-hour window up to 3 workers at a time, 70-92% one at a time, from 92% none until the reset. Each worker's prompt carries the batching rule (at least ~10 s of work per request).
+- No fps, GPU or CPU-load measurements during the sweep (Emerson, crew note 1054: performance runs go last, after all other work). Collect each app's "measure this" items into the summary doc; the before/after idle-CPU runs happen at the very end, in one quiet window (`python3 ~/Forge/tools/quiet_window.py status`), or are left as a written plan if the budget is gone.
+- Forge Browser first (Emerson: "the forge app browser lowkey never works for me"). Leads from task 63: its pages are native WebKit views laid over the hub by forge.py (forge_views.py), and its WIP.md says that path was never verified inside a real Forge window. tests/smoke_browser_window.py and tests/smoke_browser_reopen.py use Gtk.OffscreenWindow, which on this machine (WebKitGTK 2.54, Wayland) aborts with "GDK is not able to create a GL context" unless WEBKIT_DISABLE_DMABUF_RENDERER=1 is set (fixed in tests/page_probe.py and tests/test_views.py, commit b698e2f). Check the journal (`journalctl --user -b | grep -i -E "webkit|forge"`) and outputs/*.log for view errors before guessing. Ask Emerson only through the crew board if logs and a test run do not show it, and carry on with the other apps meanwhile.
+- Read critics/final-breaker.md (the final breaker, Relay task 63, may still be writing it when you start): breaks it lists in an app you sweep (power-sweep poll wrappers in board, calendar, files, comix, crewroom, terminal, settings) are fixed in that app's sweep.
+- Skip what the brief skips (apps/claude, apps/mission, apps/wallpapers, hub/, shared/ read-only, apps/relay) and anything claimed on crew board "forge" (`python3 ~/.claude/skills/crew/crew.py status forge`).
+- Never restart Emerson's Forge, the Claude app on 8445, Relay or Jan; never touch CPU power caps.
+- Keep the `## State` of your task file current per app, so a fresh session can carry on. One short WhatsApp to Emerson only when done or blocked.

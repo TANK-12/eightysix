@@ -1,0 +1,20 @@
+{
+  "id": "gravel_embedded_concrete",
+  "name": "Gravel Embedded Concrete",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/gravel_embedded_concrete",
+  "license": "CC0",
+  "authors": [
+    "Charlotte Baglioni"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/gravel_embedded_concrete/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/gravel_embedded_concrete/1k/gravel_embedded_concrete_1k.gltf",
+  "files": [
+    "gravel_embedded_concrete_1k.gltf",
+    "textures/gravel_embedded_concrete_nor_gl_1k.jpg",
+    "textures/gravel_embedded_concrete_arm_1k.jpg",
+    "textures/gravel_embedded_concrete_diff_1k.jpg",
+    "gravel_embedded_concrete.bin"
+  ]
+}

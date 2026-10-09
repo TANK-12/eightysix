@@ -1,0 +1,17 @@
+{
+  "name": "mission",
+  "label": "Mission Control",
+  "tagline": "Every session, crew and Relay task",
+  "port": 8465,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#8fd3ff",
+  "icon": "🛰️",
+  "order": 11,
+  "section": "system",
+  "ready_timeout": 30,
+  "voice": {
+    "listens": true,
+    "speaks": true
+  }
+}

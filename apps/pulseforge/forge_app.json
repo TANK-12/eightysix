@@ -1,0 +1,132 @@
+{
+  "name": "pulseforge",
+  "label": "PulseForge",
+  "tagline": "Music videos & visualizers",
+  "port": 8436,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#d16bff",
+  "icon": "🎵",
+  "order": 9,
+  "section": "create",
+  "ready_timeout": 45,
+  "manifest": {
+    "summary": "Turns songs into YouTube-ready videos. Its main output is a 'living still': a background -- a picture or a looping video clip -- that mostly holds still while the parts you mark move (clouds crossing the sky, water rippling, hair swaying), with sprites passing through, an analogue grade, rain or fireplace under the music, and a now-playing line and progress bar over it. Several backgrounds and several songs run as one long mix with transitions, a caption per track, and the playlist repeating to whatever length you ask for. It also does spectrum visualisers and beat-cut AMVs. A local Jan text model drafts the title, description and tags, and can configure a shot from a phrase; there is no image generation anywhere -- the machine has none. For monetised visualiser / 'lofi radio' / AMV channels -- output is a local file the user uploads themselves.",
+    "features": [
+      {
+        "name": "Two editors",
+        "description": "A Simple/Advanced switch in the header, remembered between sessions. Simple is one page and four steps -- music, pictures, look, title -- with a live frame from the real renderer beside it, and picks the rest for you. Advanced is the full five-tab editor. Same project underneath, so 'Fine-tune this' carries you from one to the other on the shot you were looking at."
+      },
+      {
+        "name": "Projects",
+        "description": "A project is a playlist of songs plus a list of shots (backgrounds), with the scene, params, assets and output format saved alongside."
+      },
+      {
+        "name": "Compose",
+        "description": "Build the playlist -- add several songs, reorder them, caption each one, set the gap or crossfade between them. Pick a scene and tune it from a schema-driven form (slider and number box for every value), attach background images / AI backdrop / sprite pack / clips folder, choose a format, Preview, then Render. Also sets the ambient bed under the music (rain, fireplace, vinyl, wind, waves -- generated, not sampled), the now-playing and progress overlays, and a target length that repeats the playlist to fill it. Level the playlist evens out tracks gathered from different sources, and fades top and tail the whole video."
+      },
+      {
+        "name": "Scenery",
+        "description": "The living-still editor. Pick a background -- a still or a video clip -- hit 'Find the moving parts' (it proposes sky, water, foliage and lights) or apply one of 11 presets, then correct it by hand: click a colour with the wand, paint with a brush, click a polygon, choose one of 9 motion effects per region, stack transparent PNGs for real parallax, and add any of 11 sprite/particle emitters. Every control re-renders one real frame server-side so you tune against the actual renderer; 'Preview loop' renders the whole loop and plays it looping so you can judge the seam. The shot strip is the timeline: each background, how long it holds, and the transition into the next. A shot can instead be a title card. Camera & look carries depth of field, distance haze and the analogue pack (scanlines, colour fringing, letterbox, light leak). Describe a look in words and a local Jan model picks from the real registries. Undo/redo, drag to reorder, keyboard shortcuts and named snapshots."
+      },
+      {
+        "name": "Scene: Living Still (scenery)",
+        "description": "The flagship. Marked regions of a still image move while the rest holds; stacked transparent PNGs give real parallax; sprites drift through at their own depths; a slow camera push and drift over the top. All motion is loop-exact, so an hour-long video renders one short loop per background rather than every frame."
+      },
+      {
+        "name": "Scene: Spectrum Bars (visualizer)",
+        "description": "Frequency bars + circular equaliser + beat bloom over a gradient or image. Has an optional 'soft' bar style: many thin translucent mirrored bars with rise-fast/fall-slow smoothing, blended over the picture instead of added to it so bright art keeps its colour. The default 'glow' style is unchanged."
+      },
+      {
+        "name": "Scene: Drifting Scenery (scenery)",
+        "description": "A still/AI image with slow Ken Burns zoom, parallax haze and clouds crossing the frame; breathes with the music. The lofi look."
+      },
+      {
+        "name": "Scene: Sprite Swarm (sprites)",
+        "description": "Pixel sprites from a ForgeArtData pack drifting, bobbing with the bass and bursting on beats."
+      },
+      {
+        "name": "Scene: Aurora Field (visualizer)",
+        "description": "Flowing colour ribbons folded by the spectrum; four palettes."
+      },
+      {
+        "name": "Scene: Beat-Cut Montage / AMV (montage)",
+        "description": "Cuts a folder of video clips to the song's beat -- every cut lands on a detected beat, shots start on scene changes where available. With 'match energy' (default) each slot is filled by the clip segment whose motion best matches the song's energy at that moment, with a reuse penalty. Transitions: cut, crossfade, dip to black/white. Face-ranked selection and LLM-assisted ordering are the next phase."
+      },
+      {
+        "name": "Output formats",
+        "description": "YouTube 1080p 16:9, 4K 2160p 16:9, Shorts/Reels 9:16, and a seamless-loop mode that repeats a short visual bed under a long mix."
+      },
+      {
+        "name": "Output tab",
+        "description": "Rendered files with sizes, play, download, delete, and open-folder."
+      },
+      {
+        "name": "Text overlay",
+        "description": "Per-project title and subtitle lines with a position and size, drawn with a soft shadow and a 1.5 s fade-in onto both visualiser and montage renders."
+      },
+      {
+        "name": "Render queue",
+        "description": "A FIFO worker: renders, previews, batches and analyses queue and run one at a time; the Output tab shows what is running and what is waiting."
+      },
+      {
+        "name": "Album batch",
+        "description": "Point at a folder of audio files, pick a scene and format, and get one project + one queued render per track."
+      },
+      {
+        "name": "Thumbnail export",
+        "description": "Grab a 1280x720 PNG from any render at a chosen timestamp into renders/thumbs/."
+      },
+      {
+        "name": "Tracklist, chapters and thumbnail",
+        "description": "Generates the video description in YouTube's chapter format with timestamps, writes it beside the MP4 and embeds the same marks in the file. YouTube's chapter rules are checked and reported rather than assumed. The thumbnail maker grabs a frame and puts the title on it."
+      },
+      {
+        "name": "Before you upload",
+        "description": "A pre-flight report saying what would go wrong -- chapter rules, loudness off target, an uneven playlist, an odd aspect ratio, missing audio. A report, not a gate. Render everything queues the 1080p cut, the Shorts version and the thumbnail together."
+      },
+      {
+        "name": "Take it with you",
+        "description": "Export a project as one .pfproj file (settings, shots and painted regions; media optional), import one back, duplicate a project, or use one as a template without its songs."
+      },
+      {
+        "name": "Autopilot",
+        "description": "A mode of its own (the Autopilot button beside Simple/Advanced/Studio) with three views. Make: three steps (songs folder, pictures folder, look), with Browse buttons, live counts, and look cards that show a real frame of your own first picture in each style. Styles: Lofi Radio (the whole folder as one hour-long mix of living stills with rain and chapters, rendered once and repeated, so an hour takes about two minutes), Lofi Drift, Visualiser Bars, Shorts Pulse. Library: finished videos with Upload pack (opens the folder, copies the title, then description and tags), Open folder and Mark uploaded. Earnings: the views and revenue typed in from YouTube Studio, per video and per look. Nothing is uploaded automatically. Looks are one file each in pulseforge/recipes/."
+      }
+    ],
+    "data_dir": "~/PulseForgeData/ (projects/<slug>/: project.json, audio.<ext>, assets/, cache/features_<fps>.npz, renders/*.mp4; settings.json). Finished MP4s can be pointed at ~/Videos/PulseForge or elsewhere in Settings.",
+    "services": [
+      "ffmpeg + ffprobe (system; required -- decode, all filtering, encode)",
+      "AI Studio @ http://127.0.0.1:8430 (optional; the 'AI backdrop' button posts to its /api/generate/image). Jan is not used."
+    ],
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "python-multipart",
+        "numpy (system site-packages)",
+        "Pillow (system site-packages)",
+        "ffmpeg + ffprobe (system)"
+      ],
+      "optional": [
+        "pycairo (system) - nicer vector rendering; scenes fall back to Pillow without it",
+        "pytest - test suite"
+      ]
+    },
+    "standalone_launch": ".venv/bin/python run.py   (serves http://127.0.0.1:8436; Forge launches web_app:app on the same port)",
+    "api_base": "/api/  (state incl. render queue, scenes, formats, art-packs, settings; projects CRUD incl. text-overlay fields; audio/asset/clips-folder upload; ai-backdrop; analyze; preview; render; render-file; thumbnail + thumbnail-file; batch; jobs + SSE)",
+    "known_gaps": [
+      "New this session -- the render pipeline and all five scenes produce valid MP4s from synthetic input and were inspected frame-by-frame, but aesthetic tuning against real music is the user's call.",
+      "Montage/AMV does beat-synced cutting with motion-to-energy shot matching and xfade transitions. No face detection yet (needs opencv-python or an ONNX model -- a dependency to review) and no LLM-assisted edit ordering. Seams: clips.motion_curve / clips.scene_cuts / montage.build_edl.",
+      "No draggable clip timeline UI yet -- the montage is configured by params and a per-shot motion/energy readout, not an NLE.",
+      "4K renders of the Python-drawn scenes upscale from an internal buffer (>=540p depending on render quality); montage renders natively at the target resolution.",
+      "The AI-backdrop path assumes AI Studio's current /api/generate/image + /api/jobs/{id}/state shapes; it degrades to a clear error if they've drifted.",
+      "No browser screenshot this session (Chrome extension not connected); the UI is verified by served-markup, node --check and endpoint checks only."
+    ],
+    "docs": [
+      "README.md",
+      "WIP.md",
+      "MANIFEST.md"
+    ]
+  }
+}

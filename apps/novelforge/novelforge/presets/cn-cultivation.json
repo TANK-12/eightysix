@@ -1,0 +1,103 @@
+{
+  "id": "cn-cultivation",
+  "label": "Chinese cultivation (xianxia)",
+  "group": "Chinese",
+  "description": "Immortal cultivation: realms, sects, pills, tribulations and a protagonist climbing from nothing across ever larger stages.",
+  "keywords": [
+    "cultivation",
+    "xianxia",
+    "xuanhuan",
+    "immortal",
+    "dao",
+    "sect",
+    "realm",
+    "pill",
+    "tribulation",
+    "qi",
+    "chinese",
+    "cultivator"
+  ],
+  "words_per_chapter": 2500,
+  "voice": [
+    "Third person, past tense, on the protagonist; measured, slightly formal narration with vivid mountain, cloud and sword imagery.",
+    "Cultivation realms are explicit and consistent (for example Qi Condensation, Foundation Establishment, Core Formation, Nascent Soul); a breakthrough is a set piece with a physical cost.",
+    "Resources matter: spirit stones, pills, herbs, manuals; who owns them is who holds power.",
+    "Formal speech between cultivators: 'this junior', 'Senior Brother', 'Elder', 'Sect Master'; arrogance is shown by how people speak down.",
+    "The protagonist wins by cunning and endurance as much as by power.",
+    "End chapters on a breakthrough, a threat, or a treasure half-seen."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "The protagonist at the bottom: crippled meridians, an outer disciple, a clan's disgrace, in a concrete humiliation.",
+      "then": "The first secret advantage (an inheritance, a strange pendant, a forbidden manual) and its rules.",
+      "key": true
+    },
+    {
+      "at": 0.07,
+      "role": "opportunity",
+      "guide": "He finds or earns the advantage at a price."
+    },
+    {
+      "at": 0.18,
+      "role": "first breakthrough",
+      "guide": "His first breakthrough and a public humbling of someone who mocked him.",
+      "then": "Climb within the sect: missions, pills, rivals, a mentor with motives."
+    },
+    {
+      "at": 0.35,
+      "role": "secret realm",
+      "guide": "A secret realm or trial opens: danger, treasure, and a rival from a bigger power."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "His secret is threatened or a larger power reveals itself; the sect is no longer safe.",
+      "then": "He must grow faster than is safe.",
+      "key": true
+    },
+    {
+      "at": 0.68,
+      "role": "betrayal",
+      "guide": "A betrayal or a loss that leaves him alone."
+    },
+    {
+      "at": 0.82,
+      "role": "tribulation",
+      "guide": "The decisive battle or heavenly tribulation that proves the path he chose.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "ascension",
+      "guide": "He steps up to the next stage of the world, where he is weak again, with a new goal.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Every chapter changes the protagonist's resources, realm or standing. Keep realms consistent. Rivals have families and backers; beating one brings the next.",
+  "outline_example": "Nine Cracks | In the outer-disciple pill hall, Lu Wenhao swallows the cracked pill everyone discarded and survives the backlash in his cell | He forces open a meridian that was supposed to be dead | Senior Brother Qiu smells the spent pill on him",
+  "scene_guidance": [
+    "Breakthroughs are physical: heat, pain, sound, the world seen differently afterwards.",
+    "Arrogant characters reveal themselves in speech before action.",
+    "Let the setting be huge: peaks, clouds, bells across valleys."
+  ],
+  "worldbuilding": [
+    "The realm ladder and what each realm can do.",
+    "The sect's hierarchy and economy.",
+    "The larger world: other sects, clans, and the powers above them."
+  ],
+  "naming": "Chinese names in pinyin, family name first (Lu Wenhao, Qiu Ming, Su Yan); sect names like Azure Cloud Sect, Nine Peaks Sect.",
+  "cliches": [
+    "courting death",
+    "the height of the heavens",
+    "snorted coldly",
+    "face-slap",
+    "ants"
+  ],
+  "sample": "The pill had a crack running through it like a hair in porcelain.\n\nLu Wenhao swallowed it anyway.\n\nFor three breaths nothing happened. On the fourth, fire poured down his throat and into meridians that had been dead for six years, and he bit his sleeve so the cell next door would not hear him scream.\n\nWhen dawn came grey over the outer peaks, he could feel the qi in the stone floor. Faint. Real.",
+  "example_names": [
+    "Wenhao",
+    "Qiu"
+  ]
+}

@@ -1,0 +1,11 @@
+<!doctype html>
+<!-- Child page for forge_media_parent.html: an app page that loads the shared
+     chrome script, which brings in shared/forge_media.js inside the hub. -->
+<html><head><script src="/shared/forge_chrome.js"></script></head>
+<body><audio id="a" preload="auto"></audio>
+<script>
+  // a blob, because the test server cannot answer range requests (no seeking)
+  fetch("/tone.wav").then((r) => r.blob()).then((b) => { document.getElementById("a").src = URL.createObjectURL(b); });
+  window.ForgeMedia = { describe: () => ({ title: "Test tone", artist: "Harness" }) };
+  addEventListener("message", (e) => { if (e.data === "go") document.getElementById("a").play().catch((err) => parent.postMessage({ err: String(err) }, "*")); });
+</script></body></html>

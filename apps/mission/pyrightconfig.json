@@ -1,0 +1,4 @@
+{
+  "extraPaths": ["../../shared", "../crewroom", "../relay", "../../../.claude/skills/crew"],
+  "reportMissingImports": "error"
+}

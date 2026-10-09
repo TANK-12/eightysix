@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Avatar Studio</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="avatars.css">
+<style>
+  :root { --accent: #e0916b; --accent-2: #d97757; --on-accent: #1a0c05; }
+</style>
+</head>
+<body>
+<div id="app" class="studio">
+  <section class="stage-wrap">
+    <header class="stage-head">
+      <a class="btn" href="index.html" title="Back to the conversations">← Claude</a>
+      <h1 id="now-title">Avatar Studio</h1>
+      <span class="muted small" id="now-sub"></span>
+      <span class="grow"></span>
+      <button type="button" class="btn" id="go-fullscreen">Full screen</button>
+    </header>
+    <div class="stage" id="stage"></div>
+    <div class="stage-foot">
+      <label class="field-inline">Face <select id="expr"></select></label>
+      <button type="button" class="btn" id="say-hi" title="Speak a line in this persona's voice, with lip sync">🔊 Say hi</button>
+      <label class="field-inline" title="Make the avatar shown here the one this persona wears in the chat">Use for <select id="use-for"></select></label>
+      <button type="button" class="btn primary" id="use-it">Use this avatar</button>
+      <span class="muted small" id="status"></span>
+    </div>
+  </section>
+
+  <aside class="side">
+    <nav class="tabs" id="tabs">
+      <button type="button" data-tab="avatars" class="on">Avatars</button>
+      <button type="button" data-tab="motions">Motions</button>
+      <button type="button" data-tab="maker">Generator</button>
+      <button type="button" data-tab="personas">Personas</button>
+    </nav>
+
+    <section class="tab" id="tab-avatars">
+      <h3>Live2D models (Cubism 4)</h3>
+      <p class="muted small">Arch-chan comes from Nyarch Assistant. The rest are Live2D Inc's official free samples.
+        Every model plays its own motions and the shared generated ones. Click the avatar's head or body to poke it,
+        drag to move it, and scroll to zoom.</p>
+      <div class="grid" id="models"></div>
+      <h3>Live2D models (Cubism 2)</h3>
+      <p class="muted small">Live2D Inc's older official samples, plus Unity-chan (Unity-Chan License, © Unity Technologies Japan).</p>
+      <div class="grid" id="models2"></div>
+      <h3>Generated puppets</h3>
+      <p class="muted small">Made in the Generator tab. Real Live2D files can only be made in Live2D's own paid editor,
+        so generated characters are layered 2D puppets that animate the same way.</p>
+      <div class="grid" id="puppets"></div>
+    </section>
+
+    <section class="tab hidden" id="tab-motions">
+      <h3>Play</h3>
+      <div class="row-wrap"><label class="field-inline">Intensity <input type="range" id="intensity" min="0.2" max="2" step="0.05" value="1"><input type="number" id="intensity-n" min="0.2" max="2" step="0.05" value="1"></label>
+        <label class="field-inline">Speed <input type="range" id="speed" min="0.25" max="3" step="0.05" value="1"><input type="number" id="speed-n" min="0.25" max="3" step="0.05" value="1"></label></div>
+      <div class="motion-list" id="motion-list"></div>
+      <h3>Model's own motions</h3>
+      <p class="muted small">A persona can use these in its reactions as <code>own:Name</code>.</p>
+      <div class="motion-list" id="own-list"></div>
+      <h3>Make a new motion</h3>
+      <div class="gen">
+        <label class="field-inline">Mood <select id="imp-mood">
+          <option value="">any</option><option>happy</option><option>hype</option><option>flirty</option><option>think</option><option>sad</option></select></label>
+        <label class="field-inline">Seed <input id="imp-seed" type="number" placeholder="random"></label>
+        <button type="button" class="btn" id="improvise">🎲 Improvise</button>
+      </div>
+      <div class="gen">
+        <input id="describe" class="grow" placeholder="Describe it: a shy wave then a big grin">
+        <button type="button" class="btn" id="describe-go" title="Uses this app's own Jan model; it loads on demand and is released when idle">✨ Make with Jan</button>
+      </div>
+      <div class="gen" id="draft-row">
+        <span class="muted small" id="draft-info">No new motion yet.</span>
+        <button type="button" class="btn" id="draft-play" disabled>▶ Preview</button>
+        <input id="draft-name" placeholder="name it" size="12">
+        <button type="button" class="btn btn-primary" id="draft-save" disabled>Save to library</button>
+      </div>
+      <p class="muted small">Saved motions join every model and puppet. Live2D models get them as real motion files the next time they load.</p>
+    </section>
+
+    <section class="tab hidden" id="tab-maker">
+      <div class="gen">
+        <label class="field-inline">Body <select id="gen-body"><option value="">any</option><option>girl</option><option>boy</option><option>androgynous</option></select></label>
+        <label class="field-inline">Style <select id="gen-style"><option value="">any</option><option>cute</option><option>cool</option><option>sexy</option></select></label>
+        <button type="button" class="btn" id="randomise">🎲 Generate</button>
+      </div>
+      <div class="gen">
+        <label class="field-inline">Open <select id="open-puppet"></select></label>
+        <button type="button" class="btn" id="undo" title="Undo (Ctrl+Z)">↶</button>
+        <button type="button" class="btn" id="redo" title="Redo (Ctrl+Shift+Z)">↷</button>
+      </div>
+      <div class="fields" id="fields"></div>
+      <div class="gen">
+        <input id="p-name" placeholder="Name" class="grow">
+        <button type="button" class="btn btn-primary" id="p-save">Save</button>
+        <button type="button" class="btn btn-danger" id="p-delete">Delete</button>
+      </div>
+      <p class="muted small">Saved to ~/Forge/shared/avatars/puppets/, where other Forge apps can use them too.</p>
+    </section>
+
+    <section class="tab hidden" id="tab-personas">
+      <div class="gen">
+        <label class="field-inline"><input type="checkbox" id="pp-enabled"> Personas on</label>
+        <label class="field-inline"><input type="checkbox" id="pp-speak"> Speak replies</label>
+      </div>
+      <div class="gen">
+        <label class="field-inline">Who answers <select id="pp-pinned"></select></label>
+        <label class="field-inline">Downtime <select id="pp-downtime"></select></label>
+      </div>
+      <p class="muted small">"By mood" picks from your message: fixes go to Shizu, big builds to Kira, status checks to Arch-chan,
+        downtime to Yui or Ren, and everything else to Tetsu.</p>
+      <div id="persona-list" class="persona-list"></div>
+    </section>
+  </aside>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_dialog.js"></script>
+<script src="/shared/forge_avatar.js"></script>
+<script src="avatars.js"></script>
+</body>
+</html>

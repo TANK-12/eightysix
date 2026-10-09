@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voice</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>:root { --accent: #7fc8d8; --accent-2: #5aaabb; --on-accent: #06171c; }</style>
+</head>
+<body>
+<main class="voice">
+  <header class="top">
+    <h1>Voice</h1>
+    <span class="pill" id="state">idle</span>
+    <span class="muted small" id="loaded"></span>
+    <span class="grow"></span>
+    <button type="button" class="btn" id="tap" title="Same as the Super+Z hotkey: talk until a pause">Talk</button>
+    <button type="button" class="btn ghost" id="hush">Hush</button>
+    <button type="button" class="btn ghost" id="unload" title="Free every speech model now">Unload models</button>
+  </header>
+
+  <section class="card">
+    <h2>Try it</h2>
+    <div class="row">
+      <button type="button" class="btn" id="mic">Mic test (3 s)</button>
+      <span id="micOut" class="out muted">Records 3 seconds in this page and shows what was heard.</span>
+    </div>
+    <div class="row">
+      <input id="sayText" type="text" value="Hello Emerson, this is Forge speaking." maxlength="300">
+      <button type="button" class="btn" id="fast">Hear the fast voice</button>
+      <button type="button" class="btn ghost" id="best">Hear the best voice</button>
+    </div>
+    <div id="sayOut" class="out muted small"></div>
+  </section>
+
+  <section class="card">
+    <h2>Models</h2>
+    <table class="grid" id="models"><thead><tr><th>Model</th><th>Kind</th><th>Tier</th><th>Size</th><th>On disk</th><th>Loaded</th></tr></thead><tbody></tbody></table>
+    <div class="muted small" id="disk"></div>
+  </section>
+
+  <section class="card">
+    <h2>Per app</h2>
+    <table class="grid" id="apps"><thead><tr><th>App</th><th>Hearing</th><th>Voice model</th><th>Voice</th><th>Speed</th><th>Speak replies</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section class="card">
+    <h2>History</h2>
+    <ol id="history" class="history"></ol>
+  </section>
+</main>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_mic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

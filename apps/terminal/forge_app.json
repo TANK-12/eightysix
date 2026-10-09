@@ -1,0 +1,14 @@
+{
+  "name": "terminal",
+  "label": "Terminal",
+  "tagline": "Your shell, in tabs, inside Forge",
+  "port": 8459,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#8fd18a",
+  "icon": "⌨️",
+  "role": "terminal",
+  "order": 95,
+  "section": "system",
+  "ready_timeout": 30
+}

@@ -1,0 +1,26 @@
+{
+  "id": "mimas",
+  "name": "Mimas",
+  "kind": "moon",
+  "parent": "saturn",
+  "order": 61,
+  "radius_km": 198.2,
+  "gm_km3_s2": 2.503,
+  "color": "#cac7c2",
+  "summary": "A small icy moon with one enormous crater, Herschel, a third of its own width across.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 186000,
+    "e": 0.02,
+    "i_deg": 1.6,
+    "node_deg": 66.2,
+    "peri_deg": 160.4,
+    "M_deg": 275.3,
+    "period_days": 0.942422,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000",
+    "peri_period_yr": 0.493,
+    "node_period_yr": 0.986
+  }
+}

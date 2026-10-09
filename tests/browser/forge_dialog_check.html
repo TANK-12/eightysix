@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ForgeDialog</title>
+<!-- Run by tests/browser/check_dialog.py in real time. S17 (2026-09-27):
+     Emerson: "in forge there are some popups that stop the background music,
+     like the popup when I click the x next to account in the Claude app".
+     The browser's confirm() freezes the page; ForgeDialog must not. -->
+<link rel="stylesheet" href="/shared/forge.css">
+<script src="/shared/forge_dialog.js"></script></head>
+<body style="background:#0f1115;color:#e7e9ee;font:14px system-ui">
+<p>Forge page behind the dialog.</p>
+<script>
+const out = [];
+const t = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const key = (k) => document.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true }));
+const okBtn = () => document.querySelector(".forge-dialog button.ok");
+let ticks = 0;
+setInterval(() => ticks++, 20);
+addEventListener("load", () => setTimeout(async () => {
+  try {
+    let p = ForgeDialog.confirm("Remove the account \"second\"?");
+    const before = ticks;
+    await wait(400);
+    t("the page keeps running while the dialog is open", ticks - before >= 10, `ticks+${ticks - before}`);
+    t("the dialog shows its text", document.querySelector(".forge-dialog p").textContent.includes("second"));
+    okBtn().click();
+    t("OK answers true", (await p) === true);
+    t("the dialog is gone after answering", !document.querySelector(".forge-dialog-back"));
+    p = ForgeDialog.confirm("again?"); await wait(30); key("Escape");
+    t("Escape answers false", (await p) === false);
+    p = ForgeDialog.prompt("Folder name", "old"); await wait(30);
+    const field = document.querySelector(".forge-dialog input");
+    t("prompt starts with the given value", field.value === "old");
+    field.value = "work"; key("Enter");
+    t("Enter returns the typed text", (await p) === "work");
+    p = ForgeDialog.prompt("Folder name"); await wait(30);
+    document.querySelector(".forge-dialog-back").dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    t("a click outside cancels a prompt with null", (await p) === null);
+    p = ForgeDialog.alert("Saved."); await wait(30);
+    t("alert has one button", document.querySelectorAll(".forge-dialog button").length === 1);
+    okBtn().click();
+    t("alert resolves", (await p) === undefined);
+  } catch (e) {
+    t("dialog harness ran", false, String(e && e.stack || e));
+  }
+  const pre = document.createElement("pre");
+  pre.id = "results";
+  pre.textContent = out.join("\n");
+  document.body.appendChild(pre);
+  // left open for the screenshot
+  ForgeDialog.confirm("Remove the account \"second\"? Its sign-in and its own session files go with it. Conversations on it move to the default account.");
+}, 200));
+</script></body></html>

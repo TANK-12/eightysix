@@ -1,0 +1,23 @@
+{
+  "id": "modular_electricity_poles",
+  "name": "Modular Electricity Poles",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/modular_electricity_poles",
+  "license": "CC0",
+  "authors": [
+    "James Ray Cock"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/modular_electricity_poles/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/modular_electricity_poles/1k/modular_electricity_poles_1k.gltf",
+  "files": [
+    "modular_electricity_poles_1k.gltf",
+    "textures/modular_electricity_poles_pieces_diff_1k.jpg",
+    "modular_electricity_poles.bin",
+    "textures/modular_electricity_poles_pieces_arm_1k.jpg",
+    "textures/modular_electricity_poles_pieces_nor_gl_1k.jpg",
+    "textures/modular_electricity_poles_arm_1k.jpg",
+    "textures/modular_electricity_poles_diff_1k.jpg",
+    "textures/modular_electricity_poles_nor_gl_1k.jpg"
+  ]
+}

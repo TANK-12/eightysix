@@ -1,0 +1,26 @@
+{
+  "id": "tethys",
+  "name": "Tethys",
+  "kind": "moon",
+  "parent": "saturn",
+  "order": 63,
+  "radius_km": 531.1,
+  "gm_km3_s2": 41.21,
+  "color": "#dddbd5",
+  "summary": "Almost pure water ice, split by Ithaca Chasma, a canyon running three-quarters of the way around it.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 295000,
+    "e": 0.001,
+    "i_deg": 1.1,
+    "node_deg": 273.0,
+    "peri_deg": 335.3,
+    "M_deg": 0.0,
+    "period_days": 1.887802,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000",
+    "peri_period_yr": 0.005,
+    "node_period_yr": 4.982
+  }
+}

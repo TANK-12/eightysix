@@ -1,0 +1,45 @@
+{
+  "name": "logins",
+  "label": "Logins",
+  "tagline": "claude.ai, Gemini and Gmail logins together",
+  "port": 8454,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e0a86a",
+  "icon": "🔑",
+  "role": "logins",
+  "fullscreen": "auto",
+  "order": 15,
+  "section": "assistants",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "One tab per web login in shared/accounts.json (two claude.ai accounts, Gemini, two Gmail accounts). Each tab is a real WebKit view with its own cookie store, so every account stays signed in at once. Sign in once in the account's own plain Firefox window (no remote control, so Google accepts it), then Bring login in copies its cookies into Forge.",
+    "features": [
+      {
+        "name": "Tabs per account",
+        "description": "Every entry in shared/accounts.json is a tab; adding an account is one registry entry. Each tab's page is a forge_views WebKit view with session=<account id>, stored in ~/.local/share/forge/accounts/<id>/webkit."
+      },
+      {
+        "name": "Sign in in Firefox",
+        "description": "Opens the account's own Firefox profile as a plain window. Remote control stays off while signing in: Google refuses browsers that report navigator.webdriver."
+      },
+      {
+        "name": "Bring login in",
+        "description": "Reads the account's unexpired Firefox cookies from a temporary copy of its profile and imports them into that tab's own cookie store, then reloads."
+      }
+    ],
+    "data_dir": "~/.local/share/forge/accounts/<id>/ (firefox/ profile for web accounts, webkit/ Forge's cookie store); ~/.cache/forge/accounts/<id> (page cache)",
+    "services": [],
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "websockets",
+        "firefox",
+        "WebKit2GTK 4.1 (for forge.py)"
+      ],
+      "optional": []
+    },
+    "standalone_launch": "cd ~/Forge/apps/logins && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8454"
+  }
+}

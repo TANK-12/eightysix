@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Forge</title>
+<style>
+  /* The hub shell does NOT use shared/forge.css: that file is served over
+     http by each app's backend, and this page is loaded from file:// before
+     any backend is necessarily up. It keeps its own copy of the same tokens
+     -- if you change the palette in shared/forge.css, change it here too. */
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel-2: #1e222b; --border: #2a2f3a;
+    --text: #e7e9ee; --muted: #8b93a3; --accent: #6ea8fe; --accent-2: #4f8cf7;
+    --good: #59d499; --warn: #f2a154; --bad: #f2637d;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 14px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+  #shell { display: flex; height: 100vh; width: 100vw; }
+
+  #sidebar { width: 214px; flex: none; background: var(--panel); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; padding: 14px 10px; gap: 4px; }
+  #sidebar .brand { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; padding: 6px 10px 16px; }
+  #sidebar .brand span { color: var(--accent); }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px;
+    color: var(--muted); cursor: pointer; user-select: none; border: 1px solid transparent; }
+  .nav-item:hover { background: var(--panel-2); color: var(--text); }
+  .nav-item.active { background: var(--panel-2); color: var(--text); border-color: var(--border); }
+  .nav-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none;
+    transition: background .2s; }
+  .nav-item .dot.up { background: var(--good); }
+  .nav-item .dot.starting { background: var(--warn); animation: pulse 1.2s ease-in-out infinite; }
+  .nav-item .dot.failed { background: var(--bad); }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
+  .nav-item .label { flex: 1; min-width: 0; }
+  .nav-item .sub { font-size: 11px; color: var(--muted); display: block; margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #sidebar .spacer { flex: 1; }
+  #sidebar .footnote { font-size: 11px; color: var(--muted); padding: 8px 10px; line-height: 1.5; }
+  .side-btn { display: block; width: 100%; text-align: left; padding: 8px 12px; border-radius: 8px;
+    background: transparent; border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+    font: inherit; font-size: 12px; margin-top: 6px; }
+  .side-btn:hover { background: var(--panel-2); color: var(--text); }
+
+  #main { flex: 1; position: relative; background: var(--bg); }
+  .workspace { position: absolute; inset: 0; display: none; }
+  .workspace.active { display: block; }
+  .workspace iframe { width: 100%; height: 100%; border: none; background: var(--bg); }
+  /* An app can ask for the whole window. Games want it; a text editor never
+     will. Kept generic rather than app-specific: any workspace may ask, and
+     Esc or asking again gives the sidebar back. */
+  body.chromeless #sidebar { display: none; }
+
+  .msg { height: 100%; display: flex; align-items: center; justify-content: center; padding: 40px; }
+  .msg .card { max-width: 470px; text-align: center; }
+  .msg .card .icon { font-size: 40px; margin-bottom: 12px; }
+  .msg .card h2 { margin: 0 0 8px; font-size: 18px; }
+  .msg .card p { color: var(--muted); margin: 0 0 6px; }
+  .msg .card.bad h2 { color: var(--warn); }
+  .msg code { background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+  .msg button { margin-top: 14px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--text); font: inherit; cursor: pointer; }
+  .msg button:hover { border-color: var(--accent); }
+  .spinner { width: 26px; height: 26px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="sidebar">
+    <div class="brand">FORGE<span>.</span></div>
+    <div id="nav"></div>
+    <div class="spacer"></div>
+    <button class="side-btn" id="reload-btn" title="Reload the current workspace">&#8635;&nbsp; Reload workspace</button>
+    <div class="footnote">Ctrl+1..9 switches tools, Ctrl+R reloads one. Closing this window stops every backend.</div>
+  </div>
+  <div id="main"></div>
+</div>
+<script src="status.js" onerror="void 0"></script>
+<script>
+// status.js is written by forge.py at launch and loaded by the script tag
+// above. It CANNOT be fetch()ed instead: this shell runs on file://, whose
+// origin is opaque, so fetching a sibling file is a blocked cross-origin
+// request -- which is exactly why every workspace once fell back to a
+// "not ported yet" placeholder with all three backends running fine.
+//
+// The sidebar is built from that data too, so the tools listed here come from
+// the apps/*/forge_app.json manifests. There is no hardcoded list of tools in
+// this file. Dropping an app into apps/ makes it appear here without a
+// relaunch: forge.py rescans on its liveness poll and pushes the new tool
+// through forgeSetStatus, and syncWorkspaces below adds the row.
+let status = window.FORGE_STATUS || {};
+let order = Object.keys(status);
+let current = null;
+
+const nav = document.getElementById("nav");
+const main = document.getElementById("main");
+
+// One tool's sidebar row and its (empty, lazily mounted) workspace. `at` is
+// the position among the existing rows, so a tool that appears later lands in
+// its manifest "order" rather than on the end.
+function buildOne(key, at) {
+  const info = status[key] || {};
+
+  const item = document.createElement("div");
+  item.className = "nav-item";
+  item.dataset.workspace = key;
+  const dot = document.createElement("span");
+  dot.className = "dot";
+  const label = document.createElement("span");
+  label.className = "label";
+  label.textContent = info.label || key;
+  const sub = document.createElement("span");
+  sub.className = "sub";
+  sub.textContent = info.tagline || "";
+  label.appendChild(sub);
+  item.append(dot, label);
+  item.addEventListener("click", () => selectWorkspace(key));
+  nav.insertBefore(item, nav.children[at] || null);
+
+  const ws = document.createElement("div");
+  ws.className = "workspace";
+  ws.dataset.workspace = key;
+  main.insertBefore(ws, main.children[at] || null);
+}
+
+function buildSidebar() {
+  nav.innerHTML = "";
+  main.innerHTML = "";
+  order.forEach((key, i) => buildOne(key, i));
+}
+
+// A tool can arrive after the window is open: forge.py rescans apps/ on its
+// liveness poll and starts anything new, which is how Foresight -- written
+// while a Forge window was already running -- stopped being invisible until
+// the next restart. Rows are added in place; the workspaces already mounted
+// are left untouched, so nothing reloads and nothing loses its state.
+function syncWorkspaces(next) {
+  Object.keys(next).forEach((key, i) => {
+    if (order.indexOf(key) !== -1) return;
+    order.splice(i, 0, key);
+    // Seed the record BEFORE the row is built: buildOne reads the label and
+    // tagline from it, and a row built from an empty record would be stuck
+    // showing the bare directory name for as long as the window stayed open.
+    status[key] = Object.assign({}, next[key]);
+    buildOne(key, i);
+  });
+}
+
+function el(key) { return main.querySelector(`.workspace[data-workspace="${key}"]`); }
+
+// Apps talk to the shell by postMessage rather than by reaching into it, so an
+// app stays a standalone page that happens to run here. The only thing they can
+// ask for today is the sidebar out of the way.
+// The sidebar can be asked away from two directions: by the app itself, and by
+// F11 on the window (forge.py calls forgeSetFullscreen). Both are tracked
+// separately so that leaving fullscreen does not yank the sidebar back while an
+// app still wants it gone - it returns only when neither side wants it hidden.
+const chromeHidden = { app: false, window: false };
+
+function applyChrome() {
+  document.body.classList.toggle(
+    "chromeless", chromeHidden.app || chromeHidden.window);
+}
+
+window.forgeSetFullscreen = (on) => {
+  chromeHidden.window = !!on;
+  applyChrome();
+};
+
+addEventListener("message", (event) => {
+  const msg = event.data;
+  if (!msg || msg.forge !== "chrome") return;
+  chromeHidden.app = !!msg.hidden;
+  applyChrome();
+});
+
+function card(key, { icon, spinner, title, bad, lines, retry }) {
+  const t = status[key];
+  const body = (lines || []).map(l => `<p>${l}</p>`).join("");
+  return `<div class="msg"><div class="card${bad ? " bad" : ""}">
+    ${spinner ? '<div class="spinner"></div>' : (icon ? `<div class="icon">${icon}</div>` : "")}
+    <h2>${title}</h2>
+    ${body}
+    ${retry ? `<button onclick="remount('${key}')">Try again</button>` : ""}
+  </div></div>`;
+}
+
+// Mount a workspace: an iframe once its backend is up, an explanatory card
+// until then. Workspaces mount lazily -- an unvisited tool never costs a
+// WebKit web process.
+function mountWorkspace(key) {
+  const box = el(key);
+  if (!box) return;
+  const info = status[key] || {};
+  const wanted = info.state || "pending";
+  if (box.dataset.mountedState === wanted) return;
+  box.dataset.mountedState = wanted;
+
+  if (info.available) {
+    box.innerHTML = `<iframe src="${info.url}" allowfullscreen allow="fullscreen"></iframe>`;
+  } else if (wanted === "starting" || wanted === "pending") {
+    box.innerHTML = card(key, {
+      spinner: true,
+      title: `Starting ${info.label || key}…`,
+      lines: ["It will appear here as soon as its backend answers."],
+    });
+  } else if (wanted === "missing") {
+    box.innerHTML = card(key, {
+      icon: "&#9881;&#65039;",
+      title: `${info.label || key} isn't installed here`,
+      lines: ["Forge found no virtualenv or source directory for it, so its backend was skipped at launch."],
+      retry: true,
+    });
+  } else {
+    box.innerHTML = card(key, {
+      bad: true,
+      title: `${info.label || key} didn't start`,
+      lines: [`Forge expected its backend at <code>${info.url}</code> but it isn't responding.`,
+              `Check <code>outputs/${key}.log</code> in the Forge folder.`],
+      retry: true,
+    });
+  }
+}
+
+// Force a rebuild of one workspace: used by the Try-again button and the
+// sidebar reload. A backend that is still down just re-renders its card on
+// the next status push.
+function remount(key) {
+  const box = el(key);
+  if (!box) return;
+  box.dataset.mountedState = "";
+  box.innerHTML = "";
+  mountWorkspace(key);
+}
+window.remount = remount;
+
+function selectWorkspace(key) {
+  current = key;
+  nav.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.workspace === key));
+  main.querySelectorAll(".workspace").forEach(w => w.classList.toggle("active", w.dataset.workspace === key));
+  mountWorkspace(key);
+  try { localStorage.setItem("forge.lastWorkspace", key); } catch (e) {}
+}
+
+// forge.py polls the backend ports natively and calls this. The page can't do
+// it itself: a cross-origin fetch from file:// is blocked, and an <img> probe
+// can't tell a refused connection from a 404.
+function forgeSetStatus(next) {
+  syncWorkspaces(next);
+  for (const key of Object.keys(next)) {
+    const wasAvailable = status[key] && status[key].available;
+    status[key] = Object.assign(status[key] || {}, next[key]);
+    const info = status[key];
+
+    const dot = nav.querySelector(`.nav-item[data-workspace="${key}"] .dot`);
+    if (dot) {
+      dot.className = "dot " + (info.state === "up" ? "up"
+                              : info.state === "starting" || info.state === "pending" ? "starting"
+                              : info.state === "failed" ? "failed" : "");
+      dot.title = `${info.label || key}: ${info.state}`;
+    }
+    // A backend that has just come up replaces its "starting" card with the
+    // real iframe without the user having to do anything.
+    if (info.available !== wasAvailable) mountWorkspace(key);
+  }
+}
+window.forgeSetStatus = forgeSetStatus;
+
+document.getElementById("reload-btn").addEventListener("click", () => {
+  if (current) remount(current);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (!e.ctrlKey || e.altKey || e.metaKey) return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= order.length) { e.preventDefault(); selectWorkspace(order[n - 1]); }
+  else if (e.key === "r" && current) { e.preventDefault(); remount(current); }
+});
+
+buildSidebar();
+let start = order[0];
+try {
+  const last = localStorage.getItem("forge.lastWorkspace");
+  if (last && status[last]) start = last;
+} catch (e) {}
+if (start) selectWorkspace(start);
+forgeSetStatus(status);
+</script>
+</body>
+</html>
+<script>
+// --- test harness, appended for the headless run only ---
+addEventListener("load", () => setTimeout(() => {
+  const out = [];
+  const T = (n, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + n + (extra ? " :: " + extra : ""));
+  const rows = () => [...document.querySelectorAll("#nav .nav-item")].map(n => n.dataset.workspace).join(",");
+
+  T("starts with the two tools it launched with", rows() === "alpha,gamma", rows());
+  const alphaFrameBefore = document.querySelector('.workspace[data-workspace="alpha"]').innerHTML;
+  T("the selected tool mounted an iframe", /iframe/.test(alphaFrameBefore));
+
+  // forge.py's next liveness poll reports a tool that did not exist at launch,
+  // in its manifest "order" position -- between the two.
+  forgeSetStatus({
+    "alpha": {"available": true, "state": "up", "label": "Alpha", "tagline": "first", "url": "http://127.0.0.1:8421"},
+    "beta":  {"available": false, "state": "starting", "label": "Beta", "tagline": "added after launch", "url": "http://127.0.0.1:8438"},
+    "gamma": {"available": true, "state": "up", "label": "Gamma", "tagline": "third", "url": "http://127.0.0.1:8422"}
+  });
+
+  T("the new tool appears without a relaunch", rows() === "alpha,beta,gamma", rows());
+  const beta = document.querySelector('#nav .nav-item[data-workspace="beta"]');
+  T("it carries its label, not its directory name",
+    beta && beta.querySelector(".label").firstChild.textContent === "Beta",
+    beta && beta.querySelector(".label").firstChild.textContent);
+  T("it carries its tagline",
+    beta && beta.querySelector(".sub").textContent === "added after launch");
+  T("its dot shows it is still starting",
+    beta && beta.querySelector(".dot").className === "dot starting",
+    beta && beta.querySelector(".dot").className);
+  T("a workspace box was made for it",
+    !!document.querySelector('.workspace[data-workspace="beta"]'));
+  T("the running tool was NOT remounted",
+    document.querySelector('.workspace[data-workspace="alpha"]').innerHTML === alphaFrameBefore);
+  T("the tool that was open stays open",
+    document.querySelector('.workspace[data-workspace="alpha"]').classList.contains("active"));
+
+  // And once its backend answers, its workspace mounts the real thing.
+  forgeSetStatus({"beta": {"available": true, "state": "up", "label": "Beta", "tagline": "added after launch", "url": "http://127.0.0.1:8438"}});
+  document.querySelector('#nav .nav-item[data-workspace="beta"]').click();
+  T("clicking the new tool mounts its iframe",
+    /iframe/.test(document.querySelector('.workspace[data-workspace="beta"]').innerHTML),
+    document.querySelector('.workspace[data-workspace="beta"]').innerHTML.slice(0, 60));
+
+  // A second poll carrying the same three must not duplicate anything.
+  forgeSetStatus({"alpha": {}, "beta": {}, "gamma": {}});
+  T("repeated polls do not duplicate rows", rows() === "alpha,beta,gamma", rows());
+
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  document.body.innerHTML = "<pre id='results'>RESULTS\n" + esc(out.join("\n")) + "\n</pre>";
+}, 50));
+</script>

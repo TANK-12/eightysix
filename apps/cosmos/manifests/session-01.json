@@ -1,0 +1,47 @@
+{
+  "session": 1,
+  "date": "2026-09-15",
+  "the_ask": "The user asked for 'a cool astronomy and galaxy and solar system map and gravity game', a music visualizer, and to use lots of effort. In two rounds of questions they chose: a new Forge app; all four gravity modes (sandbox, orbit puzzles, spaceflight, arcade shooter) plus a Kerbal-style sim in 3D; a realistic galaxy star map, on AN3 if too big (HYG now, Gaia later); real data with enlarged sizes and a true-scale toggle; the visualizer both in this app and as PulseForge scenes; a multi-session project; and map plus sandbox first.",
+  "built": [
+    "New Forge app apps/cosmos (port 8446): web_app.py, forge_app.json with a manifest block, .venv with the same package versions as the Wallpapers app (48 MB), pyrightconfig.json, package.json (only so Node treats static/core as ES modules for tests).",
+    "static/core: units, vec, ephemeris (Standish and Kepler models, planet-equator frames for moons, Earth-Moon barycentre correction), nbody (2D leapfrog, massless particles, merging, prediction, scenario load/save, disc generators), galaxy (galactic frame and Milky Way model), color (B-V to RGB), constellations (88 with genitives, star name formatting).",
+    "data/bodies: 35 JSON files, one per body: Sun, 8 planets, Pluto, Ceres, Haumea, Makemake, Eris, 21 moons. Sources: JPL approximate elements, JPL SBDB (fetched this session), JPL satellite mean elements, IAU poles.",
+    "tools/build_star_catalog.py: downloads HYG v4.4 and packs 109,389 stars (3,390 named) into a 2.6 MB binary plus a 0.47 MB names file on AN3, copied to ~/.cache/forge/cosmos.",
+    "Map mode (Three.js 0.186 saved in static/vendor): floating-origin rendering from moon scale to galaxy scale, procedural planet surfaces, rings, pole tilts, orbit lines that fade by on-screen size, a star shader computing apparent magnitude from the camera's position, the galaxy model with a face-on glow, overlap-free labels, click and double-click, search over bodies and named stars, a time control, a details panel, jump buttons, a help overlay.",
+    "Sandbox mode (Canvas 2D): six tools, drag-to-throw scaled to local orbital speed, circular-orbit help, path preview, dust spray, move/pin/follow/delete, bound-orbit readout, merge flashes, trails, energy drift and momentum readouts, presets and Save.",
+    "Six presets written to ~/ForgeGameData/cosmos/scenarios: sun-earth-moon, binary-star, figure-eight, toy-solar-system, galaxy-collision, black-hole."
+  ],
+  "verified": [
+    "node --test tests/js: 21 pass. Planet positions for 2026-09-15 are within 0.5 degrees and 1% distance of JPL Horizons vectors, fetched this session and frozen in tests/js/horizons-2026-09-15.json. The Moon is at a real lunar distance, Uranus's moons orbit on their side, Triton orbits retrograde. A two-body orbit holds energy to 1e-6 over 10,000 steps. Kepler's third law holds to 0.1%. Merges conserve momentum. The figure-eight returns to its start after one period. The galactic centre and pole match their real RA/Dec within 0.05 degrees.",
+    "pytest: 20 pass. Covers mode and body discovery, catalog fallback from AN3 to cache to none, the binary layout and ecliptic rotation, refusing to write to an unmounted AN3, scenario save/list/load, no overwrite, validation, and ids that cannot escape the folder.",
+    "black and pyright (--pythonpath ./.venv/bin/python) on every Python file: 0 errors.",
+    "node --check on every JS file.",
+    "The real catalog build ran against AN3: 109,389 stars written.",
+    "Headless Firefox screenshots (pulseforge/tools/shot.py) of the menu, the map at solar-system, Earth, nearby-star and galaxy zoom, the sandbox, the galaxy collision and the toy solar system all rendered correctly after the fixes below.",
+    "The toy-solar-system preset run headless for 40,000 steps: the Moon survives."
+  ],
+  "fixed_after_looking": [
+    "Body labels drew a second coloured dot beside each planet; removed.",
+    "The galaxy model looked like concentric rings with a saturated white spur; arms widened and weighted, spur thinned, glow and point alpha lowered, and the catalog-star brightness floor at galaxy scale cut from 0.3 to 0.04.",
+    "The toy solar system's Moon started at about half of Earth's Hill radius and crashed; Earth's mass was raised so the Moon sits at 0.37 Hill radii. The preset was changed, not the physics.",
+    "A preset said 'press F' to follow, but F is full screen; it now says C."
+  ],
+  "not_verified": [
+    "Cosmos inside the running Forge window (WebKitGTK). Forge was not restarted because other sessions share it; the tile appears on the next Forge launch.",
+    "Mouse interaction end to end: drag, scroll, click-select, double-click fly, search and throwing bodies. The code paths ran (screenshots used button clicks), but no real pointer gestures were replayed.",
+    "Real full screen (F11 and the f key) inside Forge.",
+    "Frame rate on the laptop's integrated GPU with 109,389 stars plus 70,000 galaxy points."
+  ],
+  "known_limits": [
+    "Planet elements are good 1800-2050; the date is clamped to 1600-2400 and a warning shows outside the good window.",
+    "Moon frames use each planet's equator in place of JPL's Laplace planes, so far moons such as Iapetus are slightly mis-tilted.",
+    "The sandbox is 2D; the flight sim will have its own 3D engine.",
+    "The galaxy is a model. The frame (centre direction, pole, Sun distance) is real; the arm shapes are drawn."
+  ],
+  "files_outside_the_app": [
+    "~/ForgeGameData/cosmos/scenarios/*.json (6 presets)",
+    "/run/media/ejb/AN3/Cosmos/stars/ (13.6 MB source, 3.1 MB built)",
+    "~/.cache/forge/cosmos/ (3.1 MB copy)",
+    "~/Forge/PROGRESS.json session_35_work and ~/Forge/docs/archive/MANIFEST-to-2026-09-24.md session 35 entry; pre-edit copies in ~/Forge/backups/2026-09-15-session35/"
+  ]
+}

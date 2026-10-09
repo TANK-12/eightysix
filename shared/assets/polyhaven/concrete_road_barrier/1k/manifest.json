@@ -1,0 +1,20 @@
+{
+  "id": "concrete_road_barrier",
+  "name": "Concrete Road Barrier",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/concrete_road_barrier",
+  "license": "CC0",
+  "authors": [
+    "Amal Kumar"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/concrete_road_barrier/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/concrete_road_barrier/1k/concrete_road_barrier_1k.gltf",
+  "files": [
+    "concrete_road_barrier_1k.gltf",
+    "textures/concrete_road_barrier_nor_gl_1k.jpg",
+    "textures/concrete_road_barrier_arm_1k.jpg",
+    "textures/concrete_road_barrier_diff_1k.jpg",
+    "concrete_road_barrier.bin"
+  ]
+}

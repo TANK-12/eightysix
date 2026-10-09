@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Power</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #7fd08a; --accent-2: #5fb86c; --on-accent: #08200d; }
+
+  body { max-width: 980px; margin: 0 auto; padding: 20px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 20px; margin: 0; flex: 1; }
+  section { margin-bottom: 18px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  .head-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .head-row h2 { flex: 1; margin: 0; }
+
+  .slider-card { padding: 18px 20px; }
+  #mode-slider { width: 100%; accent-color: var(--accent); height: 28px; cursor: pointer; }
+  .stops { display: flex; justify-content: space-between; margin-top: 4px; }
+  .stop { background: none; border: 0; color: var(--muted); font-size: 14px; cursor: pointer; padding: 4px 2px; }
+  .stop.on { color: var(--text); font-weight: 600; }
+  #mode-desc { margin: 12px 0 0; min-height: 40px; }
+  #mode-state { font-size: 13px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  kbd { border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; font-size: 11px; background: var(--panel-2); }
+  .busy #mode-slider { opacity: 0.5; pointer-events: none; }
+
+  .fps-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  #fps-slider, #bat-fps-slider { flex: 1 1 240px; accent-color: var(--accent); height: 28px; cursor: pointer; }
+  #fps-num, #bat-fps-num { width: 70px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; }
+  .fps-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  /* the cap that applies right now, plugged in or on battery */
+  #fps-desc.now::before, #bat-fps-desc.now::before { content: "In use now · "; color: var(--accent); font-weight: 600; }
+
+  .auto-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .auto-row label { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+  .auto-row select { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; }
+  .auto-row select:disabled { opacity: 0.5; }
+  #auto-note { font-size: 13px; margin-top: 8px; }
+
+  .readings { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .reading { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .reading .k { color: var(--muted); font-size: 12px; }
+  .reading .v { font-size: 17px; margin-top: 2px; }
+
+  .viz-root {
+    --viz-line: #3987e5;
+    --viz-surface: var(--panel);
+    --viz-grid: #2c2c2a;
+    --viz-axis: #383835;
+    position: relative;
+  }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .chart { background: var(--viz-surface); outline: none; }
+  .chart:focus-visible { box-shadow: 0 0 0 2px var(--accent); border-radius: 6px; }
+  .chart h3 { font-size: 13px; font-weight: 600; color: var(--text); margin: 0 0 4px; }
+  .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart .grid { stroke: var(--viz-grid); stroke-width: 1; }
+  .chart .base { stroke: var(--viz-axis); stroke-width: 1; }
+  .chart .tick { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+  .chart .series { fill: none; stroke: var(--viz-line); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .end { fill: var(--viz-line); stroke: var(--viz-surface); stroke-width: 2; }
+  .chart .end-label { fill: var(--text); font-size: 11px; font-weight: 600; }
+  .chart .cross { stroke: var(--muted); stroke-width: 1; }
+  .chart .hit { fill: transparent; cursor: crosshair; }
+  .chart .empty { fill: var(--muted); font-size: 12px; }
+  .viz-tip {
+    position: absolute; pointer-events: none; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; font-size: 12px; min-width: 150px; z-index: 5;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+  .viz-tip .when { color: var(--muted); margin-bottom: 4px; }
+  .viz-tip .row { display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+  .viz-tip .key { width: 12px; height: 2px; background: var(--viz-line); border-radius: 1px; flex: none; }
+  .viz-tip strong { color: var(--text); font-variant-numeric: tabular-nums; }
+  .viz-tip .name { color: var(--muted); }
+  details.table-view { margin-top: 12px; font-size: 13px; }
+  details.table-view summary { cursor: pointer; color: var(--muted); }
+  details.table-view .scroll { max-height: 240px; overflow-y: auto; margin-top: 8px; }
+
+  .switch-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .switch-row:first-of-type { border-top: 0; }
+  .switch-row .name { flex: 1; }
+  .switch { position: relative; width: 44px; height: 24px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; transition: background 0.15s; cursor: pointer; }
+  .switch span::before { content: ""; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; border-radius: 50%; background: var(--muted); transition: transform 0.15s; }
+  .switch input:checked + span { background: var(--accent-2); }
+  .switch input:checked + span::before { transform: translateX(20px); background: var(--on-accent); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 8px; }
+  td { padding: 6px 8px; border-top: 1px solid var(--border); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .warn-note { color: var(--warn); }
+  .result-bad { color: var(--bad); }
+
+  .priority-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .priority-cols h3 { font-size: 13px; margin: 0 0 8px; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 13px; }
+  .tag button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
+  .tag button:hover { color: var(--bad); }
+  .tag-add { display: flex; gap: 8px; margin-top: 8px; }
+  .tag-add input { flex: 1; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; }
+  .preset-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 16px 0 8px; }
+  .preset-head h3 { font-size: 13px; margin: 0; }
+  .preset { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .preset .muted { font-size: 12px; }
+  .preset code { font-size: 11px; }
+  td.num.priority-add { text-align: right; white-space: nowrap; }
+  td.num.priority-add button { background: none; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); cursor: pointer; font-size: 11px; padding: 2px 6px; margin-left: 4px; }
+  td.num.priority-add button:hover { color: var(--text); }
+
+  /* The server went away: a calm strip, cleared when it answers again. */
+  #down-note { margin: 0 0 16px; padding: 10px 14px; border: 1px solid var(--border); border-left: 3px solid var(--warn, #e0b45f); border-radius: 8px; background: var(--panel); font-size: 13px; color: var(--muted); transition: opacity 0.2s; }
+  #down-note.hidden { display: none; }
+  .stops .stop:disabled { cursor: progress; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Power</h1>
+  <button id="go-fullscreen" class="btn">Fullscreen</button>
+</header>
+
+<div id="down-note" class="hidden" role="status">The Power server is not answering. The page will pick up again by itself when it is back.</div>
+
+<section class="card slider-card" id="mode-card">
+  <h2>Mode</h2>
+  <input type="range" id="mode-slider" min="0" max="0" step="1" value="0" aria-label="Power mode">
+  <div class="stops" id="stops"></div>
+  <p id="mode-desc" class="muted"></p>
+  <div id="mode-state" class="muted"></div>
+  <div class="hint"><kbd>Super</kbd> + <kbd>Alt</kbd> + <kbd>P</kbd> steps through the modes from anywhere.</div>
+</section>
+
+<section class="card slider-card" id="fps-card">
+  <h2>Frame rate</h2>
+  <div class="fps-row">
+    <input type="range" id="fps-slider" min="1" max="60" step="1" value="60" aria-label="Frame rate cap">
+    <input type="number" id="fps-num" min="1" max="60" step="1" value="60" aria-label="Frame rate cap, frames a second">
+    <span class="muted">frames a second</span>
+  </div>
+  <div class="fps-presets">
+    <button type="button" class="btn" data-fps="1">1</button>
+    <button type="button" class="btn" data-fps="15">15</button>
+    <button type="button" class="btn" data-fps="30">30</button>
+    <button type="button" class="btn" data-fps="60">60, no cap</button>
+  </div>
+  <p id="fps-desc" class="muted"></p>
+  <div class="fps-row">
+    <span>On battery</span>
+    <input type="range" id="bat-fps-slider" min="1" max="60" step="1" value="30" aria-label="Frame rate cap on battery">
+    <input type="number" id="bat-fps-num" min="1" max="60" step="1" value="30" aria-label="Frame rate cap on battery, frames a second">
+    <span class="muted">frames a second</span>
+  </div>
+  <p id="bat-fps-desc" class="muted"></p>
+  <div class="hint">Caps Forge's own drawing: the particles (in Forge and on the desktop), the visualiser and the games. Fewer frames means the graphics chip wakes less often, which saves battery. It can't cap other programs: GNOME has no whole-screen frame cap, so for the whole screen use a lower refresh rate in the Mode above. Settings &gt; Speed and detail has these two sliders as well, next to the Browser's video and scrolling and the particles on battery.</div>
+</section>
+
+<section class="card">
+  <h2>Switch automatically</h2>
+  <div class="auto-row">
+    <label><input type="checkbox" id="auto-enabled"> When the charger is plugged in or pulled out</label>
+    <label>On battery <select id="auto-battery"></select></label>
+    <label>On charger <select id="auto-ac"></select></label>
+  </div>
+  <div id="auto-note" class="muted"></div>
+</section>
+
+<section class="card">
+  <div class="head-row">
+    <h2>Right now</h2>
+    <button class="btn" id="measure">Measure CPU watts</button>
+  </div>
+  <div class="readings" id="readings"></div>
+</section>
+
+<section class="card">
+  <div class="head-row">
+    <h2>Last 10 minutes</h2>
+    <span class="muted" style="font-size:12px">A reading every 5 seconds while Forge is open</span>
+  </div>
+  <div class="viz-root" id="viz">
+    <div class="charts" id="charts"></div>
+    <div class="viz-tip hidden" id="viz-tip" role="status"></div>
+  </div>
+  <details class="table-view">
+    <summary>Show readings as a table</summary>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Time</th><th>Mode</th><th class="num">Temperature</th><th class="num">Laptop draw</th><th class="num">CPU speed</th></tr></thead>
+        <tbody id="history-rows"></tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="card">
+  <h2>Starts at login</h2>
+  <p class="muted" style="margin-top:0">Switching one off stops it opening at your next login. Nothing running is closed and nothing is uninstalled.</p>
+  <div id="autostart"></div>
+</section>
+
+<section class="card">
+  <div class="head-row">
+    <h2>Using the most CPU</h2>
+    <button class="btn" id="refresh-procs">Refresh</button>
+  </div>
+  <table>
+    <thead><tr><th>Process</th><th class="num">CPU %</th><th class="num">Memory</th><th class="num">Mark as</th></tr></thead>
+    <tbody id="procs"></tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Background tasks</h2>
+  <p class="muted" style="margin-top:0">Processes matching Background get a lower CPU and disk priority so foreground work wins under contention. Protected processes are never touched, even if they'd otherwise match. Applied continuously by <code>forge-power-priority.service</code>, a user service that needs no password.</p>
+  <div class="auto-row" style="margin-bottom:14px">
+    <label>How much lower <input type="range" id="priority-nice" min="1" max="19" step="1"> <span id="priority-nice-val" class="muted"></span></label>
+  </div>
+  <div class="priority-cols">
+    <div>
+      <h3>Background</h3>
+      <div class="tag-list" id="priority-background"></div>
+      <div class="tag-add"><input type="text" id="priority-bg-input" placeholder="process name…"><button class="btn" id="priority-bg-add">Add</button></div>
+    </div>
+    <div>
+      <h3>Protected</h3>
+      <div class="tag-list" id="priority-protected"></div>
+      <div class="tag-add"><input type="text" id="priority-pr-input" placeholder="process name…"><button class="btn" id="priority-pr-add">Add</button></div>
+    </div>
+  </div>
+  <div id="priority-presets"></div>
+  <div id="priority-note" class="muted" style="margin-top:10px"></div>
+</section>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script>
+let MODES = [];
+let current = null;
+let lastWatts = null;
+let POINTS = [];
+let hoverIndex = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (v, unit = "") => (v === null || v === undefined ? "–" : `${v}${unit}`);
+const clock = (t) => new Date(t * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+async function getJSON(url, opts) {
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(await errText(res, `${url} failed`));
+  return res.json();
+}
+
+/* ---------------- Frame rate (B39) ---------------- */
+
+// Two caps: plugged in (max_fps) and on battery (battery_fps, #199); the hub
+// picks the one that applies and passes it on to every open app.
+const FPS = { max_fps: "fps", battery_fps: "bat-fps" };
+
+function showFps(key, v) {
+  const id = FPS[key];
+  $(`${id}-slider`).value = v;
+  $(`${id}-num`).value = v;
+  $(`${id}-desc`).textContent = key === "battery_fps"
+    ? (v >= 60 ? "On battery Forge draws just as it does plugged in."
+      : `On battery Forge draws at most ${v} frames a second, or the cap above if that is lower.`)
+    : v >= 60 ? "No cap: Forge draws at the screen's own rate."
+    : v <= 5 ? `${v} frame${v === 1 ? "" : "s"} a second: effects barely move, the lowest drain.`
+    : `Forge draws at most ${v} frames a second.`;
+}
+
+// Settings > Speed and detail changes the same two settings, so the poll and
+// the hub's theme message re-read them; a slider being dragged or a box being
+// typed in, or a save still on its way, is left alone.
+let fpsDragging = null;
+async function loadFps() {
+  const r = await getJSON("/api/fps");
+  Object.keys(FPS).forEach((key) => {
+    const id = FPS[key];
+    const busy = fpsTimers[key] || fpsDragging === id || document.activeElement === $(`${id}-num`);
+    if (!busy) showFps(key, r[key]);
+  });
+}
+
+// Plugged in or on battery (null until known): marks the cap that applies.
+let onAc = null;
+function markFpsNow() {
+  $("fps-desc").classList.toggle("now", onAc === true);
+  $("bat-fps-desc").classList.toggle("now", onAc === false);
+}
+
+const fpsTimers = {};
+function saveFps(key, v) {
+  v = Math.max(1, Math.min(60, Math.round(Number(v)) || 60));
+  showFps(key, v);
+  clearTimeout(fpsTimers[key]);
+  fpsTimers[key] = setTimeout(async () => {
+    try {
+      const r = await getJSON("/api/fps", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [key]: v }),
+      });
+      // The hub applies it and passes it on to every open app.
+      if (window.parent !== window) window.parent.postMessage({ forge: "theme", theme: r.theme }, "*");
+    } catch (e) { toast(e.message, "err"); }
+    fpsTimers[key] = 0;
+  }, 250);
+}
+
+Object.entries(FPS).forEach(([key, id]) => {
+  $(`${id}-slider`).addEventListener("input", () => saveFps(key, $(`${id}-slider`).value));
+  $(`${id}-num`).addEventListener("change", () => saveFps(key, $(`${id}-num`).value));
+  $(`${id}-slider`).addEventListener("pointerdown", () => { fpsDragging = id; });
+});
+addEventListener("pointerup", () => { fpsDragging = null; modeDragging = false; });
+
+// The hub passes on every new theme (Settings changed a cap) and says when
+// the charger is plugged in or pulled out.
+addEventListener("message", (event) => {
+  const msg = event.data;
+  if (event.source !== window.parent || window.parent === window || !msg || msg.forge !== "theme") return;
+  if (msg.theme && typeof msg.theme.on_battery === "boolean") { onAc = !msg.theme.on_battery; markFpsNow(); }
+  loadFps().catch(() => {});
+});
+document.querySelectorAll("[data-fps]").forEach((b) => b.addEventListener("click", () => saveFps("max_fps", b.dataset.fps)));
+
+/* ---------------- Modes ---------------- */
+
+function showMode(index) {
+  const m = MODES[index];
+  if (!m) return;
+  $("mode-desc").textContent = m.description || "";
+  document.querySelectorAll(".stop").forEach((b, i) => b.classList.toggle("on", i === index));
+}
+
+function modeOptions(select, selected) {
+  select.innerHTML = MODES.map((m) => `<option value="${esc(m.name)}" ${m.name === selected ? "selected" : ""}>${esc(m.label)}</option>`).join("");
+}
+
+async function loadModes() {
+  const data = await getJSON("/api/modes");
+  MODES = data.modes;
+  current = data.current;
+  const slider = $("mode-slider");
+  slider.max = String(Math.max(0, MODES.length - 1));
+  $("stops").innerHTML = MODES.map((m, i) => `<button class="stop" data-i="${i}">${esc(m.label)}</button>`).join("");
+  document.querySelectorAll(".stop").forEach((b) => b.addEventListener("click", () => {
+    if ($("mode-card").classList.contains("busy")) return;
+    slider.value = b.dataset.i;
+    applyMode(Number(b.dataset.i));
+  }));
+  const at = MODES.findIndex((m) => m.name === current);
+  slider.value = String(at >= 0 ? at : Math.max(0, MODES.findIndex((m) => m.name === "auto")));
+  showMode(Number(slider.value));
+  $("mode-state").innerHTML = !data.helper_installed
+    ? `<span class="warn-note">The power helper is not installed, so modes can't be applied yet. Run: sudo bash ~/Forge/apps/power/helper/install.sh</span>`
+    : at >= 0 ? `Active: ${esc(MODES[at].label)}` : "No mode applied from here yet";
+}
+
+// The mode can change without this page: the watcher on plugging in or
+// unplugging (auto-switch), Super+Alt+P, or a second window. The poll moves
+// the slider to it, unless it is being dragged or a mode is being applied.
+let modeDragging = false;
+async function syncMode() {
+  if (!MODES.length || modeDragging || $("mode-card").classList.contains("busy")) return;
+  const data = await getJSON("/api/modes");
+  if (data.current === current || $("mode-card").classList.contains("busy")) return;
+  const at = MODES.findIndex((m) => m.name === data.current);
+  if (at < 0) return;
+  current = data.current;
+  $("mode-slider").value = String(at);
+  showMode(at);
+  $("mode-state").textContent = `Active: ${MODES[at].label}`;
+}
+
+async function applyMode(index) {
+  if ($("mode-card").classList.contains("busy")) return;
+  const m = MODES[index];
+  if (!m) return;
+  showMode(index);
+  $("mode-card").classList.add("busy");
+  // nothing else can pick a mode until this one has been applied
+  const locks = [$("mode-slider"), ...document.querySelectorAll(".stop")];
+  locks.forEach((el) => { el.disabled = true; });
+  $("mode-state").textContent = `Applying ${m.label}…`;
+  try {
+    const data = await getJSON(`/api/modes/${encodeURIComponent(m.name)}`, { method: "POST" });
+    current = m.name;
+    const failed = (data.results || []).filter((r) => !r.ok);
+    const screen = data.display ? ` · screen: ${esc(data.display)}` : "";
+    $("mode-state").innerHTML = failed.length
+      ? `Active: ${esc(m.label)}${screen} — <span class="result-bad">${failed.length} setting(s) could not be applied: ${failed.map((r) => esc(`${r.setting} (${r.error})`)).join("; ")}</span>`
+      : `Active: ${esc(m.label)}${screen}`;
+    toast(failed.length ? `${m.label} applied with ${failed.length} problem(s)` : `${m.label} mode on`, failed.length ? "err" : "ok");
+    setTimeout(loadStatus, 1500);
+  } catch (e) {
+    $("mode-state").innerHTML = `<span class="result-bad">${esc(e.message)}</span>`;
+    toast(e.message, "err");
+    const back = MODES.findIndex((x) => x.name === current);
+    if (back >= 0) { $("mode-slider").value = String(back); showMode(back); }
+  } finally {
+    $("mode-card").classList.remove("busy");
+    locks.forEach((el) => { el.disabled = false; });
+  }
+}
+
+/* ---------------- Auto-switch ---------------- */
+
+function renderAuto(cfg) {
+  $("auto-enabled").checked = cfg.enabled;
+  modeOptions($("auto-battery"), cfg.battery);
+  modeOptions($("auto-ac"), cfg.ac);
+  $("auto-battery").disabled = $("auto-ac").disabled = !cfg.enabled;
+  $("auto-note").innerHTML = cfg.watcher === "active"
+    ? (cfg.enabled ? "On. The background watcher switches mode within 5 seconds of plugging in or unplugging, even with Forge closed." : "Off. Moving the slider is the only way the mode changes.")
+    : `<span class="warn-note">The background watcher isn't running (${esc(cfg.watcher)}), so nothing will switch automatically. Start it with: systemctl --user enable --now forge-power-watch.service</span>`;
+}
+
+async function loadAuto() {
+  renderAuto(await getJSON("/api/autoswitch"));
+}
+
+async function saveAuto() {
+  try {
+    const cfg = await getJSON("/api/autoswitch", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: $("auto-enabled").checked, battery: $("auto-battery").value, ac: $("auto-ac").value }),
+    });
+    renderAuto(cfg);
+    toast(cfg.enabled ? "Auto-switch on" : "Auto-switch off", "ok");
+    setTimeout(() => { loadModes(); loadStatus(); }, 6000);
+  } catch (e) {
+    toast(e.message, "err");
+    loadAuto();
+  }
+}
+
+/* ---------------- Readings ---------------- */
+
+async function loadStatus() {
+  try {
+    const s = await getJSON("/api/status");
+    const b = s.battery || {};
+    onAc = typeof s.on_ac === "boolean" ? s.on_ac : null;
+    markFpsNow();
+    const rows = [
+      ["Governor", s.governor],
+      ["Energy preference", s.epp],
+      ["Turbo", s.turbo === null ? null : s.turbo ? "on" : "off"],
+      ["Frequency cap", fmt(s.freq_cap_mhz, " MHz")],
+      ["Average CPU speed", fmt(s.avg_mhz, " MHz")],
+      ["Firmware profile", s.platform_profile],
+      ["Sustained limit", fmt(s.sustained_watts, " W")],
+      ["Burst limit", fmt(s.burst_watts, " W")],
+      ["CPU temperature", fmt(s.temp_c, " °C")],
+      ["Fan", fmt(s.fan_rpm, " rpm")],
+      ["Battery", b.percent === undefined ? null : `${fmt(b.percent, "%")} ${b.state ? "· " + b.state.toLowerCase() : ""}`],
+      ["Laptop draw", s.on_ac ? "on charger" : fmt(b.draw_watts, " W")],
+      ["CPU watts", lastWatts === null ? "press Measure" : `${lastWatts} W`],
+      ["PCIe link power", s.aspm],
+    ];
+    $("readings").innerHTML = rows.map(([k, v]) => `<div class="reading"><div class="k">${esc(k)}</div><div class="v">${esc(fmt(v))}</div></div>`).join("");
+    serverDown(false);
+    return true;
+  } catch (e) {
+    // fetch itself failing (a TypeError) means the server is away: say so
+    // once at the top and keep the last readings; anything else is shown here
+    if (e instanceof TypeError) serverDown(true);
+    else $("readings").innerHTML = `<span class="result-bad">${esc(e.message)}</span>`;
+    return false;
+  }
+}
+
+function serverDown(down) {
+  $("down-note").classList.toggle("hidden", !down);
+}
+
+/* ---------------- Charts: three small multiples, one shared crosshair ---------------- */
+
+const CHARTS = [
+  { key: "temp_c", title: "CPU temperature", unit: " °C", step: 5 },
+  { key: "draw_watts", title: "Laptop draw on battery", unit: " W", step: 5 },
+  { key: "avg_mhz", title: "Average CPU speed", unit: " MHz", step: 500 },
+];
+const VW = 300, VH = 130, PL = 40, PR = 44, PT = 10, PB = 20;
+const PW = VW - PL - PR, PH = VH - PT - PB;
+const SVGNS = "http://www.w3.org/2000/svg";
+
+function svgEl(tag, attrs, parent) {
+  const el = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+
+function xAt(i, n) { return PL + (n <= 1 ? PW : (i / (n - 1)) * PW); }
+
+function buildChart(spec) {
+  const wrap = document.createElement("div");
+  wrap.className = "chart";
+  wrap.tabIndex = 0;
+  wrap.setAttribute("role", "img");
+  const h = document.createElement("h3");
+  h.textContent = spec.title;
+  wrap.appendChild(h);
+  const svg = svgEl("svg", { viewBox: `0 0 ${VW} ${VH}` }, wrap);
+  const values = POINTS.map((p) => p[spec.key]);
+  const known = values.filter((v) => v !== null && v !== undefined);
+  const n = POINTS.length;
+
+  if (known.length < 2) {
+    svgEl("text", { x: PL, y: PT + PH / 2, class: "empty" }, svg).textContent =
+      spec.key === "draw_watts" && n > 1 ? "Only measured on battery" : "Collecting readings…";
+    wrap.setAttribute("aria-label", `${spec.title}: not enough readings yet`);
+    return wrap;
+  }
+
+  let lo = Math.floor(Math.min(...known) / spec.step) * spec.step;
+  let hi = Math.ceil(Math.max(...known) / spec.step) * spec.step;
+  if (hi === lo) hi = lo + spec.step;
+  const yAt = (v) => PT + PH - ((v - lo) / (hi - lo)) * PH;
+
+  [lo, (lo + hi) / 2, hi].forEach((tick, i) => {
+    const y = yAt(tick);
+    svgEl("line", { x1: PL, x2: PL + PW, y1: y, y2: y, class: i === 0 ? "base" : "grid" }, svg);
+    svgEl("text", { x: PL - 6, y: y + 3, "text-anchor": "end", class: "tick" }, svg).textContent = Math.round(tick).toLocaleString();
+  });
+  svgEl("text", { x: PL, y: VH - 4, class: "tick" }, svg).textContent = clock(POINTS[0].t);
+  svgEl("text", { x: PL + PW, y: VH - 4, "text-anchor": "end", class: "tick" }, svg).textContent = "now";
+
+  let d = "";
+  let pen = false;
+  values.forEach((v, i) => {
+    if (v === null || v === undefined) { pen = false; return; }
+    d += `${pen ? "L" : "M"}${xAt(i, n).toFixed(1)},${yAt(v).toFixed(1)}`;
+    pen = true;
+  });
+  svgEl("path", { d, class: "series" }, svg);
+
+  const lastIdx = values.map((v) => v !== null && v !== undefined).lastIndexOf(true);
+  const lastVal = values[lastIdx];
+  const ex = xAt(lastIdx, n), ey = yAt(lastVal);
+  svgEl("circle", { cx: ex, cy: ey, r: 4, class: "end" }, svg);
+  svgEl("text", { x: ex + 8, y: ey + 4, class: "end-label" }, svg).textContent = `${lastVal}${spec.unit.trim() === "°C" ? "°" : ""}`;
+  wrap.setAttribute("aria-label", `${spec.title}, latest ${lastVal}${spec.unit}. Use arrow keys to read earlier values.`);
+
+  const cross = svgEl("line", { x1: 0, x2: 0, y1: PT, y2: PT + PH, class: "cross", visibility: "hidden" }, svg);
+  cross.dataset.cross = "1";
+  const hit = svgEl("rect", { x: PL, y: 0, width: PW, height: VH, class: "hit" }, svg);
+  hit.addEventListener("pointermove", (ev) => {
+    const box = svg.getBoundingClientRect();
+    const vx = ((ev.clientX - box.left) / box.width) * VW;
+    setHover(Math.round(((vx - PL) / PW) * (n - 1)), ev.clientX, ev.clientY);
+  });
+  hit.addEventListener("pointerleave", () => setHover(null));
+  wrap.addEventListener("keydown", (ev) => {
+    if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+    ev.preventDefault();
+    const next = hoverIndex === null ? n - 1 : hoverIndex + (ev.key === "ArrowLeft" ? -1 : 1);
+    const box = wrap.getBoundingClientRect();
+    setHover(next, box.left + (xAt(Math.max(0, Math.min(n - 1, next)), n) / VW) * box.width, box.top + 40);
+  });
+  wrap.addEventListener("blur", () => setHover(null));
+  return wrap;
+}
+
+function setHover(index, clientX, clientY) {
+  const tip = $("viz-tip");
+  const n = POINTS.length;
+  if (index === null || n < 2) {
+    hoverIndex = null;
+    tip.classList.add("hidden");
+    document.querySelectorAll("[data-cross]").forEach((c) => c.setAttribute("visibility", "hidden"));
+    return;
+  }
+  hoverIndex = Math.max(0, Math.min(n - 1, index));
+  const x = xAt(hoverIndex, n);
+  document.querySelectorAll("[data-cross]").forEach((c) => {
+    c.setAttribute("x1", x); c.setAttribute("x2", x); c.setAttribute("visibility", "visible");
+  });
+  const p = POINTS[hoverIndex];
+  tip.replaceChildren();
+  const when = document.createElement("div");
+  when.className = "when";
+  const modeLabel = (MODES.find((m) => m.name === p.mode) || {}).label;
+  when.textContent = modeLabel ? `${clock(p.t)} · ${modeLabel}` : clock(p.t);
+  tip.appendChild(when);
+  CHARTS.forEach((spec) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const key = document.createElement("span");
+    key.className = "key";
+    const val = document.createElement("strong");
+    val.textContent = fmt(p[spec.key], spec.unit);
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = spec.title;
+    row.append(key, val, name);
+    tip.appendChild(row);
+  });
+  const host = $("viz").getBoundingClientRect();
+  tip.classList.remove("hidden");
+  const left = Math.min(clientX - host.left + 14, host.width - tip.offsetWidth - 4);
+  tip.style.left = `${Math.max(0, left)}px`;
+  tip.style.top = `${Math.max(0, clientY - host.top - tip.offsetHeight - 10)}px`;
+}
+
+function renderHistory() {
+  const host = $("charts");
+  host.style.opacity = "1";
+  host.replaceChildren(...CHARTS.map(buildChart));
+  hoverIndex = null;
+  $("viz-tip").classList.add("hidden");
+  $("history-rows").innerHTML = POINTS.slice().reverse().map((p) => `<tr>
+    <td>${esc(clock(p.t))}</td><td>${esc((MODES.find((m) => m.name === p.mode) || {}).label || "–")}</td>
+    <td class="num">${esc(fmt(p.temp_c, " °C"))}</td><td class="num">${esc(fmt(p.draw_watts, " W"))}</td><td class="num">${esc(fmt(p.avg_mhz, " MHz"))}</td></tr>`).join("");
+}
+
+async function loadHistory() {
+  if (hoverIndex !== null) return;
+  $("charts").style.opacity = POINTS.length ? "0.6" : "1";
+  try {
+    POINTS = (await getJSON("/api/history")).points;
+    renderHistory();
+  } catch (e) {
+    $("charts").style.opacity = "1";
+  }
+}
+
+/* ---------------- Autostart & processes ---------------- */
+
+async function loadAutostart() {
+  const data = await getJSON("/api/autostart");
+  $("autostart").innerHTML = data.entries.length
+    ? data.entries.map((e) => `
+      <div class="switch-row">
+        <div class="name">${esc(e.name)} <span class="muted" style="font-size:12px">${esc(e.file)}</span></div>
+        <label class="switch"><input type="checkbox" data-file="${esc(e.file)}" ${e.enabled ? "checked" : ""}><span></span></label>
+      </div>`).join("")
+    : `<p class="muted">Nothing in ~/.config/autostart.</p>`;
+  document.querySelectorAll("#autostart input").forEach((box) => box.addEventListener("change", async () => {
+    try {
+      await getJSON(`/api/autostart/${encodeURIComponent(box.dataset.file)}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: box.checked }),
+      });
+      toast(box.checked ? "Will start at login" : "Won't start at next login", "ok");
+    } catch (e) {
+      box.checked = !box.checked;
+      toast(e.message, "err");
+    }
+  }));
+}
+
+async function loadProcesses() {
+  try {
+    const data = await getJSON("/api/processes?limit=20");
+    $("procs").innerHTML = data.processes.map((p) => `<tr>
+      <td>${esc(p.name)}</td><td class="num">${p.cpu_percent}</td><td class="num">${p.memory_mb} MB</td>
+      <td class="num priority-add">
+        <button data-mark="background" data-name="${esc(p.name)}">background</button>
+        <button data-mark="protected" data-name="${esc(p.name)}">protected</button>
+      </td>
+    </tr>`).join("");
+    document.querySelectorAll("[data-mark]").forEach((b) => b.addEventListener("click", () => addPattern(b.dataset.mark, b.dataset.name)));
+  } catch (e) {
+    $("procs").innerHTML = `<tr><td colspan="4" class="result-bad">${esc(e.message)}</td></tr>`;
+  }
+}
+
+/* ---------------- Background-task priority ---------------- */
+
+let PRIORITY = { nice: 10, background: [], protected: [] };
+let PRESETS = [];
+
+function missingPatterns(group) {
+  return group.patterns.filter((p) => !PRIORITY.background.includes(p) && !PRIORITY.protected.includes(p));
+}
+
+function renderPresets() {
+  const open = PRESETS.filter((g) => missingPatterns(g).length);
+  if (!open.length) { $("priority-presets").innerHTML = ""; return; }
+  $("priority-presets").innerHTML = `
+    <div class="preset-head"><h3>Suggested</h3><button class="btn" id="preset-all">Add all</button></div>
+    ${open.map((g) => `<div class="preset">
+      <div><div>${esc(g.name)}</div><div class="muted">${esc(g.why || "")} <code>${missingPatterns(g).map(esc).join(", ")}</code></div></div>
+      <button class="btn" data-preset="${esc(g.name)}">Add</button>
+    </div>`).join("")}`;
+  $("preset-all").addEventListener("click", () => addPresets(open));
+  document.querySelectorAll("#priority-presets [data-preset]").forEach((b) =>
+    b.addEventListener("click", () => addPresets(open.filter((g) => g.name === b.dataset.preset))));
+}
+
+function addPresets(groups) {
+  const extra = [...new Set(groups.flatMap(missingPatterns))];
+  if (extra.length) savePriority({ ...PRIORITY, background: [...PRIORITY.background, ...extra] });
+}
+
+function tagRow(list) {
+  return (pattern) => `<span class="tag">${esc(pattern)}<button data-remove data-list="${list}" data-pattern="${esc(pattern)}" aria-label="Remove ${esc(pattern)}">×</button></span>`;
+}
+
+function renderPriority(watcher) {
+  $("priority-nice").value = PRIORITY.nice;
+  $("priority-nice-val").textContent = PRIORITY.nice;
+  $("priority-background").innerHTML = PRIORITY.background.map(tagRow("background")).join("") || `<span class="muted" style="font-size:12px">None yet</span>`;
+  $("priority-protected").innerHTML = PRIORITY.protected.map(tagRow("protected")).join("") || `<span class="muted" style="font-size:12px">None yet</span>`;
+  document.querySelectorAll("#priority-background [data-remove], #priority-protected [data-remove]").forEach((b) =>
+    b.addEventListener("click", () => removePattern(b.dataset.list, b.dataset.pattern)));
+  renderPresets();
+  if (watcher !== undefined) {
+    $("priority-note").innerHTML = watcher === "active"
+      ? ""
+      : `<span class="warn-note">The background-priority watcher isn't running (${esc(watcher)}). Start it with: systemctl --user enable --now forge-power-priority.service</span>`;
+  }
+}
+
+async function loadPriority() {
+  const data = await getJSON("/api/priority");
+  PRIORITY = data.config;
+  PRESETS = data.presets || [];
+  renderPriority(data.watcher);
+}
+
+async function savePriority(next) {
+  const prev = PRIORITY;
+  PRIORITY = next;
+  renderPriority();
+  try {
+    const data = await getJSON("/api/priority", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(next),
+    });
+    PRIORITY = data.config;
+    renderPriority(data.watcher);
+    toast("Background tasks updated", "ok");
+  } catch (e) {
+    PRIORITY = prev;
+    renderPriority();
+    toast(e.message, "err");
+  }
+}
+
+function addPattern(list, name) {
+  const pattern = name.trim();
+  if (!pattern || PRIORITY[list].includes(pattern)) return;
+  const other = list === "background" ? "protected" : "background";
+  savePriority({ ...PRIORITY, [list]: [...PRIORITY[list], pattern], [other]: PRIORITY[other].filter((p) => p !== pattern) });
+}
+
+function removePattern(list, pattern) {
+  savePriority({ ...PRIORITY, [list]: PRIORITY[list].filter((p) => p !== pattern) });
+}
+
+/* ---------------- Wiring ---------------- */
+
+$("mode-slider").addEventListener("pointerdown", () => { modeDragging = true; });
+$("mode-slider").addEventListener("input", () => showMode(Number($("mode-slider").value)));
+$("mode-slider").addEventListener("change", () => applyMode(Number($("mode-slider").value)));
+$("auto-enabled").addEventListener("change", saveAuto);
+$("auto-battery").addEventListener("change", saveAuto);
+$("auto-ac").addEventListener("change", saveAuto);
+$("refresh-procs").addEventListener("click", loadProcesses);
+$("priority-nice").addEventListener("input", () => { $("priority-nice-val").textContent = $("priority-nice").value; });
+$("priority-nice").addEventListener("change", () => savePriority({ ...PRIORITY, nice: Number($("priority-nice").value) }));
+$("priority-bg-add").addEventListener("click", () => { addPattern("background", $("priority-bg-input").value); $("priority-bg-input").value = ""; });
+$("priority-pr-add").addEventListener("click", () => { addPattern("protected", $("priority-pr-input").value); $("priority-pr-input").value = ""; });
+$("priority-bg-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("priority-bg-add").click(); });
+$("priority-pr-input").addEventListener("keydown", (e) => { if (e.key === "Enter") $("priority-pr-add").click(); });
+$("measure").addEventListener("click", async () => {
+  $("measure").disabled = true;
+  try {
+    lastWatts = (await getJSON("/api/watts")).package_watts;
+    loadStatus();
+  } catch (e) {
+    toast(e.message, "err");
+  } finally {
+    $("measure").disabled = false;
+  }
+});
+
+// The first loads; any that fail (the server was away) run again from the
+// poll once it answers, quietly, since the strip at the top already says why.
+const FIRST_LOADS = {
+  modes: () => loadModes().then(() => Promise.all([loadAuto(), loadHistory()])),
+  autostart: loadAutostart,
+  priority: loadPriority,
+  fps: loadFps,
+};
+const unloaded = new Set(Object.keys(FIRST_LOADS));
+const loading = new Set();
+function firstLoads(quiet) {
+  unloaded.forEach((name) => {
+    if (loading.has(name)) return;
+    loading.add(name);
+    FIRST_LOADS[name]()
+      .then(() => unloaded.delete(name))
+      .catch((e) => {
+        // not reaching the server at all is the strip's job, not a red error
+        if (quiet || e instanceof TypeError) return;
+        if (name === "modes") $("mode-state").innerHTML = `<span class="result-bad">${esc(e.message)}</span>`;
+        else toast(e.message, "err");
+      })
+      .finally(() => loading.delete(name));
+  });
+}
+firstLoads(false);
+loadProcesses();
+// Readings and the graph every 5 s while Power is on screen, and nothing
+// while it is hidden (ForgeIdle, /shared/forge_idle.js): the backend samples
+// the graph by itself, so coming back shows the last 10 minutes at once.
+// While the server is away the wait doubles up to 30 s.
+let processesStale = false;
+ForgeIdle.poll(async () => {
+  if (!(await loadStatus())) { processesStale = true; return false; }
+  if (unloaded.size) firstLoads(true);
+  if (processesStale) { processesStale = false; loadProcesses(); }
+  loadHistory();
+  syncMode().catch(() => {});
+  loadFps().catch(() => {});
+}, 5000, { backoff: 2, maxMs: 30000, immediate: true });
+</script>
+</body>
+</html>

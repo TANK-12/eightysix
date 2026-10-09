@@ -1,0 +1,11 @@
+{
+  "_note": "Web logins Forge can open side by side. Each gets its own Firefox profile (own window, own sign-in) under ~/.local/share/forge/accounts/<id>; the Logins app shows them inside Forge. port is only used when Claude opens one with remote control (never while signing in). Adding an account is one entry here. Claude Code accounts live in the Claude app (apps/claude, Accounts).",
+  "main_firefox_port": 9222,
+  "accounts": [
+    {"id": "claude-a", "label": "Claude.ai (account 1)", "kind": "web", "url": "https://claude.ai", "port": 9231},
+    {"id": "claude-b", "label": "Claude.ai (account 2)", "kind": "web", "url": "https://claude.ai", "port": 9232},
+    {"id": "gemini-a", "label": "Gemini", "kind": "web", "url": "https://gemini.google.com", "port": 9233},
+    {"id": "gmail-1", "label": "Gmail 1", "kind": "web", "url": "https://mail.google.com", "port": 9234},
+    {"id": "gmail-2", "label": "Gmail 2", "kind": "web", "url": "https://mail.google.com", "port": 9235}
+  ]
+}

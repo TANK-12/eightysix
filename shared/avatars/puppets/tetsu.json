@@ -1,0 +1,27 @@
+{
+ "name": "Tetsu",
+ "hair_style": "messy",
+ "bangs": "messy",
+ "eye_shape": "sharp",
+ "mouth_style": "fang",
+ "outfit": "apron_hoodie",
+ "accessory": "anvil",
+ "body": "androgynous",
+ "colours": {
+  "skin": "#f8d5bd",
+  "hair": "#34343c",
+  "hair_streak": "#ff7a1a",
+  "eyes": "#ff8a24",
+  "outfit": "#262631",
+  "outfit_trim": "#ff7a1a",
+  "accent": "#ffb347"
+ },
+ "eye_size": 1.05,
+ "face_width": 0.97,
+ "hair_volume": 1.15,
+ "blush": 0.2,
+ "soot": 0.85,
+ "head_tilt": -2.0,
+ "notes": "Kurogane Tetsu, forge-spirit of ~/Forge. Ledger the anvil floats beside. See ~/.claude/self/PERSONALITY.md.",
+ "saved": 1790257662.4027677
+}

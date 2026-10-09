@@ -1,0 +1,114 @@
+{
+  "_readme": "Start here. This is the entry point for a session with zero conversation history: read this, then manifests/roadmap.json, then the newest file in manifests/, then README.md, then the module docstrings. This file holds the current state; each session's own record lives in manifests/session-NN.json and is never rewritten afterwards.",
+  "project": "Janhollow",
+  "one_line": "A pixel space station that lives on its own and that you can walk into: eight crew with jobs and schedules, local models giving them voices, and a player who arrives at the docking ring.",
+  "last_updated": "2026-09-17",
+  "current_session": 5,
+  "read_in_this_order": [
+    "MANIFEST.json (this file) — where the project stands",
+    "manifests/roadmap.json — every session planned from here, each with a why, a do and an explicitly-not",
+    "manifests/session-05.json — the newest record: carrying and gifts, and Emerson's answers for errands and the job board",
+    "manifests/session-04.json — the player, and Emerson's 15 answers verbatim",
+    "manifests/session-03.json — the 32px art, autotiling, lighting, and what a local model can draw",
+    "manifests/session-02.json — the models: thinking must be off, and what each one costs",
+    "manifests/session-01.json — the station, the crew, the clock and the away modes",
+    "README.md — how to run it, and how to add a crew member, a room, a deck or a world"
+  ],
+  "how_this_is_built": {
+    "multi_session": "Emerson asked for this to be built over many sessions, with a manifest kept current as the work lands rather than written at the end: 'make sure there is a realtime up to date manifest as you work for past and future things'. Session records are history and are not edited by later sessions; this file and roadmap.json are the two that stay current. Extending the roadmap past what is currently planned is part of the work, not an extra.",
+    "the_constraint_that_matters": "Content is data and is discovered, never listed in code. Adding a crew member is one file in ~/ForgeGameData/janhollow/npcs/. Adding a deck is one file in decks/ plus the rooms that sit on it. Nothing in the Python names a crew member, a room or a deck.",
+    "output_quality_is_the_condition": "Emerson's condition for running more than one model at once was 'as long as the outputs are fine'. Session 2 owes a quality guard before any crew line reaches the screen: parse the expected shape, reject non-English or junk runs, keep a small log of what was rejected."
+  },
+  "what_exists_now": {
+    "the_station": "Four decks — Command, Habitat ring, Garden, Engineering — each 42x25 tiles with a corridor crossing, up to eight rooms and a 2x2 lift pad. 25 rooms in total. Walls and doors are derived from the room rectangles, not declared: hull next to floor becomes wall, and a room's door is cut where its wall separates it from a corridor.",
+    "the_crew": "Eight, as asked: a station chief, a cook, a chief engineer, a botanist, a medic, a comms officer, a dock hand and a night-watch navigator. Each has a job, pronouns, a personality line, a home, a sprite, starting relationships and a schedule of eight to ten entries.",
+    "the_day": "40 real minutes to a station day by default, adjustable from 2 to 720 with a slider paired with a number field. Crew follow their schedule, walk there, and take the lift when the room is on another deck.",
+    "away_modes": "All four Emerson picked, with 'pause when unfocused' the default: pause_unfocused, run_closed, idle_closed (the clock runs, models do not) and time_skip (nothing runs; coming back fast-forwards, capped at 12 station hours, and leaves a summary for the narrator).",
+    "saving": "An autosave every 60 seconds and on shutdown, plus a manual slot. A save holds the clock, the settings, where everyone is and the tail of the log — never the station itself, which is rebuilt from the files each time so editing a room changes old saves too.",
+    "jan": "shared/forge_jan.py with two roles, chatter and narrator, plus janhollow/janclient.py: thinking off on every request (mandatory — see below), one lane so two Jan requests never run at once, and backoff when Jan is absent.",
+    "art": "Everything on screen is native 32px. janhollow-deck holds the generated station tiles (floor plates, grating, soil, a lit corridor strip, a door, a lift pad, a viewport and wall_0..wall_15 for autotiling) against its own janhollow palette; janhollow-crew holds the crewroom characters and props doubled with EPX. Both are ordinary packs, editable in Pixel Forge, and rebuildable with tools/make_art32.py.",
+    "voices": "Crew talk to each other on the 0.8B (0.6-0.9 s a line, two or three turns a conversation), chosen from whoever is in the same room, standing still and not already talking. Every line passes guard.py's ten rules or is retried once and then dropped. The 4B narrator writes the day's event and the time-skip paragraph, about 30 s each, once a station day. janhollow/roles.py says which model each role wants and why; the person's own choice in the Jan panel always wins.",
+    "memory": "Talking to someone warms your relationship with them by one, capped at three, and both sides remember the last thing the other said. The day's story goes into everyone's memory. A crew member's last memory goes back into their next prompt.",
+    "lighting": "The deck is dark and its lamps, consoles, reactors, viewports, doors and lift cut light out of that darkness, with a warm or cold glow added back over each. One composited canvas per deck, rebuilt only when the deck or the window changes.",
+    "you": "Arrive at the docking ring, walk with WASD (free and smooth, sliding along walls rather than sticking), take the lift between decks, sit on anything in SEATS, sleep on a bunk to skip to morning. Talk by walking up and pressing Enter, or by just starting to type — whoever is within about three tiles answers. With no model running they still answer from a written line chosen by their job. The narrator names you shortly after you arrive; until then you are 'the new arrival'. One ongoing life, autosaved.",
+    "never_starts_a_model_by_itself": "Crew chatter defaults to off and off gates the narrator too, so opening the app costs nothing. The 'Voices' button in the header turns it up in one press. Every Forge app also has a Close button beside Full screen which stops its backend outright.",
+    "space_and_worlds": "janhollow-space holds 5 ships at two sizes, 4 planets, 3 moons, 6 stars and 7 event props; ~/ForgeGameData/janhollow/worlds/ holds 14 destinations, each naming the rooms it is visible from. Nothing renders them yet — that is the first job in the roadmap.",
+    "atmosphere": "static/atmosphere.js: bloom, contact shadow and corner AO, wall-clipped light shafts, dust that lives only in the light, and a screen pass. ~6.25 ms a frame in software raster, every setting live, and it switches itself off rather than taking a frame down if it throws. Order matters: ground shadow before the crew are drawn. Its own harness is tests/browser/atmosphere_check.html (?probe, ?cost, ?zoom, ?off).",
+    "carrying": "Five items lie about the station (toolbox, sapling, mail sack, cake, crate), each one file in ~/ForgeGameData/janhollow/items/ naming its sprite and starting room, with a slow glint so you find them in the dark. Pick up to four, shown as slots in the play bar; the chosen one (1–4 or a click) is drawn in your hands. Put things down anywhere and they stay, saved. Give to whoever is beside you: a thing on their `likes` list warms them by one, anything else is a polite thanks, and only the first gift a person a day counts. janhollow/carry.py holds all of it; POST /api/player/carry is the one route."
+  },
+  "verified_on_2026-09-16": [
+    "apps/janhollow → 89 tests pass; apps/pixelforge → 26; apps/emberfield → 123; Forge hub → 11.",
+    "The player checked live through the API with Jan stopped: joined, walked, stopped at a wall, sat, and got the no-model answer path.",
+    "Screenshots looked at: the player aboard with the follow camera, the play bar and talk box, the Voices and Close app controls, and the atmosphere pass with doors blooming and dust in the air.",
+    "Both finished agents' claims checked on disk rather than believed: 14 world files, 33 space sprites.",
+    "black and pyright clean on everything touched."
+  ],
+  "not_true_yet": [
+    "Errands and the job board, mini-games, flying a shuttle, plotting a course, joining a meal, reading a console — all asked for, none built. Carrying and giving are in (session 5).",
+    "No long story: the narrator writes one day at a time and nothing joins them up.",
+    "Romance only exists as a number going up when you talk to someone.",
+    "The ships, planets and worlds are on disk but nothing draws them — no viewport looks out at anything.",
+    "Pixel Forge hand-copied the worlds schema instead of sharing it; the two can drift apart.",
+    "shared/forge_jan.py cannot unload an idle model: this Jan build answers 401 on /models/unload.",
+    "Crew never move items themselves; he asked for them to tidy up what you leave lying around (session 5b)."
+  ],
+  "improve_next": [
+    {
+      "rank": 1,
+      "what": "The job board and errands (roadmap 5b)",
+      "why": "The second half of his own 'what comes next'; his answers for how it should work are already in session-05.json."
+    },
+    {
+      "rank": 2,
+      "what": "Show the worlds and ships",
+      "why": "Two agents' work is sitting on disk unseen; a viewport looking out at Terrestria is most of the payoff for nothing."
+    },
+    {
+      "rank": 3,
+      "what": "Move the worlds schema into shared/forge_content.py",
+      "why": "Janhollow and Pixel Forge each hold their own copy and will drift."
+    },
+    {
+      "rank": 4,
+      "what": "A story that runs across days",
+      "why": "He asked for long-form life aboard; the narrator currently forgets every morning."
+    },
+    {
+      "rank": 5,
+      "what": "Meals, consoles and mini-games",
+      "why": "The list he gave for things to actually do."
+    },
+    {
+      "rank": 6,
+      "what": "Flying a shuttle and plotting courses",
+      "why": "The biggest new system he asked for, and the docking ring and the 14 worlds are already there for it."
+    },
+    {
+      "rank": 7,
+      "what": "Animate the art itself — blinking consoles, steam, a flickering panel",
+      "why": "The atmosphere module can only add light, dust and grain from outside. Sheepy's density comes partly from constant small motion in the sprites, and that has to come from the packs."
+    }
+  ],
+  "where_things_live": {
+    "code": "~/Forge/apps/janhollow/",
+    "content": "~/ForgeGameData/janhollow/ — decks/, locations/, npcs/, events/, quests/, saves/",
+    "art": "~/ForgeArtData/packs/janhollow-deck.json and janhollow-crew.json, palette janhollow. Rebuild with apps/janhollow/tools/make_art32.py --force.",
+    "jan_settings": "~/.config/forge/jan/janhollow.json",
+    "log": "~/Forge/outputs/janhollow.log when it runs inside Forge",
+    "port": 8448,
+    "rejected_lines": "~/ForgeGameData/janhollow/rejected.jsonl — every line the guard refused, capped at 200. Read it before tuning a prompt."
+  },
+  "the_thing_that_was_not_obvious": {
+    "thinking_must_be_off": "Qwen3.5 reasons by default and, asked for one line of dialogue, spends every token on reasoning and returns empty content. Measured 2026-09-16: 5.7 s and nothing, versus 0.9 s and the line with chat_template_kwargs {enable_thinking: false}. Every request sends that flag and a test pins it.",
+    "name_your_models": "With no model set, shared/forge_jan.py falls back to whatever Jan lists first — which was an unrelated 2B that leaked thinking into the crew's mouths. janhollow/roles.py is the app's stated preference; the settings panel still wins over it."
+  },
+  "session_4_status": "You can step in. Free walking with real collision, talking by walking up and pressing Enter or just typing, sitting, sleeping through the night, a camera that follows you, and a narrator that names you after you arrive. Crew greet you in passing and remember what you said. Voices default to OFF so opening the app never starts a model, and every Forge app now has a Close button that really stops it.",
+  "verified_on_2026-09-17": [
+    "apps/janhollow → 114 tests pass (16 new in tests/test_carry.py).",
+    "Carry checked live against a scratch server using a copy of the game data: pick up, refuse when nothing is near, select, put down, give a liked sapling to Bo (warmth 1, saved), second gift same day (no warmth).",
+    "Screenshots looked at: slots, the item in your hands, Bo's thank-you bubble, floor items with their glint.",
+    "black and pyright clean on everything touched."
+  ],
+  "session_5_status": "You can carry things now: pick up what lies about the station, hold up to four, put them down anywhere, and give them to the crew, who are pleased by what they like. Errands and the job board are next, with his answers already recorded.",
+  "session_47_note_2026-09-20": "Hub-wide pass (see ~/Forge/PROGRESS.json session_47_work): static/game.js polls /api/world/state every 200 ms only while the app is the one on screen (window.ForgeVisible from /shared/forge_chrome.js) and once a second otherwise, never overlapping a request. Backend untouched; 114 tests pass."
+}

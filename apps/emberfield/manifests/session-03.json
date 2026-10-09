@@ -1,0 +1,166 @@
+{
+  "_readme": "Session 3's record, written as the work went. Self-contained: it assumes you have read neither the conversation nor the earlier session files. 'verified' means it was run and observed; 'reasoned' means it looks right but was not executed. The handoff entry point is ../MANIFEST.json.",
+  "project": "Emberfield",
+  "session": 3,
+  "date": "2026-09-06",
+  "session_theme": "Sound, and somewhere to go. Session 2 made the valley playable; this session gave it a voice and gave the cave mouth something behind it.",
+
+  "user_intent": {
+    "the_ask": "'do another 50 mins of work on the game and keep adding to the manifests'. No new direction, so the work followed the plan session 2 had already written into MANIFEST.json/next_session_should and agreed with the user: sound first, then the wilds, then a shop.",
+    "what_was_reached": "Sound and the wilds. The shop was not started -- see not_done_yet, and note that it is now the most conspicuous gap because gold has a source and still has no sink.",
+    "standing_constraints": "Content must stay cheap to add (adding a thing is adding a file); nothing may consume much disk; verify in a browser rather than by reading."
+  },
+
+  "done_this_session": [
+    {
+      "what": "Sound, synthesised rather than sampled. 18 effects and two ambient beds, defined as JSON in ~/ForgeGameData/sounds and rendered by static/audio.js.",
+      "status": "verified",
+      "note": "There is not a single audio file in the project. Each sound is a dozen numbers describing a small Web Audio graph -- waveform, pitch glide, envelope, filter sweep, detune, repeat. That trade was made for three reasons: it costs about four kilobytes instead of megabytes on a laptop the user has asked repeatedly not to fill; a hoe that sounds wrong is a number to nudge rather than a sample to re-record; and it obeys the same rule as the rest of the game, where adding a sound for a new event is one more file and no code. It will never sound like recorded foley, which is worth saying plainly."
+    },
+    {
+      "what": "A 'sounds' content type, with an 'event' field naming what the game plays it on.",
+      "status": "verified",
+      "note": "So the wiring is data too. static/index.html calls Sound.play(\"till\"); which file answers that call is decided in ~/ForgeGameData, not in the code."
+    },
+    {
+      "what": "Ambience that is steered rather than switched.",
+      "status": "verified",
+      "note": "A held noise bed whose level is driven every frame from the clock, so the night arrives across dusk instead of starting abruptly at 20:00. A second bed for the wilds. Both fade to silence when you sleep."
+    },
+    {
+      "what": "Footsteps spaced by distance walked rather than by time.",
+      "status": "verified",
+      "note": "Running gives a faster stride rather than the same stride played faster, and walking into a wall makes no sound at all -- which is the tell that separates a footstep system from a timer."
+    },
+    {
+      "what": "emberfield/wilds.py -- a fresh cavern every day/night cycle, harder after dark.",
+      "status": "verified",
+      "note": "The deliberate opposite of worldgen.py. The valley is generated once per save and kept, because it is meant to become familiar; the wilds are seeded from the valley seed plus the day plus whether it is night, so they are different every cycle and identical when a save is reloaded. Nothing about a run down there is ever stored. Cellular-automata cave: chambers joined by passages rather than corridors joined by rooms. Day and night are two different maps, not one map with a difficulty multiplier -- the night cavern is genuinely tighter as well as busier."
+    },
+    {
+      "what": "Entering and leaving through the cave mouth.",
+      "status": "verified",
+      "note": "Space at the cave mouth in the valley, space at the way in when underground. The same key as the bed and the hoe, so there is one verb to learn rather than a doorway special case. The valley is parked, not discarded: crops, worked ground and where you stood all come back untouched."
+    },
+    {
+      "what": "The wilds are dangerous at any hour, and the valley only after dark.",
+      "status": "verified",
+      "note": "The cavern names its own foe count in its regions, so difficulty is generated with the map rather than hardcoded in the spawner. The few tiles by the way out are the one quiet ground down there."
+    },
+    {
+      "what": "A cave_wall tile, in three variants picked by position hash.",
+      "status": "verified",
+      "note": "See what_i_got_wrong. Plus a per-tile grain pass in the nature layer for the 'rock' kind, the same trick the grass already used."
+    },
+    {
+      "what": "A darker treatment underground: the night palette regardless of the hour, and a flat cold wash instead of the time-of-day tint.",
+      "status": "verified",
+      "note": "A cavern lit like a spring afternoon reads as a grey field. There is no sun down there, so there is no sunset either."
+    },
+    {
+      "what": "POST /api/selftest and GET /api/selftest, so the browser suite can report out of band.",
+      "status": "verified",
+      "note": "Necessary rather than nice: the new audio checks render sound in an OfflineAudioContext, which needs real time to finish, and headless Chrome driven with --virtual-time-budget exits before it does. The page now posts its results to the backend and the automated run reads them from the API. Every async check is also raced against an 8-second timeout, because a hung promise leaves the suite pending and reads exactly like a suite that was never run."
+    },
+    {
+      "what": "9 new browser self-tests (30 total) and 12 new Python tests (90 total). All passing.",
+      "status": "verified"
+    }
+  ],
+
+  "not_done_yet": [
+    "A shop. This is now the most conspicuous gap in the game: killing things pays gold, the wilds pay more of it, every item already carries a sell price, and there is nowhere to spend or sell anything. It was third on this session's list and was not reached.",
+    "Loot in the wilds. The 'deep' end of every cavern is computed and returned specifically so a reward can be placed there, and nothing is placed there yet. Foes drop materials; the cavern itself gives you nothing for going deep.",
+    "Splitting static/index.html. It was ~1250 lines at the start of this session and is ~1790 now. Audio went into its own file, but rendering, simulation, farming, combat, the wilds and every menu still share one file. This should have happened this session and did not.",
+    "NPCs, buildings, the town interior. Unchanged since session 1: the town is paved ground with nobody on it.",
+    "Crafting, skills, quests and recipes -- content types declared, directories empty.",
+    "Tool upgrades. Tools carry 'range' and 'power' fields that nothing reads.",
+    "The whole voice layer and the whole LLM layer. Settings expose both toggles; neither has an implementation.",
+    "A dodge roll. Floated by the user in session 2 ('space can become like general interact or mabye roll when moving'), still not built.",
+    "Music. There are effects and ambience, but no melodic layer of any kind."
+  ],
+
+  "next_session_should": [
+    "Build the shop first. It is small, it closes the loop that farming and combat both feed, and gold currently accumulates for no reason at all. A stall object in the town plus a buy/sell screen; prices are already in the item files.",
+    "Then put something at the deep end of the wilds, because the generator already hands you the spot and a cavern with no reason to cross it is a corridor.",
+    "Then split static/index.html, before it grows past the point where splitting it is safe. The browser self-test is the safety net that makes that refactor checkable -- use it.",
+    "Resist adding a sixth system. Farming, combat, the wilds and sound all exist and none of them has a shop, loot or a reason to specialise yet."
+  ],
+
+  "assessment": {
+    "what_went_well": "Making sound a content type rather than a module of function calls paid off immediately: the whole soundtrack is four kilobytes of JSON, every effect is tunable without touching code, and the self-test could iterate over 'every sound the store knows about' rather than a hardcoded list. Rendering the sounds in an OfflineAudioContext and measuring the waveform turned out to be a much stronger check than expected -- it catches the specific failure that a filter cutoff below the fundamental produces a valid, silent graph that throws nothing. Reusing worldgen.World for the wilds meant the renderer, the collision code and the save format needed no changes at all to support a second map.",
+    "what_i_got_wrong": [
+      "Placed the water pools after computing the cavern's connectivity. Water is solid, so on the tighter night maps a pool would sever a passage and strand everything behind it -- the reachability check reported 0.005, meaning half a percent of the floor was reachable. Connectivity is now settled after the water goes in, and anything cut off is filled back in as rock.",
+      "Used the valley's cliff_face tile for the cavern walls. It is drawn as a cliff *face*, with horizontal strata, which is right at the edge of a valley and reads as banded wallpaper when a whole screen is made of it. Needed its own tile; the mistake was assuming a tile that looks right in one context is a tile, rather than a tile for that context.",
+      "Restarted nothing three separate times. Edited shared/forge_content.py, then emberfield/wilds.py, then web_app.py, and each time tested against a server that had imported the old module -- producing a missing content type, a striped wall and a 405 in turn. The dev server now runs with --reload.",
+      "Spent a while chasing a self-test that reported nothing at all, which turned out to be headless Chrome's virtual clock exiting before the audio thread finished rendering. The fix (report out of band, and time out every async check) is better than what it replaced, but the symptom -- a suite that silently produces no output -- was indistinguishable from a suite that never ran, and that is worth designing against rather than debugging."
+    ],
+    "what_i_would_add": [
+      "A shop, as above.",
+      "Knockback when something is hit. Still the cheapest single thing that would make combat read as combat rather than as two sprites overlapping. Carried over from session 2 untouched.",
+      "Music, or at least a two-note motif on entering the wilds. The ambience is doing a lot of work alone.",
+      "Torchlight underground -- a radius of visibility rather than a flat wash. It would make the cavern feel like a cavern and it is a single radial gradient over the finished frame.",
+      "Shoreline and cliff autotiling. Carried over from sessions 1 and 2, still the biggest remaining visual win in the valley, still needs no new art.",
+      "The floor and wall in the cavern could separate better in value. They are legible but the floor reads as scattered blocks rather than as chambers, particularly on the tighter night maps."
+    ],
+    "risks": [
+      "Gold has a source and no sink. Every session that adds a way to earn it without a way to spend it makes the eventual economy harder to balance, because the numbers were all chosen against nothing.",
+      "static/index.html is now ~1790 lines and holds six systems. This is the second session in a row that has recorded the split as overdue. It is genuinely getting harder to do safely, and the longer it waits the truer that gets.",
+      "The wilds are tuned by guess like the combat before them. Nobody has played a run.",
+      "The audio is synthesised, which is a real constraint and not only a saving. If the user wants the game to sound rich rather than characterful, this is an architecture that will fight them, and the honest answer then is sampled audio and the disk cost that comes with it."
+    ]
+  },
+
+  "decision_record": {
+    "_why": "No questions were put to the user this session -- the instruction was to continue, and the plan for what to continue with had been written into MANIFEST.json at the end of session 2 and shown to them. Decisions taken alone are recorded here instead, so a later session can disagree with them.",
+    "taken_without_asking": [
+      {
+        "decision": "Synthesise all audio rather than ship sample files.",
+        "why": "The user has a standing constraint about disk ('i dont have git hub connected and lease dont use up my storage', session 1) and a standing preference for content they can edit themselves. Samples would be megabytes and un-editable without an audio editor; recipes are kilobytes and tunable by hand.",
+        "cost": "It will never sound like recorded foley. If that turns out to matter more than the disk, this is the decision to revisit.",
+        "reversible": "Yes, and cheaply -- audio.js would gain a sample path alongside the synth path, and a sound file would name a wav instead of a waveform."
+      },
+      {
+        "decision": "The wilds regenerate per cycle and are never saved.",
+        "why": "The user asked in session 1 for 'a new wild every day night cycle with something changing like it getting harder at night time'. Seeding from day and night gives exactly that while staying deterministic, so a reloaded save gets the cavern it had without anything being written down.",
+        "cost": "You cannot leave anything in the wilds, and you cannot return to a cavern you liked."
+      },
+      {
+        "decision": "Day and night are two different caverns, not one cavern with more foes.",
+        "why": "'Harder' that only means 'more enemies' is a multiplier, not a place. The night map is carved tighter as well as populated more heavily, so it plays differently rather than just costing more health.",
+        "cost": "Twice the surface to tune, and the night caverns can come out quite small -- 648 walkable tiles against 2670 for the same day."
+      },
+      {
+        "decision": "The wilds are always dangerous; the valley only after dark.",
+        "why": "It gives the two places distinct rules with one sentence, and it means going down is a decision rather than a formality."
+      },
+      {
+        "decision": "The shop was left unstarted rather than half-built.",
+        "why": "Session 2's manifest committed to finishing a system or stopping cleanly rather than leaving one half-wired, and there was not room for it after the wilds. It is the first item for next session."
+      }
+    ]
+  },
+
+  "verification_status": {
+    "python_tests": "90 passed (53 from session 2, 12 new here plus parameterisation). New coverage: a cavern is identical when regenerated for the same cycle and different across day, night and seed; the whole cavern can be walked (a 16-cycle sweep, at >= 99.5% of the floor); you never arrive inside a wall; the night map is both tighter and more dangerous than the day map; the deep end is reachable from the entrance; the wilds only name sprites that exist; and eight caverns generate in under two seconds.",
+    "browser_selftest": "30 passed (21 from session 2, 9 new). New coverage: every game event the code plays has a sound file; every sound renders to measurable signal; nothing clips; a sound lasts as long as its file says; going down swaps the map but keeps your pack and crops; a save made underground still describes the valley; there is no safe ground underground except the way out; the cavern asks for more foes than the valley; and coming back up restores the valley you left.",
+    "how_the_audio_was_checked": "Not by listening -- headless Chrome cannot play audio, and 'it did not throw' is not evidence a sound was made. Each of the 18 sounds is rendered into an OfflineAudioContext and its waveform measured for peak amplitude. A wrong envelope or a filter cutoff below the fundamental builds a perfectly valid graph that is completely silent, and only measuring the samples catches it. The user has NOT heard any of this; it is verified to make sound, not verified to sound good.",
+    "black": "clean on all touched files",
+    "pyright": "0 errors (emberfield/, web_app.py, tools/, shared/forge_content.py)",
+    "screenshots": "s3-wilds and s3-wilds-night in ~/.var/app/com.google.Chrome/data/shots, via ?demo=wilds and ?demo=wilds-night. Show the cavern, its water pools and boulders, foes on screen, and the HUD reading 'the wilds, after dark'.",
+    "not_verified": [
+      "How any of it sounds. See above -- this is the single largest gap between what is tested and what matters.",
+      "A full Forge GTK launch. Note that during this session the user had Forge running with Emberfield on port 8434, so the work was done against a second server on 8444; the Forge instance is serving the code as it was when it started and will need restarting to pick this up.",
+      "Anything about how the wilds feel to play. The difficulty numbers are a first pass."
+    ]
+  },
+
+  "how_to_run": {
+    "standalone": "cd apps/emberfield && FORGE_SHARED_DIR=../../shared ./.venv/bin/python -m uvicorn web_app:app --port 8434 --reload",
+    "why_reload": "Three separate bugs this session were a stale server holding an old module. Use --reload.",
+    "python_tests": "./.venv/bin/python -m pytest tests/ -q",
+    "browser_tests": "open ?seed=777&selftest=1 and read the page, or run headless without a virtual clock and read GET /api/selftest",
+    "seed_the_content": "FORGE_SHARED_DIR=../../shared ./.venv/bin/python tools/seed_content.py --list",
+    "dev_links": "?demo=wilds and ?demo=wilds-night go straight underground; ?daysec=60 makes a day one real minute; the rest are listed in README.md"
+  }
+}

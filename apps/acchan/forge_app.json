@@ -1,0 +1,36 @@
+{
+  "name": "acchan",
+  "label": "Acchan",
+  "tagline": "Local Jan helper for files, apps and tabs",
+  "port": 8451,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#f28fb1",
+  "icon": "🐱",
+  "role": "assistant",
+  "order": 13,
+  "section": "assistants",
+  "ready_timeout": 40,
+  "tabs": ["claude", "study-companion"],
+  "voice": {"listens": true, "speaks": true},
+  "manifest": {
+    "summary": "One agent on Jan's small local models (0.8B chat, 2B actions, 4B vision and code, 9B hard tasks) with about 60 tools: files and code, shell, apps, windows and keystrokes (Hyprland or GNOME), Firefox and Forge Browser tabs, terminal tabs, any player through MPRIS (Qobuz included), video transcripts and frames, whole-document questions over PDFs and web pages, the screen through OCR and vision. Plain commands run instantly without a model. Also serves an OpenAI-compatible API that Nyarch Assistant uses as its model, an MCP server for Claude Code, and a terminal client (`acchan`). Claude and Study Companion appear as tabs.",
+    "features": [
+      {"name": "Fast path", "description": "Plain commands (open X, pause, next song, volume 40, close this window, switch to firefox) run directly in milliseconds, no model."},
+      {"name": "Model ladder", "description": "One model per chat (the 0.8B by default, tools on), stepping up a size only after two failures and staying there. 'Switch per message' keeps the old ladder. Per-tier model choice in the Jan settings."},
+      {"name": "Tools", "description": "Declared once in acchan/tools/*.py and shared by the agent, the MCP server and the prompts."},
+      {"name": "Nyarch", "description": "Point Nyarch's OpenAI provider at http://127.0.0.1:8451/v1 with model 'acchan' and it gains every tool."},
+      {"name": "Tabs", "description": "Claude (Claude Code panel) and Study Companion embedded as tabs; they keep their own backends and sidebar entries."}
+    ],
+    "data_dir": "~/.local/share/forge/acchan (conversations); ~/.cache/acchan (document and transcript text cache, eval results); ~/.config/forge/jan/acchan.json (model per tier)",
+    "services": ["Jan at 127.0.0.1:1337"],
+    "dependencies": {
+      "required": ["fastapi", "uvicorn", "lz4", "Jan"],
+      "optional": ["textual (terminal client)", "ydotool (GNOME keys)", "wtype (Hyprland keys)", "playerctl", "tesseract", "pdftotext", "yt-dlp", "ffmpeg", "MediaForge's faster-whisper"]
+    },
+    "standalone_launch": "cd ~/Forge/apps/acchan && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8451",
+    "api_base": "/api",
+    "known_gaps": [],
+    "docs": ["README.md", "WIP.md"]
+  }
+}

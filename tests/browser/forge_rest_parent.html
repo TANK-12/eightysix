@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><title>B18: apps rest behind another app</title>
+<!-- Run by tests/browser/check_rest.py in real time: under run.sh's virtual clock headless Chrome gives a frame no animation frames at all. -->
+<script src="/shared/forge_chrome.js"></script></head>
+<body>
+<iframe id="app" src="forge_rest_child.html"></iframe>
+<script>
+// S15 (2026-09-27), B18: an app that is not on screen (behind the home
+// screen or another app) rests like a browser's background tab: its CSS
+// animations pause and its animation frames wait until it is back.
+const out = [];
+const t = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+// headless Chrome's virtual clock hands out animation frames sparingly, so
+// wait for a thing to happen rather than a fixed time
+const until = async (ok, ms) => { for (let i = 0; i < ms / 50 && !ok(); i++) await wait(50); return ok(); };
+addEventListener("load", () => setTimeout(async () => {
+  try {
+    const w = document.getElementById("app").contentWindow;
+    const spin = () => w.getComputedStyle(w.document.getElementById("spinner")).animationPlayState;
+    const f0 = w.frames;
+    t("the app's loop runs at first", await until(() => w.frames > f0 + 2, 2000), `frames ${f0} -> ${w.frames}`);
+    t("standalone pages keep the browser's own animation frames", /\[native code\]/.test(String(window.requestAnimationFrame)));
+    t("on screen: the app animates", spin() === "running" && !w.document.documentElement.classList.contains("forge-resting"));
+    w.postMessage({ forge: "visible", visible: false }, "*");
+    await wait(60);
+    t("behind another app: its CSS animations pause", spin() === "paused", spin());
+    let ran = false;
+    w.requestAnimationFrame(() => { ran = true; });
+    const before = w.frames;
+    await wait(400);
+    t("behind another app: its animation frames wait", !ran && w.frames - before <= 1, `ran=${ran} frames+${w.frames - before}`);
+    const id = w.requestAnimationFrame(() => { t("a cancelled frame never runs", false); });
+    w.cancelAnimationFrame(id);
+    w.postMessage({ forge: "visible", visible: true }, "*");
+    t("back on screen: the held frames run", await until(() => ran, 2500));
+    t("back on screen: the loop keeps going", await until(() => w.frames > before + 1, 2500), `frames+${w.frames - before}`);
+    t("back on screen: CSS animations run again", spin() === "running", spin());
+  } catch (e) {
+    t("rest harness ran", false, String(e && e.stack || e));
+  }
+  document.body.innerHTML = "<pre id='results'>RESULTS\n" + out.join("\n") + "\n</pre>";
+}, 300));
+</script>
+</body></html>

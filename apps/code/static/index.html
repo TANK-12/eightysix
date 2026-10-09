@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #6ea8fe; --accent-2: #4f8cf7; --on-accent: #06101f; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  [hidden] { display: none !important; }
+  #editor { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #0f1115; }
+  #wait {
+    position: fixed; inset: 0; display: grid; place-items: center; text-align: center;
+    background: var(--bg); color: var(--text);
+  }
+  #wait .card { padding: 24px 28px; max-width: 460px; }
+  #wait h2 { margin: 0 0 8px; }
+  .spinner {
+    width: 34px; height: 34px; margin: 0 auto 14px; border-radius: 50%;
+    border: 3px solid var(--border); border-top-color: var(--accent); animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #wait .card { animation: code-in .2s ease-out; }
+  @keyframes code-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } #wait .card { animation: none; } }
+</style>
+</head>
+<body>
+<div id="wait">
+  <div class="card">
+    <div class="spinner" id="spinner"></div>
+    <h2 id="wait-title">Starting the editor…</h2>
+    <p class="muted" id="wait-text">VS Code takes a few seconds the first time.</p>
+    <button class="btn" id="retry" hidden>Try again</button>
+  </div>
+</div>
+<iframe id="editor" hidden allow="clipboard-read; clipboard-write; fullscreen"
+        title="Code editor"></iframe>
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+let current = "";  // folder open in the editor
+
+// `offline` marks a backend that did not answer at all (starting, restarting).
+async function api(path, method = "GET") {
+  let res;
+  try { res = await fetch(path, { method, headers: { "X-Forge": "1" } }); }
+  catch (e) { throw Object.assign(new Error("Code's backend is not answering"), { offline: true }); }
+  if (!res.ok) throw Object.assign(new Error(await errText(res, `${res.status}`)), { offline: res.status >= 502 });
+  return res.json();
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Resolves at once while Code can be seen, else when it is shown again, so
+// nothing is asked for while another app is in front.
+function shownAgain() {
+  if (!window.ForgeIdle || ForgeIdle.shown()) return Promise.resolve();
+  return new Promise((done) => {
+    const on = () => {
+      if (!ForgeIdle.shown()) return;
+      document.removeEventListener("visibilitychange", on);
+      document.removeEventListener("forge-visible", on);
+      done();
+    };
+    document.addEventListener("visibilitychange", on);
+    document.addEventListener("forge-visible", on);
+  });
+}
+
+function waitScreen(title, text, failed) {
+  $("wait").hidden = false;
+  $("wait-title").textContent = title;
+  $("wait-text").textContent = text;
+  $("spinner").hidden = !!failed;
+  $("retry").hidden = !failed;
+}
+
+/* Asks every half second until the editor answers, for up to a minute of
+   asking. A backend that is not answering at all (Forge starting it, or a
+   restart) is not the editor failing: the screen says so and the wait grows
+   (1 s up to 30 s) until it is back. Rests while Code is hidden. */
+async function untilReady() {
+  let asked = 0, away = 500;
+  for (;;) {
+    await shownAgain();
+    let s;
+    try { s = await api("/api/session"); }
+    catch (e) {
+      if (!e.offline) { waitScreen("The editor didn't start", e.message, true); return false; }
+      waitScreen("Waiting for Code's backend…", "It is not answering yet, probably still starting. Trying again by itself.", false);
+      away = Math.min(away * 2, 30000);
+      await sleep(away);
+      continue;
+    }
+    away = 500;
+    if (s.ready) return true;
+    if (s.error) { waitScreen("The editor didn't start", s.error, true); return false; }
+    if (++asked > 120) {
+      waitScreen("The editor is taking too long", "Check data/server.log in the Code app folder.", true);
+      return false;
+    }
+    await sleep(500);
+  }
+}
+
+// #path=/a/folder or #path=/a/file opens it (Files' "Open in Code" sends this).
+let openError = "";
+async function openPath(path, quiet) {
+  const q = new URLSearchParams({ path: path || "", root: current });
+  try {
+    const r = await api(`/api/url?${q}`);
+    current = r.folder;
+    try { localStorage.setItem("code.folder", current); } catch { /* private mode */ }
+    $("editor").src = r.url;
+    $("editor").hidden = false;
+    $("wait").hidden = true;
+    return true;
+  } catch (e) {
+    openError = e.message;
+    if (!quiet) toast(e.message, "err");
+    return false;
+  }
+}
+
+function hashPath() { return new URLSearchParams(location.hash.slice(1)).get("path"); }
+
+// One start at a time: Try again is locked until its restart has answered.
+let booting = false;
+async function boot() {
+  if (booting) return;
+  booting = true;
+  try {
+    if (!(await untilReady())) return;
+    let start = hashPath();
+    const remembered = !start;
+    if (remembered) { try { start = localStorage.getItem("code.folder") || ""; } catch { start = ""; } }
+    // A remembered folder that has gone since opens the home folder instead
+    // of leaving the start screen up, with a calm note rather than an error.
+    let opened = await openPath(start, remembered);
+    if (!opened && start) {
+      opened = await openPath("");
+      if (opened && remembered) toast("The last folder is gone, so Code opened your home folder.");
+    }
+    if (!opened) waitScreen("The editor didn't open", openError, true);
+  } finally { booting = false; }
+}
+
+$("retry").onclick = async () => {
+  if (booting || $("retry").disabled) return;
+  $("retry").disabled = true;
+  waitScreen("Starting the editor…", "Restarting it.", false);
+  try { await api("/api/restart", "POST"); } catch (e) { /* boot() says what is wrong */ }
+  $("retry").disabled = false;
+  boot();
+};
+
+addEventListener("hashchange", () => { const p = hashPath(); if (p) openPath(p); });
+boot();
+</script>
+</body>
+</html>

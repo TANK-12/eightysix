@@ -1,0 +1,7 @@
+{
+  "extraPaths": ["../../shared", "../../tests", "."],
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportMissingImports": "error",
+  "exclude": [".venv", "**/__pycache__"]
+}

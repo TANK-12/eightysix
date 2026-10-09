@@ -1,0 +1,23 @@
+{
+  "name": "cool",
+  "label": "Cool",
+  "order": 1,
+  "description": "Quiet and efficient. Turbo off, every core capped at 1.6 GHz, the firmware's cool fan table, idle devices allowed to sleep and the screen at 48 Hz. Your throttled wattage limits are left as they are; the sustained-power window is reset to its stock 28 s.",
+  "settings": {
+    "governor": "powersave",
+    "turbo": "off",
+    "max_freq_mhz": 1600,
+    "epp": "power",
+    "platform_profile": "cool",
+    "pl1_duration_s": 28,
+    "pci_runtime_pm": "auto",
+    "nmi_watchdog": false,
+    "dirty_writeback_cs": 1500,
+    "audio_power_save": 1,
+    "wifi_power_save": true,
+    "gpu_max_freq_mhz": "max"
+  },
+  "display": {
+    "refresh_hz": 48
+  }
+}

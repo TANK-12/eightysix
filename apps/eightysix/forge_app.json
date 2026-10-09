@@ -1,0 +1,61 @@
+{
+  "name": "eightysix",
+  "label": "Eighty Six",
+  "tagline": "Alpha 0.1: Juggernaut walker game (Godot)",
+  "port": 8464,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#8fe3ff",
+  "icon": "🦾",
+  "order": 7,
+  "section": "play",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "Hub tile for Eighty Six, the from-scratch Godot 4.7 Juggernaut walker game built in ~/Games/eightysix (a separate repo, not this one). Launches the game or its editor, and shows its test results, per-preset frame rates, check-image galleries and README state without leaving Forge.",
+    "features": [
+      {
+        "name": "Play / Open in editor",
+        "description": "Play runs the game's own <root>/tools/play.sh, which rebuilds the Linux export first when the source changed, saves each changed build as a numbered version and runs it (falls back to the build, then 'godot --path <root>', when the launcher is missing). Open in Godot editor runs 'godot -e --path <root>'. Both detached, logged to outputs/eightysix-launch.log."
+      },
+      {
+        "name": "Versions and share zips",
+        "description": "Lists <root>/build/versions/NNN-*/VERSION.json newest first with a Play button per version (play.sh --version N). 'Make share zips' starts <root>/tools/builds.py share in the background: Windows, Linux and macOS zips of the newest saved version, built from that version's own commit in a scratch checkout, each with an install script (install.bat / install.sh / install.command) and HOW-TO-RUN.txt, into <root>/build/share/; the older zips are deleted once the new ones are made (Emerson, 2026-10-02: keep only the latest). 'Delete all share zips' runs builds.py clear-shares. GET /api/share shows the zips, whether a run is going and the last log line (<root>/logs/share.log)."
+      },
+      {
+        "name": "Tests",
+        "description": "Shows <root>/logs/tests-last.json (pass/fail counts and per-test results). A Run tests button starts <root>/tools/run_tests.sh in the background and the panel refreshes; if that script does not exist yet it says so instead of failing."
+      },
+      {
+        "name": "Frame rates",
+        "description": "Newest <root>/logs/fps/*.json per graphics preset (low, medium, high, ultra) in a table against its target fps; ultra has no target."
+      },
+      {
+        "name": "Check images",
+        "description": "Thumbnails from the newest <root>/images/NNN-name/ folder, click to enlarge, with a picker for older folders. Served through an endpoint locked to <root>/images."
+      },
+      {
+        "name": "README",
+        "description": "The game's README.md 'Current state' section and its newest dated log entry, shown as plain text."
+      }
+    ],
+    "data_dir": "EIGHTYSIX_ROOT env var, default ~/Games/eightysix (the game's own repo; this app only reads/launches it)",
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "httpx"
+      ],
+      "optional": []
+    },
+    "standalone_launch": "cd ~/Forge/apps/eightysix && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8464",
+    "api_base": "/api  (GET /api/status; GET/POST /api/tests; GET /api/fps; GET /api/images, /api/images/{folder}, /api/images/{folder}/{file}; GET /api/readme; GET /api/versions; POST /api/play {version?}, /api/play/editor, /api/share)",
+    "known_gaps": [
+      "Play and editor launches call the real 'godot' binary and are covered by a subprocess-mocked test, not a live game window (headless test sandbox).",
+      "Share zips are listed as paths; there is no download or open-folder button yet."
+    ],
+    "docs": [
+      "README.md",
+      "WIP.md"
+    ]
+  }
+}

@@ -1,0 +1,1325 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>NovelForge</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  /* NovelForge's identity and its genuinely unique widgets. Everything else
+     -- palette, buttons, fields, cards, tabs, toasts, log boxes, advanced
+     mode, clear buttons, thumbnails -- comes from /shared/forge.css. */
+  :root { --accent: #6ea8fe; --accent-2: #4f8cf7; --on-accent: #0b1220; }
+  .panel { max-width: 920px; }
+
+  header .proj { color: var(--muted); font-size: 13px; }
+  header .status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  header .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bad); }
+  header .dot.up { background: var(--good); }
+  /* Narrow windows: the project name shortens with an ellipsis and the
+     status stays on one line instead of breaking word by word. */
+  header .proj { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header .status { white-space: nowrap; flex: none; }
+  /* Advanced mode adds two model pickers: the header wraps onto a second
+     row instead of pushing the status off screen. */
+  header { flex-wrap: wrap; row-gap: 6px; }
+  @media (max-width: 900px) { header .model-pick select { max-width: 150px; } }
+  * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  .proj-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  /* The list spaces its rows with the flex gap, so cancel the shared card
+     margin that would otherwise double the spacing. */
+  .proj-list .card { margin-bottom: 0; }
+  .proj-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; }
+  .proj-row:hover { border-color: var(--accent); }
+  .proj-row .name { font-weight: 600; flex: 1; }
+  .proj-row .meta { color: var(--muted); font-size: 12px; }
+
+  .gen-controls { display: flex; gap: 8px; align-items: center; margin: 10px 0 16px; }
+
+  /* Model pickers live in the header so the model in use is visible and
+     changeable from every tab, and a change is saved at once. */
+  header .model-pick { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  header .model-pick select { max-width: 220px; padding: 4px 6px; font-size: 12px; }
+  .proj-row .del { padding: 4px 10px; font-size: 12px; }
+  .label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .label-row .btn { padding: 2px 10px; font-size: 12px; }
+  .codex-group h3 { margin: 14px 0 6px; font-size: 14px; }
+  .codex-item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .codex-item:last-child { border-bottom: none; }
+  .codex-item .body { flex: 1; font-size: 13px; }
+  .codex-item .body strong { display: block; margin-bottom: 2px; }
+  .codex-item .body .muted { font-size: 12px; }
+  .codex-item .btn { padding: 2px 10px; font-size: 12px; }
+  .danger-zone { border-color: var(--bad); }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 6px 0 10px; }
+  .pair { display: flex; align-items: center; gap: 8px; }
+  .pair input[type=range] { flex: 1; }
+  .pair input[type=number] { width: 80px; }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">NOVEL<span>FORGE</span></div>
+    <div class="proj" id="hdrProject">No project open</div>
+    <div class="spacer"></div>
+    <div class="model-pick" title="The model that writes the prose. A change is saved at once.">
+      <label for="m_writer">Writer</label><select id="m_writer"></select>
+    </div>
+    <div class="model-pick adv" title="The model that plans outlines, builds Free-Rein worlds, analyses style and casts voices. Same as the writer unless you pick one.">
+      <label for="m_planner">Planner</label><select id="m_planner"></select>
+    </div>
+    <div class="mode-switch" title="Advanced mode reveals the extra generation, codex and RAM-guard controls">
+      <button id="modeSimple" class="on">Simple</button><button id="modeAdvanced">Advanced</button>
+    </div>
+    <div class="status"><span class="dot" id="janDot"></span><span id="janLabel">checking Jan…</span></div>
+  </header>
+  <nav id="tabs">
+    <div class="tab active" data-tab="home">Home</div>
+    <div class="tab" data-tab="story">Story</div>
+    <div class="tab" data-tab="generate">Generate</div>
+    <div class="tab" data-tab="codex">World Codex</div>
+    <div class="tab" data-tab="references">References</div>
+    <div class="tab" data-tab="continuation">Continue a Series</div>
+    <div class="tab" data-tab="series">Series</div>
+    <div class="tab" data-tab="export">Export</div>
+    <div class="tab" data-tab="settings">Settings</div>
+  </nav>
+  <main>
+    <div class="panel active" data-panel="home">
+      <h2>Projects</h2>
+      <div class="row">
+        <div class="field" style="flex:2"><input id="newProjName" placeholder="New project name…"></div>
+        <div class="field" style="flex:0"><button class="btn btn-primary" id="newProjBtn">New Project</button></div>
+      </div>
+      <div class="proj-list" id="projList"></div>
+    </div>
+
+    <div class="panel" data-panel="story">
+      <h2>Story Bible</h2>
+      <div class="row">
+        <div class="field"><label>Title</label><input id="b_title"></div>
+        <div class="field"><label>Genre</label><input id="b_genre"></div>
+      </div>
+      <div class="field">
+        <label>Genre preset (voice, chapter shape and worn phrases to avoid)</label>
+        <select id="b_preset"></select>
+        <div class="muted" id="presetInfo" style="margin-top:4px; font-size:12px"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Protagonist</label><input id="b_protagonist"></div>
+        <div class="field"><label>Scope</label>
+          <select id="b_story_scope"><option value="oneshot">One-shot</option><option value="series">Series</option></select>
+        </div>
+        <div class="field adv"><label>Planned books</label><input id="b_planned_books" type="number" min="1" value="1"></div>
+      </div>
+      <div class="field"><label>Plot</label><textarea id="b_plot" rows="3"></textarea></div>
+      <div class="field"><label>Pinned facts (must never be contradicted)</label><textarea id="b_pinned_facts" rows="2"></textarea></div>
+      <div class="field"><label>Inspiration notes</label><textarea id="b_inspiration_notes" rows="2"></textarea></div>
+      <div class="field"><label>Style directives</label><textarea id="b_style_directives" rows="2"></textarea></div>
+      <div class="row" style="align-items:center">
+        <div class="field"><button class="btn btn-primary" id="freeReinBtn">&#10022; Free-Rein: build world &amp; cast</button></div>
+        <div class="field"><label><input type="checkbox" id="freeReinExpand"> overwrite filled fields too</label></div>
+      </div>
+      <p class="muted">Fill in as little or as much above as you like, then Save. Free-Rein invents everything left blank &mdash; a multi-pass world, cast, places and open threads scaled by the Default world depth in Settings.</p>
+      <div class="field"><label>Free-Rein progress</label><div id="freeReinLog" class="logbox short" data-clearable></div></div>
+      <div class="field">
+        <div class="label-row"><label>World document</label><button class="btn btn-danger" id="clearWorldBtn">Clear</button></div>
+        <textarea id="b_world_doc" rows="8"></textarea>
+      </div>
+      <div class="row" style="align-items:flex-end">
+        <div class="field"><button class="btn btn-primary" id="saveBibleBtn">Save Story Bible</button></div>
+        <div class="field"><label>Chapters to outline</label><input id="outlineChapters" type="number" min="1" value="20"></div>
+        <div class="field"><button class="btn" id="outlineBtn">Generate Outline</button></div>
+        <div class="field"><button class="btn" id="outlineMoreBtn" title="Keep the chapters already planned and plan the rest">Continue outline</button></div>
+        <div class="field adv"><label><input type="checkbox" id="outlineCareful"> careful (editor pass)</label></div>
+      </div>
+      <div class="field"><label>Outline progress</label><div id="outlineLog" class="logbox short" data-clearable></div></div>
+      <div class="field">
+        <div class="label-row"><label>Outline (edit freely: one line per chapter, then Save)</label><button class="btn btn-danger" id="clearOutlineBtn">Clear</button></div>
+        <textarea id="b_outline" rows="12"></textarea>
+      </div>
+
+      <div class="card danger-zone" style="margin-top:18px">
+        <h3>Reset and delete</h3>
+        <p class="muted">Deleted chapters and projects are moved to ~/NovelMakerData/.trash, never erased.</p>
+        <div class="checks">
+          <label><input type="checkbox" data-reset="bible"> story fields (keeps the title)</label>
+          <label><input type="checkbox" data-reset="outline"> outline</label>
+          <label><input type="checkbox" data-reset="world_doc"> world document</label>
+          <label><input type="checkbox" data-reset="codex"> world codex</label>
+          <label><input type="checkbox" data-reset="chapters"> written chapters</label>
+          <label><input type="checkbox" data-reset="memory"> memory (summaries, story so far, threads)</label>
+        </div>
+        <button class="btn btn-danger" id="resetBtn">Reset the ticked parts</button>
+        <div class="row" style="align-items:flex-end; margin-top:12px">
+          <div class="field" style="flex:0 0 200px"><label>Delete from chapter</label><input id="rewindFrom" type="number" min="1" value="1"></div>
+          <div class="field" style="flex:0"><button class="btn btn-danger" id="rewindBtn">Rewind to before it</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="generate">
+      <h2>Generate</h2>
+      <div class="row">
+        <div class="field"><label>Target chapters</label><input id="g_chapters" type="number" min="1" value="20"></div>
+        <div class="field"><label>Words per chapter</label><input id="g_words" type="number" min="200" step="100" value="3500"></div>
+        <div class="field"><label>Models</label><div class="muted" id="g_models" style="padding-top:8px; font-size:13px">set in the header</div></div>
+      </div>
+      <div class="row adv" id="advancedGen" style="margin-top:12px">
+        <div class="field"><label>Max tokens/call</label><input id="g_maxtok" type="number" placeholder="model default"></div>
+        <div class="field"><label>Context budget</label><input id="g_budget" type="number" placeholder="default"></div>
+        <div class="field"><label>Prose temperature</label><input id="g_ptemp" type="number" step="0.05" placeholder="default"></div>
+        <div class="field"><label>Structure temperature</label><input id="g_stemp" type="number" step="0.05" placeholder="default"></div>
+      </div>
+      <div class="gen-controls">
+        <button class="btn btn-primary" id="startBtn">▶ Start / Resume</button>
+        <button class="btn" id="softStopBtn" disabled>Soft stop</button>
+        <button class="btn btn-danger" id="hardStopBtn" disabled>Kill</button>
+        <span class="muted" id="genStatus"></span>
+      </div>
+      <div class="progress-bar"><div id="chapterProg"></div></div>
+      <div id="streamBox" class="logbox tall" data-clearable></div>
+    </div>
+
+    <div class="panel" data-panel="codex">
+      <h2>World Codex</h2>
+      <div id="codexStats" class="card muted"></div>
+      <div id="codexList"></div>
+      <details class="adv" style="margin-top:12px"><summary class="muted">Raw JSON</summary>
+        <pre id="codexRaw" class="card" data-clearable style="margin-top:8px; white-space:pre-wrap; font-size:12px"></pre>
+      </details>
+    </div>
+
+    <div class="panel" data-panel="references">
+      <h2>Style &amp; Reference Library</h2>
+      <div class="row">
+        <div class="field" style="flex:2"><label>PDF path</label><input id="rf_pdfPath" placeholder="/path/to/book.pdf"></div>
+        <div class="field"><label>Source name</label><input id="rf_name" placeholder="e.g. My Favorite Author"></div>
+        <div class="field" style="flex:0"><button class="btn btn-primary" id="rf_addBtn">Ingest PDF</button></div>
+      </div>
+      <div id="rf_sources"></div>
+
+      <h2 style="margin-top:24px">Idea Lookup</h2>
+      <div class="row">
+        <div class="field" style="flex:2"><input id="rs_query" placeholder="e.g. Norse mythology tricksters"></div>
+        <div class="field" style="flex:0"><button class="btn" id="rs_lookupBtn">Look up</button></div>
+        <div class="field" style="flex:0"><button class="btn" id="rs_pushBtn">Push to inspiration notes</button></div>
+      </div>
+      <div id="rs_result" class="card muted" data-clearable style="white-space:pre-wrap; font-size:13px"></div>
+    </div>
+
+    <div class="panel" data-panel="continuation">
+      <h2>Continue a Series</h2>
+      <p class="muted">Feed in 1-12+ PDFs of an existing series (or an author's body of work). NovelForge learns the
+        voice, rebuilds the codex and a "story so far", and gets this project ready to keep writing new chapters
+        in the same world -- indefinitely.</p>
+      <div class="card">
+        <div class="field"><label>PDF paths (comma-separated)</label>
+          <textarea id="ci_paths" rows="2" placeholder="/path/book1.pdf, /path/book2.pdf"></textarea>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:2"><label>Spin (optional)</label><select id="ci_spin"></select></div>
+        </div>
+        <div class="field"><label>Extra notes (optional)</label><textarea id="ci_notes" rows="2"></textarea></div>
+        <button class="btn btn-primary" id="ci_ingestBtn">Ingest &amp; prepare continuation</button>
+      </div>
+      <div id="ci_streamBox" class="logbox" data-clearable></div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Write more chapters</h3>
+        <div class="row">
+          <div class="field"><label>How many more chapters</label><input id="cr_more" type="number" min="1" value="3"></div>
+          <div class="field"><label>Words per chapter</label><input id="cr_words" type="number" min="200" step="100" value="3500"></div>
+          <div class="field" style="flex:0"><button class="btn btn-primary" id="cr_runBtn">Continue writing</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="series">
+      <h2>Series</h2>
+      <div class="row">
+        <div class="field" style="flex:2"><input id="sr_name" placeholder="Series name..."></div>
+        <div class="field"><input id="sr_planned" type="number" min="1" value="1" placeholder="planned books"></div>
+        <div class="field" style="flex:0"><button class="btn btn-primary" id="sr_createBtn">Create / open</button></div>
+      </div>
+      <div id="sr_detail" class="card hidden">
+        <div class="field"><label>Arc synopsis</label><textarea id="sr_arc" rows="3"></textarea></div>
+        <div class="row" style="align-items:center">
+          <div class="field" style="flex:0"><button class="btn" id="sr_saveArcBtn">Save arc</button></div>
+          <div class="field" style="flex:0"><button class="btn btn-danger" id="sr_deleteBtn">Delete series</button></div>
+        </div>
+        <h3 style="margin-top:16px">Books</h3>
+        <table><thead><tr><th>#</th><th>Project</th><th>Title</th><th>Status</th><th></th></tr></thead><tbody id="sr_books"></tbody></table>
+        <div class="row" style="margin-top:10px">
+          <div class="field" style="flex:2"><label>Add current project to this series</label>
+            <select id="sr_addProject"></select>
+          </div>
+          <div class="field" style="flex:0"><button class="btn" id="sr_addBtn">Add</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" data-panel="export">
+      <h2>Cover Art</h2>
+      <div class="row">
+        <div class="field" style="flex:0">
+          <img id="coverPreview" style="width:160px; aspect-ratio:2/3; object-fit:cover; border-radius:6px; border:1px solid var(--border); background:var(--panel-2)">
+        </div>
+        <div class="field" style="flex:1">
+          <label>Quick cover style</label>
+          <select id="cv_style"><option value="gradient">Gradient</option><option value="duotone">Duotone</option><option value="minimal">Minimal</option></select>
+          <label style="margin-top:8px">Accent color</label>
+          <input id="cv_accent" type="color" value="#1f6feb">
+          <div class="row" style="margin-top:8px">
+            <button class="btn btn-primary" id="cv_quickBtn">Generate quick cover</button>
+          </div>
+        </div>
+        <div class="field" style="flex:1">
+          <label>Import cover from path</label>
+          <input id="cv_importPath" placeholder="/path/to/image.jpg">
+          <div class="row" style="margin-top:8px"><button class="btn" id="cv_importBtn">Import</button></div>
+        </div>
+      </div>
+
+      <h2>Export</h2>
+      <div class="row">
+        <div class="field"><label><input type="checkbox" id="ex_epub" checked> EPUB</label></div>
+        <div class="field"><label><input type="checkbox" id="ex_pdf" checked> PDF</label></div>
+        <div class="field"><label><input type="checkbox" id="ex_txt" checked> TXT</label></div>
+        <div class="field"><button class="btn btn-primary" id="ex_runBtn">Export</button></div>
+      </div>
+      <div id="ex_results" class="card muted" data-clearable style="white-space:pre-wrap; font-size:13px"></div>
+
+      <h2 style="margin-top:24px">Audiobook Narration</h2>
+      <div class="card">
+        <div class="row">
+          <div class="field"><label>Mode</label>
+            <select id="ab_mode">
+              <option value="single">Single narrator</option>
+              <option value="cast">Full cast (voice per character)</option>
+              <option value="narrator_voices">One narrator doing voices</option>
+            </select>
+          </div>
+          <div class="field" style="flex:2"><label>Narrator voice</label><select id="ab_narrator"></select></div>
+          <div class="field" style="flex:0"><button class="btn" id="ab_previewNarratorBtn">Preview</button></div>
+        </div>
+        <div class="row">
+          <div class="field" style="flex:0"><button class="btn" id="ab_castBtn">Auto-cast with AI</button></div>
+        </div>
+        <div id="ab_characters"></div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label><input type="checkbox" id="ab_keepWavs"> keep per-chapter WAVs</label></div>
+          <div class="field" style="flex:0"><button class="btn btn-primary" id="ab_buildBtn">Build Audiobook</button></div>
+        </div>
+        <div class="progress-bar"><div id="ab_prog"></div></div>
+        <div id="ab_log" class="logbox short" data-clearable></div>
+        <audio id="ab_player" controls style="width:100%; margin-top:10px; display:none"></audio>
+      </div>
+    </div>
+
+    <div class="panel" data-panel="settings">
+      <h2>Settings</h2>
+      <div class="card">
+        <h3>Connection</h3>
+        <div class="row" style="align-items:flex-end">
+          <div class="field"><label>Jan API base</label><input id="s_api_base"></div>
+          <div class="field adv"><label>Models folder</label><input id="s_models_path"></div>
+          <div class="field"><button class="btn" id="rescanModelsBtn">Rescan models</button></div>
+        </div>
+        <p class="muted" id="modelScanInfo"></p>
+      </div>
+      <div class="card">
+        <h3>Generation defaults</h3>
+        <div class="row">
+          <div class="field"><label>Default world depth</label>
+            <select id="s_world_depth"><option value="sketch">Sketch</option><option value="standard">Standard</option><option value="rich">Rich</option><option value="epic">Epic</option></select>
+          </div>
+          <div class="field adv"><label>Codex reconcile every N chapters (0=off)</label><input id="s_reconcile_every" type="number"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label><input type="checkbox" id="s_rag_enabled"> Look up earlier chapters and world notes for each scene</label></div>
+          <div class="field adv"><label>Passages looked up per scene</label>
+            <div class="pair"><input type="range" id="s_rag_passages_r" min="1" max="10" step="1"><input type="number" id="s_rag_passages" min="1" max="10" step="1"></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field adv"><label><input type="checkbox" id="s_outline_careful"> Careful outlines by default (one editor pass)</label></div>
+          <div class="field adv"><label><input type="checkbox" id="s_preset_sample"> Show the model the genre's rhythm sample</label></div>
+        </div>
+        <div class="row">
+          <div class="field"><label><input type="checkbox" id="s_degeneration_guard"> Degeneration guard</label></div>
+          <div class="field"><label><input type="checkbox" id="s_auto_synopsis"> Auto running synopsis</label></div>
+          <div class="field"><label><input type="checkbox" id="s_auto_threads"> Auto open-threads tracking</label></div>
+          <div class="field adv"><label><input type="checkbox" id="s_strip_reasoning"> Strip &lt;think&gt; reasoning</label></div>
+        </div>
+      </div>
+      <div class="card adv">
+        <h3>Jan memory</h3>
+        <div class="field"><label>Unload a model NovelForge loaded after this many idle minutes (0 keeps it loaded)</label>
+          <div class="pair"><input type="range" id="s_idle_r" min="0" max="60" step="1"><input type="number" id="s_idle" min="0" max="60" step="1"></div>
+        </div>
+      </div>
+      <div class="card adv">
+        <h3>RAM guard</h3>
+        <div class="row">
+          <div class="field"><label><input type="checkbox" id="s_ram_guard"> Enable RAM guard</label></div>
+          <div class="field"><label>Min free RAM (GB)</label><input id="s_min_ram" type="number" step="0.5"></div>
+          <div class="field"><label>Guard wait (s)</label><input id="s_ram_wait" type="number"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Export defaults</h3>
+        <div class="row">
+          <div class="field"><label>Author name</label><input id="s_author"></div>
+          <div class="field"><label>EPUB language</label><input id="s_epub_lang" value="en"></div>
+          <div class="field"><label>PDF page size</label><select id="s_pdf_size"><option value="A4">A4</option><option value="Letter">Letter</option></select></div>
+          <div class="field"><label>Export folder (blank = per-project)</label><input id="s_export_dir"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Audiobook / TTS defaults</h3>
+        <div class="row">
+          <div class="field"><label>Output format</label><select id="s_tts_format"><option value="m4a">m4a</option><option value="mp3">mp3</option><option value="wav">wav</option></select></div>
+          <div class="field"><label>Speed</label><input id="s_tts_speed" type="number" step="0.05"></div>
+          <div class="field adv"><label>Variation</label><input id="s_tts_variation" type="number" step="0.05"></div>
+          <div class="field"><label>Chapter pause (ms)</label><input id="s_tts_pause" type="number"></div>
+          <div class="field"><label><input type="checkbox" id="s_tts_announce"> Announce chapter numbers</label></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script>
+let currentProject = null;
+let activeJobId = null;
+let evtSource = null;
+
+// Project and series names are user-typed and go straight into URL paths.
+// An unencoded "#" or "?" silently truncates the path, so every interpolation
+// of a name goes through these two.
+function pu(name) { return encodeURIComponent(name); }
+function projUrl(suffix) { return `/api/projects/${pu(currentProject.name)}${suffix}`; }
+
+// Panels that refresh when opened hook in here, so each one is wired once
+// instead of adding its own listener to every tab.
+const selectTab = initTabs((name) => {
+  if (name === "references") loadStyleSources();
+  if (name === "export") { refreshCover(); loadVoiceCatalogAndMap(); }
+});
+
+// Fill a model picker. `blank` adds a first option with value "" (the
+// planner's "same as writer"). Rebuilt only when the list changed, so a
+// rescan never closes a list that is open.
+function fillModelPicker(sel, models, chosen, { blank = null, janUp = true } = {}) {
+  const want = (blank ? [""] : []).concat(models).join("\n");
+  const have = [...sel.options].filter(o => !o.disabled).map(o => o.value).join("\n");
+  if (want !== have || (!models.length && !sel.options.length)) {
+    sel.innerHTML = "";
+    if (blank) { const o = document.createElement("option"); o.value = ""; o.textContent = blank; sel.appendChild(o); }
+    for (const m of models) {
+      const o = document.createElement("option");
+      o.value = m; o.textContent = m;
+      sel.appendChild(o);
+    }
+    if (!models.length) {
+      const o = document.createElement("option");
+      o.textContent = janUp ? "No models found in Jan" : "No models: is Jan running?";
+      o.disabled = true;
+      sel.appendChild(o);
+    }
+  }
+  if (document.activeElement !== sel) sel.value = (chosen && models.includes(chosen)) ? chosen : (blank ? "" : (models[0] || ""));
+}
+
+let lastState = null;
+async function refreshState() {
+  const res = await fetch("/api/state");
+  const data = await res.json();
+  lastState = data;
+  document.getElementById("janDot").classList.toggle("up", data.jan_up);
+  document.getElementById("janLabel").textContent = data.jan_up ? "Jan online" : "Jan offline";
+  const roles = data.roles || {}, own = data.role_settings || {};
+  fillModelPicker(document.getElementById("m_writer"), data.models, roles.writer, { janUp: data.jan_up });
+  fillModelPicker(document.getElementById("m_planner"), data.models, own.planner,
+    { blank: "Same as writer", janUp: data.jan_up });
+  document.getElementById("g_models").textContent = roles.writer
+    ? `Writer ${roles.writer}` + (roles.planner && roles.planner !== roles.writer ? `, planner ${roles.planner}` : "") + " (change in the header)"
+    : "No model yet: is Jan running?";
+  if (data.idle_minutes !== null && data.idle_minutes !== undefined) setPair("s_idle", data.idle_minutes);
+  const s = data.settings;
+  setVal("s_api_base", s.api_base);
+  setVal("s_models_path", s.models_path);
+  const scanInfo = document.getElementById("modelScanInfo");
+  if (scanInfo && data.models_path !== undefined) {
+    scanInfo.textContent = `${data.models.length} models (${data.api_count ?? 0} from Jan, ${data.scan_count ?? 0} on disk in ${data.models_path})`;
+  }
+  setVal("s_world_depth", s.world_depth);
+  setVal("s_reconcile_every", s.reconcile_every);
+  setChecked("s_degeneration_guard", s.degeneration_guard);
+  setChecked("s_auto_synopsis", s.auto_running_synopsis);
+  setChecked("s_auto_threads", s.auto_open_threads);
+  setChecked("s_strip_reasoning", s.strip_reasoning);
+  setChecked("s_ram_guard", s.ram_guard);
+  setVal("s_min_ram", s.min_free_ram_gb);
+  setVal("s_ram_wait", s.ram_guard_wait_s);
+  setVal("s_author", s.author_name);
+  setVal("s_epub_lang", s.epub_language);
+  setVal("s_pdf_size", s.pdf_page_size);
+  setVal("s_export_dir", s.export_dir);
+  setVal("s_tts_format", s.tts_format);
+  setVal("s_tts_speed", s.tts_speed);
+  setVal("s_tts_variation", s.tts_variation);
+  setVal("s_tts_pause", s.tts_chapter_pause_ms);
+  setChecked("s_tts_announce", s.tts_announce_chapter);
+  setChecked("s_rag_enabled", s.rag_enabled !== false);
+  setPair("s_rag_passages", s.rag_passages ?? 4);
+  setChecked("s_outline_careful", !!s.outline_careful);
+  setChecked("s_preset_sample", s.preset_sample !== false);
+  if (!currentProject) setChecked("outlineCareful", !!s.outline_careful);
+  return data;
+}
+
+// A slider and a number box that show the same value.
+function setPair(id, v) { setVal(id, v); setVal(id + "_r", v); }
+for (const id of ["s_idle", "s_rag_passages"]) {
+  const num = document.getElementById(id), range = document.getElementById(id + "_r");
+  range.addEventListener("input", () => { num.value = range.value; });
+  num.addEventListener("input", () => { range.value = num.value; });
+}
+
+async function saveRole(role, model) {
+  const res = await fetch("/api/jan/settings", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ models: { [role]: model } }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't save the model"), "err");
+  toast(role === "writer" ? `Writer: ${model}` : (model ? `Planner: ${model}` : "Planner: same as writer"), "ok");
+  refreshState();
+}
+document.getElementById("m_writer").addEventListener("change", (e) => saveRole("writer", e.target.value));
+document.getElementById("m_planner").addEventListener("change", (e) => saveRole("planner", e.target.value));
+
+// The 15 s poll job. Returns false while the server does not answer, so
+// ForgeIdle stretches the wait (15 s, then 30 s) instead of firing into the
+// void; the header says so, and the project list loads again once the server
+// is back.
+let serverAway = false, polledState = null;
+async function pollState() {
+  try {
+    polledState = await refreshState();
+  } catch (e) {
+    serverAway = true;
+    document.getElementById("janDot").classList.remove("up");
+    document.getElementById("janLabel").textContent = "Server not answering, retrying";
+    return false;
+  }
+  if (serverAway) {
+    serverAway = false;
+    loadProjects().catch(() => {});
+  }
+  return true;
+}
+
+async function loadProjects() {
+  const res = await fetch("/api/projects");
+  const rows = await res.json();
+  const list = document.getElementById("projList");
+  list.innerHTML = "";
+  if (rows.length === 0) {
+    list.innerHTML = '<div class="card muted">No projects yet -- create one above.</div>';
+    return;
+  }
+  for (const p of rows) {
+    const row = document.createElement("div");
+    row.className = "card proj-row";
+    // Project names are user-typed, so build the row from DOM nodes rather
+    // than an innerHTML template -- a name containing < or & would otherwise
+    // corrupt the markup.
+    if (p.has_cover) {
+      const img = document.createElement("img");
+      img.className = "cover-thumb";
+      img.loading = "lazy";
+      img.alt = "";
+      img.src = `/api/projects/${pu(p.name)}/cover`;
+      // Fall back to the initial-letter tile if the cover file disappeared
+      // between the listing and the image request.
+      img.addEventListener("error", () => img.replaceWith(coverFallback(p.name)));
+      row.appendChild(img);
+    } else {
+      row.appendChild(coverFallback(p.name));
+    }
+    const name = document.createElement("span");
+    name.className = "name";
+    name.textContent = p.name;
+    const meta = document.createElement("span");
+    meta.className = "meta";
+    meta.textContent = `${p.genre || "no genre"} \u00b7 ${p.chapters} chapters \u00b7 ${p.words} words`;
+    const del = document.createElement("button");
+    del.className = "btn btn-danger del";
+    del.textContent = "Delete";
+    del.title = "Move this project to ~/NovelMakerData/.trash";
+    del.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      if (!(await ForgeDialog.confirm(`Delete the project "${p.name}"? It is moved to ~/NovelMakerData/.trash, so it can be recovered.`, { ok: "Delete", cancel: "Keep it" }))) return;
+      const res = await fetch(`/api/projects/${pu(p.name)}`, { method: "DELETE" });
+      if (!res.ok) return toast(await errText(res, "Couldn't delete it"), "err");
+      if (currentProject && currentProject.name === p.name) {
+        currentProject = null;
+        document.getElementById("hdrProject").textContent = "No project open";
+      }
+      toast(`Moved ${p.name} to the trash`, "ok");
+      loadProjects();
+    });
+    row.append(name, meta, del);
+    row.addEventListener("click", () => openProject(p.name));
+    list.appendChild(row);
+  }
+}
+
+function coverFallback(name) {
+  const div = document.createElement("div");
+  div.className = "cover-fallback";
+  div.textContent = (name.trim()[0] || "?").toUpperCase();
+  return div;
+}
+
+document.getElementById("newProjBtn").addEventListener("click", async () => {
+  const name = val("newProjName").trim();
+  if (!name) return;
+  const res = await fetch("/api/projects", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ name }) });
+  if (!res.ok) { toast(await errText(res, "Couldn't create project"), "err"); return; }
+  document.getElementById("newProjName").value = "";
+  await loadProjects();
+});
+
+const BIBLE_FIELDS = ["title","genre","protagonist","plot","pinned_facts","inspiration_notes","style_directives","world_doc","outline","story_scope","planned_books","preset"];
+
+function showProject(p) {
+  currentProject = p;
+  document.getElementById("hdrProject").textContent = `${p.name} -- ${p.scope_label} -- ${p.chapter_count} ch, ${p.total_words} words`;
+  for (const k of BIBLE_FIELDS) {
+    const el = document.getElementById("b_" + k);
+    if (el) el.value = p.bible[k] ?? "";
+  }
+  showPresetInfo();
+  setVal("rewindFrom", Math.max(1, p.chapter_count));
+}
+
+async function openProject(name, { switchTab = true } = {}) {
+  const res = await fetch(`/api/projects/${pu(name)}`);
+  if (!res.ok) { toast("Couldn't open project", "err"); return; }
+  const p = await res.json();
+  showProject(p);
+  setVal("g_chapters", p.state.target_chapters);
+  setVal("g_words", p.state.target_words_per_chapter);
+  document.getElementById("chapterProg").style.width = `${Math.min(100, 100 * p.chapter_count / Math.max(1, p.state.target_chapters))}%`;
+  await loadCodex();
+  if (switchTab) selectTab("story");
+}
+
+// Push the editable Story fields to the backend. Returns true on success.
+// Free-Rein reads the bible fresh from disk, so unsaved seed fields would be
+// lost -- it saves through here first.
+async function saveBible({ toastOnOk = true } = {}) {
+  if (!currentProject) { toast("Open a project first", "err"); return false; }
+  const patch = {};
+  for (const k of ["title","genre","protagonist","plot","pinned_facts","inspiration_notes","style_directives","world_doc","story_scope","preset","outline"]) {
+    patch[k] = val("b_" + k);
+  }
+  patch.planned_books = parseInt(val("b_planned_books")) || 1;
+  const res = await fetch(projUrl("/bible"), { method: "PUT",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify(patch) });
+  if (res.ok) { showProject(await res.json()); if (toastOnOk) toast("Story bible saved", "ok"); return true; }
+  toast(await errText(res, "Save failed"), "err");
+  return false;
+}
+
+document.getElementById("saveBibleBtn").addEventListener("click", () => saveBible());
+
+document.getElementById("freeReinBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  if (!(await saveBible({ toastOnOk: false }))) return;
+  const btn = document.getElementById("freeReinBtn");
+  const box = document.getElementById("freeReinLog"); box.textContent = "";
+  const res = await fetch(projUrl("/free-rein"), { method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ expand_existing: document.getElementById("freeReinExpand").checked }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start Free-Rein"), "err");
+  const { job_id } = await res.json();
+  btn.disabled = true;
+  toast("Free-Rein: building the world…");
+  streamJobGeneric(job_id, box, {
+    onDone: async () => {
+      btn.disabled = false;
+      showProject(await (await fetch(projUrl(""))).json());
+      await loadCodex();
+      toast("World built", "ok");
+    },
+    onError: (msg) => { btn.disabled = false; toast("Free-Rein failed: " + msg, "err"); },
+  });
+});
+
+// Generate Outline replaces the outline; Continue outline keeps what is
+// planned and fills in the rest. Progress shows right here on the Story tab.
+async function runOutline(keep_existing) {
+  if (!currentProject) return toast("Open a project first", "err");
+  if (!keep_existing && (currentProject.bible.chapter_list || []).length &&
+      !(await ForgeDialog.confirm("Replace the current outline with a new one?", { ok: "Replace it", cancel: "Keep it" }))) return;
+  if (!(await saveBible({ toastOnOk: false }))) return;
+  const target_chapters = parseInt(val("outlineChapters")) || 20;
+  const res = await fetch(projUrl("/outline"), { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ target_chapters, keep_existing, careful: checked("outlineCareful") }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start outline job"), "err");
+  const { job_id } = await res.json();
+  const box = document.getElementById("outlineLog"); box.textContent = "";
+  const btns = ["outlineBtn", "outlineMoreBtn"].map(id => document.getElementById(id));
+  btns.forEach(b => b.disabled = true);
+  streamJobGeneric(job_id, box, {
+    onDone: async () => {
+      btns.forEach(b => b.disabled = false);
+      showProject(await (await fetch(projUrl(""))).json());
+      const got = (currentProject.bible.chapter_list || []).length;
+      if (got >= target_chapters) toast(`Outline ready: ${got} chapters`, "ok");
+      else toast(`Outline has ${got} of ${target_chapters} chapters; see the progress box, then Continue outline`, "err");
+    },
+    onError: (msg) => { btns.forEach(b => b.disabled = false); toast("Outline failed: " + msg, "err"); },
+  });
+}
+document.getElementById("outlineBtn").addEventListener("click", () => runOutline(false));
+document.getElementById("outlineMoreBtn").addEventListener("click", () => runOutline(true));
+
+async function resetParts(parts, question) {
+  if (!currentProject) { toast("Open a project first", "err"); return false; }
+  if (!(await ForgeDialog.confirm(question, { ok: "Yes, clear it", cancel: "Cancel" }))) return false;
+  const res = await fetch(projUrl("/reset"), { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ parts }) });
+  if (!res.ok) { toast(await errText(res, "Reset failed"), "err"); return false; }
+  showProject(await res.json());
+  await loadCodex();
+  toast("Cleared: " + parts.join(", "), "ok");
+  return true;
+}
+document.getElementById("clearOutlineBtn").addEventListener("click", () =>
+  resetParts(["outline"], "Clear the whole outline? Written chapters are kept."));
+document.getElementById("clearWorldBtn").addEventListener("click", () =>
+  resetParts(["world_doc"], "Clear the world document?"));
+document.getElementById("resetBtn").addEventListener("click", () => {
+  const parts = [...document.querySelectorAll("[data-reset]:checked")].map(el => el.dataset.reset);
+  if (!parts.length) return toast("Tick what to reset first", "err");
+  resetParts(parts, "Reset " + parts.join(", ") + "? Written chapters go to the trash.").then(ok => {
+    if (ok) document.querySelectorAll("[data-reset]").forEach(el => { el.checked = false; });
+  });
+});
+document.getElementById("rewindBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const from_chapter = parseInt(val("rewindFrom"));
+  if (!(from_chapter >= 1)) return toast("Enter a chapter number", "err");
+  if (!(await ForgeDialog.confirm(`Delete chapter ${from_chapter} and every chapter after it? They are moved to the trash, and the next Start carries on from chapter ${from_chapter}.`, { ok: "Delete them", cancel: "Cancel" }))) return;
+  const res = await fetch(projUrl("/rewind"), { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ from_chapter }) });
+  if (!res.ok) return toast(await errText(res, "Rewind failed"), "err");
+  const data = await res.json();
+  showProject(data);
+  toast(data.removed ? `Removed ${data.removed} chapter(s)` : "No chapters at or after that number", "ok");
+});
+
+// ---------------- Genre presets ----------------
+let presetList = [];
+async function loadPresets() {
+  presetList = await (await fetch("/api/presets")).json();
+  const sel = document.getElementById("b_preset");
+  sel.innerHTML = "";
+  const auto = document.createElement("option"); auto.value = ""; auto.textContent = "Auto (picked from the genre)";
+  sel.appendChild(auto);
+  const groups = {};
+  for (const p of presetList) {
+    if (!groups[p.group]) { groups[p.group] = document.createElement("optgroup"); groups[p.group].label = p.group; sel.appendChild(groups[p.group]); }
+    const o = document.createElement("option"); o.value = p.id; o.textContent = p.label;
+    groups[p.group].appendChild(o);
+  }
+  if (currentProject) sel.value = currentProject.bible.preset || "";
+  showPresetInfo();
+}
+function showPresetInfo() {
+  const id = val("b_preset");
+  const p = presetList.find(x => x.id === id);
+  document.getElementById("presetInfo").textContent = p
+    ? `${p.description} About ${p.words_per_chapter} words per chapter.`
+    : "Chosen from the genre when writing starts; pick one to be sure.";
+}
+document.getElementById("b_preset").addEventListener("change", () => {
+  showPresetInfo();
+  const p = presetList.find(x => x.id === val("b_preset"));
+  if (p && currentProject && !currentProject.chapter_count) setVal("g_words", p.words_per_chapter);
+});
+
+function setGenButtons(running) {
+  document.getElementById("startBtn").disabled = running;
+  document.getElementById("softStopBtn").disabled = !running;
+  document.getElementById("hardStopBtn").disabled = !running;
+}
+
+document.getElementById("startBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const body = {
+    target_chapters: parseInt(val("g_chapters")) || 20,
+    target_words_per_chapter: parseInt(val("g_words")) || 3500,
+    model: val("m_writer") || null,
+  };
+  const maxtok = val("g_maxtok").trim(); if (maxtok) body.max_tokens_per_call = parseInt(maxtok);
+  const budget = val("g_budget").trim(); if (budget) body.context_budget = parseInt(budget);
+  const ptemp = val("g_ptemp").trim(); if (ptemp) body.prose_temperature = parseFloat(ptemp);
+  const stemp = val("g_stemp").trim(); if (stemp) body.structure_temperature = parseFloat(stemp);
+
+  const res = await fetch(projUrl("/generate"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "Couldn't start generation"), "err");
+  const data = await res.json();
+  if (data.ram_warning) toast(`Only ${data.ram_warning.available_gb.toFixed(1)}GB RAM free -- watch for early stop`, "err");
+  activeJobId = data.job_id;
+  setGenButtons(true);
+  document.getElementById("genStatus").textContent = "Generating…";
+  document.getElementById("streamBox").textContent = "";
+  streamJob(activeJobId, {
+    onDone: () => { setGenButtons(false); document.getElementById("genStatus").textContent = "";
+      toast("Generation finished.", "ok"); openProject(currentProject.name, { switchTab: false }); },
+    onError: (msg) => { setGenButtons(false); document.getElementById("genStatus").textContent = "";
+      toast("Generation failed: " + msg, "err"); },
+  });
+});
+
+document.getElementById("softStopBtn").addEventListener("click", () => stopJob(false));
+document.getElementById("hardStopBtn").addEventListener("click", async () => {
+  const keep = await ForgeDialog.confirm("Kill generation now. Keep the partial chapter or discard it?", { ok: "Keep partial chapter", cancel: "Discard it" });
+  stopJob(true, keep);
+});
+async function stopJob(hard, keep_partial = true) {
+  if (!activeJobId) return;
+  await fetch(`/api/jobs/${activeJobId}/stop`, { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ hard, keep_partial }) });
+}
+
+// Adapters over the shared forgeStream(). The one-EventSource-per-job rule
+// and the reconnect handling live in /shared/forge.js; what differs per panel
+// is only where the text goes.
+//
+// The generation stream is the one place that prints raw prose tokens, so it
+// appends stream text verbatim and brackets log lines to keep them apart.
+function streamJob(jobId, { onDone, onError }) {
+  if (evtSource) evtSource.close();
+  const box = document.getElementById("streamBox");
+  const write = (t) => { box.textContent += t; box.scrollTop = box.scrollHeight; };
+  evtSource = forgeStream(jobId, {
+    onStream: (t) => write(t),
+    onLog: (t) => write(`\n[${t}]\n`),
+    onProgress: (e) => {
+      if (e.chapter_total) {
+        document.getElementById("chapterProg").style.width = `${100 * e.chapter / e.chapter_total}%`;
+      }
+    },
+    onDone, onError,
+  });
+  return evtSource;
+}
+
+// Everything else just wants the log appended to its own box.
+function streamJobGeneric(jobId, box, { onDone, onError, onProgress } = {}) {
+  return forgeStreamInto(jobId, box, { onProgress, onDone, onError });
+}
+
+async function loadCodex() {
+  if (!currentProject) return;
+  const res = await fetch(projUrl("/codex"));
+  const data = await res.json();
+  renderCodex(data);
+}
+
+// Readable codex: one card per kind, a Delete button per entry. Names are
+// model-written, so everything is built from DOM nodes, never innerHTML.
+function renderCodex(data) {
+  const s = data.stats || {};
+  document.getElementById("codexStats").textContent =
+    Object.entries(s).map(([k, v]) => `${k}: ${v}`).join("  ·  ") || "empty";
+  document.getElementById("codexRaw").textContent = JSON.stringify(data.codex, null, 2);
+  const box = document.getElementById("codexList");
+  box.innerHTML = "";
+  const cx = data.codex || {};
+  const groups = [["characters", "Characters"], ["locations", "Locations"], ["factions", "Factions"], ["facts", "Facts and rules"]];
+  let any = false;
+  for (const [bucket, title] of groups) {
+    const entries = bucket === "facts" ? (cx.facts || []).map(f => [f, null]) : Object.entries(cx[bucket] || {});
+    if (!entries.length) continue;
+    any = true;
+    const wrap = document.createElement("div"); wrap.className = "codex-group";
+    const h = document.createElement("h3"); h.textContent = `${title} (${entries.length})`;
+    const card = document.createElement("div"); card.className = "card"; card.style.padding = "0";
+    for (const [key, e] of entries) {
+      const row = document.createElement("div"); row.className = "codex-item";
+      const body = document.createElement("div"); body.className = "body";
+      if (e) {
+        const n = document.createElement("strong"); n.textContent = key; body.appendChild(n);
+        const d = document.createElement("div"); d.textContent = e.desc || ""; body.appendChild(d);
+        const extra = [];
+        if ((e.traits || []).length) extra.push("traits: " + e.traits.join(", "));
+        if (e.status) extra.push("status: " + e.status);
+        const rel = Object.entries(e.relationships || {});
+        if (rel.length) extra.push("relationships: " + rel.map(([k, v]) => `${k} = ${v}`).join("; "));
+        if (e.first_chapter) extra.push(`first seen ch ${e.first_chapter}`);
+        if (extra.length) { const m = document.createElement("div"); m.className = "muted"; m.textContent = extra.join(" · "); body.appendChild(m); }
+      } else {
+        body.textContent = key;
+      }
+      const del = document.createElement("button"); del.className = "btn btn-danger"; del.textContent = "Delete";
+      del.addEventListener("click", async () => {
+        const label = e ? key : "this fact";
+        if (!(await ForgeDialog.confirm(`Delete ${label} from the codex?`, { ok: "Delete", cancel: "Keep" }))) return;
+        const r = await fetch(projUrl(`/codex?bucket=${encodeURIComponent(bucket)}&key=${encodeURIComponent(key)}`), { method: "DELETE" });
+        if (!r.ok) return toast(await errText(r, "Couldn't delete it"), "err");
+        renderCodex(await r.json());
+      });
+      row.append(body, del);
+      card.appendChild(row);
+    }
+    wrap.append(h, card);
+    box.appendChild(wrap);
+  }
+  if (!any) box.innerHTML = '<div class="card muted" style="margin-top:12px">The codex is empty. Free-Rein and each written chapter fill it in.</div>';
+}
+
+document.getElementById("saveSettingsBtn").addEventListener("click", async () => {
+  const values = {
+    api_base: val("s_api_base"), models_path: val("s_models_path"),
+    world_depth: val("s_world_depth"), reconcile_every: parseInt(val("s_reconcile_every")) || 0,
+    degeneration_guard: checked("s_degeneration_guard"), auto_running_synopsis: checked("s_auto_synopsis"),
+    auto_open_threads: checked("s_auto_threads"), strip_reasoning: checked("s_strip_reasoning"),
+    ram_guard: checked("s_ram_guard"), min_free_ram_gb: parseFloat(val("s_min_ram")) || 2.5,
+    ram_guard_wait_s: parseInt(val("s_ram_wait")) || 90,
+    author_name: val("s_author"), epub_language: val("s_epub_lang"), pdf_page_size: val("s_pdf_size"),
+    export_dir: val("s_export_dir"),
+    tts_format: val("s_tts_format"), tts_speed: parseFloat(val("s_tts_speed")) || 1.0,
+    tts_variation: parseFloat(val("s_tts_variation")) || 0.85,
+    tts_chapter_pause_ms: parseInt(val("s_tts_pause")) || 900,
+    tts_announce_chapter: checked("s_tts_announce"),
+    rag_enabled: checked("s_rag_enabled"),
+    rag_passages: Math.min(10, Math.max(1, parseInt(val("s_rag_passages")) || 4)),
+    outline_careful: checked("s_outline_careful"),
+    preset_sample: checked("s_preset_sample"),
+    advanced_mode: ForgeMode.on,
+  };
+  await fetch("/api/settings", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ values }) });
+  const idle = parseFloat(val("s_idle"));
+  if (!Number.isNaN(idle)) await fetch("/api/jan/settings", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ idle_minutes: Math.max(0, idle) }) });
+  toast("Settings saved", "ok");
+  refreshState();
+});
+
+async function rescanModels() {
+  const res = await fetch("/api/refresh-models", { method: "POST" });
+  if (!res.ok) return toast(await errText(res, "Rescan failed"), "err");
+  const d = await res.json();
+  await refreshState();
+  const info = document.getElementById("modelScanInfo");
+  if (info) info.textContent = `${d.models.length} models (${d.api_count} from Jan, ${d.scan_count} on disk in ${d.models_path})`;
+  return d;
+}
+// Pointing at the model list rescans it (at most every 5 s), so a model just
+// added to or removed from Jan shows up before the list is opened.
+let lastModelScan = 0;
+for (const id of ["m_writer", "m_planner"]) {
+  for (const ev of ["pointerenter", "focus"]) {
+    document.getElementById(id).addEventListener(ev, () => {
+      if (Date.now() - lastModelScan < 5000) return;
+      lastModelScan = Date.now();
+      rescanModels();
+    });
+  }
+}
+document.getElementById("rescanModelsBtn").addEventListener("click", () =>
+  rescanModels().then(d => d && toast(`Found ${d.models.length} models`, "ok")));
+
+// ---------------- Export & cover ----------------
+function refreshCover() {
+  if (!currentProject) return;
+  document.getElementById("coverPreview").src = projUrl(`/cover?t=${Date.now()}`);
+}
+
+document.getElementById("cv_quickBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const res = await fetch(projUrl("/cover/quick"), { method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ style: val("cv_style"), accent_hex: val("cv_accent") }) });
+  if (res.ok) { refreshCover(); loadProjects(); toast("Cover generated", "ok"); }
+  else toast(await errText(res, "Cover generation failed"), "err");
+});
+
+document.getElementById("cv_importBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const src_path = val("cv_importPath").trim();
+  if (!src_path) return toast("Enter a path", "err");
+  const res = await fetch(projUrl("/cover/import"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ src_path }) });
+  if (res.ok) { refreshCover(); loadProjects(); toast("Cover imported", "ok"); }
+  else toast(await errText(res, "Import failed"), "err");
+});
+
+document.getElementById("ex_runBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const formats = [];
+  if (checked("ex_epub")) formats.push("epub");
+  if (checked("ex_pdf")) formats.push("pdf");
+  if (checked("ex_txt")) formats.push("txt");
+  if (formats.length === 0) return toast("Pick at least one format", "err");
+  const btn = document.getElementById("ex_runBtn");
+  btn.disabled = true; btn.textContent = "Exporting...";
+  const res = await fetch(projUrl("/export"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ formats }) });
+  btn.disabled = false; btn.textContent = "Export";
+  if (!res.ok) {
+    const msg = await errText(res, "Export failed");
+    document.getElementById("ex_results").textContent = msg;
+    return toast(msg, "err");
+  }
+  const data = await res.json();
+  document.getElementById("ex_results").textContent = (data.results || [])
+    .map(r => `${r.format.toUpperCase()}: ${r.result}`).join("\n");
+  toast("Export finished", "ok");
+});
+
+// ---------------- References ----------------
+async function loadStyleSources() {
+  const rows = await (await fetch("/api/style-sources")).json();
+  const box = document.getElementById("rf_sources");
+  box.innerHTML = "";
+  if (rows.length === 0) { box.innerHTML = '<div class="card muted">No sources ingested yet.</div>'; return; }
+  for (const s of rows) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="row" style="align-items:center">
+        <strong style="flex:1">${s.name}</strong>
+        <span class="muted" style="font-size:12px">${s.word_count} words, ${s.chunks} chunks</span>
+        <label><input type="checkbox" ${s.enabled ? "checked" : ""}> enabled</label>
+        <button class="btn" data-act="style">Analyze style</button>
+        <button class="btn" data-act="summary">Summarize content</button>
+        <button class="btn btn-danger" data-act="remove">Remove</button>
+      </div>
+      <div class="muted" data-role="notes" style="margin-top:8px; font-size:12px; white-space:pre-wrap"></div>`;
+    card.querySelector("input[type=checkbox]").addEventListener("change", async (e) => {
+      await fetch(`/api/style-sources/${encodeURIComponent(s.name)}/enabled?enabled=${e.target.checked}`, { method: "PUT" });
+    });
+    card.querySelector("[data-act=remove]").addEventListener("click", async () => {
+      await fetch(`/api/style-sources/${encodeURIComponent(s.name)}`, { method: "DELETE" });
+      loadStyleSources();
+    });
+    card.querySelector("[data-act=style]").addEventListener("click", async (e) => {
+      e.target.disabled = true; e.target.textContent = "Analyzing...";
+      const res = await fetch(`/api/style-sources/${encodeURIComponent(s.name)}/analyze-style`, { method: "POST",
+        headers: {"Content-Type":"application/json"}, body: "{}" });
+      e.target.disabled = false; e.target.textContent = "Analyze style";
+      if (!res.ok) return toast(await errText(res, "failed"), "err");
+      const data = await res.json();
+      card.querySelector("[data-role=notes]").textContent = "STYLE GUIDE:\n" + data.style_notes;
+      toast("Style analyzed", "ok");
+    });
+    card.querySelector("[data-act=summary]").addEventListener("click", async (e) => {
+      e.target.disabled = true; e.target.textContent = "Summarizing...";
+      const res = await fetch(`/api/style-sources/${encodeURIComponent(s.name)}/summarize`, { method: "POST",
+        headers: {"Content-Type":"application/json"}, body: "{}" });
+      e.target.disabled = false; e.target.textContent = "Summarize content";
+      if (!res.ok) return toast(await errText(res, "failed"), "err");
+      const data = await res.json();
+      card.querySelector("[data-role=notes]").textContent = "CONTENT SUMMARY:\n" + data.content_summary;
+      toast("Content summarized", "ok");
+    });
+    box.appendChild(card);
+  }
+}
+document.getElementById("rf_addBtn").addEventListener("click", async () => {
+  const pdf_path = val("rf_pdfPath").trim(), name = val("rf_name").trim() || pdf_path.split("/").pop();
+  if (!pdf_path) return toast("Enter a PDF path", "err");
+  const res = await fetch("/api/style-sources", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ name, pdf_path }) });
+  if (!res.ok) return toast(await errText(res, "ingest failed"), "err");
+  toast("PDF ingested", "ok");
+  loadStyleSources();
+});
+
+document.getElementById("rs_lookupBtn").addEventListener("click", async () => {
+  const query = val("rs_query").trim();
+  if (!query) return;
+  const btn = document.getElementById("rs_lookupBtn");
+  btn.disabled = true; btn.textContent = "Looking up...";
+  const res = await fetch("/api/research", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ query }) });
+  btn.disabled = false; btn.textContent = "Look up";
+  if (!res.ok) return toast(await errText(res, "Lookup failed"), "err");
+  const data = await res.json();
+  document.getElementById("rs_result").textContent = data.result || "(nothing found)";
+});
+document.getElementById("rs_pushBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const text = document.getElementById("rs_result").textContent;
+  if (!text) return;
+  const existing = val("b_inspiration_notes");
+  const merged = (existing ? existing + "\n\n" : "") + text;
+  const res = await fetch(projUrl("/bible"), { method: "PUT",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ inspiration_notes: merged }) });
+  if (res.ok) { currentProject = await res.json(); setVal("b_inspiration_notes", currentProject.bible.inspiration_notes); toast("Pushed to inspiration notes", "ok"); }
+});
+
+// ---------------- Continue a Series ----------------
+fetch("/api/continuation/spin-presets").then(r => r.json()).then(presets => {
+  const sel = document.getElementById("ci_spin");
+  for (const label of Object.keys(presets)) {
+    const o = document.createElement("option"); o.value = presets[label]; o.textContent = label; sel.appendChild(o);
+  }
+});
+
+document.getElementById("ci_ingestBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const pdf_paths = val("ci_paths").split(",").map(s => s.trim()).filter(Boolean);
+  if (pdf_paths.length === 0) return toast("Add at least one PDF path", "err");
+  const res = await fetch(projUrl("/continue-ingest"), { method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ pdf_paths, spin_directive: val("ci_spin"), extra_notes: val("ci_notes") }) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  const box = document.getElementById("ci_streamBox"); box.textContent = "";
+  document.getElementById("ci_ingestBtn").disabled = true;
+  streamJobGeneric(job_id, box, {
+    onDone: async () => { document.getElementById("ci_ingestBtn").disabled = false;
+      currentProject = await (await fetch(projUrl(""))).json();
+      toast("Ingest complete -- ready to continue writing", "ok"); },
+    onError: (m) => { document.getElementById("ci_ingestBtn").disabled = false; toast("Ingest failed: " + m, "err"); },
+  });
+});
+
+document.getElementById("cr_runBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const body = { n_more: parseInt(val("cr_more")) || 3, target_words_per_chapter: parseInt(val("cr_words")) || 3500 };
+  const res = await fetch(projUrl("/continue-run"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  toast("Continuing the story...");
+  selectTab("generate");
+  activeJobId = job_id;
+  setGenButtons(true);
+  document.getElementById("streamBox").textContent = "";
+  streamJob(job_id, {
+    onDone: () => { setGenButtons(false); toast("Continuation finished.", "ok"); openProject(currentProject.name, { switchTab: false }); },
+    onError: (m) => { setGenButtons(false); toast("Continuation failed: " + m, "err"); },
+  });
+});
+
+// ---------------- Series ----------------
+let currentSeries = null;
+
+document.getElementById("sr_createBtn").addEventListener("click", async () => {
+  const name = val("sr_name").trim();
+  if (!name) return toast("Enter a series name", "err");
+  const res = await fetch("/api/series", { method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ name, planned_books: parseInt(val("sr_planned")) || 1 }) });
+  if (!res.ok) return toast(await errText(res, "Couldn't create series"), "err");
+  currentSeries = await res.json();
+  await renderSeries();
+});
+
+async function renderSeries() {
+  if (!currentSeries) return;
+  document.getElementById("sr_detail").classList.remove("hidden");
+  setVal("sr_arc", currentSeries.arc_synopsis);
+  const tbody = document.getElementById("sr_books");
+  tbody.innerHTML = "";
+  currentSeries.books.forEach((slug, i) => {
+    const meta = currentSeries.book_meta[slug] || {};
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i + 1}</td><td></td><td></td>
+      <td><select>
+        <option value="planned"${meta.status === "planned" ? " selected" : ""}>planned</option>
+        <option value="drafting"${meta.status === "drafting" ? " selected" : ""}>drafting</option>
+        <option value="done"${meta.status === "done" ? " selected" : ""}>done</option>
+      </select></td><td><button class="btn btn-danger" style="padding:2px 10px; font-size:12px">Remove</button></td>`;
+    // Slugs and titles are user- or model-written: set them as text.
+    tr.children[1].textContent = slug;
+    tr.children[2].textContent = meta.title || "";
+    tr.querySelector("button").addEventListener("click", async () => {
+      if (!(await ForgeDialog.confirm(`Take ${slug} out of this series? The book itself is kept.`, { ok: "Remove", cancel: "Keep" }))) return;
+      const r = await fetch(`/api/series/${pu(currentSeries.name)}/books/${pu(slug)}`, { method: "DELETE" });
+      if (!r.ok) return toast(await errText(r, "Couldn't remove it"), "err");
+      currentSeries = await r.json();
+      renderSeries();
+    });
+    tr.querySelector("select").addEventListener("change", async (e) => {
+      await fetch(`/api/series/${pu(currentSeries.name)}/status`, { method: "PUT",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ project_name: slug, status: e.target.value }) });
+      toast("Status updated", "ok");
+    });
+    tbody.appendChild(tr);
+  });
+  const projRes = await fetch("/api/projects");
+  const projects = await projRes.json();
+  const sel = document.getElementById("sr_addProject");
+  sel.innerHTML = "";
+  for (const p of projects) { const o = document.createElement("option"); o.value = p.name; o.textContent = p.name; sel.appendChild(o); }
+}
+
+document.getElementById("sr_saveArcBtn").addEventListener("click", async () => {
+  if (!currentSeries) return;
+  const res = await fetch(`/api/series/${pu(currentSeries.name)}`, { method: "PUT",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ arc_synopsis: val("sr_arc") }) });
+  currentSeries = await res.json();
+  toast("Arc saved", "ok");
+});
+
+document.getElementById("sr_deleteBtn").addEventListener("click", async () => {
+  if (!currentSeries) return;
+  if (!(await ForgeDialog.confirm(`Delete the series "${currentSeries.name}"? Its books are kept; the series file goes to the trash.`, { ok: "Delete series", cancel: "Keep it" }))) return;
+  const r = await fetch(`/api/series/${pu(currentSeries.name)}`, { method: "DELETE" });
+  if (!r.ok) return toast(await errText(r, "Couldn't delete it"), "err");
+  currentSeries = null;
+  document.getElementById("sr_detail").classList.add("hidden");
+  toast("Series moved to the trash", "ok");
+});
+
+document.getElementById("sr_addBtn").addEventListener("click", async () => {
+  if (!currentSeries) return;
+  const project_name = val("sr_addProject");
+  if (!project_name) return;
+  const res = await fetch(`/api/series/${pu(currentSeries.name)}/books`, { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ project_name }) });
+  currentSeries = await res.json();
+  await renderSeries();
+  toast(`Added ${project_name} to series`, "ok");
+});
+
+// ---------------- Audiobook ----------------
+let abVoiceMap = null;
+let abCharacters = [];
+let abActiveJob = null;
+
+async function loadVoiceCatalogAndMap() {
+  const cat = await (await fetch("/api/tts/catalog")).json();
+  const narSel = document.getElementById("ab_narrator");
+  narSel.innerHTML = "";
+  for (const v of cat) {
+    const o = document.createElement("option"); o.value = v.id;
+    o.textContent = v.label + (v.installed ? "" : " (downloads on first use)");
+    narSel.appendChild(o);
+  }
+  if (!currentProject) return;
+  const data = await (await fetch(projUrl("/voice-map"))).json();
+  abVoiceMap = data.voice_map;
+  abCharacters = data.character_names;
+  document.getElementById("ab_mode").value = abVoiceMap.mode || "cast";
+  narSel.value = abVoiceMap.narrator;
+  renderAbCharacters(cat);
+}
+
+function renderAbCharacters(catalog) {
+  const box = document.getElementById("ab_characters");
+  box.innerHTML = "";
+  if (abCharacters.length === 0) {
+    box.innerHTML = '<div class="muted">No characters in the World Codex yet.</div>';
+    return;
+  }
+  for (const name of abCharacters) {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.style.alignItems = "center";
+    const sel = document.createElement("select");
+    sel.style.flex = "2";
+    const blank = document.createElement("option"); blank.value = ""; blank.textContent = "(use narrator)";
+    sel.appendChild(blank);
+    for (const v of catalog) { const o = document.createElement("option"); o.value = v.id; o.textContent = v.label; sel.appendChild(o); }
+    sel.value = (abVoiceMap.characters || {})[name] || "";
+    sel.addEventListener("change", () => { abVoiceMap.characters = abVoiceMap.characters || {}; abVoiceMap.characters[name] = sel.value; });
+    row.innerHTML = `<span style="flex:1">${name}</span>`;
+    row.appendChild(sel);
+    box.appendChild(row);
+  }
+}
+
+
+document.getElementById("ab_previewNarratorBtn").addEventListener("click", async () => {
+  const vid = val("ab_narrator");
+  const res = await fetch("/api/tts/preview", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ vid }) });
+  if (!res.ok) return toast(await errText(res, "preview failed"), "err");
+  const { path } = await res.json();
+  const player = document.getElementById("ab_player");
+  player.src = `/api/tts/preview-file?path=${encodeURIComponent(path)}`;
+  player.style.display = "block";
+  player.play();
+});
+
+document.getElementById("ab_castBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  const btn = document.getElementById("ab_castBtn");
+  btn.disabled = true; btn.textContent = "Casting...";
+  const res = await fetch(projUrl("/cast-voices"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: "{}" });
+  btn.disabled = false; btn.textContent = "Auto-cast with AI";
+  if (!res.ok) return toast(await errText(res, "casting failed"), "err");
+  const data = await res.json();
+  abVoiceMap = data.voice_map;
+  const cat = await (await fetch("/api/tts/catalog")).json();
+  document.getElementById("ab_narrator").value = abVoiceMap.narrator;
+  renderAbCharacters(cat);
+  toast("Cast with AI", "ok");
+});
+
+document.getElementById("ab_buildBtn").addEventListener("click", async () => {
+  if (!currentProject) return toast("Open a project first", "err");
+  // The voice map only loads when the Export tab is opened with a project
+  // already open -- opening the project afterwards leaves it null.
+  if (!abVoiceMap) await loadVoiceCatalogAndMap();
+  if (!abVoiceMap) return toast("Couldn't load the voice map for this project", "err");
+  await fetch(projUrl("/voice-map"), { method: "PUT",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ narrator: val("ab_narrator"), mode: val("ab_mode"), characters: abVoiceMap.characters || {} }) });
+  const res = await fetch(projUrl("/audiobook/build"), { method: "POST",
+    headers: {"Content-Type":"application/json"}, body: JSON.stringify({ keep_wavs: checked("ab_keepWavs") }) });
+  if (!res.ok) return toast(await errText(res, "couldn't start"), "err");
+  const { job_id } = await res.json();
+  abActiveJob = job_id;
+  document.getElementById("ab_buildBtn").disabled = true;
+  const box = document.getElementById("ab_log"); box.textContent = "";
+  streamJobGeneric(job_id, box, {
+    onProgress: (e) => { if (e.chapter_total) document.getElementById("ab_prog").style.width = `${100 * e.chapter / e.chapter_total}%`; },
+    onDone: () => {
+      document.getElementById("ab_buildBtn").disabled = false;
+      const player = document.getElementById("ab_player");
+      player.src = projUrl(`/audiobook/file?t=${Date.now()}`);
+      player.style.display = "block";
+      toast("Audiobook built", "ok");
+    },
+    onError: (m) => { document.getElementById("ab_buildBtn").disabled = false; toast("Build failed: " + m, "err"); },
+  });
+});
+
+(async function init() {
+  initClearButtons();
+  const data = (await pollState()) ? polledState : null;
+  ForgeMode.init(data ? data.settings.advanced_mode : false);
+  await loadPresets();
+  // A failed list must not stop the poll; pollState reloads it on recovery.
+  await loadProjects().catch(() => {});
+  ForgeIdle.poll(pollState, 15000, { backoff: 2, maxMs: 30000 });
+  // Pull the real model list now -- the backend also scans on startup, but this
+  // covers a backend that came up before Jan did, and refreshes the dropdown.
+  rescanModels().catch(() => {});
+})();
+</script>
+</body>
+</html>

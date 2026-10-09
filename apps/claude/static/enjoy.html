@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude · enjoy.</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="enjoy.css">
+<link rel="stylesheet" href="run_controls.css">
+<style>
+  :root { --accent: #e0916b; --accent-2: #d97757; --on-accent: #1a0c05; }
+</style>
+</head>
+<body class="enjoy">
+<div id="e-shell">
+  <nav id="e-rail">
+    <a class="e-brand" href="#projects">enjoy<b>.</b></a>
+    <div class="e-nav">
+      <a href="#projects" data-nav="projects">projects</a>
+      <a href="#now" data-nav="now">running / needs you <span id="e-now-badge" class="e-badge" hidden></span></a>
+      <a href="#roadmap" data-nav="roadmap">roadmap <span class="e-mark">∞</span></a>
+    </div>
+    <div class="e-rail-head">your projects</div>
+    <div id="e-rail-projects" class="e-rail-projects"></div>
+    <div class="e-rail-foot">
+      <label class="e-acct">new tasks run on <select id="e-account"></select></label>
+      <a id="e-docs" href="docs.html" title="Every important text document for you and Claude, dated and in folders">docs ↗</a>
+      <a id="e-classic" href="index.html" title="The layout with tabs, folders and the avatar">classic layout ↗</a>
+    </div>
+  </nav>
+
+  <main id="e-main">
+    <!-- projects. -->
+    <section id="v-projects" class="e-view" hidden>
+      <header class="e-hero">
+        <h1>projects.</h1>
+        <p class="e-lede">one person, infinite engineers. each project keeps its tasks, notes and workflows together.</p>
+      </header>
+      <div id="e-project-grid" class="e-grid"></div>
+      <form id="e-new-project" class="e-card e-new">
+        <h3>+ new project</h3>
+        <label>name <input id="e-np-name" placeholder="cosmos" autocomplete="off" required></label>
+        <label>working folder <input id="e-np-cwd" placeholder="~/Forge/apps/cosmos" autocomplete="off" spellcheck="false"></label>
+        <button class="e-btn e-primary" type="submit">make it ↗</button>
+        <span id="e-np-status" class="e-muted"></span>
+      </form>
+      <section id="e-loose" class="e-loose">
+        <h2>loose tasks.</h2>
+        <p class="e-muted e-small">conversations in no project. drag one onto a project to file it there; drag it back here to unfile it.</p>
+        <ul id="e-loose-list" class="e-list"></ul>
+        <button id="e-loose-more" class="e-more" type="button" hidden>+ more ↓</button>
+      </section>
+    </section>
+
+    <!-- one project -->
+    <section id="v-project" class="e-view" hidden>
+      <header class="e-hero">
+        <a class="e-back" href="#projects">← projects</a>
+        <h1 id="e-p-name"></h1>
+        <p id="e-p-cwd" class="e-lede e-mono"></p>
+        <nav class="e-tabs">
+          <a data-tab="tasks">tasks.</a><a data-tab="notes">notes.</a><a data-tab="workflows">workflows.</a>
+        </nav>
+      </header>
+      <div id="e-p-tasks" class="e-tab-body">
+        <button id="e-new-task" class="e-btn e-primary" type="button">+ new task ↗</button>
+        <ul id="e-task-list" class="e-list"></ul>
+      </div>
+      <div id="e-p-notes" class="e-tab-body" hidden>
+        <div class="e-split">
+          <div>
+            <button id="e-new-note" class="e-btn" type="button">+ new note</button>
+            <ul id="e-note-list" class="e-list e-notes"></ul>
+          </div>
+          <form id="e-note-form" class="e-card e-editor" hidden>
+            <input id="e-note-name" class="e-name-input" placeholder="note name" autocomplete="off" required>
+            <div class="e-editor-panes">
+              <textarea id="e-note-text" placeholder="ideas, plans, what a customer said… markdown works."></textarea>
+              <div id="e-note-preview" class="bubble e-preview"></div>
+            </div>
+            <div class="e-row">
+              <button class="e-btn e-primary" type="submit">save</button>
+              <button id="e-note-delete" class="e-btn e-quiet" type="button">delete</button>
+              <span id="e-note-status" class="e-muted"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div id="e-p-workflows" class="e-tab-body" hidden>
+        <p class="e-muted">repeatable work, saved. running one starts a new task with its steps.</p>
+        <ul id="e-flow-list" class="e-list"></ul>
+        <form id="e-flow-form" class="e-card e-editor">
+          <h3 id="e-flow-title">+ new workflow</h3>
+          <input id="e-flow-name" class="e-name-input" placeholder="workflow name, e.g. tidy up" autocomplete="off" required>
+          <textarea id="e-flow-steps" placeholder="one step per line&#10;run the tests&#10;fix what fails&#10;format with black"></textarea>
+          <div class="e-row">
+            <button class="e-btn e-primary" type="submit">save workflow</button>
+            <button id="e-flow-cancel" class="e-btn e-quiet" type="button" hidden>cancel</button>
+            <span id="e-flow-status" class="e-muted"></span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- one task: the chat, with its plan and progress beside it -->
+    <section id="v-task" class="e-view" hidden>
+      <header class="e-task-head">
+        <a id="e-t-back" class="e-back" href="#projects">← projects</a>
+        <input id="e-t-title" class="e-title-input" placeholder="untitled task" autocomplete="off">
+        <span id="e-t-state" class="e-pill"></span>
+        <button id="e-t-stop" class="e-btn e-quiet" type="button" hidden>stop ■</button>
+      </header>
+      <!-- how claude works on this task; saved at once, used from the next
+           message, and remembered as the start for new tasks -->
+      <div id="e-t-knobs" class="e-knobs">
+        <label class="e-knob" title="Which Claude model answers"><span>model</span><select id="e-t-model" data-key="model"></select></label>
+        <label class="e-knob" title="How hard it thinks before answering"><span>effort</span><select id="e-t-effort" data-key="effort"></select></label>
+        <label class="e-knob" title="What it may do without asking"><span>may</span><select id="e-t-mode" data-key="mode"></select></label>
+        <span id="e-t-run"></span>
+        <span id="e-t-knob-note" class="e-knob-note"></span>
+      </div>
+      <div class="e-task-body">
+        <div id="e-t-chat" class="e-chat">
+          <div class="e-drop-hint" aria-hidden="true">drop to attach ↓</div>
+          <div id="e-t-log" class="e-log"><p id="e-t-empty" class="e-muted e-empty">describe what you want. claude plans it, does it, and shows its progress on the right.</p></div>
+          <div id="e-t-composer" class="e-composer">
+            <div id="e-t-chips" class="chips"></div>
+            <textarea id="e-t-input" rows="2" placeholder="say what you want, in plain words… (enter sends, shift+enter for a new line)"></textarea>
+            <div class="e-row">
+              <label class="e-btn e-quiet e-attach">attach ↑<input id="e-t-file" type="file" multiple hidden></label>
+              <span id="e-t-status" class="e-muted e-small"></span>
+              <button id="e-t-send" class="e-btn e-primary" type="button">send ↗</button>
+            </div>
+          </div>
+        </div>
+        <aside class="e-plan">
+          <h2>plan &amp; progress.</h2>
+          <div id="e-t-progress" class="e-progress" hidden>
+            <div class="e-bar"><i id="e-t-bar"></i></div>
+            <div class="e-row e-small"><span id="e-t-count"></span><span id="e-t-now" class="e-muted"></span></div>
+          </div>
+          <ol id="e-t-todos" class="e-todos"></ol>
+          <details id="e-t-plan-box" class="e-plan-box" hidden><summary>the plan ↓</summary><div id="e-t-plan" class="bubble"></div></details>
+          <p id="e-t-noplan" class="e-muted e-small">no plan yet. when the work has steps, claude writes them down and ticks them off here.</p>
+          <dl id="e-t-meta" class="e-meta"></dl>
+        </aside>
+      </div>
+    </section>
+
+    <!-- running / needs you -->
+    <section id="v-now" class="e-view" hidden>
+      <header class="e-hero">
+        <h1>running / needs you.</h1>
+        <p class="e-lede">see what's moving and what's waiting on you, across every project.</p>
+      </header>
+      <h2>needs you.</h2>
+      <ul id="e-now-needs" class="e-list"></ul>
+      <h2>running.</h2>
+      <ul id="e-now-running" class="e-list"></ul>
+    </section>
+
+    <!-- roadmap: sessions as constellations (A28) -->
+    <section id="v-roadmap" class="e-view e-space" hidden>
+      <header class="e-hero">
+        <h1>roadmap.</h1>
+        <p class="e-lede">every session a constellation, every ask a star. it lights up when it's done.</p>
+        <div class="e-row e-filters">
+          <button type="button" class="e-more on" data-when="latest">this wave</button>
+          <button type="button" class="e-more" data-when="all">all sessions ∞</button>
+          <span class="e-legend"><i class="lit"></i>done <i class="dim"></i>done, not checked <i class="prog"></i>in progress <i class="block"></i>blocked <i class="off"></i>not yet</span>
+        </div>
+      </header>
+      <div class="e-sky-wrap">
+        <svg id="e-sky" role="img" aria-label="sessions as constellations"></svg>
+        <aside id="e-star" class="e-star-card" hidden></aside>
+      </div>
+      <h2>transmissions.</h2>
+      <p class="e-muted e-small">open notes on the forge board, newest first.</p>
+      <ul id="e-notes" class="e-list e-transmissions"></ul>
+    </section>
+  </main>
+</div>
+<div id="e-toast" class="e-toast" hidden></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge_dialog.js"></script>
+<script src="/shared/forge_convo.js"></script>
+<script src="claude_common.js"></script>
+<script src="enjoy_logic.js"></script>
+<script src="run_controls.js"></script>
+<script src="enjoy.js"></script>
+</body>
+</html>

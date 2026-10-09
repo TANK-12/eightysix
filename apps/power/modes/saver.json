@@ -1,0 +1,29 @@
+{
+  "name": "saver",
+  "label": "Battery saver",
+  "order": 0,
+  "description": "Longest battery life. Turbo off, every core capped at 1.2 GHz, graphics capped at 600 MHz, the firmware's quiet profile, the keyboard backlight off, idle USB and PCI devices asleep (mice and keyboards stay awake), disk writes batched once a minute and the screen at 48 Hz. Background tasks are moved onto the efficiency cores at the lowest priority. Your throttled wattage limits are left as they are.",
+  "settings": {
+    "governor": "powersave",
+    "turbo": "off",
+    "max_freq_mhz": 1200,
+    "epp": "power",
+    "platform_profile": "quiet",
+    "pl1_duration_s": 28,
+    "gpu_max_freq_mhz": 600,
+    "kbd_backlight": 0,
+    "usb_autosuspend": true,
+    "pci_runtime_pm": "auto",
+    "nmi_watchdog": false,
+    "dirty_writeback_cs": 6000,
+    "audio_power_save": 1,
+    "wifi_power_save": true
+  },
+  "display": {
+    "refresh_hz": 48
+  },
+  "background_tasks": {
+    "nice": 19,
+    "efficiency_cores_only": true
+  }
+}

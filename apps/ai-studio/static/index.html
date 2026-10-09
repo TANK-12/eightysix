@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Studio</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="css/studio.css">
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">AI Studio</div>
+  <nav class="sections" id="sectionNav" aria-label="Sections">
+    <button type="button" data-section="image">Make an image</button>
+    <button type="button" data-section="edit">Edit an image</button>
+    <button type="button" data-section="video">Make a video</button>
+    <button type="button" data-section="worlds">3D worlds</button>
+    <button type="button" data-section="library">Library</button>
+  </nav>
+  <div class="top-tools">
+    <button type="button" class="btn" id="modelsBtn">Models</button>
+    <button type="button" class="btn" id="go-fullscreen">Full screen</button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- Make an image -->
+<section class="section" id="sec-image" data-section="image">
+  <div class="work">
+    <form class="form" id="imageForm" autocomplete="off">
+      <div class="model-line" data-kind="image"></div>
+      <div class="field">
+        <label for="imgPrompt">What should the picture show?</label>
+        <textarea id="imgPrompt" rows="4" maxlength="4000" placeholder="A fox reading a book under a lantern, soft evening light"></textarea>
+      </div>
+      <div class="field">
+        <label for="imgNeg">Things to keep out (optional)</label>
+        <textarea id="imgNeg" rows="2" maxlength="4000" placeholder="blurry, extra fingers"></textarea>
+      </div>
+      <div class="field">
+        <label>Shape</label>
+        <div class="chips" id="imgShape" data-value="usual">
+          <button type="button" data-value="usual">Usual</button>
+          <button type="button" data-value="square">Square</button>
+          <button type="button" data-value="tall">Tall</button>
+          <button type="button" data-value="wide">Wide</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="imgUpscale" checked> Make it bigger afterwards (quick and sharp)</label>
+      <div class="field" id="imgUpscaleRow">
+        <label>How much bigger</label>
+        <div class="chips" id="imgUpscaleScale" data-value="4">
+          <button type="button" data-value="2">2 times</button>
+          <button type="button" data-value="3">3 times</button>
+          <button type="button" data-value="4">4 times</button>
+        </div>
+      </div>
+      <details class="more">
+        <summary>More settings</summary>
+        <div class="field">
+          <label>Finish</label>
+          <div class="chips" id="imgFinish" data-value="fast">
+            <button type="button" data-value="fast">Quick</button>
+            <button type="button" data-value="sharp">Sharper, slower</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="imgCount">How many pictures</label><input id="imgCount" type="number" min="1" max="8" value="1"></div>
+          <div class="field"><label for="imgSeed">Seed (-1 picks a new one)</label><input id="imgSeed" type="number" min="-1" value="-1"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="imgSteps">Steps (blank uses the model's own)</label><input id="imgSteps" type="number" min="1" max="150" placeholder="model's own"></div>
+          <div class="field"><label for="imgCfg">Follow the words (blank uses the model's own)</label><input id="imgCfg" type="number" min="0" max="30" step="0.5" placeholder="model's own"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="imgW">Exact width (optional)</label><input id="imgW" type="number" min="64" max="2048" step="64" placeholder="from Shape"></div>
+          <div class="field"><label for="imgH">Exact height (optional)</label><input id="imgH" type="number" min="64" max="2048" step="64" placeholder="from Shape"></div>
+        </div>
+        <div class="field">
+          <label>Save as</label>
+          <div class="chips" id="imgFormat" data-value="jpg">
+            <button type="button" data-value="jpg">Small file (JPEG)</button>
+            <button type="button" data-value="png">Exact copy (PNG)</button>
+          </div>
+        </div>
+      </details>
+      <button type="submit" class="btn btn-primary go" id="imgGo">Make the picture</button>
+      <div class="error" role="alert"></div>
+    </form>
+    <div class="result" id="imgResult">
+      <div class="stage"><div class="stage-empty">Your picture shows up here.</div></div>
+      <div class="stats"></div>
+      <div class="result-actions"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Edit an image -->
+<section class="section" id="sec-edit" data-section="edit" hidden>
+  <div class="work">
+    <form class="form" id="editForm" autocomplete="off">
+      <div class="model-line" data-kind="image"></div>
+      <div class="field">
+        <label>Picture to change</label>
+        <div class="picker" id="editPicker"></div>
+      </div>
+      <div class="field">
+        <label for="editPrompt">What should it look like now?</label>
+        <textarea id="editPrompt" rows="4" maxlength="4000" placeholder="The same scene at night, with snow falling"></textarea>
+      </div>
+      <div class="field">
+        <label for="editStrength">How much to change: <span id="editStrengthWords">some</span></label>
+        <input id="editStrength" type="range" min="0.1" max="0.95" step="0.05" value="0.6">
+        <div class="range-ends"><span>a little</span><span>a lot</span></div>
+      </div>
+      <details class="more">
+        <summary>More settings</summary>
+        <div class="field">
+          <label for="editNeg">Things to keep out (optional)</label>
+          <textarea id="editNeg" rows="2" maxlength="4000"></textarea>
+        </div>
+        <label class="check"><input type="checkbox" id="editUpscale" checked> Make it bigger afterwards</label>
+        <div class="field"><label for="editSeed">Seed (-1 picks a new one)</label><input id="editSeed" type="number" min="-1" value="-1"></div>
+      </details>
+      <button type="submit" class="btn btn-primary go" id="editGo">Change the picture</button>
+      <div class="error" role="alert"></div>
+    </form>
+    <div class="result" id="editResult">
+      <div class="stage"><div class="stage-empty">The changed picture shows up here.</div></div>
+      <div class="stats"></div>
+      <div class="result-actions"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Make a video -->
+<section class="section" id="sec-video" data-section="video" hidden>
+  <div class="work">
+    <form class="form" id="videoForm" autocomplete="off">
+      <div class="field">
+        <label>How to make it</label>
+        <div class="chips wide" id="videoWay" data-value="model">
+          <button type="button" data-value="model">With a video model</button>
+          <button type="button" data-value="warp">Camera moves over pictures</button>
+        </div>
+      </div>
+      <p class="hint" id="videoWayHint"></p>
+
+      <!-- with a video model -->
+      <div class="way" data-way="model">
+        <div class="model-line" data-kind="video"></div>
+        <div class="field">
+          <label for="mvPrompt">What happens in the video?</label>
+          <textarea id="mvPrompt" rows="4" maxlength="4000" placeholder="A paper boat drifting down a rainy street, hand-drawn animation"></textarea>
+        </div>
+        <div class="field">
+          <label>Start from a picture (optional)</label>
+          <div class="picker" id="mvPicker"></div>
+        </div>
+        <div class="field">
+          <label>Length</label>
+          <div class="chips" id="mvLength" data-value="33">
+            <button type="button" data-value="17">Short</button>
+            <button type="button" data-value="33">Medium</button>
+            <button type="button" data-value="49">Long</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Shape</label>
+          <div class="chips" id="mvShape" data-value="usual">
+            <button type="button" data-value="usual">Usual</button>
+            <button type="button" data-value="square">Square</button>
+            <button type="button" data-value="tall">Tall</button>
+            <button type="button" data-value="wide">Wide</button>
+          </div>
+        </div>
+        <details class="more">
+          <summary>More settings</summary>
+          <div class="field"><label for="mvNeg">Things to keep out (optional)</label><textarea id="mvNeg" rows="2" maxlength="4000"></textarea></div>
+          <div class="field"><label for="mvSeed">Seed (-1 picks a new one)</label><input id="mvSeed" type="number" min="-1" value="-1"></div>
+        </details>
+      </div>
+
+      <!-- camera moves over pictures (the warp tools) -->
+      <div class="way" data-way="warp" hidden>
+        <div class="model-line" data-kind="image"></div>
+        <label class="check"><input type="checkbox" id="wpStory"> Several scenes, one after another</label>
+        <div id="wpSimple">
+          <div class="field">
+            <label for="wpPrompt">What should the video show?</label>
+            <textarea id="wpPrompt" rows="4" maxlength="4000" placeholder="A quiet harbour town at sunset"></textarea>
+          </div>
+          <div class="field">
+            <label>Camera move</label>
+            <div class="chips motions" id="wpMotion" data-value="static"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="wpKeys">Pictures to make</label><input id="wpKeys" type="number" min="2" max="30" value="4"></div>
+            <div class="field"><label for="wpStrength">How much each picture may change</label><input id="wpStrength" type="range" min="0.05" max="0.9" step="0.05" value="0.32"></div>
+          </div>
+        </div>
+        <div id="wpScenes" hidden>
+          <div id="sceneList" class="scene-list"></div>
+          <button type="button" class="btn" id="addSceneBtn">Add a scene</button>
+        </div>
+        <details class="more">
+          <summary>More settings</summary>
+          <div class="field"><label for="wpNeg">Things to keep out (optional)</label><textarea id="wpNeg" rows="2" maxlength="4000"></textarea></div>
+          <div class="row">
+            <div class="field"><label for="wpHold">Frames between pictures</label><input id="wpHold" type="number" min="2" max="16" value="8"></div>
+            <div class="field"><label for="wpFps">Frames a second</label><input id="wpFps" type="number" min="6" max="30" value="12"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="wpCpu" checked> Use the processor as well as the graphics chip (faster)</label>
+          <label class="check"><input type="checkbox" id="wpUpscale" checked> Make it bigger afterwards</label>
+          <div class="field"><label for="wpSeed">Seed (-1 picks a new one)</label><input id="wpSeed" type="number" min="-1" value="-1"></div>
+        </details>
+      </div>
+
+      <button type="submit" class="btn btn-primary go" id="videoGo">Make the video</button>
+      <div class="error" role="alert"></div>
+    </form>
+    <div class="result" id="videoResult">
+      <div class="stage"><div class="stage-empty">Your video shows up here.</div></div>
+      <div class="stats"></div>
+      <div class="result-actions"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D worlds -->
+<section class="section" id="sec-worlds" data-section="worlds" hidden>
+  <div class="work worlds">
+    <form class="form" id="worldForm" autocomplete="off">
+      <div class="model-line" data-kind="world"></div>
+      <div class="field">
+        <label for="worldPrompt">Describe the place</label>
+        <textarea id="worldPrompt" rows="3" maxlength="4000" placeholder="A mossy forest path at dawn, mist between the trees"></textarea>
+      </div>
+      <div class="field">
+        <label>Start from a picture (optional)</label>
+        <div class="picker" id="worldPicker"></div>
+      </div>
+      <div class="world-buttons">
+        <button type="submit" class="btn btn-primary go" id="worldStart">Start the world</button>
+        <button type="button" class="btn btn-danger" id="worldStop" hidden>Stop</button>
+      </div>
+      <div class="error" role="alert"></div>
+      <div class="keys-help">
+        <p><b>Walk:</b> W A S D</p>
+        <p><b>Turn and look:</b> arrow keys, or drag on the view</p>
+        <p><b>Up and down:</b> R and F</p>
+        <p>Each move asks the world model to build the next stretch, so pictures arrive a little after the key.</p>
+      </div>
+    </form>
+    <div class="player">
+      <div class="viewport" id="worldView" tabindex="0" aria-label="World view">
+        <img id="worldFrame" alt="" hidden>
+        <div class="viewport-note" id="worldNote">Start a world and it is built here as you move.</div>
+      </div>
+      <div class="player-bar">
+        <span id="worldStatus" class="muted">Not running</span>
+        <span class="spacer"></span>
+        <a class="btn" id="worldClipLink" href="#" target="_blank" hidden>Open the video</a>
+        <button type="button" class="btn" id="worldClip" disabled>Save as a video</button>
+        <button type="button" class="btn" id="worldFull" title="Show the world on the whole screen">Whole screen</button>
+      </div>
+      <div class="pad" id="worldPad"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Library -->
+<section class="section" id="sec-library" data-section="library" hidden>
+  <div class="library-bar">
+    <input id="search" type="search" maxlength="500" placeholder="Search everything you have made">
+    <div class="chips" id="libKind" data-value="">
+      <button type="button" data-value="">Everything</button>
+      <button type="button" data-value="image">Pictures</button>
+      <button type="button" data-value="video">Videos</button>
+    </div>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+</main>
+
+<!-- Models panel -->
+<div class="overlay" id="modelsModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modelsTitle">
+    <div class="modal-head">
+      <h2 id="modelsTitle">Models</h2>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-danger" id="deleteAllBtn">Delete all models</button>
+      <button type="button" class="btn icon" id="closeModelsBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="chips tabs" id="modelTabs" data-value="image">
+      <button type="button" data-value="image">Images</button>
+      <button type="button" data-value="video">Video</button>
+      <button type="button" data-value="world">3D worlds</button>
+    </div>
+    <p class="disk-line" id="diskLine"></p>
+    <p class="busy-line" id="modelsBusyLine" role="status"></p>
+    <div class="models-list" id="modelsList"></div>
+    <div class="del-all" id="deleteAllPanel" hidden>
+      <p>Tick what to delete. Everything here is in AI Studio's own models folder; Jan's models and other apps' files are never listed.</p>
+      <div id="deleteAllItems" class="del-items"></div>
+      <div class="del-actions">
+        <button type="button" class="btn" id="deleteAllCancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteAllGo">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Library viewer and picture picker -->
+<div class="overlay" id="viewer" hidden>
+  <div class="modal viewer" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <span class="spacer"></span>
+      <button type="button" class="btn icon" id="viewerClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="viewer-media" id="viewerMedia"></div>
+    <p class="viewer-prompt" id="viewerPrompt"></p>
+    <div class="result-actions" id="viewerActions"></div>
+  </div>
+</div>
+<div class="overlay" id="pickModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h2>Pick a picture</h2>
+      <span class="spacer"></span>
+      <button type="button" class="btn icon" id="pickClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="gallery pick" id="pickGallery"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="js/core.js"></script>
+<script src="js/models.js"></script>
+<script src="js/make.js"></script>
+<script src="js/worlds.js"></script>
+<script src="js/library.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

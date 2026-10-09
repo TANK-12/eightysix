@@ -1,0 +1,106 @@
+{
+  "id": "jp-romcom",
+  "label": "Japanese romcom light novel",
+  "group": "Japanese",
+  "description": "School-year romantic comedy: a witty first-person narrator, forced proximity, misunderstandings and a confession earned over festivals and exams.",
+  "keywords": [
+    "romcom",
+    "school",
+    "high",
+    "classmate",
+    "neighbor",
+    "neighbour",
+    "girlfriend",
+    "confession",
+    "senpai",
+    "kouhai",
+    "slice",
+    "life"
+  ],
+  "words_per_chapter": 2800,
+  "voice": [
+    "First person, past tense, a witty and self-deprecating narrator who notices everything except what matters most.",
+    "Banter-heavy dialogue with clear voices; honorifics (-san, -kun, -senpai) signal distance and change when feelings change.",
+    "The school calendar gives the book its rhythm: seating changes, exams, summer break, the culture festival, the first snow.",
+    "Comedy from character, not slapstick: pride, misunderstanding, stubbornness.",
+    "Small gestures carry the romance: a shared umbrella, a lunch box, a message left on read.",
+    "End chapters on a line that makes the reader want the next scene between them."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "meet",
+      "guide": "A memorable meeting that sets up their dynamic and a reason they cannot avoid each other.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "forced proximity",
+      "guide": "Circumstances bind them: neighbours, a club, a fake relationship, a tutoring deal.",
+      "then": "Daily scenes that build trust; each chapter reveals one new side of the love interest."
+    },
+    {
+      "at": 0.27,
+      "role": "not-a-date",
+      "guide": "An outing that is definitely not a date, which goes wrong and right."
+    },
+    {
+      "at": 0.42,
+      "role": "rival",
+      "guide": "A rival or a past connection appears and exposes the narrator's feelings to himself."
+    },
+    {
+      "at": 0.5,
+      "role": "realisation",
+      "guide": "The narrator admits, privately, what he feels, and panics.",
+      "then": "He tries and fails to act normal; she notices.",
+      "key": true
+    },
+    {
+      "at": 0.68,
+      "role": "misunderstanding",
+      "guide": "A misunderstanding or a family problem pushes them apart."
+    },
+    {
+      "at": 0.82,
+      "role": "festival",
+      "guide": "A big school event where everything comes to a head in public.",
+      "key": true
+    },
+    {
+      "at": 0.95,
+      "role": "confession",
+      "guide": "The confession, in their own awkward, specific way."
+    },
+    {
+      "at": 1.0,
+      "role": "epilogue",
+      "guide": "A short scene of the new normal with one teasing line.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter has a concrete situation (a test, a shared chore, an outing) and moves the relationship by one visible step, forward or back.",
+  "outline_example": "Umbrella Rules | When the rain traps them at Minami Station, Takeda Ren shares his umbrella with Shiina Yui and sets absurd rules about the distance | She follows the rules so literally that he has to admit he wants her closer | Yui's older sister sees them from a bus window",
+  "scene_guidance": [
+    "Open on the situation, not on the weather.",
+    "Keep misunderstandings short; the reader should never feel the characters are stupid.",
+    "Let friends comment like a chorus."
+  ],
+  "worldbuilding": [
+    "The school, the class, the club, the neighbourhood.",
+    "Each lead's home life and one private worry."
+  ],
+  "naming": "Japanese names, family name first in narration of formal settings (Takeda Ren, Shiina Yui); given names only once they are close.",
+  "cliches": [
+    "b-baka",
+    "nosebleed",
+    "tripped and fell on top of",
+    "dense protagonist"
+  ],
+  "sample": "\"Rule three,\" I said. \"The umbrella belongs to whoever is taller.\"\n\n\"That's you.\"\n\n\"Which is why it's a good rule.\"\n\nShiina-san looked at the rain, then at the ten centimetres of dry air between our shoulders, as if measuring it for a report.\n\n\"And rule four?\"\n\nI didn't have a rule four. I made one up. It was a mistake.",
+  "example_names": [
+    "Ren",
+    "Shiina",
+    "Yui"
+  ]
+}

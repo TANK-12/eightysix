@@ -1,0 +1,20 @@
+{
+ "agent": "ejb-fc (Tetsu)",
+ "model": "claude-opus-5-5",
+ "task": "Juggernaut 3D-print STLs (kit + statue, resin + FDM, 1:35)",
+ "status": "done",
+ "doing": "finished",
+ "done": [
+  "print STLs from m16",
+  "printcheck.py for v2",
+  "PrintForge app"
+ ],
+ "files": [
+  "~/Models/juggernaut/print/"
+ ],
+ "reads": [
+  "~/Models/juggernaut/v2/*.blend (read-only)"
+ ],
+ "note": "No edits to v2/ or the on-screen Blender; ejb-a3 owns those.",
+ "updated": 1790585405
+}

@@ -1,0 +1,92 @@
+{
+  "name": "novelforge",
+  "label": "NovelForge",
+  "tagline": "Long-form novel writing",
+  "port": 8421,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#6ea8fe",
+  "icon": "📖",
+  "order": 1,
+  "section": "create",
+  "manifest": {
+    "summary": "Writes book- and series-length fiction with a local Jan model. You give it a premise (or let Free-Rein invent one), it builds a world and cast, plans a chapter outline, then drafts scene by scene while tracking a living world codex. Exports to EPUB/PDF/TXT and reads the book aloud as an offline audiobook.",
+    "features": [
+      {
+        "name": "Home",
+        "description": "Project list with per-book stats and cover thumbnails; create/open a project."
+      },
+      {
+        "name": "Story",
+        "description": "Story bible (title, genre, protagonist, plot, pinned facts, inspiration, style directives). Free-Rein: a multi-pass world + cast + places + open-threads build scaled by the world-depth setting, seeded from whatever fields are filled. Generate Outline turns the bible into a numbered chapter list."
+      },
+      {
+        "name": "Generate",
+        "description": "Scene-by-scene drafting toward a per-chapter word target. RAM guard pauses/stops cleanly and resumably when free memory is low; degeneration guard aborts and retries a scene that loops; DRY sampling anti-repetition. Live token stream, soft stop, hard stop."
+      },
+      {
+        "name": "World Codex",
+        "description": "Structured characters / locations / factions / facts, auto-updated as chapters are written, with periodic contradiction-reconcile sweeps."
+      },
+      {
+        "name": "References",
+        "description": "Style library built from PDFs: ingest a book, analyse its house style, fold it into every scene. Best-effort DuckDuckGo research notes."
+      },
+      {
+        "name": "Continue a Series",
+        "description": "Never-ending-story mode: ingest 1-12 PDFs of an existing series, learn its style, measure its POV/tense, rebuild the codex, then write N more chapters at a time with a chosen spin (alternate POV, time-skip, spin-off, genre shift, what-if)."
+      },
+      {
+        "name": "Series",
+        "description": "Multi-book arcs: planned book count, arc synopsis, per-book status; each book's outline is shaped by the shared arc."
+      },
+      {
+        "name": "Export",
+        "description": "EPUB (real nav/TOC + Calibre series index), PDF (A4/Letter), TXT; whole-series export reuses the per-book path. Procedural cover art (gradient/duotone/minimal, Pillow only) plus import and light edits. AI cover is a deliberate stub behind diffusers/torch."
+      },
+      {
+        "name": "Audiobook (in Export)",
+        "description": "Offline TTS via Piper and Kokoro. Modes: single narrator, full cast, or one narrator doing per-character pitch/pace shifts. Regex dialogue attribution, per-character voice map, LLM casting director, ffmpeg-stitched output with real chapter markers."
+      },
+      {
+        "name": "Settings",
+        "description": "Jan API base, models folder, world depth, sampling, RAM guard threshold, export/cover/audiobook defaults, UI scale/density."
+      }
+    ],
+    "data_dir": "~/NovelMakerData/ (projects/<book>/, series/<name>/, style_library.json, known_models.json, novelforge_settings.json, tts_voices/)",
+    "services": [
+      "Jan / llama.cpp @ http://localhost:1337/v1 (required for all generation; models also discovered by scanning Jan's llamacpp/models folder)"
+    ],
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "requests",
+        "pypdf",
+        "reportlab",
+        "psutil",
+        "EbookLib",
+        "Pillow"
+      ],
+      "optional": [
+        "piper-tts - Piper audiobook voices",
+        "kokoro-onnx - Kokoro audiobook voices (default engine)",
+        "diffusers + torch - local AI cover art (stub until installed; minutes per image on this CPU-only box)"
+      ]
+    },
+    "standalone_launch": ".venv/bin/python -m uvicorn web_app:app --port 8421   (run.py still launches the legacy customtkinter desktop app)",
+    "api_base": "/api/  (49 routes in web_app.py: projects, bible, outline, generate, free-rein, continuation, series, jobs+SSE, state, refresh-models, settings, export, cover, style-sources, research, tts, voice-map, audiobook)",
+    "known_gaps": [
+      "Free-Rein web endpoint restored 2026-09-07 but not yet run against a live model.",
+      "Continuation mode not yet run end-to-end against real series PDFs.",
+      "narrator_voices auto pitch slots are assigned alphabetically, so a character can land on a wrong-sounding voice unless set explicitly.",
+      "research.py uses DuckDuckGo Instant Answers (often empty) - explicitly best-effort.",
+      "Theme change needs an app restart."
+    ],
+    "docs": [
+      "README.md",
+      "WIP.md",
+      "MANIFEST.md"
+    ]
+  }
+}

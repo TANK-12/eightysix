@@ -1,0 +1,11 @@
+[Unit]
+Description=Forge Power: switch mode when the charger is plugged in or pulled out
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/Forge/apps/power/.venv/bin/python %h/Forge/apps/power/watch.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

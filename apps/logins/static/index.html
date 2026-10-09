@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logins</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root { --accent: #e0a86a; --accent-2: #c98b45; --on-accent: #1c1206; }
+</style>
+</head>
+<body>
+<div id="app" class="logins">
+  <div class="tabs" id="tabs"></div>
+  <div class="toolbar">
+    <button type="button" class="nav" id="back" title="Back">←</button>
+    <button type="button" class="nav" id="forward" title="Forward">→</button>
+    <button type="button" class="nav" id="reload" title="Reload">⟳</button>
+    <span class="where small muted" id="where"></span>
+    <button type="button" class="btn small-btn" id="signin" title="Sign in where Google and Anthropic logins work normally: this account's own plain Firefox window">Sign in in Firefox</button>
+    <button type="button" class="btn btn-primary small-btn" id="bring" title="Copy this account's Firefox login into Forge, then reload">Bring login in</button>
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="empty" id="empty">
+      <h2 id="empty-title">Logins</h2>
+      <p class="muted" id="empty-text">Loading the accounts…</p>
+      <button type="button" class="btn" id="empty-retry" hidden>Try now</button>
+      <ol class="muted small steps">
+        <li><b>Sign in in Firefox</b> opens this account in its own plain Firefox window, so it cannot mix with your other logins and Google accepts it.</li>
+        <li>Sign in there as usual.</li>
+        <li><b>Bring login in</b> copies that sign-in into this tab. Every tab keeps its own, so all of them stay signed in together.</li>
+      </ol>
+      <p class="muted small">Add an account: one entry in <code>Forge/shared/accounts.json</code>.</p>
+    </div>
+  </div>
+  <div class="status small muted" id="status"></div>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

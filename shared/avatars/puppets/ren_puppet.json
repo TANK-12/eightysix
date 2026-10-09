@@ -1,0 +1,27 @@
+{
+ "name": "Ren",
+ "hair_style": "short",
+ "bangs": "side",
+ "eye_shape": "sleepy",
+ "mouth_style": "small",
+ "outfit": "jacket",
+ "accessory": "none",
+ "body": "boy",
+ "colours": {
+  "skin": "#f3d2bb",
+  "hair": "#23232e",
+  "hair_streak": "#7b5cff",
+  "eyes": "#8a6cff",
+  "outfit": "#1d1d27",
+  "outfit_trim": "#7b5cff",
+  "accent": "#c9b8ff"
+ },
+ "eye_size": 0.95,
+ "face_width": 0.95,
+ "hair_volume": 1.05,
+ "blush": 0.15,
+ "soot": 0,
+ "head_tilt": 3.0,
+ "notes": "Downtime persona Ren: smooth, teasing.",
+ "saved": 1790257915.8108068
+}

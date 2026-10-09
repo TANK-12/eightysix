@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, sans-serif; }
+  .shell { max-width: 1000px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 14px 16px 8px; }
+  header h1 { font-size: 20px; margin: 0; flex: 1; }
+  .live { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+  .live.off::before { background: var(--bad); }
+  nav { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 12px; color: var(--muted); white-space: nowrap; }
+  nav button.on { color: var(--text); border-bottom-color: var(--accent); }
+  .badge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 99px; background: var(--accent); color: var(--on-accent); font-size: 11px; text-align: center; }
+  main { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px; display: grid; gap: 10px; align-content: start; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 2px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); cursor: pointer; }
+  .chip.on { color: var(--text); border-color: var(--accent); }
+  .chip { max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .note { display: grid; grid-template-columns: 34px 1fr; gap: 10px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .note.mine { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+  .note.closed { opacity: .55; }
+  .note.fresh { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 60%, transparent); }
+  .who { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #fff; }
+  .meta { font-size: 12px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: baseline; overflow-wrap: anywhere; min-width: 0; }
+  .meta b { color: var(--text); font-size: 13px; }
+  .text { margin-top: 3px; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .status { margin-top: 5px; font-size: 12px; color: var(--muted); }
+  .agents { margin-top: 6px; font-size: 13px; }
+  .agents li.agent { margin: 3px 0; }
+  .acts { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .acts button { font-size: 12px; padding: 2px 9px; }
+  a.re { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .empty { color: var(--muted); padding: 18px 4px; }
+  .composer { background: var(--bg); border-top: 1px solid var(--border); padding: 10px 16px 14px; display: grid; gap: 6px; }
+  .composer .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .composer .attach { display: grid; place-items: center; width: 36px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+  .composer .attach:hover { border-color: var(--accent); }
+  .composer.fa-drop { outline: 2px dashed var(--accent); outline-offset: -4px; }
+  .files { display: flex; flex-wrap: wrap; gap: 6px; }
+  .files[hidden] { display: none; }
+  .files span { font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 4px 2px 10px; }
+  .files button { border: 0; background: none; color: inherit; cursor: pointer; padding: 0 4px; }
+  .replying { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  input, select, button, textarea { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; }
+  #to { max-width: 40%; }
+  @media (max-width: 520px) { #to { max-width: 100%; flex: 1 1 100%; } }
+  textarea { flex: 1; min-width: 0; min-height: 38px; max-height: 160px; resize: vertical; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .err { color: var(--bad); font-size: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin: 0; display: grid; gap: 6px; align-content: start; }
+  .card.away { opacity: .6; }
+  .card h3 { margin: 0; font-size: 15px; display: flex; gap: 8px; align-items: center; }
+  .pill { font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--border); white-space: nowrap; }
+  .pill.busy { color: var(--warn); border-color: var(--warn); }
+  .pill.idle { color: var(--good); border-color: var(--good); }
+  #needs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+  #needs:empty { display: none; }
+  .need { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 12px; border-radius: 999px;
+    background: color-mix(in srgb, var(--bad) 18%, var(--panel)); border: 1px solid var(--bad); cursor: pointer; }
+  /* the pulse is a ring that fades in and out: opacity only, so the
+     compositor runs it without repainting the chip every frame */
+  .need::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bad) 25%, transparent); opacity: 0;
+    animation: needpulse 2.4s ease-in-out infinite; }
+  .need:hover { filter: brightness(1.15); }
+  @keyframes needpulse { 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .need::after { animation: none; } }
+  .card.needs { border-color: var(--bad); }
+  .go { font-weight: 600; }
+  .pill.waiting { color: #fff; background: var(--bad); border-color: var(--bad); }
+  .state { margin: 0; padding-left: 16px; font-size: 12px; color: var(--muted); }
+  .state li { margin: 2px 0; }
+  section.box { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  .line { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--border); }
+  .line:first-of-type { border-top: 0; }
+  .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .stale { text-decoration: line-through; color: var(--muted); }
+  label.toggle { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+  .tools { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .tools input[type=search] { flex: 1 1 200px; min-width: 0; padding: 5px 10px; }
+  .pill.fyi { color: var(--muted); }
+  .thread { display: grid; gap: 6px; }
+  .replies { display: grid; gap: 6px; margin-left: 44px; padding-left: 10px; border-left: 2px solid var(--border); }
+  .replies .note { padding: 8px 10px; }
+  .more { font-size: 12px; justify-self: start; padding: 2px 9px; }
+  .composer label.toggle { margin-left: auto; }
+  [hidden] { display: none !important; }
+  /* a note that just arrived slides in once */
+  .note.arrive { animation: notein .22s ease-out; }
+  @keyframes notein { from { opacity: 0; transform: translateY(6px); } }
+  @media (prefers-reduced-motion: reduce) { .note.arrive { animation: none; } }
+  .empty .retry { margin-left: 8px; font-size: 12px; padding: 2px 9px; }
+  /* "New notes" jump, shown when notes arrive while you read further up */
+  .jump { position: sticky; bottom: 4px; justify-self: center; z-index: 2; padding: 4px 14px; border-radius: 99px;
+    background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-size: 12px; font-weight: 600;
+    box-shadow: 0 4px 14px rgb(0 0 0 / .35); animation: notein .2s ease-out; }
+  @media (prefers-reduced-motion: reduce) { .jump { animation: none; } }
+  /* thin, quiet scrollbars: Chrome and WebKitGTK draw ::-webkit-scrollbar
+     (Chrome ignores it once scrollbar-color is set), Firefox the standard ones */
+  @supports not selector(::-webkit-scrollbar) {
+    * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent; }
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-button { display: none; }
+  ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px;
+    border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--text) 30%, transparent); }
+  nav::-webkit-scrollbar { height: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>📌 Board</h1>
+    <span class="live" id="live">live</span>
+    <select id="boardPick" aria-label="Board"></select>
+    <button type="button" id="go-fullscreen" title="Full screen (F)">Full screen</button>
+  </header>
+  <nav id="tabs">
+    <button data-tab="everyone" class="on">Everyone</button>
+    <button data-tab="me">Me<span class="badge" id="meBadge" hidden></span></button>
+    <button data-tab="crew">Crew talk</button>
+    <button data-tab="sessions">Sessions<span class="badge" id="sessBadge" hidden></span></button>
+    <button data-tab="jan">Jan &amp; claims</button>
+  </nav>
+  <div id="needs" aria-live="polite"></div>
+
+  <main id="notesView">
+    <div class="chips" id="filters"></div>
+    <div class="tools">
+      <input type="search" id="search" placeholder="Search notes, names or #number" aria-label="Search notes">
+      <label class="toggle"><input type="checkbox" id="openOnly"> Only notes still open</label>
+      <label class="toggle" title="Answers sit under the note they answer"><input type="checkbox" id="threads"> Group replies</label>
+      <label class="toggle" title="A desktop notification when a session writes to you while the Board is out of sight"><input type="checkbox" id="alerts"> Desktop alerts</label>
+    </div>
+    <div id="notes" style="display:grid;gap:8px"><div class="empty">Loading the board…</div></div>
+    <button type="button" class="jump" id="jump" hidden>New notes below</button>
+  </main>
+
+  <main id="sessionsView" hidden>
+    <div class="muted">Every Claude session running on this laptop. Briefs live in ~/Forge/sessions/.</div>
+    <div class="cards" id="sessions"><div class="empty">Loading the sessions…</div></div>
+  </main>
+
+  <main id="janView" hidden>
+    <section class="box"><h2>Jan models loaded now</h2><div id="jan"></div></section>
+    <section class="box"><h2>File claims on this board</h2><div id="claims"></div></section>
+    <section class="box"><h2>History</h2><div id="history"></div></section>
+  </main>
+
+  <form class="composer" id="composer">
+    <div class="replying" id="replying" hidden><span id="replyText"></span><button type="button" id="cancelReply">Cancel</button></div>
+    <div class="files" id="files" hidden></div>
+    <div class="row">
+      <select id="to" aria-label="Send to"></select>
+      <label class="attach" title="Attach files or pictures (or paste or drop them)" aria-label="Attach files">📎<input id="file" type="file" multiple hidden></label>
+      <textarea id="text" rows="1" placeholder="Message the sessions. Enter sends, Shift+Enter for a new line." autocomplete="off"></textarea>
+      <button class="primary" id="send">Send</button>
+    </div>
+    <div class="row"><div class="err" id="formErr"></div>
+      <label class="toggle" title="Just for information: sessions see it once and needn't answer"><input type="checkbox" id="fyi"> FYI, no answer needed</label></div>
+  </form>
+</div>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_attach.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = {
+  get(k, d) { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const COLORS = ["#6c8cff", "#e0a85f", "#4fb38a", "#d9658a", "#9b7be0", "#48a6c9", "#c9a23e", "#7d8b99"];
+
+let current = "forge";
+const TABS = ["everyone", "me", "crew", "sessions", "jan"];
+let tab = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : store.get("board.tab", "everyone");
+let filter = "all";
+let data = null;
+let lastSig = "";
+let replyTo = null;
+let seenMax = Number(store.get("board.seen", "-1"));
+let serverNow = Date.now() / 1000;
+const expanded = new Set();
+// newest note id already drawn in this view (-1: nothing drawn yet), so only
+// notes that really just arrived slide in or raise the "New notes" jump
+let shownMax = -1;
+let sending = false;
+
+function ago(t) {
+  const s = Math.max(0, Math.round(serverNow - t));
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${(s / 3600).toFixed(1)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+function slotOf(name) { return data?.board.members[name]?.slot || null; }
+function personaOf(name) { return data?.board.members[name]?.persona || ""; }
+function label(name) {
+  const p = personaOf(name), s = slotOf(name), who = p && p.toLowerCase() !== name.toLowerCase() ? `${p} (${name})` : name;
+  return s ? `${s} · ${who}` : who;
+}
+function colorOf(name) {
+  if (name === data.me) return "var(--accent)";
+  const s = slotOf(name);
+  if (s && /^S\d+$/.test(s)) return COLORS[(Number(s.slice(1)) - 1) % COLORS.length];
+  let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return COLORS[h % COLORS.length];
+}
+function initials(name) {
+  if (name === data.me) return "E";
+  return slotOf(name) || (personaOf(name) || name.replace(/^ejb-/, "")).slice(0, 2).toUpperCase();
+}
+function addressedTo(n, reader) {
+  if (!n.to || n.to === reader) return true;
+  return !!slotOf(reader) && n.to === slotOf(reader);
+}
+// An FYI note needs no answer, so it never counts as waiting on anyone.
+function openFor(n, reader) {
+  return !n.fyi && !n.ack && n.from !== reader && !(n.done_by || []).includes(reader) && addressedTo(n, reader);
+}
+
+function notesFor(which) {
+  const all = data.board.notes;
+  const byId = Object.fromEntries(all.map((n) => [n.id, n]));
+  if (which === "me") return all.filter((n) => n.to === data.me || (n.re && byId[n.re]?.from === data.me && n.from !== data.me));
+  if (which === "crew") return all.filter((n) => n.from !== data.me && n.to !== data.me);
+  return all;
+}
+
+// ---------- rendering ----------
+function renderTabs() {
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
+  const notesTab = ["everyone", "me", "crew"].includes(tab);
+  $("notesView").hidden = !notesTab;
+  $("sessionsView").hidden = tab !== "sessions";
+  $("janView").hidden = tab !== "jan";
+  $("composer").hidden = !notesTab && tab !== "sessions";
+}
+
+function renderFilters() {
+  const people = [...new Set(data.board.notes.flatMap((n) => [n.from, n.to]).filter(Boolean))]
+    .filter((p) => p !== data.me);
+  people.sort((a, b) => (slotOf(a) || "~" + a).localeCompare(slotOf(b) || "~" + b));
+  if (filter !== "all" && !people.includes(filter)) filter = "all";
+  $("filters").innerHTML = [`<span class="chip ${filter === "all" ? "on" : ""}" data-f="all">All</span>`]
+    .concat(people.map((p) => `<span class="chip ${filter === p ? "on" : ""}" data-f="${esc(p)}">${esc(label(p))}</span>`)).join("");
+}
+
+function statusLine(n) {
+  if (n.ack) return `✓ closed by ${esc(n.ack.by)} ${ago(n.ack.t)}`;
+  const done = n.done_by || [];
+  const parts = [];
+  if (done.length) parts.push(`done: ${done.map((d) => esc(label(d))).join(", ")}`);
+  const got = (n.delivered || []).filter((d) => !done.includes(d));
+  if (got.length) parts.push(`seen by ${got.map((d) => esc(label(d))).join(", ")}`);
+  return parts.join(" · ");
+}
+
+function matches(n, q) {
+  if (!q) return true;
+  if (/^#\d+$/.test(q)) return n.id === Number(q.slice(1));
+  return [n.text, n.from, n.to || "everyone", label(n.from), n.to ? label(n.to) : ""]
+    .some((x) => String(x).toLowerCase().includes(q));
+}
+
+function noteHtml(n) {
+  const mine = n.from === data.me;
+  const forMe = openFor(n, data.me);
+  const status = statusLine(n);
+  return `<div class="note ${mine ? "mine" : ""} ${n.ack ? "closed" : ""} ${seenMax >= 0 && n.id > seenMax && !mine ? "fresh" : ""} ${n.id > shownMax && shownMax >= 0 && !mine ? "arrive" : ""}" id="n${n.id}">
+    <div class="who" style="background:${colorOf(n.from)}">${esc(initials(n.from))}</div>
+    <div>
+      <div class="meta"><b>${esc(label(n.from))}</b> → ${esc(n.to ? label(n.to) : "everyone")}
+        ${n.fyi ? '<span class="pill fyi" title="Just for information, no answer needed">FYI</span>' : ""}
+        ${n.re ? `<a class="re" data-jump="${n.re}">answer to #${n.re}</a>` : ""}<span>#${n.id} · ${ago(n.t)}</span></div>
+      <div class="text">${esc(n.text)}</div>
+      ${status ? `<div class="status">${status}</div>` : ""}
+      <div class="acts">
+        <button type="button" data-reply="${n.id}">Reply</button>
+        ${!mine && isLive(n.from) ? `<button type="button" class="go" data-go="${esc(n.from)}" title="Switch to that session: its terminal tab, or its tab in the Claude app">Go to session</button>` : ""}
+        ${forMe ? `<button type="button" data-done="${n.id}" title="Done for me; stays open for the sessions">Done</button>` : ""}
+        ${!n.ack ? `<button type="button" data-close="${n.id}" title="Close it for everyone">Close for all</button>` : ""}
+      </div>
+    </div></div>`;
+}
+
+// With "Group replies" on, every answer sits under the first note of its
+// chain, and a chain moves down to where its newest note is. The last three
+// answers show; the rest fold behind a button.
+function threadsHtml(list) {
+  const byId = Object.fromEntries(list.map((n) => [n.id, n]));
+  const rootOf = (n) => { let r = n; for (let i = 0; r.re && byId[r.re] && i < 50; i++) r = byId[r.re]; return r; };
+  const groups = new Map();
+  for (const n of list) {
+    const r = rootOf(n);
+    if (!groups.has(r.id)) groups.set(r.id, { root: r, replies: [], last: r.id });
+    const g = groups.get(r.id);
+    if (n !== r) { g.replies.push(n); g.last = Math.max(g.last, n.id); }
+  }
+  return [...groups.values()].sort((a, b) => a.last - b.last).map((g) => {
+    const hide = expanded.has(g.root.id) ? 0 : Math.max(0, g.replies.length - 3);
+    const shown = g.replies.slice(hide);
+    return `<div class="thread">${noteHtml(g.root)}${g.replies.length ? `<div class="replies">
+      ${hide ? `<button type="button" class="more" data-more="${g.root.id}">Show ${hide} earlier answer${hide === 1 ? "" : "s"}</button>` : ""}
+      ${shown.map(noteHtml).join("")}</div>` : ""}</div>`;
+  }).join("");
+}
+
+function renderNotes(force) {
+  let list = notesFor(tab);
+  if (filter !== "all") list = list.filter((n) => n.from === filter || n.to === filter || n.to === slotOf(filter));
+  if ($("openOnly").checked) list = list.filter((n) => !n.ack);
+  const q = $("search").value.trim().toLowerCase();
+  list = list.filter((n) => matches(n, q)).slice(-150);
+  const box = $("notes");
+  const view = $("notesView");
+  const nearBottom = force || view.scrollTop + view.clientHeight >= view.scrollHeight - 120;
+  const empty = q ? "No notes match that search." : tab === "me" ? "Nothing addressed to you yet." : "No notes here yet.";
+  const newest = Math.max(-1, ...list.map((n) => n.id));
+  const arrived = shownMax >= 0 && list.some((n) => n.id > shownMax && n.from !== data.me);
+  box.innerHTML = !list.length ? `<div class="empty">${empty}</div>`
+    : $("threads").checked ? threadsHtml(list) : list.map(noteHtml).join("");
+  shownMax = Math.max(shownMax, newest, 0);
+  if (nearBottom) { view.scrollTop = view.scrollHeight; $("jump").hidden = true; }
+  else if (arrived) $("jump").hidden = false;
+}
+
+function isLive(name) { return data.sessions.some((s) => s.name === name); }
+
+// Sessions waiting on Emerson (a question, a permission) sit above every tab;
+// a click switches to that session's terminal tab.
+function renderNeeds() {
+  const waiting = data.sessions.filter((s) => s.status === "waiting");
+  $("needs").innerHTML = waiting.map((x) => `
+    <div class="need" data-go="${esc(x.name)}" title="Go to ${esc(x.name)}"><b data-go="${esc(x.name)}">${esc(x.slot ? x.slot + " " + x.name : x.name)}</b>
+      <span data-go="${esc(x.name)}">needs you</span><button type="button" class="go" data-go="${esc(x.name)}">Go to it</button></div>`).join("");
+}
+
+// Agents a session launched (Claude Code subagents): running ones first.
+function agentsHtml(agents) {
+  if (!agents.length) return "";
+  const rows = agents.map((a) => `<li class="agent ${a.running ? "on" : ""}"><span class="pill ${a.running ? "busy" : "idle"}">${a.running ? "running" : "finished"}</span>
+    ${esc(a.description)} <span class="muted">${esc([a.type, a.model].filter(Boolean).join(" · "))} · started ${ago(a.since)}</span></li>`).join("");
+  const n = agents.filter((a) => a.running).length;
+  return `<div class="agents"><b>Agents</b> <span class="muted">${n} running</span><ul class="state">${rows}</ul></div>`;
+}
+
+function renderSessions() {
+  const s = data.sessions;
+  $("sessions").innerHTML = s.length ? s.map((x) => `
+    <div class="card ${x.on_board ? "" : "away"} ${x.status === "waiting" ? "needs" : ""}">
+      <h3><span class="who" style="width:26px;height:26px;font-size:11px;background:${colorOf(x.name)}">${esc(x.slot || x.name.slice(-2))}</span>
+        ${x.label ? `${esc(x.label)} <span class="muted">${esc(x.name)}</span>` : esc(x.name)} <span class="pill ${x.status === "busy" ? "busy" : x.status === "waiting" ? "waiting" : "idle"}">${esc(x.status === "waiting" ? "needs you" : x.status || "?")}</span></h3>
+      <div class="muted">started ${ago(x.since)} · ${x.active ? "active" : `quiet since ${ago(x.last_active)}`}${x.last_seen ? ` · on the board ${ago(x.last_seen)}` : " · not on the board"}</div>
+      ${agentsHtml(x.agents || [])}
+      ${x.topic ? `<div class="muted">In the Claude app: ${esc(x.topic)}</div>` : ""}
+      ${x.brief ? `<div><b>${esc(x.brief.title)}</b><div class="muted">${esc(x.brief.file)}</div></div>
+        <ul class="state">${x.brief.state.map((l) => `<li>${esc(l.replace(/^[-*]\s*/, ""))}</li>`).join("")}</ul>` : ""}
+      <div><button type="button" class="go" data-go="${esc(x.name)}" title="Switch to this session: its terminal tab, or its tab in the Claude app">Go to it</button>
+        ${x.on_board ? `<button type="button" data-msg="${esc(x.name)}">Message ${esc(x.slot || x.name)}</button>` : ""}</div>
+    </div>`).join("") : '<div class="empty">No Claude sessions are running.</div>';
+}
+
+function renderJan() {
+  const claims = data.jan_claims || [];
+  $("jan").innerHTML = data.jan.length ? data.jan.map((m) => {
+    const holders = claims.filter((c) => c.path === "jan:" + m.model && !c.stale).map((c) => c.owner);
+    const st = m.busy === null ? "" : m.busy ? '<span class="pill busy">working</span>' : '<span class="pill idle">idle</span>';
+    return `<div class="line"><div class="grow">${esc(m.model)}<div class="muted">${holders.length ? "used by " + holders.map(esc).join(", ") : "nobody has claimed it"}</div></div>${st}</div>`;
+  }).join("") : '<div class="muted">No models loaded.</div>';
+  const b = data.board;
+  $("claims").innerHTML = b.claims.length ? b.claims.map((c) => `
+    <div class="line"><div class="grow ${c.stale ? "stale" : ""}">${esc(c.path)}<div class="muted">${esc(c.owner)} · ${ago(c.since)}${c.stale ? " · stale" : ""}</div></div></div>`).join("")
+    : '<div class="muted">Nothing claimed.</div>';
+  $("history").innerHTML = b.log.slice(-40).reverse().map((l) =>
+    `<div class="line"><div class="grow">${esc(l.text)}</div><span class="muted">${ago(l.t)}</span></div>`).join("") || '<div class="muted">Nothing yet.</div>';
+}
+
+function renderTo() {
+  const keep = $("to").value;
+  const members = Object.entries(data.board.members)
+    .filter(([n]) => n !== data.me && (data.sessions.some((s) => s.name === n) || data.board.members[n].slot));
+  members.sort((a, b) => (a[1].slot || "~" + a[0]).localeCompare(b[1].slot || "~" + b[0]));
+  $("to").innerHTML = `<option value="">Everyone</option>` +
+    members.map(([n, m]) => `<option value="${esc(n)}">${esc(m.slot ? `${m.slot} · ${n}` : n)}</option>`).join("");
+  if (keep && [...$("to").options].some((o) => o.value === keep)) $("to").value = keep;
+}
+
+function renderBadges() {
+  const me = notesFor("me").filter((n) => openFor(n, data.me)).length;
+  $("meBadge").hidden = !me; $("meBadge").textContent = me;
+  const waiting = data.sessions.filter((s) => s.status === "waiting").length;
+  const agents = data.sessions.reduce((n, s) => n + (s.agents || []).filter((a) => a.running).length, 0);
+  $("sessBadge").hidden = !waiting && !agents;
+  $("sessBadge").textContent = [waiting ? `${waiting} need${waiting === 1 ? "s" : ""} you` : "", agents ? `${agents} agent${agents === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · ");
+}
+
+function render(force) {
+  serverNow = data.now;
+  const sig = JSON.stringify([data.board.notes, data.sessions.map((s) => [s.name, s.status, s.active, s.label, s.brief?.state, (s.agents || []).map((a) => [a.description, a.running])]), tab, filter, $("openOnly").checked, $("threads").checked, $("search").value, [...expanded], data.jan]);
+  renderBadges();
+  if (!force && sig === lastSig) return;
+  lastSig = sig;
+  renderTabs();
+  renderTo();
+  if (["everyone", "me", "crew"].includes(tab)) { renderFilters(); renderNotes(force); markSeen(); }
+  renderNeeds();
+  if (tab === "sessions") renderSessions();
+  if (tab === "jan") renderJan();
+}
+
+function markSeen() {
+  const max = Math.max(0, ...data.board.notes.map((n) => n.id));
+  if (seenMax < 0) { seenMax = max; store.set("board.seen", String(max)); return; }
+  if (document.visibilityState === "visible" && max > seenMax) {
+    setTimeout(() => { seenMax = max; store.set("board.seen", String(max)); }, 4000);
+  }
+}
+
+// ---------- desktop alerts ----------
+// Notes to Emerson (or answers to his) that arrive while the Board is out of
+// sight become desktop notifications. The first look at a board only sets
+// the baseline, so opening the Board never replays old notes.
+function alertNew() {
+  const key = `board.notified.${current}`;
+  const fresh = notesFor("me").filter((n) => n.from !== data.me);
+  const max = Math.max(0, ...fresh.map((n) => n.id));
+  const last = Number(store.get(key, "-1"));
+  store.set(key, String(Math.max(max, last)));
+  if (last < 0 || !$("alerts").checked) return;
+  if (document.visibilityState === "visible" && document.hasFocus() && ["everyone", "me"].includes(tab)) return;
+  for (const n of fresh.filter((x) => x.id > last).slice(-3)) {
+    fetch("/api/notify", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: `${label(n.from)} on the Board${n.fyi ? " (FYI)" : ""}`, body: n.text }),
+    }).catch(() => {});
+  }
+}
+
+// ---------- data ----------
+// Returns false when the backend did not answer, so ForgeIdle.poll waits
+// longer each time (up to 30 s) instead of knocking every 3 s while it is down.
+async function refresh(force) {
+  try {
+    if (!$("boardPick").options.length) await loadBoards();
+    const r = await fetch(`/api/board/${encodeURIComponent(current)}`);
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+    $("live").classList.remove("off"); $("live").textContent = "live";
+    render(force);
+    alertNew();
+  } catch (e) {
+    $("live").classList.add("off"); $("live").textContent = "offline, retrying";
+    if (!data) {
+      $("notes").innerHTML = '<div class="empty">The Board backend is not answering yet. It keeps trying by itself.<button type="button" class="retry" data-retry="1">Try now</button></div>';
+      $("sessions").innerHTML = '<div class="empty">Waiting for the Board backend…</div>';
+    }
+    return false;
+  }
+}
+
+async function loadBoards() {
+  const r = await (await fetch("/api/boards")).json();
+  current = store.get("board.pick", r.default);
+  if (!r.boards.includes(current)) current = r.default;
+  $("boardPick").innerHTML = r.boards.map((b) => `<option ${b === current ? "selected" : ""}>${esc(b)}</option>`).join("");
+}
+
+// A calm sentence for the send box: no raw "Failed to fetch" or "[object Object]".
+function problem(err) {
+  return err instanceof TypeError ? "The Board backend is not answering; nothing was lost, try again in a moment." : err.message;
+}
+
+async function api(path, body) {
+  const r = await fetch(`/api/board/${encodeURIComponent(current)}${path}`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    let detail = "";
+    try { detail = (await r.json()).detail; } catch (e) { /* not JSON */ }
+    throw new Error(typeof detail === "string" && detail ? detail : `Could not send (error ${r.status}).`);
+  }
+}
+
+// ---------- actions ----------
+function setReply(id) {
+  const n = data.board.notes.find((x) => x.id === id);
+  if (!n) return;
+  replyTo = id;
+  $("replying").hidden = false;
+  $("replyText").textContent = `Replying to #${id} from ${label(n.from)}: “${n.text.slice(0, 80)}${n.text.length > 80 ? "…" : ""}”`;
+  if (n.from !== data.me) $("to").value = n.from;
+  $("text").focus();
+}
+function clearReply() { replyTo = null; $("replying").hidden = true; }
+
+$("tabs").onclick = (e) => {
+  const b = e.target.closest("button[data-tab]");
+  if (!b) return;
+  tab = b.dataset.tab; store.set("board.tab", tab); render(true);
+};
+$("filters").onclick = (e) => { const c = e.target.closest("[data-f]"); if (c) { filter = c.dataset.f; render(true); } };
+$("openOnly").onchange = () => { store.set("board.openOnly", $("openOnly").checked ? "1" : "0"); render(true); };
+$("boardPick").onchange = () => { current = $("boardPick").value; store.set("board.pick", current); clearReply(); shownMax = -1; $("jump").hidden = true; refresh(true); };
+$("cancelReply").onclick = clearReply;
+$("threads").onchange = () => { store.set("board.threads", $("threads").checked ? "1" : "0"); render(true); };
+$("alerts").onchange = () => store.set("board.alerts", $("alerts").checked ? "1" : "0");
+$("search").oninput = () => render(true);
+$("jump").onclick = () => { const v = $("notesView"); v.scrollTo({ top: v.scrollHeight, behavior: "smooth" }); $("jump").hidden = true; };
+$("notesView").addEventListener("scroll", () => {
+  const v = $("notesView");
+  if (!$("jump").hidden && v.scrollTop + v.clientHeight >= v.scrollHeight - 120) $("jump").hidden = true;
+}, { passive: true });
+
+document.addEventListener("click", async (e) => {
+  const t = e.target;
+  // a button already working on a click ignores the next one (double clicks)
+  if (t.disabled || t.dataset.busy) return;
+  const hold = t.tagName === "BUTTON" && (t.dataset.done || t.dataset.close || t.dataset.go);
+  if (hold) t.dataset.busy = "1";
+  try {
+    if (t.dataset.reply) setReply(Number(t.dataset.reply));
+    else if (t.dataset.retry) { t.disabled = true; await refresh(true); }
+    else if (t.dataset.done) { await api(`/ack/${t.dataset.done}`, {}); await refresh(true); }
+    else if (t.dataset.close) { await api(`/ack/${t.dataset.close}`, { close: true }); await refresh(true); }
+    else if (t.dataset.more) { expanded.add(Number(t.dataset.more)); render(); }
+    else if (t.dataset.jump) { const el = $("n" + t.dataset.jump); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    else if (t.dataset.go) {
+      const r = await fetch(`/api/session/${encodeURIComponent(t.dataset.go)}/go`, { method: "POST" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok || j.reason) $("formErr").textContent = j.reason || j.detail || `Could not switch to ${t.dataset.go}`;
+    }
+    else if (t.dataset.msg) { tab = "everyone"; render(true); $("to").value = t.dataset.msg; $("text").focus(); }
+  } catch (err) { $("formErr").textContent = problem(err); }
+  finally { if (hold) delete t.dataset.busy; }
+});
+
+$("text").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("composer").requestSubmit(); }
+  if (e.key === "Escape") clearReply();
+});
+
+// files and pictures for the next note: paste, drop or 📎 (Relay task 118);
+// the note names their paths and the session opens them
+let files = [];
+function drawFiles() {
+  const box = $("files");
+  box.replaceChildren(...files.map((f, i) => {
+    const chip = document.createElement("span");
+    chip.textContent = f.name;
+    const x = document.createElement("button");
+    x.type = "button";
+    x.textContent = "×";
+    x.title = "Remove";
+    x.onclick = () => { files.splice(i, 1); drawFiles(); };
+    chip.append(x);
+    return chip;
+  }));
+  box.hidden = !files.length;
+}
+async function postAttach(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+  return r.json();
+}
+let attach = null;
+if (window.ForgeAttach) {
+  attach = ForgeAttach.wire({
+    box: $("text"),
+    zone: $("composer"),
+    picker: $("file"),
+    upload: async (file) => postAttach("/api/attach", { name: file.name || "pasted.png", data: await ForgeAttach.readBase64(file) }),
+    pasteDesktop: () => postAttach("/api/attach/paste-image", {}),
+    onAdd: (saved) => { files.push(saved); drawFiles(); },
+    onError: (msg) => { $("formErr").textContent = msg; },
+  });
+}
+
+$("composer").onsubmit = async (e) => {
+  e.preventDefault();
+  // Enter pressed twice (or Send double-clicked) while the first is on its
+  // way would post the note twice
+  if (sending) return;
+  $("formErr").textContent = "";
+  const text = $("text").value.trim();
+  if (!text && !files.length) return;
+  if (attach && attach.busy()) { $("formErr").textContent = "A file is still uploading; send again in a moment"; return; }
+  // a file that lands while this note is on its way stays for the next one
+  const sent = files.slice();
+  sending = true;
+  $("send").disabled = true;
+  try {
+    await api("/post", { text, to: $("to").value || null, re: replyTo, fyi: $("fyi").checked, files: sent.map((f) => f.path) });
+    $("text").value = "";
+    files = files.filter((f) => !sent.includes(f));
+    drawFiles();
+    $("fyi").checked = false;
+    clearReply();
+    if (tab === "sessions") { tab = "everyone"; store.set("board.tab", tab); }
+    await refresh(true);
+    $("notesView").scrollTop = $("notesView").scrollHeight;
+  } catch (err) { $("formErr").textContent = problem(err); }
+  finally { sending = false; $("send").disabled = false; }
+};
+
+$("openOnly").checked = store.get("board.openOnly", "0") === "1";
+$("threads").checked = store.get("board.threads", "1") === "1";
+$("alerts").checked = store.get("board.alerts", "1") === "1";
+refresh(true);
+// 3 s while on screen; every 15 s out of sight, so desktop alerts (alertNew)
+// still fire for notes that arrive while the Board is hidden. Coming back
+// refreshes at once (ForgeIdle), so no visibilitychange handler is needed.
+// While the backend is down, each failed refresh doubles the wait, up to 30 s.
+ForgeIdle.poll(refresh, 3000, { hiddenMs: 15000, backoff: 2, maxMs: 30000 });
+</script>
+</body>
+</html>

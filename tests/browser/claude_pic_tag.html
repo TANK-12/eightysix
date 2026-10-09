@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tool cards say when a picture is inside</title>
+<!-- Run by tests/browser/run.sh over http, beside a copy of
+     apps/claude/static/claude_common.js. -->
+<script src="forge_convo.js"></script><script src="claude_common.js"></script></head>
+<body>
+<pre id="results"></pre>
+<script>
+// Emerson (2026-09-27): a tool's dropdown that holds a picture (a screenshot
+// Claude read) gets a coloured tag, so it shows while the card is closed.
+const out = [];
+const t = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const C = window.ClaudeCommon;
+const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+const img = { type: "image", source: { type: "base64", media_type: "image/png", data: PNG } };
+function run(view, id, content) {
+  C.draw({ type: "assistant", message: { id: "m" + id, content: [{ type: "tool_use", id, name: "Read", input: { file_path: "/tmp/x.png" } }] } }, view, {});
+  C.draw({ type: "user", message: { content: [{ type: "tool_result", tool_use_id: id, content }] } }, view, {});
+  return view.tools.get(id);
+}
+addEventListener("load", () => {
+  try {
+    const view = C.newView("a");
+    document.body.appendChild(view.box);
+    const one = run(view, "t1", [img]);
+    t("a card with a picture is tagged", one.classList.contains("has-pic") && /picture/.test(one.querySelector("summary").textContent));
+    t("the tag sits in the header, seen while closed", !!one.querySelector("summary .pic-tag") && !one.open);
+    t("the picture itself is inside", one.querySelectorAll(".shot img").length === 1);
+    const two = run(view, "t2", [img, { type: "text", text: "ok" }, img]);
+    t("two pictures say so", /2 pictures/.test(two.querySelector(".pic-tag").textContent), two.querySelector(".pic-tag").textContent);
+    const none = run(view, "t3", "plain bash output");
+    t("a text-only card has no tag", !none.classList.contains("has-pic") && !none.querySelector(".pic-tag"));
+  } catch (e) {
+    t("the check ran without throwing", false, String(e));
+  }
+  document.getElementById("results").textContent = out.join("\n");
+});
+</script></body></html>

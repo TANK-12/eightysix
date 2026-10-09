@@ -1,0 +1,87 @@
+/* Media: the player, the site views, the download picker. Colours and the
+   panel/card/button look come from /shared/forge.css. */
+
+#app { display: flex; flex-direction: column; height: 100vh; }
+header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+header nav { display: flex; gap: 4px; }
+header .spacer { flex: 1; }
+.brand { font-weight: 700; letter-spacing: .02em; }
+.brand span { color: var(--accent); }
+.panel { display: none; flex: 1; min-height: 0; flex-direction: column; padding: 12px 16px; gap: 10px; overflow: auto; width: 100%; box-sizing: border-box; }
+.panel.active { display: flex; animation: media-fade .18s ease-out; }
+@keyframes media-fade { from { opacity: 0; } }
+/* the site pages and the library want the whole window, not the shared 960px column */
+.panel.site, .panel[data-panel=library] { max-width: none; }
+/* Download and Settings keep the 960px column for their cards, but the panel
+   itself spans the window so its scrollbar sits at the edge, not mid-screen */
+.panel[data-panel=download], .panel[data-panel=settings] { max-width: none; }
+.panel[data-panel=download] > .card, .panel[data-panel=settings] > .card { width: 100%; max-width: 960px; margin-inline: auto; box-sizing: border-box; flex: none; }
+
+/* --- player -------------------------------------------------------------- */
+.player { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px; }
+#media { width: 100%; max-height: 52vh; background: #000; border-radius: 8px; display: none; }
+body.video #media { display: block; }
+.art { height: 84px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent);
+  display: flex; align-items: center; justify-content: center; font-weight: 600; }
+body.video .art { display: none; }
+.controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.controls .now { flex: 1; min-width: 160px; }
+.controls .title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.controls .time { font-variant-numeric: tabular-nums; color: var(--muted); }
+.controls .toggle.on { border-color: var(--accent); color: var(--accent); }
+.vol { display: flex; align-items: center; gap: 6px; }
+.vol input[type=range] { width: 110px; }
+.vol input[type=number] { width: 58px; }
+#seek { width: 100%; }
+
+/* --- lists --------------------------------------------------------------- */
+.list-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.list-head input[type=search] { flex: 1; min-width: 200px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--text); padding: 6px 12px; cursor: pointer; }
+.seg button.on { background: var(--accent); color: var(--on-accent); }
+.list { flex: 1; min-height: 120px; overflow: auto; padding: 4px; }
+.item { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.item:hover { background: var(--panel-2); }
+.item.playing { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.item .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.item .icon { text-align: center; opacity: .8; }
+/* off-screen rows of a long library skip layout and paint */
+#list .item { content-visibility: auto; contain-intrinsic-size: auto 34px; }
+.empty { padding: 28px 16px; text-align: center; color: var(--muted); line-height: 1.6; }
+.empty .btn { margin-left: 6px; }
+.picks .item { grid-template-columns: 24px 1fr auto; }
+.picks label.item { display: grid; font-size: 14px; color: var(--text); margin-bottom: 0; }
+
+/* --- site views ---------------------------------------------------------- */
+.panel.site { padding: 8px 16px; }
+.sitebar { display: flex; gap: 6px; align-items: center; }
+.sitebar .addr { flex: 1; min-width: 160px; }
+.viewport { flex: 1; min-height: 200px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); position: relative; }
+.viewport .placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; color: var(--muted); }
+.note { padding: 0 2px; }
+
+textarea { width: 100%; box-sizing: border-box; font: inherit; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+.small { font-size: 12px; }
+h3 { margin: 0 0 8px; }
+
+/* narrow windows: the tabs take their own row instead of pushing the header
+   (and the Full screen button) past the right edge */
+@media (max-width: 900px) {
+  header { flex-wrap: wrap; row-gap: 8px; }
+  header nav { order: 10; flex-basis: 100%; overflow-x: auto; overflow-y: hidden; }
+  .vol input[type=range] { width: 80px; }
+}
+
+/* thin, quiet scrollbars: Chrome and WebKitGTK draw ::-webkit-scrollbar,
+   Firefox the standard properties */
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--text) 18%, transparent) transparent; }
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-button { display: none; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--text) 18%, transparent); border-radius: 8px;
+  border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--text) 30%, transparent); }

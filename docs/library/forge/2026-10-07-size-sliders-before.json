@@ -1,0 +1,302 @@
+[
+ {
+  "where": "hub",
+  "key": "ui_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.25,
+   1.35,
+   1.45,
+   1.5
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.05,
+   1.1,
+   1.15,
+   1.25,
+   1.35,
+   1.45,
+   1.5
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.5
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 7,
+  "applyTheme_ms": 9.2,
+  "broadcasts": 7,
+  "move_lag_ms_mean": 6.7,
+  "move_lag_ms_max": 52.58,
+  "release_ms": 1.43,
+  "drag_ms": 1378,
+  "final_theme_value": 1.5,
+  "final_zoom": 1.5
+ },
+ {
+  "where": "hub",
+  "key": "ui_scale",
+  "from": 1.5,
+  "target": 1.1,
+  "slider_values": [
+   1.45,
+   1.4,
+   1.35,
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.05,
+   0.9,
+   0.8
+  ],
+  "distinct_values": 10,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.45,
+   1.4,
+   1.35,
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.05,
+   0.9,
+   0.8
+  ],
+  "saves": [
+   {
+    "ui_scale": 0.8
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 10,
+  "applyTheme_ms": 6.4,
+  "broadcasts": 10,
+  "move_lag_ms_mean": 6.52,
+  "move_lag_ms_max": 51.12,
+  "release_ms": 1.29,
+  "drag_ms": 1365,
+  "final_theme_value": 0.8,
+  "final_zoom": 0.8
+ },
+ {
+  "where": "hub",
+  "key": "text_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.35
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 7,
+  "applyTheme_ms": 44.8,
+  "broadcasts": 7,
+  "move_lag_ms_mean": 4.12,
+  "move_lag_ms_max": 31.31,
+  "release_ms": 1.55,
+  "drag_ms": 1239,
+  "final_theme_value": 1.35,
+  "final_zoom": 1
+ },
+ {
+  "where": "hub",
+  "key": "text_scale",
+  "from": 1.35,
+  "target": 1.1,
+  "slider_values": [
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 5,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 5,
+  "applyTheme_ms": 18.5,
+  "broadcasts": 5,
+  "move_lag_ms_mean": 2.43,
+  "move_lag_ms_max": 21.52,
+  "release_ms": 1.54,
+  "drag_ms": 1120,
+  "final_theme_value": 1.1,
+  "final_zoom": 1
+ },
+ {
+  "where": "settings",
+  "key": "ui_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35,
+   0.8
+  ],
+  "distinct_values": 8,
+  "flip_flops": 1,
+  "zoom_requests": [
+   1.35,
+   0.8
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.35
+   },
+   {
+    "ui_scale": 0.8
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 2,
+  "applyTheme_ms": 9.8,
+  "broadcasts": 2,
+  "move_lag_ms_mean": 3.53,
+  "move_lag_ms_max": 38.43,
+  "release_ms": 3.18,
+  "drag_ms": 1189,
+  "final_theme_value": 0.8,
+  "final_zoom": 0.8
+ },
+ {
+  "where": "settings",
+  "key": "ui_scale",
+  "from": 0.8,
+  "target": 1.1,
+  "slider_values": [
+   0.85,
+   0.9,
+   0.95,
+   1,
+   1.05,
+   1.1,
+   1.2
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.1,
+   1.2
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.1
+   },
+   {
+    "ui_scale": 1.2
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 2,
+  "applyTheme_ms": 3.8,
+  "broadcasts": 2,
+  "move_lag_ms_mean": 2.39,
+  "move_lag_ms_max": 34.52,
+  "release_ms": 1.56,
+  "drag_ms": 1118,
+  "final_theme_value": 1.2,
+  "final_zoom": 1.2
+ },
+ {
+  "where": "settings",
+  "key": "text_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35,
+   1.4
+  ],
+  "distinct_values": 8,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.35
+   },
+   {
+    "text_scale": 1.4
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 2,
+  "applyTheme_ms": 15.6,
+  "broadcasts": 2,
+  "move_lag_ms_mean": 3.99,
+  "move_lag_ms_max": 20.67,
+  "release_ms": 2.44,
+  "drag_ms": 1218,
+  "final_theme_value": 1.4,
+  "final_zoom": 1
+ },
+ {
+  "where": "settings",
+  "key": "text_scale",
+  "from": 1.4,
+  "target": 1.1,
+  "slider_values": [
+   1.35,
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 6,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 6.3,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 1.81,
+  "move_lag_ms_max": 5.86,
+  "release_ms": 2.26,
+  "drag_ms": 1093,
+  "final_theme_value": 1.1,
+  "final_zoom": 1
+ }
+]

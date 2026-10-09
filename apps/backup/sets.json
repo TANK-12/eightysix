@@ -1,0 +1,97 @@
+{
+  "lock": "/run/lock/forge-backup.lock",
+  "status_file": "/var/lib/forge-backup/status.json",
+  "mount_root": "/mnt/forge-drive",
+  "areas": {
+    "rescue": {
+      "label": "Rescue",
+      "about": "Whole-system snapshots: everything needed to rebuild the laptop.",
+      "every_hours": 48,
+      "keep": 8,
+      "min_free_gb": 15,
+      "rsync": ["-aAXHx", "--numeric-ids"],
+      "sets": [
+        {
+          "name": "system",
+          "items": [
+            {
+              "from": "/",
+              "to": "root",
+              "exclude": [
+                "/proc/*", "/sys/*", "/dev/*", "/run/*", "/tmp/*", "/mnt/*",
+                "/media/*", "/lost+found", "/var/tmp/*",
+                "/var/cache/pacman/pkg/*", "/var/lib/systemd/coredump/*",
+                "/home/*/.cache/*", "/home/*/.local/share/Trash/*"
+              ]
+            },
+            {"from": "/boot", "to": "boot"},
+            {"from": "/efi", "to": "efi"}
+          ]
+        }
+      ]
+    },
+    "vault": {
+      "label": "Vault",
+      "about": "Claude and Forge work with long history, plus offline git mirrors.",
+      "every_hours": 24,
+      "keep": 30,
+      "min_free_gb": 10,
+      "rsync": ["-aAXH", "--numeric-ids"],
+      "sets": [
+        {
+          "name": "claude",
+          "items": [
+            {"from": "/home/ejb/.claude", "to": ".claude"},
+            {"from": "/home/ejb/.claude.json", "to": ".claude.json"}
+          ]
+        },
+        {
+          "name": "forge",
+          "items": [
+            {
+              "from": "/home/ejb/Forge",
+              "to": "Forge",
+              "exclude": [".venv/", "__pycache__/", "node_modules/", ".pytest_cache/"]
+            }
+          ]
+        },
+        {
+          "name": "projects",
+          "items": [
+            {
+              "from": "/home/ejb/anime-codec-lab",
+              "to": "anime-codec-lab",
+              "exclude": ["/winbuild/wineprefix/", ".venv/", "__pycache__/"]
+            },
+            {"from": "/home/ejb/hypr-for-windows", "to": "hypr-for-windows"},
+            {"from": "/home/ejb/Games/eightysix", "to": "eightysix", "exclude": [".godot/"]}
+          ]
+        },
+        {
+          "name": "app-data",
+          "items": [
+            {"from": "/home/ejb/NovelMakerData", "to": "NovelMakerData"},
+            {"from": "/home/ejb/PulseForgeData", "to": "PulseForgeData"},
+            {"from": "/home/ejb/PanelForgeData", "to": "PanelForgeData"},
+            {"from": "/home/ejb/ComixData", "to": "ComixData"}
+          ]
+        },
+        {
+          "name": "files",
+          "items": [
+            {"from": "/home/ejb/Documents", "to": "Documents"},
+            {"from": "/home/ejb/Desktop", "to": "Desktop"},
+            {"from": "/home/ejb/Pictures", "to": "Pictures"},
+            {"from": "/home/ejb/.config/hypr", "to": "config-hypr"}
+          ]
+        }
+      ],
+      "clean": true,
+      "git": [
+        "/home/ejb/Forge",
+        "/home/ejb/anime-codec-lab",
+        "/home/ejb/Games/eightysix"
+      ]
+    }
+  }
+}

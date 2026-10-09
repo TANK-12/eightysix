@@ -1,0 +1,52 @@
+{
+  "name": "wallpapers",
+  "label": "Wallpapers",
+  "tagline": "Browse, favourite and set wallpapers",
+  "port": 8442,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e6a3c8",
+  "icon": "🖼️",
+  "role": "wallpapers",
+  "order": 98,
+  "section": "system",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "A full-window picker over ~/Pictures/Wallpapers and its sub-folders. It indexes every picture's resolution and fingerprint, hides lower-resolution look-alike copies behind the best one, keeps favourites, and sets a picture as the desktop wallpaper, Forge's wallpaper, or both.",
+    "features": [
+      {
+        "name": "Index",
+        "description": "Resolution, file size, date and a 256-bit difference hash per picture, cached in ~/.cache/forge/wallpaper-index.json and only re-read when a file changes. Runs niced in the background when the backend starts."
+      },
+      {
+        "name": "Hidden copies",
+        "description": "Pictures whose fingerprints are within 12 bits and whose shape matches are one picture; the highest-resolution copy is shown and the rest are hidden (never moved or deleted). 'Show hidden copies' brings them back."
+      },
+      {
+        "name": "Favourites",
+        "description": "A star on every tile and in the side panel; favourites sort first and have their own view. Stored in ~/.config/forge/wallpapers.json and shown in the Settings app."
+      },
+      {
+        "name": "Set on desktop and/or Forge",
+        "description": "Desktop through the first installed tool in forge_wallpapers.DESKTOP_SETTERS (caelestia, awww, swww). Forge through the shared settings, with the new theme handed to the hub live."
+      },
+      {
+        "name": "Browse",
+        "description": "Search, sort by name, resolution, date or file size, filter by shape and minimum resolution, adjustable tile size, and an uncropped preview in the side panel."
+      }
+    ],
+    "data_dir": "~/.config/forge/wallpapers.json (favourites); ~/.config/forge/settings.json (Forge's wallpaper); ~/.cache/forge/ (index, thumbnails, previews)",
+    "services": [],
+    "dependencies": {
+      "required": ["fastapi", "uvicorn", "magick (ImageMagick)"],
+      "optional": ["caelestia", "awww", "swww"]
+    },
+    "standalone_launch": "cd ~/Forge/apps/wallpapers && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8442",
+    "api_base": "/api",
+    "known_gaps": [
+      "Hidden copies are only hidden; nothing is moved or deleted, by choice.",
+      "The first index of the whole folder takes a couple of minutes."
+    ],
+    "docs": ["README.md", "MANIFEST.md", "WIP.md"]
+  }
+}

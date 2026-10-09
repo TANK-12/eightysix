@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crew Room</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="/room.css">
+</head>
+<body>
+<header class="bar">
+  <h1>Crew Room</h1>
+  <nav id="tabs" class="tabs" aria-label="Rooms"></nav>
+  <span id="counts" class="counts muted"></span>
+  <button id="open-launch" class="btn btn-primary" type="button" aria-expanded="false">New session</button>
+  <button id="open-settings" class="btn" type="button" aria-expanded="false">Settings</button>
+  <button id="go-fullscreen" class="btn" type="button" title="Full screen (F11)">Full screen</button>
+</header>
+
+<main id="stage">
+  <div id="frame">
+    <canvas id="room" aria-label="Pixel room showing the sessions at work"></canvas>
+    <div id="board" class="board-text"></div>
+    <div id="overlay"></div>
+  </div>
+  <div id="status" class="status" hidden></div>
+</main>
+
+<aside id="details" class="side" hidden>
+  <div class="side-head">
+    <h2 id="details-title"></h2>
+    <button id="close-details" class="btn" type="button" aria-label="Close details">Close</button>
+  </div>
+  <div id="details-body"></div>
+  <div id="details-extra" hidden>
+    <h4>Where</h4>
+    <div id="where-body"></div>
+    <div class="convo-tools">
+      <button id="toggle-convo" class="btn" type="button">Read the conversation</button>
+    </div>
+    <div id="convo" hidden>
+      <div class="convo-tools">
+        <button id="convo-older" class="btn" type="button" hidden>Load earlier</button>
+        <button id="convo-newest" class="btn" type="button">Show newest</button>
+        <span id="convo-note" class="muted small"></span>
+      </div>
+      <ol id="convo-list" class="convo"></ol>
+    </div>
+  </div>
+</aside>
+
+<section id="launch" class="side" hidden>
+  <div class="side-head">
+    <h2>New session</h2>
+    <button id="close-launch" class="btn" type="button" aria-label="Close new session">Close</button>
+  </div>
+  <div class="set-row">Folder
+    <select id="launch-pick" aria-label="Pick a folder"></select>
+    <input id="launch-folder" type="text" spellcheck="false" aria-label="Folder path">
+  </div>
+
+  <h4>In a terminal</h4>
+  <p class="muted small">Opens <span id="terminal-name">a terminal</span> running claude in that folder. Its character walks in once it starts.</p>
+  <button id="launch-terminal" class="btn btn-primary" type="button">Open in a terminal</button>
+
+  <h4>In the background</h4>
+  <label class="set-row">What it should do
+    <textarea id="task-prompt" rows="4"></textarea>
+  </label>
+  <div class="task-attach">
+    <label class="btn" title="Attach files or pictures (or paste or drop them on the box)">Attach files<input id="task-file" type="file" multiple hidden></label>
+    <span id="task-files" class="task-files"></span>
+  </div>
+  <label class="set-row">Model
+    <select id="task-model"></select>
+  </label>
+  <p class="muted small">Runs headless in auto mode, where Claude Code decides what is safe to run. It keeps going until it finishes; there is no stop button here.</p>
+  <button id="launch-task" class="btn btn-primary" type="button">Start in the background</button>
+  <p id="launch-msg" class="small" role="status"></p>
+  <p class="muted small">Each session and background task uses your Claude usage.</p>
+
+  <h4>Background tasks</h4>
+  <ul id="task-list" class="list"></ul>
+</section>
+
+<section id="settings" class="side" hidden>
+  <div class="side-head">
+    <h2>Settings</h2>
+    <button id="close-settings" class="btn" type="button" aria-label="Close settings">Close</button>
+  </div>
+  <div class="mode-tabs" role="tablist">
+    <button type="button" data-mode="simple">Simple</button>
+    <button type="button" data-mode="advanced">Advanced</button>
+  </div>
+
+  <div class="set-group" data-group="simple">
+    <label class="set-row">Room
+      <select id="set-room"></select>
+    </label>
+    <label class="set-row check"><input type="checkbox" id="set-reduced"> Reduced motion</label>
+    <label class="set-row check"><input type="checkbox" id="set-tags"> Name tags</label>
+    <label class="set-row check"><input type="checkbox" id="set-demo"> Add a sample crew and Jan model</label>
+  </div>
+
+  <div class="set-group" data-group="advanced">
+    <div class="set-row">Check for changes every (seconds)
+      <div class="pair">
+        <input type="range" id="set-poll" min="1" max="10" step="1">
+        <input type="number" id="set-poll-n" min="1" max="10" step="1">
+      </div>
+    </div>
+    <div class="set-row">Pixel scale (0 fits the window)
+      <div class="pair">
+        <input type="range" id="set-scale" min="0" max="8" step="1">
+        <input type="number" id="set-scale-n" min="0" max="8" step="1">
+      </div>
+    </div>
+    <label class="set-row">Speech bubbles
+      <select id="set-bubbles">
+        <option value="all">Always for busy sessions</option>
+        <option value="changes">Only when the action changes</option>
+        <option value="off">Off</option>
+      </select>
+    </label>
+    <label class="set-row">Palette
+      <select id="set-palette"></select>
+    </label>
+    <label class="set-row check"><input type="checkbox" id="set-helper-tags"> Name tags on helpers</label>
+    <p class="muted small">Rooms are JSON files in <code id="rooms-path"></code> and the sprites are the crewroom packs in PixelForge. Edit either and reload this page.</p>
+  </div>
+</section>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge_art.js"></script>
+<script src="/shared/forge_attach.js"></script>
+<script src="/demo.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

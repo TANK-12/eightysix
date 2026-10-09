@@ -1,0 +1,70 @@
+<!doctype html><html><head><meta charset="utf-8"><title>#185: streamed text is drawn in batches</title>
+<!-- Run by tests/browser/run.sh over http, beside a copy of
+     apps/claude/static/claude_common.js. -->
+<script src="forge_convo.js"></script><script src="claude_common.js"></script></head>
+<body>
+<pre id="results"></pre>
+<script>
+// Emerson #185 (2026-09-27): "using claude inside forge is way less efficient
+// than using claude in terminal". Every streamed word re-parsed and redrew the
+// whole reply; these checks hold the panel to one redraw per batch.
+const out = [];
+const t = (name, ok, extra) => out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra !== undefined ? " :: " + extra : ""));
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const C = window.ClaudeCommon;
+const delta = (text, id = "m1") => [
+  { type: "stream_event", event: { type: "message_start", message: { id } } },
+  { type: "stream_event", event: { type: "content_block_delta", index: 0, delta: { type: "text_delta", text } } },
+];
+function stream(view, words, hooks, id) {
+  C.draw(delta("", id)[0], view, hooks);
+  for (const w of words) C.draw(delta(w, id)[1], view, hooks);
+}
+addEventListener("load", async () => {
+  try {
+    let scrolls = 0;
+    const hooks = { scroll: () => scrolls++ };
+    const view = C.newView("a");
+    document.body.appendChild(view.box);
+    let writes = 0;
+    new MutationObserver((recs) => { writes += recs.filter((r) => r.target.classList.contains("bubble")).length; })
+      .observe(view.box, { childList: true, subtree: true });
+
+    const words = Array.from({ length: 300 }, (_, i) => `word${i} `);
+    stream(view, words, hooks);
+    const bubble = () => view.box.querySelector(".bubble");
+    await wait(0);
+    t("300 deltas in one go are not drawn one by one", writes <= 1, `${writes} redraws`);
+    await wait(250);
+    t("the batch then shows the whole text", bubble().textContent.includes("word0") && bubble().textContent.includes("word299"));
+    t("scrolling follows the batch, not every delta", scrolls >= 1 && scrolls <= 3, `${scrolls} scrolls`);
+
+    writes = 0;
+    for (let i = 0; i < 60; i++) { C.draw(delta(`late${i} `)[1], view, hooks); await wait(5); }
+    await wait(250);
+    t("60 deltas over ~300 ms take a handful of redraws", writes >= 1 && writes <= 8, `${writes} redraws`);
+    t("and the last one is on screen", bubble().textContent.includes("late59"));
+
+    const full = "final **answer** only";
+    C.draw(delta("half an ans", "m2")[0], view, hooks);
+    C.draw(delta("half an ans", "m2")[1], view, hooks);
+    C.draw({ type: "assistant", message: { id: "m2", content: [{ type: "text", text: full }] } }, view, hooks);
+    await wait(250);
+    const last = view.box.querySelectorAll(".msg.claude")[1].querySelector(".bubble");
+    t("the finished message wins over a pending batch", last.textContent === "final answer only", last.textContent);
+
+    const big = C.newView("b");
+    let bigWrites = 0;
+    new MutationObserver((recs) => { bigWrites += recs.length; }).observe(big.box, { childList: true, subtree: true });
+    const many = Array.from({ length: 3000 }, (_, i) => (i % 40 === 39 ? "\n\n" : `token${i} `));
+    stream(big, many, {}, "m3");
+    await wait(250);
+    t("a 3000-delta long reply is parsed and drawn once, not 3000 times", bigWrites <= 3, `${bigWrites} changes`);
+    t("with its paragraphs intact", big.box.querySelector(".bubble").textContent.includes("token2998"));
+  } catch (e) {
+    t("the checks ran", false, String(e));
+  }
+  document.getElementById("results").textContent = out.join("\n");
+});
+</script>
+</body></html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wallpapers</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root { --accent: #e6a3c8; --accent-2: #d07fb0; --on-accent: #1a0d16; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">Forge <span>Wallpapers</span></div>
+    <input type="search" id="search" placeholder="Search wallpapers… ( / )" autocomplete="off" spellcheck="false">
+    <div class="spacer"></div>
+    <span class="muted small" id="index-note"></span>
+    <button class="btn" id="go-fullscreen" type="button">Full screen</button>
+  </header>
+
+  <div class="toolbar">
+    <label class="inline" title="Forge's particles on your normal desktop, behind every window. On GNOME this needs the Forge desktop particles extension (one log out and back in)."><input type="checkbox" id="desk-particles"> Particles on the desktop</label>
+    <div class="seg" id="view">
+      <button type="button" data-view="all" class="on">All <b id="count-all"></b></button>
+      <button type="button" data-view="favourites">★ Favourites <b id="count-fav"></b></button>
+      <button type="button" data-view="current">In use</button>
+    </div>
+    <label class="inline">Sort
+      <select id="sort">
+        <option value="name">Name</option>
+        <option value="resolution">Highest resolution</option>
+        <option value="newest">Newest</option>
+        <option value="size">Largest file</option>
+      </select>
+    </label>
+    <label class="inline">Shape
+      <select id="shape">
+        <option value="">Any</option>
+        <option value="wide">Landscape</option>
+        <option value="ultrawide">Ultrawide</option>
+        <option value="tall">Portrait or square</option>
+      </select>
+    </label>
+    <label class="inline">At least
+      <select id="minres">
+        <option value="0">Any size</option>
+        <option value="1920">1080p</option>
+        <option value="2560">1440p</option>
+        <option value="3840">4K</option>
+        <option value="5120">5K</option>
+      </select>
+    </label>
+    <label class="inline"><input type="checkbox" id="show-copies"> Show hidden copies <b id="count-copies"></b></label>
+    <label class="inline">Tiles
+      <input type="range" id="tile-size" min="160" max="420" step="10" value="240">
+    </label>
+  </div>
+
+  <div class="body">
+    <main id="scroller">
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="placeholder hidden">No wallpaper matches.</div>
+    </main>
+
+    <aside id="panel" class="panel-side hidden" aria-live="polite">
+      <div class="side-head">
+        <h3 id="p-title"></h3>
+        <button class="btn icon" id="p-close" type="button" title="Close (Esc)">✕</button>
+      </div>
+      <div class="p-image"><img id="p-img" alt=""></div>
+      <div class="p-meta muted small" id="p-meta"></div>
+      <div class="p-tags" id="p-tags"></div>
+      <div class="p-actions">
+        <button class="btn btn-primary" type="button" data-apply="both">Set on desktop and Forge</button>
+        <button class="btn" type="button" data-apply="desktop">Desktop only</button>
+        <button class="btn" type="button" data-apply="forge">Forge only</button>
+        <button class="btn" type="button" id="p-star">☆ Favourite</button>
+      </div>
+      <label class="p-particles small">Particles on this wallpaper
+        <select id="p-particles"><option value="">Match the wallpaper (automatic)</option></select>
+      </label>
+      <div class="p-copies small" id="p-copies"></div>
+      <div class="muted small" id="p-result"></div>
+    </aside>
+  </div>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

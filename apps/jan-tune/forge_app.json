@@ -1,0 +1,13 @@
+{
+  "name": "jan-tune",
+  "label": "Jan Tune",
+  "tagline": "Find each Jan model's fastest settings",
+  "port": 8461,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#f0c040",
+  "icon": "🎚️",
+  "order": 13,
+  "ready_timeout": 30,
+  "section": "assistants"
+}

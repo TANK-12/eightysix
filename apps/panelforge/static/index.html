@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PanelForge</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #e0564f; --accent-2: #c8433d; --on-accent: #fff6f4; }
+</style>
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">🎬 Panel<span>Forge</span></div>
+    <span class="chip" id="ctxBadge">no chapter selected</span>
+    <div class="spacer"></div>
+    <button class="btn" id="jobsBtn">Jobs <span class="jobs-badge hidden" id="jobsBadge">0</span></button>
+    <button class="btn" id="settingsBtn">Settings</button>
+    <button class="btn" id="go-fullscreen" title="Full screen">⛶</button>
+  </header>
+  <nav id="tabNav"></nav>
+  <div class="hidden" id="healthNote" style="background:var(--panel-2);color:var(--warn);font-size:11.5px;padding:6px 18px;border-bottom:1px solid var(--border)"></div>
+  <main id="tabMain"></main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="jobsDrawer">
+  <div class="drawer-head"><h2>Jobs</h2><button class="btn" data-close-drawer>Close</button></div>
+  <div class="drawer-body" id="jobsDrawerBody"></div>
+</aside>
+
+<aside class="drawer" id="settingsDrawer">
+  <div class="drawer-head"><h2>Settings</h2><button class="btn" data-close-drawer>Close</button></div>
+  <div class="drawer-body" id="settingsDrawerBody"></div>
+</aside>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/shared/forge_jan.js"></script>
+<script src="/js/core.js"></script>
+<script src="/js/tabs/library.js"></script>
+<script src="/js/tabs/editor.js"></script>
+<script src="/js/tabs/cast.js"></script>
+<script src="/js/tabs/previews.js"></script>
+<script src="/js/tabs/timeline.js"></script>
+<script src="/js/tabs/render.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "_about": "Where the Claude app's Docs section finds documents (docs_library.py). One entry per source: folder is the folder shown (a / makes a sub-folder), root the directory on disk, depth how many directory levels to read (1 = only the files in root), ext the file types, skip directory names to leave out, subfolders false to show every file straight in folder. Adding a source is one entry here.",
+  "sources": [
+    {"folder": "Library", "root": "~/Forge/docs/library", "depth": 4, "ext": [".md", ".txt"]},
+    {"folder": "Sessions", "root": "~/Forge/sessions", "depth": 2, "ext": [".md"]},
+    {"folder": "Forge", "root": "~/Forge", "depth": 3, "ext": [".md"], "skip": ["apps", "sessions", "library", "backups", "outputs", "assets", "shared", "nyarch", "tests"]},
+    {"folder": "Apps", "root": "~/Forge/apps", "depth": 3, "ext": [".md"], "skip": ["tests", "static", "personas", "assets", "data", "vendor", "models"]},
+    {"folder": "Claude", "root": "~/.claude", "depth": 1, "ext": [".md"]},
+    {"folder": "Claude/self", "root": "~/.claude/self", "depth": 2, "ext": [".md"]},
+    {"folder": "Claude/memory", "root": "~/.claude/projects/-home-ejb/memory", "depth": 1, "ext": [".md"]},
+    {"folder": "Claude/skills", "root": "~/.claude/skills", "depth": 2, "ext": [".md"]},
+    {"folder": "Models", "root": "~/Models", "depth": 4, "ext": [".md", ".txt"]},
+    {"folder": "Codec lab", "root": "~/anime-codec-lab", "depth": 2, "ext": [".md", ".txt"], "skip": ["build", "winbuild", "dist"]},
+    {"folder": "Desktop", "root": "~/Desktop", "depth": 3, "ext": [".md", ".txt"]}
+  ]
+}

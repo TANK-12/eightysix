@@ -1,0 +1,84 @@
+main { padding: 16px; }
+.small { font-size: 12px; }
+.spacer { flex: 1; }
+.badge:not(:empty) { background: var(--accent-2); color: var(--on-accent); border-radius: 9px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+
+.login-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 16px 0; border-left: 3px solid var(--bad); }
+.login-bar.ok { border-left-color: var(--good); }
+.login-bar span { flex: 1; min-width: 220px; }
+.login-bar.ok #login-check { display: none; }
+
+.add-row { display: flex; gap: 8px; }
+.add-row input { flex: 1; min-width: 0; }
+
+.choose { margin-top: 12px; }
+.modes { display: flex; gap: 16px; flex-wrap: wrap; }
+.mode-opt { display: flex; align-items: center; gap: 4px; font-size: 14px; color: inherit; cursor: pointer; }
+.group-rank { padding-left: 22px; margin: 8px 0 12px; }
+.group-rank li { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.btn.mini { padding: 2px 8px; font-size: 12px; text-decoration: none; }
+
+.library-head, .detail-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0 8px; }
+.library-head h3, .detail-head h3 { margin: 0; }
+.series-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.series-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; }
+.series-card:hover, .series-card.open { border-color: var(--accent); }
+.series-card.pending { border-style: dashed; }
+.s-title { font-weight: 600; margin-bottom: 4px; overflow-wrap: anywhere; }
+.bar { height: 4px; background: var(--panel-2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+#series-detail { margin-top: 14px; }
+
+table.chapters { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.chapters td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
+.st-skipped { opacity: 0.55; }
+.st-done td:nth-child(3) { color: var(--good); }
+.st-failed td:nth-child(3), .q-row.st-failed .small { color: var(--bad); }
+
+.queue-top { display: flex; flex-direction: column; gap: 8px; }
+.row-btns { display: flex; gap: 8px; }
+.now-item { margin-bottom: 6px; }
+.q-row { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.q-name { font-weight: 500; }
+.log { max-height: 320px; overflow: auto; font-size: 12px; white-space: pre-wrap; }
+
+.read-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; position: sticky; top: 0; background: var(--bg); padding: 6px 0; z-index: 2; }
+.read-bar select { min-width: 0; flex: 1; }
+.pages { display: flex; flex-direction: column; align-items: center; }
+.pages img { display: block; max-width: min(100%, 900px); width: 100%; height: auto; }
+.panel[data-panel="read"] { max-width: 960px; }
+
+.pair { display: flex; gap: 10px; align-items: center; }
+.pair input[type="range"] { flex: 1; }
+.pair .num { width: 80px; }
+
+@media (max-width: 600px) {
+  main { padding: 10px; }
+  .add-row { flex-direction: column; }
+}
+
+/* U1 sweep (2026-10-08): header wraps instead of spilling sideways, thin
+   themed scrollbars, calm offline bar, short fades (opacity/transform only). */
+header { flex-wrap: wrap; row-gap: 6px; }
+header .btn, nav .tab { white-space: nowrap; }
+html { overflow-x: hidden; }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--muted); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+.conn-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 12px 16px 0; border-left: 3px solid var(--bad); }
+.conn-bar span { flex: 1; min-width: 220px; }
+.conn-bar[hidden], #series-detail[hidden] { display: none; }
+#series-filter { width: 180px; max-width: 100%; }
+
+@keyframes comix-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.panel.active, #series-detail:not([hidden]), .conn-bar:not([hidden]) { animation: comix-in .18s ease-out; }
+.series-card { transition: transform .15s ease; }
+.series-card:hover { transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) {
+  .panel.active, #series-detail:not([hidden]), .conn-bar:not([hidden]) { animation: none; }
+  .series-card, .series-card:hover { transition: none; transform: none; }
+}

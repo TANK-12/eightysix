@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<link rel="stylesheet" href="app.css">
+<style>:root { --accent: #7cc4a8; --accent-2: #5fae90; --on-accent: #06140f; }</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<div id="app" class="cal">
+  <aside class="side">
+    <div class="side-head"><span class="logo">📅</span> <b>Calendar</b></div>
+    <button type="button" class="btn btn-primary" id="add">+ Add event or reminder</button>
+    <input id="search" placeholder="Search everything…" spellcheck="false" maxlength="200">
+    <h4>Show</h4>
+    <div id="filters" class="filters"></div>
+    <h4>Feeders</h4>
+    <div id="feeders" class="feeders"></div>
+    <label class="small check"><input type="checkbox" id="paused"> Pause all logging</label>
+    <label class="small keep">Keep activity for <input type="number" id="keep" min="0" max="3650"> days
+      <span class="muted">(0 = forever; your own events are never removed)</span></label>
+    <p class="muted small">Scripts can log too: <code>forge-log "text"</code> or POST /api/events.</p>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <button type="button" class="btn" id="prev" title="Back">‹</button>
+      <button type="button" class="btn" id="today">Today</button>
+      <button type="button" class="btn" id="next" title="Forward">›</button>
+      <h2 id="title"></h2>
+      <span class="conn hidden" id="conn" title="It keeps trying by itself">Backend not answering, retrying</span>
+      <span class="grow"></span>
+      <div class="views" id="views">
+        <button type="button" data-view="month">Month</button>
+        <button type="button" data-view="week">Week</button>
+        <button type="button" data-view="day">Day</button>
+      </div>
+      <button type="button" class="btn" id="go-fullscreen">Full screen</button>
+    </header>
+    <div id="body" class="body"><div class="empty">Loading the calendar…</div></div>
+  </main>
+
+  <div class="dialog hidden" id="dialog">
+    <form class="card" id="form">
+      <h3 id="form-title">New event</h3>
+      <label>Title <input id="f-title" required maxlength="200"></label>
+      <div class="two">
+        <label>Kind <select id="f-kind"></select></label>
+        <label>When <input id="f-when" type="datetime-local" required></label>
+      </div>
+      <label>Ends (optional) <input id="f-end" type="datetime-local"></label>
+      <label>Notes <textarea id="f-body" rows="4"></textarea></label>
+      <label>Tags <input id="f-tags" placeholder="uni, maths"></label>
+      <p class="muted small" id="f-hint">A reminder pops up on the desktop at its time.</p>
+      <div class="row-end">
+        <button type="button" class="btn btn-danger hidden" id="f-delete">Delete</button>
+        <span class="grow"></span>
+        <button type="button" class="btn" id="f-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

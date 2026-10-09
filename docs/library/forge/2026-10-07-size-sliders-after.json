@@ -1,0 +1,274 @@
+[
+ {
+  "where": "hub",
+  "key": "ui_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.35
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.35,
+    "text_scale": 1,
+    "icon_scale": 1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 0.9,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 1.9,
+  "move_lag_ms_max": 28.77,
+  "release_ms": 1.73,
+  "drag_ms": 1090,
+  "final_theme_value": 1.35,
+  "final_zoom": 1.35
+ },
+ {
+  "where": "hub",
+  "key": "ui_scale",
+  "from": 1.35,
+  "target": 1.1,
+  "slider_values": [
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 5,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.1
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.1,
+    "text_scale": 1,
+    "icon_scale": 1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 1,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 2.14,
+  "move_lag_ms_max": 24.94,
+  "release_ms": 1.62,
+  "drag_ms": 1104,
+  "final_theme_value": 1.1,
+  "final_zoom": 1.1
+ },
+ {
+  "where": "hub",
+  "key": "text_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "ui_scale": 1,
+    "text_scale": 1.35,
+    "icon_scale": 1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 1.1,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 2.46,
+  "move_lag_ms_max": 32.39,
+  "release_ms": 1.99,
+  "drag_ms": 1124,
+  "final_theme_value": 1.35,
+  "final_zoom": 1
+ },
+ {
+  "where": "hub",
+  "key": "text_scale",
+  "from": 1.35,
+  "target": 1.1,
+  "slider_values": [
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 5,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "ui_scale": 1,
+    "text_scale": 1.1,
+    "icon_scale": 1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 0.7,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 2.26,
+  "move_lag_ms_max": 24.96,
+  "release_ms": 1.82,
+  "drag_ms": 1113,
+  "final_theme_value": 1.1,
+  "final_zoom": 1
+ },
+ {
+  "where": "settings",
+  "key": "ui_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.35
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.35
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 5.6,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 1.75,
+  "move_lag_ms_max": 17.6,
+  "release_ms": 3.0,
+  "drag_ms": 1083,
+  "final_theme_value": 1.35,
+  "final_zoom": 1.35
+ },
+ {
+  "where": "settings",
+  "key": "ui_scale",
+  "from": 1.35,
+  "target": 1.1,
+  "slider_values": [
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 5,
+  "flip_flops": 0,
+  "zoom_requests": [
+   1.1
+  ],
+  "saves": [
+   {
+    "ui_scale": 1.1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 1.2,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 2.16,
+  "move_lag_ms_max": 18.08,
+  "release_ms": 3.1,
+  "drag_ms": 1107,
+  "final_theme_value": 1.1,
+  "final_zoom": 1.1
+ },
+ {
+  "where": "settings",
+  "key": "text_scale",
+  "from": 1,
+  "target": 1.35,
+  "slider_values": [
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35
+  ],
+  "distinct_values": 7,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.35
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 12.2,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 3.0,
+  "move_lag_ms_max": 18.9,
+  "release_ms": 4.92,
+  "drag_ms": 1162,
+  "final_theme_value": 1.35,
+  "final_zoom": 1
+ },
+ {
+  "where": "settings",
+  "key": "text_scale",
+  "from": 1.35,
+  "target": 1.1,
+  "slider_values": [
+   1.3,
+   1.25,
+   1.2,
+   1.15,
+   1.1
+  ],
+  "distinct_values": 5,
+  "flip_flops": 0,
+  "zoom_requests": [],
+  "saves": [
+   {
+    "text_scale": 1.1
+   }
+  ],
+  "settings_refetches": 1,
+  "applyTheme_calls": 1,
+  "applyTheme_ms": 5.9,
+  "broadcasts": 1,
+  "move_lag_ms_mean": 2.42,
+  "move_lag_ms_max": 19.87,
+  "release_ms": 4.29,
+  "drag_ms": 1124,
+  "final_theme_value": 1.1,
+  "final_zoom": 1
+ }
+]

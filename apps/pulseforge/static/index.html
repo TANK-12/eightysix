@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PulseForge</title>
+<link rel="stylesheet" href="/shared/forge.css">
+<style>
+  :root { --accent: #d16bff; --accent-2: #b24fe0; --on-accent: #1a0620; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 18px; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab { padding: 9px 16px; cursor: pointer; border-radius: 8px 8px 0 0; color: var(--muted); }
+  .tab.active { color: var(--text); background: var(--panel); border: 1px solid var(--border); border-bottom: none; }
+  .panel { display: none; }
+  .panel.active { display: block; animation: pf-panel-in .18s ease-out; }
+  @keyframes pf-panel-in { from { opacity: 0; } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 150px; flex: 1; }
+  .field label { font-size: 12px; color: var(--muted); }
+  input, select, textarea { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font: inherit; }
+  .btn { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 15px; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .scene-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .scene { border: 1px solid var(--border); border-radius: 10px; padding: 12px; cursor: pointer; }
+  .scene.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .scene h4 { margin: 0 0 4px; }
+  .scene .fam { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+  .scene p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+  .logbox { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 10px; height: 200px; overflow: auto; font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap; }
+  .bar { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .pill { display: inline-block; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; font-size: 12px; margin: 2px 4px 2px 0; }
+  video { width: 100%; border-radius: 10px; background: #000; margin-top: 10px; }
+  a { color: var(--accent); }
+
+  /* ---- schema-driven controls (controls.js) ---- */
+  .ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px 14px; }
+  .ctl { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .ctl > label { font-size: 12px; color: var(--muted); }
+  .ctl-pair { display: flex; align-items: center; gap: 7px; }
+  .ctl-pair input[type=range] { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .ctl-num { width: 62px; flex: none; padding: 5px 6px; font-size: 12px; text-align: right; }
+  .ctl-hex { width: 76px; text-align: left; font-family: ui-monospace, monospace; }
+  .ctl-unit { font-size: 11px; color: var(--muted); }
+  .ctl-help { font-size: 11px; color: var(--muted); opacity: .8; line-height: 1.35; }
+  .ctl-dial { width: 22px; height: 22px; flex: none; border: 1px solid var(--border); border-radius: 50%; position: relative; }
+  .ctl-dial > i { position: absolute; left: 50%; top: 50%; width: 9px; height: 2px; background: var(--accent);
+                  transform-origin: 0 50%; border-radius: 1px; }
+
+  /* ---- scenery editor ----
+     The editor gets the whole window rather than the 1100px reading column the
+     other tabs use: it is a workbench, and the picture and its controls need to
+     be on screen together. The canvas sticks while the inspector scrolls. */
+  body[data-tab="scenery"] .wrap { max-width: 1700px; }
+  .sc-wrap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.85fr); gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .sc-wrap { grid-template-columns: 1fr; } }
+  .sc-left { position: sticky; top: 12px; }
+  #scInspector { max-height: calc(100vh - 40px); overflow-y: auto; overscroll-behavior: contain;
+                 padding-right: 8px; position: sticky; top: 12px;
+                 scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  #scInspector::-webkit-scrollbar { width: 9px; }
+  #scInspector::-webkit-scrollbar-track { background: transparent; }
+  #scInspector::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+  #scInspector .ctl-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 12px; }
+  #scCanvasWrap { position: relative; }
+  #scCanvas { width: 100%; display: block; border-radius: 10px; background: #0b0d13;
+              border: 1px solid var(--border); cursor: crosshair; touch-action: none; }
+  .sc-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+  .sc-toolbar .btn.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .sc-shots { display: flex; gap: 6px; align-items: center; overflow-x: auto; padding-bottom: 6px; }
+  .sc-shot { position: relative; background: var(--panel); border: 1px solid var(--border); color: var(--text);
+             border-radius: 9px; padding: 9px 14px 9px 11px; cursor: pointer; white-space: nowrap; }
+  .sc-shot.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .sc-shot > span { font-weight: 600; margin-right: 7px; }
+  .sc-shot > em { font-style: normal; color: var(--muted); font-size: 12px; }
+  .sc-add { border-style: dashed; color: var(--muted); }
+  .sc-trans { padding: 4px 6px; font-size: 11px; max-width: 110px; }
+  .sc-x { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; line-height: 1;
+          border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--muted);
+          cursor: pointer; font-size: 12px; padding: 0; }
+  .sc-card { background: var(--panel); border: 1px solid var(--border); border-radius: 11px; padding: 0; margin-bottom: 9px; }
+  .sc-card > summary { list-style: none; cursor: pointer; padding: 10px 12px; display: flex;
+                       align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; }
+  .sc-card > summary::-webkit-details-marker { display: none; }
+  .sc-card > summary::before { content: "▸"; color: var(--muted); font-size: 10px; margin-right: 2px; transition: transform .15s; }
+  .sc-card[open] > summary::before { transform: rotate(90deg); }
+  .sc-card > summary .sc-count { font-weight: 400; color: var(--muted); font-size: 11px; margin-left: auto; }
+  .sc-body { padding: 0 12px 12px; }
+  .sc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .sc-head h4 { margin: 0; font-size: 13px; }
+  .sc-desc { margin: 0 0 8px; line-height: 1.4; }
+  .sc-presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+  .sc-preset { text-align: left; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+               border-radius: 8px; padding: 7px 9px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+  .sc-preset.on { border-color: var(--accent); }
+  .sc-preset > span { font-size: 11px; color: var(--muted); line-height: 1.3;
+                      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .sc-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+  .sc-row { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px;
+            border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 13px; }
+  .sc-row.on { border-color: var(--accent); }
+  .sc-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .sc-swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .sc-sub { border: 1px solid var(--border); border-radius: 9px; padding: 9px; margin-bottom: 8px; position: relative; }
+  .sc-effect { width: 100%; margin-bottom: 8px; }
+  .ctl-modtoggle { float: right; width: 17px; height: 15px; line-height: 1; padding: 0;
+                   border: 1px solid var(--border); background: transparent; color: var(--muted);
+                   border-radius: 4px; cursor: pointer; font-size: 11px; }
+  .ctl-modtoggle.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .ctl-mod { display: flex; align-items: center; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+  .ctl-mod select { padding: 3px 5px; font-size: 11px; max-width: 96px; }
+  .ctl-mod input[type=range] { flex: 1; min-width: 50px; accent-color: var(--accent-2); }
+  .ctl-mod input[type=number] { width: 52px; padding: 3px 4px; font-size: 11px; }
+  .ctl-modlabel { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .sc-preset.mine { border-style: dashed; }
+  /* a normal flex item, not absolutely positioned -- it used to collide with
+     the delete button in the corner */
+  .sc-copy { flex: none; font-size: 10px; padding: 2px 6px; border: 1px solid var(--border);
+             border-radius: 5px; background: var(--bg); color: var(--muted); cursor: pointer; }
+  .sc-copy:hover { color: var(--text); border-color: var(--accent); }
+  .mode-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: 12px; }
+  .mode-switch button { background: transparent; border: 0; color: var(--muted); padding: 5px 12px; cursor: pointer; font: inherit; }
+  .mode-switch button.on { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .tab[hidden] { display: none; }
+
+  /* ---- the simple editor ---- */
+  .sm-wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr); gap: 16px; align-items: start; }
+  @media (max-width: 950px) { .sm-wrap { grid-template-columns: 1fr; } }
+  .sm-preview { position: sticky; top: 12px; }
+  .sm-preview img { width: 100%; border-radius: 11px; border: 1px solid var(--border); display: block; margin-bottom: 8px; }
+  .sm-preview img[hidden] { display: none; }
+  .sm-empty { aspect-ratio: 16/9; display: grid; place-items: center; margin-bottom: 8px; padding: 12px;
+              border: 1px dashed var(--border); border-radius: 11px; color: var(--muted); font-size: 13px; text-align: center; }
+  .sm-preview img:not([hidden]) ~ .sm-empty { display: none; }
+  .sm-step h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; }
+  .sm-step h3 > i { font-style: normal; width: 24px; height: 24px; flex: none; border-radius: 50%;
+                    background: var(--accent); color: var(--on-accent); font-size: 13px;
+                    display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .sm-step > p.muted { margin: 0 0 12px; }
+  .sm-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .sm-num { color: var(--muted); font-size: 12px; width: 16px; flex: none; }
+  .sm-title { flex: 1; min-width: 0; }
+  .sm-row .sc-x { position: static; }
+  .sm-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+  .sm-tile { position: relative; border: 1px solid var(--border); border-radius: 10px; padding: 7px;
+             display: flex; flex-direction: column; gap: 5px; font-size: 11px; color: var(--muted); }
+  .sm-tile img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; }
+  .sm-tile > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sc-group { font-size: 12px; font-weight: 600; margin: 4px 0 6px; }
+  .sc-group span { font-weight: 400; color: var(--muted); margin-left: 6px; }
+
+  /* a class rather than inline display, so the `hidden` attribute still wins */
+  .tool-opts { display: flex; align-items: center; gap: 8px; }
+  .tool-opts[hidden] { display: none; }
+  .sc-shot.dragging { opacity: .45; }
+  .sc-shot.dropinto { border-color: var(--accent); border-style: dashed; }
+  .sc-snaps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .sc-snap { position: relative; display: flex; align-items: center; gap: 6px; font-size: 12px;
+             border: 1px solid var(--border); border-radius: 8px; padding: 4px 18px 4px 9px; }
+  .sc-snap i { font-style: normal; color: var(--muted); font-size: 11px; }
+  .pf-item { display: flex; gap: 8px; align-items: baseline; padding: 5px 0;
+             border-bottom: 1px solid var(--border); }
+  .pf-item:last-child { border-bottom: none; }
+  .pf-tag { flex: none; font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+            border-radius: 4px; padding: 1px 6px; }
+  .pf-stop { background: #5a1f28; color: #ffd7dd; }
+  .pf-check { background: #5a4a1f; color: #ffeec2; }
+  .pf-fine { background: #1f4a2e; color: #ccf3d8; }
+  .pf-item b { color: var(--text); font-weight: 600; }
+  .sc-rule { height: 1px; background: var(--border); margin: 10px 0; }
+  .sc-tl { display: flex; gap: 2px; height: 22px; margin-bottom: 5px; }
+  .sc-tlseg { background: var(--accent-2); border-radius: 3px; font-size: 10px; color: var(--on-accent);
+              padding: 4px 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .sc-tlseg:nth-child(even) { background: var(--accent); }
+  .song-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .song-row .idx { color: var(--muted); font-size: 12px; width: 18px; }
+  .song-row input { flex: 1; min-width: 90px; }
+
+  /* ---- the AMV studio ----
+     A workbench, like Scenery: the timeline needs the whole window, and the
+     shot you clicked has to be readable next to it. */
+  body[data-tab="studio"] .wrap { max-width: 1800px; }
+  /* The shared stylesheet caps every .panel at 960px, which is right for the
+     reading-column tabs and wrong for the two workbenches -- widening .wrap
+     alone did nothing, because the panel inside it stayed 960. */
+  body[data-tab="studio"] .panel,
+  body[data-tab="scenery"] .panel { max-width: none; }
+  .st-top { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,340px); gap: 14px; align-items: start; }
+  @media (max-width: 1100px) { .st-top { grid-template-columns: 1fr; } }
+  .st-styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px,1fr)); gap: 8px;
+               max-height: 320px; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+  .st-style { border: 1px solid var(--border); border-radius: 9px; padding: 9px 10px; cursor: pointer; background: var(--bg); }
+  .st-style:hover { border-color: var(--accent-2); }
+  .st-style.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .st-style b { display: block; font-size: 13px; margin-bottom: 3px; }
+  .st-style span { font-size: 11px; color: var(--muted); line-height: 1.35; }
+  #stCanvas { width: 100%; height: 268px; display: block; border: 1px solid var(--border);
+              border-radius: 10px; background: #0c0c11; cursor: crosshair; }
+  .st-legend { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 11px; color: var(--muted); margin-top: 7px; }
+  .st-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .st-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px,1fr)); gap: 8px; margin-top: 10px; }
+  .st-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; }
+  .st-stat b { display: block; font-size: 17px; font-family: ui-monospace, monospace; }
+  .st-stat span { font-size: 11px; color: var(--muted); }
+  .st-shot { font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.65; }
+  .st-shot dt { color: var(--muted); font-size: 11px; }
+  .st-clip { display: flex; justify-content: space-between; gap: 8px; padding: 5px 7px; border-radius: 6px;
+             font-size: 12px; border: 1px solid var(--border); margin-bottom: 5px; background: var(--bg); }
+  .st-clip small { color: var(--muted); }
+  .st-fx { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px;
+           border: 1px solid var(--accent-2); color: var(--accent); margin: 2px 3px 0 0; }
+
+  /* ---- autopilot ---- */
+  .ap-recipes { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .ap-recipe { border: 1px solid var(--border); border-radius: 10px; padding: 12px; cursor: pointer; }
+  .ap-recipe:hover { border-color: var(--accent-2); }
+  .ap-recipe.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .ap-recipe h4 { margin: 0 0 4px; }
+  .ap-recipe .fam { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+  .ap-recipe p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+
+  /* package cards lead with a big thumbnail, like a video tile, so the row
+     reads as "here is the finished thing" rather than a form */
+  .ap-pkgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .ap-pkg { border: 1px solid var(--border); border-radius: 11px; overflow: hidden; background: var(--bg); }
+  .ap-pkg .ap-thumb { width: 100%; aspect-ratio: 16/9; object-fit: contain; display: block; background: #000; }
+  .ap-pkg .ap-noThumb { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center;
+                        background: var(--panel); color: var(--muted); font-size: 12px; }
+  .ap-pkg-body { padding: 10px 12px 12px; }
+  .ap-pkg-body h4 { margin: 0 0 4px; font-size: 14px; line-height: 1.3; }
+  .ap-pkg-meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 9px; }
+  .ap-pkg-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ap-status { display: inline-flex; align-items: center; gap: 5px; text-transform: capitalize; }
+  .ap-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .ap-status-ready, .ap-status-uploaded { color: #6be08a; }
+  .ap-status-rendering, .ap-status-queued { color: var(--accent); }
+  .ap-status-failed { color: #ff8a8a; }
+
+  /* earnings: totals as stat tiles (read at a glance), tables as plain rows,
+     matching the .st-stat pattern used on the Studio tab */
+  .ap-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 8px; margin-top: 10px; }
+  .ap-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .ap-stat b { display: block; font-size: 18px; font-family: ui-monospace, monospace; }
+  .ap-stat span { font-size: 11px; color: var(--muted); }
+  .ap-ledger-row { display: flex; gap: 10px; align-items: center; padding: 6px 0;
+                   border-bottom: 1px solid var(--border); font-size: 13px; }
+  .ap-ledger-row:last-child { border-bottom: none; }
+  .ap-ledger-row > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-ledger-row > span.num { flex: none; width: 90px; text-align: right; color: var(--muted); }
+  .ap-ledger-head { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+
+  /* ---- Autopilot as its own mode: no editor tabs, one calm column ---- */
+  body[data-mode="autopilot"] .tabs { display: none; }
+  .panel[data-panel="autopilot"] { max-width: 980px; margin: 0 auto; }
+  .ap-nav { display: flex; gap: 4px; margin: 4px 0 14px; border-bottom: 1px solid var(--border); }
+  .ap-nav button { background: none; border: none; color: var(--muted); font: inherit; font-size: 15px;
+                   padding: 8px 14px 10px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .ap-nav button.on { color: var(--text); border-bottom-color: var(--accent); }
+  .ap-nav button:hover { color: var(--text); }
+  .ap-count:not(:empty) { background: var(--accent); color: var(--on-accent); border-radius: 9px;
+                          font-size: 11px; padding: 1px 7px; margin-left: 4px; font-weight: 600; }
+
+  .ap-steps { padding: 6px 20px 18px; }
+  .ap-step { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .ap-num { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+            background: var(--bg); border: 1px solid var(--accent); color: var(--accent); font-weight: 700; font-size: 14px; }
+  .ap-step-body { flex: 1; min-width: 0; }
+  .ap-step-body > label { display: block; font-size: 15px; font-weight: 600; margin: 3px 0 8px; color: var(--text); }
+  .ap-pick { display: flex; gap: 8px; }
+  .ap-pick input { flex: 1; min-width: 0; }
+  .ap-sum { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .ap-sum.ok { color: #6be08a; }
+
+  .ap-looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .ap-look { display: flex; flex-direction: column; text-align: left; padding: 0; overflow: hidden; cursor: pointer;
+             background: var(--bg); border: 1px solid var(--border); border-radius: 11px; color: var(--text); font: inherit; }
+  .ap-look:hover { border-color: var(--accent-2); }
+  .ap-look.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .ap-look-img { position: relative; display: block; aspect-ratio: 16/9; background: #000; overflow: hidden; }
+  .ap-look-img img[hidden] { display: none; }
+  .ap-look-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; }
+  .ap-look-img i { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal;
+                   font-size: 12px; color: var(--muted); }
+  .ap-look-img i.loading { background: linear-gradient(90deg, #15171d 25%, #1f2230 50%, #15171d 75%);
+                           background-size: 200% 100%; animation: ap-shimmer 1.2s linear infinite; }
+  @keyframes ap-shimmer { to { background-position: -200% 0; } }
+  .ap-look-text { display: block; padding: 9px 11px 11px; }
+  .ap-look-text b { display: block; font-size: 14px; }
+  .ap-look-text small { display: block; font-size: 11px; color: var(--accent); margin: 2px 0 5px; }
+  .ap-look-text span { display: block; font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .ap-big { margin: 14px 0 0; }
+  .ap-big img { display: block; width: 100%; max-width: 480px; border-radius: 10px; border: 1px solid var(--border); background: #000; }
+  .ap-big img.tall { max-width: 200px; }
+  .ap-big figcaption { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .ap-go { display: flex; align-items: center; gap: 14px; padding-top: 18px; flex-wrap: wrap; }
+  .ap-make { font-size: 16px; padding: 12px 34px; border-radius: 10px; }
+  .ap-make:disabled { opacity: .45; cursor: not-allowed; }
+  .ap-why { font-size: 13px; color: var(--muted); }
+  .ap-now { margin-top: 16px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .ap-now-top { display: flex; align-items: center; gap: 10px; }
+  .ap-now-top b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ap-details summary { cursor: pointer; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .ap-details .logbox { height: 140px; margin-top: 6px; }
+  .ap-foot { font-size: 12px; margin: 10px 4px 0; }
+
+  .ap-empty { text-align: center; padding: 34px 20px; }
+  .ap-empty p { margin: 6px 0 0; }
+  .ap-err { font-size: 12px; color: #ff8a8a; margin: -3px 0 8px; }
+  .ap-packbox { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--border); }
+  .ap-packsteps { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
+  .ap-packsteps li { margin: 4px 0; }
+
+  .ap-modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; z-index: 50; padding: 16px; }
+  .ap-modal[hidden] { display: none; }
+  .ap-modal-box { width: min(560px, 100%); max-height: min(640px, 90vh); display: flex; flex-direction: column;
+                  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .ap-modal-head, .ap-modal-foot { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
+  .ap-modal-head { border-bottom: 1px solid var(--border); }
+  .ap-modal-head code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: 13px; }
+  .ap-modal-foot { border-top: 1px solid var(--border); }
+  .ap-modal-foot .muted { flex: 1; font-size: 12px; }
+  .ap-recent:not(:empty) { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 14px 0; font-size: 12px; }
+  .ap-recent .chip { background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 14px;
+                     padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+  .ap-dirs { overflow: auto; padding: 8px; flex: 1; }
+  .ap-dir { display: flex; width: 100%; justify-content: space-between; gap: 10px; background: none; border: none;
+            color: var(--text); font: inherit; font-size: 14px; text-align: left; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+  .ap-dir:hover { background: var(--bg); }
+  .ap-dir small { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .ap-dir.has small { color: #6be08a; }
+
+  @media (max-width: 640px) {
+    /* four modes no longer fit beside the title on a phone */
+    .wrap > h1 { flex-wrap: wrap; }
+    .ap-steps { padding: 4px 14px 14px; }
+    .ap-step { gap: 10px; }
+    .ap-looks { grid-template-columns: 1fr 1fr; }
+    .ap-make { width: 100%; }
+  }
+  /* thin scrollbars in the theme's colours (WebKitGTK reads the -webkit- rules) */
+  html, body, textarea, pre, .log { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+  ::-webkit-scrollbar-corner { background: transparent; }
+  .pf-offline { border-style: dashed; }
+</style>
+<script src="/shared/forge_dialog.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <h1 style="display:flex;align-items:center;gap:10px">PulseForge
+    <span class="muted" id="ffState"></span>
+    <span class="mode-switch" id="modeSwitch">
+      <button data-mode="simple" class="on">Simple</button><button data-mode="advanced">Advanced</button><button data-mode="studio">Studio</button><button data-mode="autopilot">Autopilot</button>
+    </span>
+  </h1>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="projects">Projects</div>
+    <div class="tab" data-tab="make" data-modes="simple">Make</div>
+    <div class="tab" data-tab="finish" data-modes="simple">Finish</div>
+    <div class="tab" data-tab="compose" data-modes="advanced">Compose</div>
+    <div class="tab" data-tab="scenery" data-modes="advanced">Scenery</div>
+    <div class="tab" data-tab="output" data-modes="advanced studio">Output</div>
+    <div class="tab" data-tab="settings" data-modes="advanced studio">Settings</div>
+    <div class="tab" data-tab="studio" data-modes="studio">Studio</div>
+    <div class="tab" data-tab="autopilot" data-modes="autopilot">Autopilot</div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="panel active" data-panel="projects">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>New project name</label><input id="newName" placeholder="My track visualiser"></div>
+        <button class="btn btn-primary" id="createBtn">Create</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Album batch <span class="muted">(a folder of tracks → one video each)</span></h3>
+      <div class="row">
+        <div class="field"><label>Audio folder</label><input id="batchFolder" placeholder="/home/ejb/Music/my-album"></div>
+        <div class="field"><label>Scene</label><select id="batchScene"></select></div>
+        <div class="field"><label>Format</label><select id="batchFormat"></select></div>
+        <button class="btn" id="batchBtn">Queue all</button>
+      </div>
+      <div class="muted" id="batchResult" style="margin-top:6px"></div>
+    </div>
+    <div id="projList"></div>
+  </div>
+
+  <!-- MAKE (simple) -->
+  <div class="panel" data-panel="make">
+    <div class="card" id="smNoProject"><p class="muted">Open a project from the Projects tab.</p></div>
+    <div id="smBody" hidden>
+      <div class="sm-wrap">
+        <div>
+          <div class="card sm-step">
+            <h3><i>1</i> Music</h3>
+            <p class="muted">They play in order. Name them and the names become the
+              tracklist and the captions.</p>
+            <div class="row">
+              <div class="field"><input type="file" id="smSongFile" accept="audio/*" multiple></div>
+              <button class="btn btn-primary" id="smSongUp">Add music</button>
+              <button class="btn" id="smLevel" title="Measure every track and even them out">Even out the volume</button>
+            </div>
+            <div id="smSongs" style="margin-top:10px"></div>
+          </div>
+
+          <div class="card sm-step">
+            <h3><i>2</i> Pictures</h3>
+            <p class="muted">Each picture or clip becomes a scene, in this order,
+              with a soft dissolve between them.</p>
+            <div class="row">
+              <div class="field"><input type="file" id="smPicFile" accept="image/*,video/*" multiple></div>
+              <button class="btn btn-primary" id="smPicUp">Add pictures</button>
+            </div>
+            <div id="smShots" class="sm-tiles"></div>
+          </div>
+
+          <div class="card sm-step">
+            <h3><i>3</i> Look</h3>
+            <p class="muted">Pick one and it is applied to every scene, finding the
+              sky, water and foliage in each picture on its own.</p>
+            <div class="sc-presets" id="smPresets"></div>
+            <div class="row" style="margin-top:12px">
+              <div class="field"><label>Colour</label><select id="smGrade"></select></div>
+              <div class="field"><label>Sound under the music</label><select id="smAmbience"></select></div>
+            </div>
+            <div class="muted" id="smLookNote" style="margin-top:6px"></div>
+          </div>
+
+          <div class="card sm-step">
+            <h3><i>4</i> Finish</h3>
+            <div class="row">
+              <div class="field"><label>Title</label><input id="smTitle" placeholder="Late Night Study"></div>
+              <div class="field"><label>How long</label><select id="smLength">
+                <option value="0">As long as the music</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+                <option value="3">3 hours</option></select></div>
+            </div>
+            <div class="row" style="margin-top:12px">
+              <button class="btn btn-primary" id="smMake" disabled>Make the video</button>
+              <button class="btn" id="smAdvanced">Open the full editor</button>
+              <div class="muted" id="smReadyNote" style="flex:1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sm-preview">
+          <img id="smStill" hidden alt="preview">
+          <div class="sm-empty">Add a picture and a real frame of your video shows here.</div>
+          <p class="muted" style="font-size:12px">A real frame from the renderer,
+            not a mock-up. It updates as you change the look.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINISH (simple) -->
+  <div class="panel" data-panel="finish">
+    <div class="card">
+      <p class="muted">Everything between a finished render and an upload. The
+        same tools are on the Output tab in the full editor.</p>
+      <div class="row">
+        <button class="btn" id="fnCheck">Check it before uploading</button>
+        <button class="btn" id="fnOutput">Open the full Output tab</button>
+      </div>
+      <div id="fnReport" class="muted" style="margin-top:10px">Not checked yet.</div>
+    </div>
+    <div id="fnRenders"></div>
+  </div>
+
+  <!-- COMPOSE -->
+  <div class="panel" data-panel="compose">
+    <div class="card" id="noProject"><p class="muted">Open a project from the Projects tab.</p></div>
+    <div id="composeBody" hidden>
+      <div class="card">
+        <h3 id="composeTitle">—</h3>
+        <div class="row">
+          <div class="field"><label>Add songs (mp3 / wav / flac / m4a)</label><input type="file" id="audioFile" accept="audio/*" multiple></div>
+          <button class="btn" id="audioUp">Add to playlist</button>
+          <div class="muted" id="audioState"></div>
+        </div>
+        <div id="playlist" style="margin-top:12px"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-sm" id="levelBtn">Level the playlist</button>
+          <div class="muted" id="levelNote" style="flex:1"></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Gap between songs (s)</label><input id="s_gap" type="number" min="0" max="10" step="0.5" value="0"></div>
+          <div class="field"><label>Or crossfade them by (s)</label><input id="s_xfade" type="number" min="0" max="12" step="0.5" value="0"></div>
+          <div class="field"><label>Make it this long (hours)</label>
+            <input id="s_target" type="number" min="0" max="12" step="0.5" value="0">
+            <span class="muted" style="font-size:11px">0 = play the list once. Otherwise it repeats to reach this.</span></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Fade in (s)</label><input id="s_fadeIn" type="number" min="0" max="30" step="0.5" value="0"></div>
+          <div class="field"><label>Fade out (s)</label><input id="s_fadeOut" type="number" min="0" max="30" step="0.5" value="0"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Under the music <span class="muted">(ambience &amp; overlays)</span></h3>
+        <div class="row">
+          <div class="field"><label>Ambient bed</label><select id="s_ambience"></select></div>
+          <div class="field"><label>How loud</label><input id="s_ambLevel" type="range" min="0" max="0.8" step="0.01" value="0.25"></div>
+          <button class="btn btn-sm" id="ambPreview">Hear 6 seconds</button>
+        </div>
+        <div class="muted" id="ambNote" style="margin-top:6px"></div>
+        <audio id="ambAudio" controls hidden style="width:100%;margin-top:8px"></audio>
+        <div class="row" style="margin-top:12px">
+          <label class="muted" style="display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="o_nowplaying"> show what's playing</label>
+          <label class="muted" style="display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="o_progress"> progress bar</label>
+          <div class="field"><label>Corner</label><select id="o_position">
+            <option value="bottom-left">Bottom left</option><option value="bottom-right">Bottom right</option>
+            <option value="top-left">Top left</option><option value="top-right">Top right</option></select></div>
+        </div>
+      </div>
+
+      <details class="card">
+        <summary><h3 style="display:inline">Scene</h3>
+          <span class="muted"> — Living Still is the one the Scenery tab builds</span></summary>
+        <div class="scene-grid" id="sceneGrid" style="margin-top:12px"></div>
+        <div id="sceneParams" style="margin-top:14px"></div>
+      </details>
+
+      <div class="card">
+        <h3>Background & assets</h3>
+        <div class="row">
+          <div class="field"><label>Background (png / jpg / webp — or a video clip)</label><input type="file" id="assetFile" accept="image/*,video/*"></div>
+          <button class="btn" id="assetUp">Attach</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>AI backdrop prompt (uses AI Studio)</label><input id="aiPrompt" placeholder="a neon rain-soaked city at night, wide, cinematic"></div>
+          <button class="btn" id="aiBtn">Generate backdrop</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Clips folder (for the montage / AMV scene)</label><input id="clipsPath" placeholder="/home/ejb/Videos/amv-clips"></div>
+          <button class="btn" id="clipsBtn">Use folder</button>
+        </div>
+        <div class="row" style="margin-top:10px" id="artPackRow" hidden>
+          <div class="field"><label>Sprite pack (for the swarm scene)</label><select id="artPack"></select></div>
+        </div>
+        <div id="assetList" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <h3>Text overlay <span class="muted">(optional — drawn over the finished video)</span></h3>
+        <div class="row">
+          <div class="field"><label>Title line</label><input id="t_title" placeholder="Track title"></div>
+          <div class="field"><label>Second line</label><input id="t_sub" placeholder="Artist · album"></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div class="field"><label>Position</label><select id="t_pos">
+            <option value="bottom-left">Bottom left</option><option value="bottom-center">Bottom center</option>
+            <option value="top-left">Top left</option><option value="center">Center</option></select></div>
+          <div class="field"><label>Size</label><select id="t_size">
+            <option value="s">Small</option><option value="m" selected>Medium</option><option value="l">Large</option></select></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Output</h3>
+        <div class="row">
+          <div class="field"><label>Format</label><select id="formatSel"></select></div>
+          <div class="field"><label>Quality</label><select id="qualitySel">
+            <option value="draft">Draft (fast, 540p internal)</option>
+            <option value="standard">Standard (720p internal)</option>
+            <option value="high">High (1080p internal)</option></select></div>
+          <button class="btn" id="analyzeBtn">Analyse audio</button>
+          <button class="btn" id="previewBtn">Preview</button>
+          <button class="btn btn-primary" id="renderBtn">Render</button>
+          <button class="btn" id="stopBtn" disabled>Stop</button>
+        </div>
+        <div class="muted" id="queueLine" style="margin-top:6px"></div>
+        <div class="bar"><i id="prog"></i></div>
+        <div class="logbox" id="log" style="margin-top:10px"></div>
+        <video id="previewVid" controls hidden></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENERY -->
+  <div class="panel" data-panel="scenery">
+    <div class="card" id="scNoProject"><p class="muted">Open a project from the Projects tab.</p></div>
+    <div id="scBody" hidden>
+      <div class="card">
+        <h3>Shots <span class="muted">(each background, and how it hands over to the next)</span></h3>
+        <div class="sc-shots" id="scShots"></div>
+        <div id="scTimeline" style="margin-top:10px"></div>
+        <div class="sc-head" style="margin-top:10px">
+          <div class="muted" style="flex:1">
+            <b>Snapshots</b> — a point you can come back to later.
+          </div>
+          <button class="btn btn-sm" id="scTakeSnapshot">Take a snapshot</button>
+        </div>
+        <div id="scSnapshots" class="sc-snaps"></div>
+        <div class="muted" style="margin-top:8px;font-size:11px">
+          Shortcuts: <b>B</b>rush · <b>E</b>rase · <b>P</b>olygon · <b>W</b>and ·
+          <b>[</b>/<b>]</b> size · <b>←</b>/<b>→</b> shot · <b>space</b> preview ·
+          <b>R</b> refresh · <b>Ctrl+Z</b> undo. Drag shots to reorder them.
+        </div>
+      </div>
+
+      <div class="sc-wrap">
+        <div class="sc-left">
+          <div id="scCanvasWrap"><canvas id="scCanvas"></canvas></div>
+          <div class="sc-toolbar">
+            <button class="btn btn-sm" id="scTool_wand">Wand</button>
+            <button class="btn btn-sm" id="scTool_brush">Brush</button>
+            <button class="btn btn-sm" id="scTool_erase">Erase</button>
+            <button class="btn btn-sm" id="scTool_polygon">Polygon</button>
+            <button class="btn btn-sm" id="scClosePoly" hidden>Close shape</button>
+            <button class="btn btn-sm" id="scUndo">Undo stroke</button>
+            <button class="btn btn-sm" id="scUndoEdit" title="Undo the last change (Ctrl+Z)">↶</button>
+            <button class="btn btn-sm" id="scRedoEdit" title="Redo (Ctrl+Shift+Z)">↷</button>
+            <span id="scBrushOpts" class="muted tool-opts">
+              size <input type="range" id="scBrushSize" min="8" max="220" value="70" style="width:110px">
+            </span>
+            <span id="scWandOpts" hidden class="muted tool-opts">
+              tolerance <input type="range" id="scWandTol" min="2" max="45" value="12" style="width:110px">
+              <span id="scWandTolLabel">12%</span>
+              <label style="display:flex;align-items:center;gap:5px">
+                <input type="checkbox" id="scWandContig" checked> just this patch
+              </label>
+            </span>
+            <label class="muted" style="display:flex;align-items:center;gap:6px">
+              <input type="checkbox" id="scShowRegions" checked> show regions
+            </label>
+          </div>
+          <div class="sc-toolbar">
+            <span class="muted">time</span>
+            <input type="range" id="scScrub" min="0" max="100" value="0" style="flex:1">
+            <span class="muted" id="scScrubLabel">0.0s</span>
+            <button class="btn btn-primary btn-sm" id="scPreviewBtn">▸ Preview loop</button>
+          </div>
+          <div class="muted" id="scPreviewNote"></div>
+          <video id="scPreviewVid" controls loop muted hidden></video>
+        </div>
+        <div id="scInspector"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="panel" data-panel="output">
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="revealBtn">Open renders folder</button>
+        <div class="muted" id="outHint"></div>
+      </div>
+      <div class="muted" id="queueLine2" style="margin-top:8px"></div>
+      <div id="renderList" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <h3 style="margin:0;flex:1">Description &amp; chapters</h3>
+        <button class="btn btn-sm" id="tlCopy">Copy</button>
+        <button class="btn btn-sm" id="tlRefresh">Refresh</button>
+      </div>
+      <p class="muted" style="margin:6px 0">Paste this under the video. YouTube turns
+        timestamps into chapters, and the marks are embedded in the MP4 too.</p>
+      <div class="row" style="margin-bottom:8px">
+        <div class="field"><label>Mood or notes for the writer (optional)</label>
+          <input id="janMood" placeholder="rainy, late night, for studying"></div>
+        <button class="btn btn-sm" id="janWrite">Draft the title &amp; description</button>
+      </div>
+      <div class="muted" id="janNote" style="margin-bottom:6px"></div>
+      <div class="muted" id="tlWarnings"></div>
+      <textarea id="tlText" rows="10" style="width:100%;margin-top:8px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+    </div>
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <h3 style="margin:0;flex:1">Before you upload</h3>
+        <button class="btn btn-sm" id="pfRun">Check it</button>
+      </div>
+      <div id="pfReport" class="muted" style="margin-top:8px">Not checked yet.</div>
+    </div>
+    <div class="card">
+      <h3>Take it with you</h3>
+      <div class="row">
+        <button class="btn btn-sm" id="expBtn">Export this project</button>
+        <label class="muted" style="display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="expMedia"> include the songs and images</label>
+        <button class="btn btn-sm" id="dupBtn">Duplicate it</button>
+        <button class="btn btn-sm" id="tplBtn">Use as a template</button>
+        <div class="field"><label>Import a .pfproj</label><input type="file" id="impFile" accept=".pfproj,.zip"></div>
+        <button class="btn btn-sm" id="impBtn">Import</button>
+      </div>
+      <div class="muted" id="expNote" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-primary btn-sm" id="exportAllBtn">Render everything (1080p + Shorts + thumbnail)</button>
+        <div class="muted" id="exportAllNote" style="flex:1"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Thumbnail</h3>
+      <p class="muted" style="margin:6px 0">Grab a frame and put the title on it.</p>
+      <div class="row">
+        <div class="field"><label>Title</label><input id="th_title" placeholder="Late Night Study"></div>
+        <div class="field"><label>Second line</label><input id="th_sub" placeholder="1 hour lofi mix"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div class="field"><label>Grab at (seconds)</label><input id="th_t" type="number" min="0" step="1" value="8"></div>
+        <div class="field"><label>Darken behind the text</label><input id="th_scrim" type="range" min="0" max="0.8" step="0.05" value="0.25"></div>
+        <div class="field"><label>Corner</label><select id="th_pos">
+          <option value="bottom-left">Bottom left</option><option value="bottom-right">Bottom right</option>
+          <option value="top-left">Top left</option><option value="top-right">Top right</option></select></div>
+        <button class="btn btn-primary" id="th_make">Make thumbnail</button>
+      </div>
+      <img id="th_img" hidden style="width:100%;max-width:640px;border-radius:10px;margin-top:10px">
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel" data-panel="settings">
+    <div class="card">
+      <h3>Encoding</h3>
+      <div class="row">
+        <div class="field"><label>Encoder</label><select id="s_encoder"></select></div>
+        <div class="field"><label>Quality (CRF, lower = better)</label><input id="s_crf" type="number" min="10" max="30"></div>
+        <div class="field"><label>Loudness target (LUFS)</label><input id="s_lufs" type="number" step="0.5"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label>Render output folder</label><input id="s_renderDir"></div>
+        <div class="field"><label>AI Studio base URL</label><input id="s_aiBase"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label>Preview length (s)</label><input id="s_previewSecs" type="number" min="4" max="120" step="1"></div>
+        <div class="field"><label>Default loop length (s)</label><input id="s_loopSecs" type="number" min="3" max="60" step="0.5"></div>
+        <div class="field"><label>Backgrounds rendered at once</label><input id="s_workers" type="number" min="1" max="12" step="1">
+          <span class="muted" style="font-size:11px">Higher finishes sooner but leaves less machine for anything else.</span></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-primary" id="saveSettings">Save settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDIO -- the AMV timeline -->
+  <div class="panel" data-panel="studio">
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <div class="field" style="flex:2">
+          <label>Folder of video clips</label>
+          <input id="stFolder" placeholder="/home/ejb/Videos/source-clips">
+        </div>
+        <button class="btn" id="stSetFolder">Use this folder</button>
+        <button class="btn" id="stAnalyse">Look at the clips</button>
+        <button class="btn btn-primary" id="stPlan">Plan the edit</button>
+        <button class="btn btn-primary" id="stRender">Render</button>
+      </div>
+      <div class="muted" id="stStatus" style="margin-top:7px">
+        Pick a folder of clips and a style. Planning is instant once the clips have been looked at once.
+      </div>
+    </div>
+
+    <div class="st-top">
+      <div class="card">
+        <h3 style="margin-top:0">Timeline</h3>
+        <canvas id="stCanvas"></canvas>
+        <div class="st-legend">
+          <span><i style="background:#2b3a56"></i>intro / outro</span>
+          <span><i style="background:#3b4a2f"></i>verse</span>
+          <span><i style="background:#6b3550"></i>chorus</span>
+          <span><i style="background:#5a4520"></i>build</span>
+          <span><i style="background:#33334a"></i>breakdown / bridge</span>
+          <span><i style="background:#d16bff"></i>shot</span>
+          <span><i style="background:#ffd166"></i>transition</span>
+          <span><i style="background:#5ad2a0"></i>beat effect</span>
+          <span>· drag to pan, scroll to zoom, click a shot to inspect it</span>
+        </div>
+        <div class="st-stats" id="stStats"></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3 style="margin-top:0">Style</h3>
+          <div class="st-styles" id="stStyles"></div>
+          <div id="stStyleParams" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Selected shot</h3>
+          <div id="stShot" class="st-shot muted">Click a shot on the timeline.</div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Clips <span class="muted" id="stClipCount"></span></h3>
+          <div id="stClips" class="muted">Nothing looked at yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTOPILOT: its own mode. Three steps on one page, finished videos in
+       Library, money in Earnings. No project needed. -->
+  <div class="panel" data-panel="autopilot">
+    <nav class="ap-nav" id="apNav">
+      <button data-view="make" class="on">Make</button>
+      <button data-view="library">Library <span class="ap-count" id="apLibCount"></span></button>
+      <button data-view="earnings">Earnings</button>
+    </nav>
+
+    <section class="ap-view" data-view="make">
+      <div class="card ap-steps">
+        <div class="ap-step">
+          <span class="ap-num">1</span>
+          <div class="ap-step-body">
+            <label for="apInbox">Songs</label>
+            <div class="ap-pick">
+              <input id="apInbox" placeholder="The folder with your songs">
+              <button class="btn" data-browse="apInbox">Browse</button>
+            </div>
+            <div class="ap-sum" id="apInboxSum">Pick the folder your songs are in.</div>
+          </div>
+        </div>
+        <div class="ap-step">
+          <span class="ap-num">2</span>
+          <div class="ap-step-body">
+            <label for="apArt">Pictures</label>
+            <div class="ap-pick">
+              <input id="apArt" placeholder="The folder with your background pictures">
+              <button class="btn" data-browse="apArt">Browse</button>
+            </div>
+            <div class="ap-sum" id="apArtSum">One picture per song, taken in turn. Lofi Radio needs at least one.</div>
+          </div>
+        </div>
+        <div class="ap-step">
+          <span class="ap-num">3</span>
+          <div class="ap-step-body">
+            <label>Look</label>
+            <div class="ap-looks" id="apRecipes"></div>
+            <figure class="ap-big" id="apBig" hidden>
+              <img id="apBigImg" alt="">
+              <figcaption id="apBigCap"></figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="ap-go">
+          <button class="btn btn-primary ap-make" id="apRun" disabled>Make</button>
+          <div class="ap-why" id="apRunNote"></div>
+        </div>
+        <div class="ap-now" id="apNow" hidden>
+          <div class="ap-now-top">
+            <b id="apNowTitle">Starting…</b>
+            <span class="muted" id="apNowEta"></span>
+            <button class="btn btn-sm" id="apStop">Stop</button>
+          </div>
+          <div class="bar"><i id="apProg"></i></div>
+          <details class="ap-details"><summary>Details</summary>
+            <div class="logbox" id="apLog"></div></details>
+        </div>
+      </div>
+      <p class="muted ap-foot">Nothing is ever uploaded for you. Use music and pictures you have the
+        rights to, or YouTube's Content ID sends the money to the owner.</p>
+    </section>
+
+    <section class="ap-view" data-view="library" hidden>
+      <div id="apPackages"></div>
+    </section>
+
+    <section class="ap-view" data-view="earnings" hidden>
+      <div class="card">
+        <p class="muted" style="margin:0 0 10px">Type in the figures from YouTube Studio each month. Nothing here is estimated.</p>
+        <div class="row">
+          <div class="field"><label>Video</label><select id="apLedgerVideo"></select></div>
+          <div class="field"><label>Month</label><input id="apLedgerMonth" type="month"></div>
+          <div class="field"><label>Views</label><input id="apLedgerViews" type="number" min="0" step="1"></div>
+          <div class="field"><label>Revenue</label><input id="apLedgerRevenue" type="number" min="0" step="0.01"></div>
+          <button class="btn" id="apLedgerAdd">Add figures</button>
+        </div>
+        <div class="muted" id="apLedgerNote" style="margin-top:6px"></div>
+        <div class="muted" id="apLedgerTotals" style="margin-top:10px"></div>
+        <h4 style="margin:16px 0 6px">Per video</h4>
+        <div id="apLedgerPerVideo"></div>
+        <h4 style="margin:16px 0 6px">Per look</h4>
+        <div id="apLedgerPerRecipe"></div>
+      </div>
+    </section>
+
+    <div class="ap-modal" id="apBrowse" hidden>
+      <div class="ap-modal-box" role="dialog" aria-label="Choose a folder">
+        <div class="ap-modal-head">
+          <button class="btn btn-sm" id="apBrowseUp" title="Up one folder">↑</button>
+          <button class="btn btn-sm" id="apBrowseHome">Home</button>
+          <code id="apBrowsePath"></code>
+        </div>
+        <div class="ap-recent" id="apBrowseRecent"></div>
+        <div class="ap-dirs" id="apBrowseList"></div>
+        <div class="ap-modal-foot">
+          <span class="muted" id="apBrowseHere"></span>
+          <button class="btn" id="apBrowseCancel">Cancel</button>
+          <button class="btn btn-primary" id="apBrowseUse">Use this folder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="/shared/forge_chrome.js"></script>
+<script src="/shared/forge_idle.js"></script>
+<script src="/shared/forge.js"></script>
+<script src="/controls.js"></script>
+<script src="/scenery.js"></script>
+<script src="/simple.js"></script>
+<script src="/studio.js"></script>
+<script>
+let SCENES = [], FORMATS = [], PROJECT = null, ACTIVE_JOB = null;
+
+function pu(s){ return encodeURIComponent(s); }
+async function jget(u){ const r = await fetch(u); if(!r.ok) throw new Error(await errText(r,"request failed")); return r.json(); }
+async function jpost(u, body){ const r = await fetch(u,{method:"POST",headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):null}); if(!r.ok) throw new Error(await errText(r,"request failed")); return r.json(); }
+
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x === t));
+  const name = t.dataset.tab;
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.dataset.panel === name));
+  document.body.dataset.tab = name;
+  if (name === "output") { loadRenders(); loadTracklist(); }
+  if (name === "scenery") openScenery();
+  if (name === "make") openMake();
+  if (name === "finish") openFinish();
+  if (name === "studio") openStudio();
+  if (name === "autopilot") openAutopilot();
+  if (PROJECT) setHash(PROJECT.slug, name);
+}));
+
+/* ---------- simple / advanced ----------
+ * The two editors are the same project data seen at two levels of detail.
+ * Switching mode only changes which tabs exist; nothing is disabled and nothing
+ * is lost, and "Fine-tune this" carries you from one to the other on the shot
+ * you were looking at. */
+let MODE = "simple";
+function applyMode(mode, { save = true } = {}) {
+  MODE = ["advanced", "studio", "autopilot"].includes(mode) ? mode : "simple";
+  document.body.dataset.mode = MODE;
+  document.querySelectorAll("#modeSwitch button").forEach(b =>
+    b.classList.toggle("on", b.dataset.mode === MODE));
+  document.querySelectorAll(".tab[data-modes]").forEach(t => {
+    t.hidden = !t.dataset.modes.split(/\s+/).includes(MODE);
+  });
+  const active = document.querySelector(".tab.active");
+  const home = { simple: "make", advanced: "compose", studio: "studio", autopilot: "autopilot" }[MODE];
+  // Autopilot is a page of its own with no editor tabs, so it always opens it
+  if (!active || active.hidden || MODE === "autopilot") selectTab(home);
+  if (MODE !== "autopilot" && AP_HASH.test(location.hash))
+    history.replaceState(null, "", location.pathname);
+  if (save) jpost("/api/settings", { values: { ui_mode: MODE } }).catch(() => {});
+}
+document.querySelectorAll("#modeSwitch button").forEach(b =>
+  b.onclick = () => applyMode(b.dataset.mode));
+
+let SIMPLE_MOUNTED = false;
+async function openMake(){
+  if (!PROJECT) return;
+  document.getElementById("smNoProject").hidden = true;
+  document.getElementById("smBody").hidden = false;
+  if (!SIMPLE_MOUNTED) {
+    Simple.mount(); SIMPLE_MOUNTED = true;
+    guardButtons(["smSongUp", "smPicUp", "smMake"]);
+  }
+  await Simple.open(PROJECT);
+}
+
+/** Carry the user into the full editor, on the shot they were looking at. */
+async function openInAdvanced(shotIndex){
+  applyMode("advanced");
+  selectTab("scenery");
+  await openScenery();
+  if (typeof shotIndex === "number") await Scenery.gotoShot(shotIndex);
+}
+
+async function openFinish(){
+  if (!PROJECT) return;
+  await loadRenders(document.getElementById("fnRenders"));
+}
+document.getElementById("fnOutput").onclick = () => { applyMode("advanced"); selectTab("output"); };
+document.getElementById("fnCheck").onclick = async () => {
+  const box = document.getElementById("fnReport");
+  box.textContent = "checking…";
+  try {
+    const r = await jget(`/api/projects/${pu(PROJECT.slug)}/preflight`);
+    box.innerHTML = r.items.map(it =>
+      `<div class="pf-item"><span class="pf-tag pf-${it.level}">${it.level}</span>` +
+      `<span><b>${apEsc(it.title)}</b> — ${apEsc(it.detail)}` +
+      (it.fix ? ` <i class="muted">${apEsc(it.fix)}</i>` : "") + `</span></div>`).join("");
+  } catch (e) { box.textContent = String(e).replace(/^Error:\s*/, ""); }
+};
+
+let SCENERY_MOUNTED = false;
+async function openScenery(){
+  if (!PROJECT) return;
+  document.getElementById("scNoProject").hidden = true;
+  document.getElementById("scBody").hidden = false;
+  if (!SCENERY_MOUNTED) { Scenery.mount(); SCENERY_MOUNTED = true; }
+  await Scenery.open(PROJECT);
+}
+function selectTab(name){ document.querySelector(`.tab[data-tab="${name}"]`).click(); }
+
+// Deep links: #/<project-slug>/<tab> reopens exactly where you were, which
+// matters most for the Scenery tab -- it is where you spend the time, and it
+// is several clicks from a cold start.
+function currentHash(){
+  const m = (location.hash || "").match(/^#\/([^/]+)(?:\/(\w+))?/);
+  return m ? { slug: decodeURIComponent(m[1]), tab: m[2] || "compose" } : null;
+}
+function setHash(slug, tab){
+  const want = `#/${encodeURIComponent(slug)}/${tab}`;
+  if (location.hash !== want) history.replaceState(null, "", want);
+}
+async function applyHash(){
+  // Autopilot works across projects, so it has a link of its own
+  // Autopilot works across projects, so it has links of its own:
+  // #/autopilot, #/autopilot/library, #/autopilot/earnings
+  const ap = /^#\/autopilot(?:\/(library|earnings))?$/.exec(location.hash);
+  if (ap) {
+    if (MODE !== "autopilot") applyMode("autopilot");
+    openAutopilot(ap[1] || "make");
+    return true;
+  }
+  const h = currentHash();
+  if (!h) return false;
+  if (!PROJECT || PROJECT.slug !== h.slug) {
+    try { await openProject(h.slug); } catch (e) { return false; }
+  }
+  // A deep link names a tab, and a tab only exists in some modes. Switch to a
+  // mode that has it rather than silently landing somewhere else -- this is
+  // what makes `#/<project>/studio` work from a cold load, and what the
+  // screenshot tool relies on.
+  const tabEl = document.querySelector(`.tab[data-tab="${h.tab}"]`);
+  const modes = tabEl && tabEl.dataset.modes ? tabEl.dataset.modes.split(/\s+/) : [];
+  if (modes.length && !modes.includes(MODE)) applyMode(modes[0], { save: false });
+  selectTab(h.tab);
+  return true;
+}
+
+// ---------- projects ----------
+async function loadProjects(){
+  const list = await jget("/api/projects");
+  const box = document.getElementById("projList");
+  box.innerHTML = list.length ? "" : '<div class="card muted">No projects yet.</div>';
+  for (const p of list){
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `<div class="row" style="align-items:center">
+      <div style="flex:1">
+        <strong>${apEsc(p.name)}</strong>
+        <div class="muted">${apEsc(p.scene)} · ${apEsc(p.format)} · ${p.has_audio ? "song attached" : "no song"} · ${p.renders.length} render(s)</div>
+      </div>
+      <button class="btn btn-primary" data-open="${apEsc(p.slug)}">Open</button>
+      <button class="btn" data-del="${apEsc(p.slug)}">Delete</button>
+    </div>`;
+    box.appendChild(el);
+  }
+  box.querySelectorAll("[data-open]").forEach(b => b.onclick = () => openProject(b.dataset.open));
+  box.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (!await ForgeDialog.confirm("Delete this project and its renders?")) return;
+    await fetch(`/api/projects/${pu(b.dataset.del)}`, { method: "DELETE" });
+    loadProjects();
+  });
+}
+document.getElementById("createBtn").onclick = async () => {
+  const name = val("newName").trim();
+  if (!name) return toast("Name it first", "err");
+  const p = await jpost("/api/projects", { name });
+  setVal("newName", "");
+  await loadProjects();
+  openProject(p.slug);
+};
+
+async function openProject(slug){
+  PROJECT = await jget(`/api/projects/${pu(slug)}`);
+  document.getElementById("noProject").hidden = true;
+  document.getElementById("composeBody").hidden = false;
+  document.getElementById("composeTitle").textContent = PROJECT.name;
+  renderScenes();
+  renderFormats();
+  renderAssets();
+  renderAudioState();
+  setVal("t_title", PROJECT.data.title_text);
+  setVal("t_sub", PROJECT.data.subtitle_text);
+  setVal("t_pos", PROJECT.data.text_position || "bottom-left");
+  setVal("t_size", PROJECT.data.text_size || "m");
+  await loadArtPacks();
+  await loadAmbience();
+  renderAudioState();
+  renderExtras();
+  if (!currentHash() || currentHash().slug !== slug) {
+    // opening a project means editing it, which Autopilot mode has no tabs for
+    if (MODE === "autopilot") applyMode("simple");
+    selectTab({ simple: "make", advanced: "compose", studio: "studio" }[MODE]);
+  }
+}
+for (const [id, key] of [["t_title","title_text"],["t_sub","subtitle_text"],
+                         ["t_pos","text_position"],["t_size","text_size"]]) {
+  document.getElementById(id).addEventListener("change", () => {
+    if (PROJECT) saveProject({ [key]: val(id) });
+  });
+}
+
+// ---------- scenes + params ----------
+function renderScenes(){
+  const grid = document.getElementById("sceneGrid");
+  grid.innerHTML = "";
+  for (const s of SCENES){
+    const el = document.createElement("div");
+    el.className = "scene" + (s.id === PROJECT.data.scene ? " sel" : "");
+    el.innerHTML = `<div class="fam">${s.family}</div><h4>${s.label}</h4><p>${s.description}</p>`;
+    el.onclick = async () => {
+      PROJECT.data.scene = s.id;
+      await saveProject({ scene: s.id });
+      renderScenes(); renderSceneParams();
+      document.getElementById("artPackRow").hidden = (s.id !== "swarm");
+    };
+    grid.appendChild(el);
+  }
+  document.getElementById("artPackRow").hidden = (PROJECT.data.scene !== "swarm");
+  renderSceneParams();
+}
+function renderSceneParams(){
+  const s = SCENES.find(x => x.id === PROJECT.data.scene);
+  const box = document.getElementById("sceneParams");
+  box.innerHTML = "";
+  if (!s) return;
+  // one control builder for scenes, effects and emitters alike -- see controls.js
+  box.appendChild(Controls.buildForm(s.params || [], PROJECT.data.params || {}, (key, v) => {
+    PROJECT.data.params = PROJECT.data.params || {};
+    PROJECT.data.params[key] = v;
+    saveParams();
+  }));
+  const note = document.createElement("p");
+  note.className = "muted";
+  note.style.marginTop = "8px";
+  note.innerHTML = (s.id === "living")
+    ? "This scene is built in the <b>Scenery</b> tab — backgrounds, moving regions, sprites and transitions."
+    : "";
+  box.appendChild(note);
+}
+
+let paramSaveTimer = null;
+async function saveParams(){
+  clearTimeout(paramSaveTimer);
+  paramSaveTimer = setTimeout(() => saveProject({ params: PROJECT.data.params || {} }), 350);
+}
+
+async function saveProject(patch){
+  const r = await fetch(`/api/projects/${pu(PROJECT.slug)}`, { method: "PUT", headers: {"Content-Type":"application/json"}, body: JSON.stringify(patch) });
+  if (r.ok) PROJECT = await r.json(); else toast(await errText(r, "save failed"), "err");
+}
+
+// ---------- formats ----------
+function renderFormats(){
+  const sel = document.getElementById("formatSel");
+  sel.innerHTML = FORMATS.map(f => `<option value="${f.id}" ${f.id===PROJECT.data.format?"selected":""}>${f.label}</option>`).join("");
+  sel.onchange = () => saveProject({ format: sel.value });
+}
+
+// ---------- audio / assets ----------
+function renderAudioState(){
+  const n = (PROJECT.data.playlist || []).length;
+  document.getElementById("audioState").textContent =
+    n ? `${n} song${n > 1 ? "s" : ""} in the playlist` : "no songs yet";
+  renderPlaylist();
+}
+
+// The playlist is the spine of the video: songs play in this order, each can
+// carry its own caption, and the shots in the Scenery tab are laid along it.
+function renderPlaylist(){
+  const box = document.getElementById("playlist");
+  const songs = PROJECT.data.playlist || [];
+  const cards = PROJECT.data.cards || [];
+  box.innerHTML = songs.length ? "" : '<p class="muted">Add a song to begin. Add several and they play back to back.</p>';
+  songs.forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "song-row";
+    row.innerHTML = `<span class="idx">${i + 1}</span>
+      <span style="flex:1;min-width:110px" class="muted">${name}</span>
+      <input placeholder="Title shown on screen" value="${(cards[i]||{}).title || ""}" data-card="title" data-i="${i}">
+      <input placeholder="Second line" value="${(cards[i]||{}).subtitle || ""}" data-card="subtitle" data-i="${i}">
+      <button class="btn btn-sm" data-up="${i}" ${i === 0 ? "disabled" : ""}>↑</button>
+      <button class="btn btn-sm" data-down="${i}" ${i === songs.length - 1 ? "disabled" : ""}>↓</button>
+      <button class="btn btn-sm" data-rm="${name}">Remove</button>`;
+    box.appendChild(row);
+  });
+  box.querySelectorAll("[data-card]").forEach(inp => inp.onchange = () => {
+    const i = +inp.dataset.i;
+    PROJECT.data.cards = PROJECT.data.cards || [];
+    while (PROJECT.data.cards.length <= i) PROJECT.data.cards.push({});
+    PROJECT.data.cards[i][inp.dataset.card] = inp.value;
+    saveProject({ cards: PROJECT.data.cards });
+  });
+  box.querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/songs/remove`, { name: b.dataset.rm });
+    Object.assign(PROJECT.data, r); renderAudioState();
+  });
+  const move = async (from, to) => {
+    const order = (PROJECT.data.playlist || []).slice();
+    if (to < 0 || to >= order.length) return;
+    [order[from], order[to]] = [order[to], order[from]];
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/songs/order`, { order });
+    Object.assign(PROJECT.data, r); renderAudioState();
+  };
+  box.querySelectorAll("[data-up]").forEach(b => b.onclick = () => move(+b.dataset.up, +b.dataset.up - 1));
+  box.querySelectorAll("[data-down]").forEach(b => b.onclick = () => move(+b.dataset.down, +b.dataset.down + 1));
+  setVal("s_gap", PROJECT.data.song_gap ?? 0);
+  setVal("s_xfade", PROJECT.data.song_crossfade ?? 0);
+  setVal("s_fadeIn", PROJECT.data.fade_in ?? 0);
+  setVal("s_fadeOut", PROJECT.data.fade_out ?? 0);
+}
+for (const [id, key] of [["s_gap", "song_gap"], ["s_xfade", "song_crossfade"]]) {
+  document.getElementById(id).addEventListener("change", () => {
+    if (!PROJECT) return;
+    PROJECT.data[key] = parseFloat(val(id)) || 0;
+    saveProject({ [key]: PROJECT.data[key] });
+  });
+}
+document.getElementById("audioUp").onclick = async () => {
+  const files = Array.from(document.getElementById("audioFile").files || []);
+  if (!files.length) return toast("Pick one or more audio files", "err");
+  for (const f of files) {
+    const fd = new FormData(); fd.append("file", f);
+    const r = await fetch(`/api/projects/${pu(PROJECT.slug)}/songs`, { method: "POST", body: fd });
+    if (!r.ok) { toast(await errText(r, "upload failed"), "err"); break; }
+    Object.assign(PROJECT.data, await r.json());
+  }
+  PROJECT.has_audio = true;
+  renderAudioState();
+  toast(files.length > 1 ? `${files.length} songs added` : "Song added", "ok");
+};
+document.getElementById("assetUp").onclick = async () => {
+  const f = document.getElementById("assetFile").files[0];
+  if (!f) return toast("Pick an image", "err");
+  const fd = new FormData(); fd.append("file", f);
+  const r = await fetch(`/api/projects/${pu(PROJECT.slug)}/asset`, { method: "POST", body: fd });
+  if (!r.ok) return toast(await errText(r, "upload failed"), "err");
+  const d = await r.json(); PROJECT.assets = d.assets; renderAssets(); toast("Image attached", "ok");
+};
+document.getElementById("clipsBtn").onclick = async () => {
+  const path = val("clipsPath").trim();
+  if (!path) return toast("Enter a folder path", "err");
+  try { const d = await jpost(`/api/projects/${pu(PROJECT.slug)}/clips-folder`, { path }); PROJECT.assets = d.assets; renderAssets(); toast("Clips folder set", "ok"); }
+  catch (e) { toast(e.message, "err"); }
+};
+document.getElementById("aiBtn").onclick = async () => {
+  const prompt = val("aiPrompt").trim();
+  if (!prompt) return toast("Describe the backdrop", "err");
+  try {
+    const { job_id } = await jpost(`/api/projects/${pu(PROJECT.slug)}/ai-backdrop`, { prompt });
+    runJob(job_id, { onDone: async () => { PROJECT = await jget(`/api/projects/${pu(PROJECT.slug)}`); renderAssets(); toast("Backdrop added", "ok"); } });
+  } catch (e) { toast(e.message, "err"); }
+};
+function renderAssets(){
+  const box = document.getElementById("assetList");
+  const list = (PROJECT.assets || []);
+  box.innerHTML = list.length ? "" : '<span class="muted">Nothing attached. Scenes fall back to a gradient.</span>';
+  for (const a of list){
+    const el = document.createElement("span");
+    el.className = "pill";
+    el.textContent = a.length > 46 ? "…" + a.slice(-44) : a;
+    const x = document.createElement("a"); x.textContent = " ✕"; x.href = "#";
+    x.onclick = async (ev) => { ev.preventDefault(); const d = await jpost(`/api/projects/${pu(PROJECT.slug)}/asset/remove`, { name: a }); PROJECT.assets = d.assets; renderAssets(); };
+    el.appendChild(x); box.appendChild(el);
+  }
+}
+async function loadArtPacks(){
+  try {
+    const d = await jget("/api/art-packs");
+    const sel = document.getElementById("artPack");
+    sel.innerHTML = (d.packs || []).map(p => `<option value="${p.id}">${p.label} (${p.sprites})</option>`).join("") || '<option value="">no packs found</option>';
+    const cur = (PROJECT.data.params || {}).art_pack;
+    if (cur) sel.value = cur;
+  } catch (e) { /* shared kit not present */ }
+}
+
+// ---------- jobs + queue ----------
+function runJob(jobId, { onDone, onError } = {}){
+  ACTIVE_JOB = jobId;
+  document.getElementById("stopBtn").disabled = false;
+  const box = document.getElementById("log"); box.textContent = "";
+  const prog = document.getElementById("prog");
+  forgeStream(jobId, {
+    onLog: (t) => { box.textContent += t + "\n"; box.scrollTop = box.scrollHeight; },
+    onProgress: (e) => { prog.style.width = ((e.frac || 0) * 100).toFixed(1) + "%"; },
+    onDone: () => { ACTIVE_JOB = null; document.getElementById("stopBtn").disabled = true; prog.style.width = "100%"; onDone && onDone(); },
+    onError: (m) => { ACTIVE_JOB = null; document.getElementById("stopBtn").disabled = true; toast("Failed: " + m, "err"); onError && onError(m); },
+  });
+}
+
+async function pollQueue(){
+  try {
+    const st = await jget("/api/state");
+    const q = st.queue || {};
+    const parts = [];
+    if (q.running) parts.push(`▶ ${q.running.kind} (${q.running.project})`);
+    if ((q.queued || []).length) parts.push(`${q.queued.length} queued`);
+    queueText("Queue: " + (parts.join(" · ") || "idle"));
+  } catch (e) {
+    // down, restarting or failing: say which, and ask less often until it is back
+    queueText(e instanceof TypeError
+      ? "Queue: can't reach the PulseForge server, trying again…"
+      : `Queue: the server answered with an error (${e.message}), trying again…`);
+    return false;
+  }
+}
+function queueText(txt){
+  for (const id of ["queueLine", "queueLine2"]) {
+    const el = document.getElementById(id); if (el) el.textContent = txt;
+  }
+}
+ForgeIdle.poll(pollQueue, 3000, { backoff: 2, maxMs: 30000 });
+document.getElementById("stopBtn").onclick = () => { if (ACTIVE_JOB) fetch(`/api/jobs/${ACTIVE_JOB}/stop`, { method: "POST" }); };
+
+document.getElementById("analyzeBtn").onclick = async () => {
+  try { const { job_id } = await jpost(`/api/projects/${pu(PROJECT.slug)}/analyze`);
+    runJob(job_id, { onDone: () => toast("Audio analysed", "ok") }); }
+  catch (e) { toast(e.message, "err"); }
+};
+document.getElementById("qualitySel").addEventListener("change", () =>
+  jpost("/api/settings", { values: { render_quality: val("qualitySel") } }).catch(() => {}));
+document.getElementById("previewBtn").onclick = () => startRender("preview");
+document.getElementById("renderBtn").onclick = () => startRender("render");
+async function startRender(which){
+  which = which || "render";
+  await saveParams().catch(() => {});
+  try {
+    const { job_id } = await jpost(`/api/projects/${pu(PROJECT.slug)}/${which}`);
+    document.getElementById("previewVid").hidden = true;
+    runJob(job_id, { onDone: async () => {
+      const j = await jget(`/api/jobs/${job_id}`);
+      const file = j.result && j.result.file;
+      if (file){
+        const v = document.getElementById("previewVid");
+        v.src = `/api/projects/${pu(PROJECT.slug)}/render-file?name=${pu(file)}`;
+        v.hidden = false;
+        toast(which === "preview" ? "Preview ready" : "Render complete", "ok");
+      }
+      PROJECT = await jget(`/api/projects/${pu(PROJECT.slug)}`);
+    }});
+  } catch (e) { toast(e.message, "err"); }
+}
+
+// ---------- output ----------
+async function loadRenders(target){
+  const list = await jget("/api/projects");
+  // the simple editor shows the same list on its Finish tab
+  const box = target || document.getElementById("renderList");
+  if (!box) return;
+  box.innerHTML = "";
+  let any = false;
+  for (const p of list){
+    for (const r of p.renders){
+      any = true;
+      const el = document.createElement("div"); el.className = "card";
+      el.innerHTML = `<div class="row" style="align-items:center">
+        <div style="flex:1"><strong>${apEsc(r)}</strong><div class="muted">${apEsc(p.name)}</div></div>
+        <input type="number" style="width:70px" value="1" step="0.5" title="thumbnail time (s)" data-thumb-t="${p.slug}|${r}">
+        <button class="btn" data-thumb="${p.slug}|${r}">Thumbnail</button>
+        <a class="btn" href="/api/projects/${pu(p.slug)}/render-file?name=${pu(r)}" download>Download</a>
+        <button class="btn" data-del-r="${p.slug}|${r}">Delete</button></div>
+        <div class="thumb-slot"></div>`;
+      box.appendChild(el);
+    }
+  }
+  if (!any) box.innerHTML = '<div class="muted">No renders yet.</div>';
+  box.querySelectorAll("[data-del-r]").forEach(b => b.onclick = async () => {
+    const [slug, name] = b.dataset.delR.split("|");
+    await jpost(`/api/projects/${pu(slug)}/render-file/delete`, { name });
+    loadRenders();
+  });
+  box.querySelectorAll("[data-thumb]").forEach(b => b.onclick = async () => {
+    const [slug, name] = b.dataset.thumb.split("|");
+    const tField = box.querySelector(`[data-thumb-t="${slug}|${name}"]`);
+    const t_seconds = parseFloat(tField.value) || 1;
+    try {
+      const d = await jpost(`/api/projects/${pu(slug)}/thumbnail`, { render: name, t_seconds });
+      const slot = b.closest(".card").querySelector(".thumb-slot");
+      slot.innerHTML = `<img style="max-width:320px;border-radius:8px;margin-top:8px"
+        src="/api/projects/${pu(slug)}/thumbnail-file?name=${pu(d.thumbnail)}&_=${Date.now()}">
+        <div class="muted">${d.thumbnail} — in renders/thumbs/</div>`;
+      toast("Thumbnail saved", "ok");
+    } catch (e) { toast(e.message, "err"); }
+  });
+}
+document.getElementById("revealBtn").onclick = () => PROJECT && jpost(`/api/projects/${pu(PROJECT.slug)}/reveal`);
+
+// ---------- album batch ----------
+document.getElementById("batchBtn").onclick = async () => {
+  const folder = val("batchFolder").trim();
+  if (!folder) return toast("Enter an audio folder", "err");
+  try {
+    const d = await jpost("/api/batch", {
+      folder, scene: val("batchScene"), format: val("batchFormat"),
+    });
+    document.getElementById("batchResult").textContent =
+      `Queued ${d.count} renders from “${d.album}”. Watch the queue on the Output tab.`;
+    await loadProjects();
+    toast(`Queued ${d.count} videos`, "ok");
+  } catch (e) { toast(e.message, "err"); }
+};
+
+// ---------- settings ----------
+// ---------- ambience, overlays, length ----------
+let AMBIENCE = [];
+async function loadAmbience(){
+  if (!AMBIENCE.length) AMBIENCE = await jget("/api/ambience");
+  const sel = document.getElementById("s_ambience");
+  sel.innerHTML = '<option value="">None</option>' +
+    AMBIENCE.map(b => `<option value="${b.id}">${b.label}</option>`).join("");
+}
+function renderExtras(){
+  if (!PROJECT) return;
+  const amb = PROJECT.data.ambience || {};
+  const ov = PROJECT.data.overlay || {};
+  setVal("s_ambience", amb.bed || "");
+  setVal("s_ambLevel", amb.level ?? 0.25);
+  // round for display -- seconds/3600 otherwise shows as 0.019444444444444445
+  setVal("s_target", Math.round(((PROJECT.data.target_seconds || 0) / 3600) * 100) / 100);
+  document.getElementById("o_nowplaying").checked = !!ov.now_playing;
+  document.getElementById("o_progress").checked = !!ov.progress;
+  setVal("o_position", ov.position || "bottom-left");
+  const bed = AMBIENCE.find(b => b.id === amb.bed);
+  document.getElementById("ambNote").textContent = bed ? bed.description : "";
+}
+function saveExtras(){
+  if (!PROJECT) return;
+  PROJECT.data.ambience = { bed: val("s_ambience"), level: parseFloat(val("s_ambLevel")) || 0 };
+  PROJECT.data.overlay = {
+    ...(PROJECT.data.overlay || {}),
+    now_playing: document.getElementById("o_nowplaying").checked,
+    progress: document.getElementById("o_progress").checked,
+    position: val("o_position"),
+  };
+  PROJECT.data.target_seconds = (parseFloat(val("s_target")) || 0) * 3600;
+  saveProject({
+    ambience: PROJECT.data.ambience,
+    overlay: PROJECT.data.overlay,
+    target_seconds: PROJECT.data.target_seconds,
+  });
+  renderExtras();
+}
+for (const id of ["s_ambience","s_ambLevel","s_target","o_nowplaying","o_progress","o_position"]) {
+  document.getElementById(id).addEventListener("change", saveExtras);
+}
+document.getElementById("ambPreview").onclick = () => {
+  const bed = val("s_ambience");
+  if (!bed) return toast("pick a bed first", "err");
+  const a = document.getElementById("ambAudio");
+  a.src = `/api/ambience/${pu(bed)}/preview?seconds=6&_=${Date.now()}`;
+  a.hidden = false; a.play().catch(() => {});
+};
+
+// ---------- thumbnail ----------
+document.getElementById("th_make").onclick = async () => {
+  if (!PROJECT) return toast("open a project first", "err");
+  const btn = document.getElementById("th_make");
+  btn.disabled = true;
+  try {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/thumbnail`, {
+      t_seconds: parseFloat(val("th_t")) || 1,
+      title: val("th_title"), subtitle: val("th_sub"),
+      scrim: parseFloat(val("th_scrim")) || 0, position: val("th_pos"),
+    });
+    const img = document.getElementById("th_img");
+    img.src = `/api/projects/${pu(PROJECT.slug)}/thumbnail-file?name=${pu(r.thumbnail || "")}&_=${Date.now()}`;
+    img.hidden = false;
+    toast("Thumbnail made", "ok");
+  } catch (e) { toast(String(e).replace(/^Error:\s*/, ""), "err"); }
+  btn.disabled = false;
+};
+
+// ---------- levelling, fades ----------
+document.getElementById("levelBtn").onclick = async () => {
+  if (!PROJECT) return;
+  const btn = document.getElementById("levelBtn"), note = document.getElementById("levelNote");
+  btn.disabled = true; note.textContent = "measuring every track…";
+  try {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/level-playlist`);
+    PROJECT.data.song_gain = r.gains;
+    note.textContent = r.spread_before > 0.5
+      ? `was ${r.spread_before} dB apart; trims applied: ${r.gains.map(g => (g > 0 ? "+" : "") + g).join(", ")} dB`
+      : "already even — nothing to do";
+  } catch (e) { note.textContent = String(e).replace(/^Error:\s*/, ""); }
+  btn.disabled = false;
+};
+for (const [id, key] of [["s_fadeIn", "fade_in"], ["s_fadeOut", "fade_out"]]) {
+  document.getElementById(id).addEventListener("change", () => {
+    if (!PROJECT) return;
+    PROJECT.data[key] = parseFloat(val(id)) || 0;
+    saveProject({ [key]: PROJECT.data[key] });
+  });
+}
+
+// ---------- the local model writes the upload text ----------
+document.getElementById("janWrite").onclick = async () => {
+  if (!PROJECT) return;
+  const btn = document.getElementById("janWrite"), note = document.getElementById("janNote");
+  btn.disabled = true; note.textContent = "asking the local model…";
+  try {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/write-upload-text`, { mood: val("janMood") });
+    const box = document.getElementById("tlText");
+    const head = [r.title, "", r.blurb, "", (r.tags || []).map(t => "#" + t).join(" ")]
+      .filter(x => x !== undefined).join("\n");
+    box.value = head + "\n\n" + box.value;
+    note.textContent = "drafted — edit it before you paste it";
+  } catch (e) {
+    note.textContent = String(e).replace(/^Error:\s*/, "").slice(0, 220);
+  }
+  btn.disabled = false;
+};
+
+// ---------- before you upload ----------
+document.getElementById("pfRun").onclick = async () => {
+  if (!PROJECT) return;
+  const box = document.getElementById("pfReport");
+  box.textContent = "checking…";
+  try {
+    const r = await jget(`/api/projects/${pu(PROJECT.slug)}/preflight`);
+    box.innerHTML = r.items.map(it =>
+      `<div class="pf-item"><span class="pf-tag pf-${it.level}">${it.level}</span>` +
+      `<span><b>${it.title}</b> — ${it.detail}` +
+      (it.fix ? ` <i class="muted">${it.fix}</i>` : "") + `</span></div>`).join("") +
+      `<div class="muted" style="margin-top:8px">${r.counts.stop} problem(s), ` +
+      `${r.counts.check} to look at, ${r.counts.fine} fine` +
+      (r.checked_render ? ` · checked ${r.checked_render}` : " · no render checked yet") + `</div>`;
+  } catch (e) { box.textContent = String(e).replace(/^Error:\s*/, ""); }
+};
+
+// ---------- take it with you ----------
+document.getElementById("expBtn").onclick = async () => {
+  if (!PROJECT) return;
+  const note = document.getElementById("expNote");
+  note.textContent = "packing…";
+  try {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/export`, {
+      include_media: document.getElementById("expMedia").checked });
+    note.innerHTML = `${r.file} — ${(r.size_bytes / 1e6).toFixed(1)} MB ` +
+      `<a href="/api/projects/${pu(PROJECT.slug)}/export-file" download>download</a>`;
+  } catch (e) { note.textContent = String(e).replace(/^Error:\s*/, ""); }
+};
+async function duplicateProject(includeSongs){
+  if (!PROJECT) return;
+  const name = await ForgeDialog.prompt(includeSongs ? "Name for the copy:" : "Name for the new project:",
+                      PROJECT.data.name + (includeSongs ? " copy" : " template"));
+  if (!name) return;
+  const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/duplicate`, { name, include_songs: includeSongs });
+  await loadProjects();
+  toast(`made "${r.name}"`, "ok");
+}
+document.getElementById("dupBtn").onclick = () => duplicateProject(true);
+document.getElementById("tplBtn").onclick = () => duplicateProject(false);
+document.getElementById("impBtn").onclick = async () => {
+  const f = document.getElementById("impFile").files[0];
+  if (!f) return toast("pick a .pfproj file", "err");
+  const fd = new FormData(); fd.append("file", f);
+  const r = await fetch("/api/projects/import", { method: "POST", body: fd });
+  if (!r.ok) return toast(await errText(r, "import failed"), "err");
+  const p = await r.json();
+  await loadProjects();
+  toast(`imported "${p.name}"`, "ok");
+  openProject(p.slug);
+};
+document.getElementById("exportAllBtn").onclick = async () => {
+  if (!PROJECT) return;
+  const note = document.getElementById("exportAllNote");
+  note.textContent = "queueing…";
+  try {
+    const r = await jpost(`/api/projects/${pu(PROJECT.slug)}/export-all`, {
+      title: val("th_title"), subtitle: val("th_sub") });
+    note.textContent = `${r.jobs.length} job(s) queued: ` + r.jobs.map(j => j.format).join(", ");
+  } catch (e) { note.textContent = String(e).replace(/^Error:\s*/, ""); }
+};
+
+// ---------- tracklist ----------
+async function loadTracklist(){
+  const box = document.getElementById("tlText");
+  if (!box || !PROJECT) return;
+  try {
+    const t = await jget(`/api/projects/${pu(PROJECT.slug)}/tracklist`);
+    box.value = t.description || "";
+    document.getElementById("tlWarnings").innerHTML =
+      (t.warnings || []).map(w => `⚠ ${w}`).join("<br>");
+  } catch (e) { box.value = ""; }
+}
+document.getElementById("tlRefresh").onclick = loadTracklist;
+document.getElementById("tlCopy").onclick = async () => {
+  const box = document.getElementById("tlText");
+  box.select();
+  try { await navigator.clipboard.writeText(box.value); toast("Copied", "ok"); }
+  catch (e) { document.execCommand("copy"); toast("Copied", "ok"); }
+};
+
+let SETTINGS = {};
+async function loadSettings(){
+  const st = await jget("/api/state");
+  SETTINGS = st.settings || {};
+  const enc = document.getElementById("s_encoder");
+  enc.innerHTML = st.encoders.map(e => `<option ${e===st.settings.encoder?"selected":""}>${e}</option>`).join("");
+  setVal("s_crf", st.settings.crf);
+  setVal("s_lufs", st.settings.loudness_lufs);
+  setVal("s_renderDir", st.settings.render_dir);
+  setVal("s_aiBase", st.settings.ai_studio_base);
+  setVal("qualitySel", st.settings.render_quality || "standard");
+  setVal("s_previewSecs", st.settings.preview_seconds);
+  setVal("s_loopSecs", st.settings.shot_loop_seconds);
+  setVal("s_workers", st.settings.render_workers);
+  document.getElementById("ffState").textContent = st.ffmpeg ? "" : "· ffmpeg not found";
+  const pv = document.getElementById("previewBtn");
+  if (pv && st.settings.preview_seconds) pv.textContent = `Preview (${st.settings.preview_seconds}s)`;
+}
+document.getElementById("saveSettings").onclick = async () => {
+  await jpost("/api/settings", { values: {
+    encoder: val("s_encoder"), crf: parseInt(val("s_crf")) || 18,
+    loudness_lufs: parseFloat(val("s_lufs")) || -14,
+    preview_seconds: parseInt(val("s_previewSecs")) || 20,
+    shot_loop_seconds: parseFloat(val("s_loopSecs")) || 12,
+    render_workers: parseInt(val("s_workers")) || 3,
+    render_dir: val("s_renderDir"), ai_studio_base: val("s_aiBase"),
+    render_quality: val("qualitySel"),
+  }});
+  toast("Saved", "ok");
+};
+
+// ---------- autopilot ----------
+// Its own mode: songs folder + pictures folder + a look -> upload-ready
+// videos. It works on folders, not the open PROJECT, so nothing here reads
+// PROJECT. Three views (Make, Library, Earnings) share one panel; the deep
+// links #/autopilot, #/autopilot/library and #/autopilot/earnings open them.
+let AP_RECIPES = [], AP_RECIPE = null, AP_JOB = null, AP_SCAN = null;
+// exactly #/autopilot[/view] -- Autopilot's own projects are named
+// "autopilot-…", so a plain startsWith would claim their links too
+const AP_HASH = /^#\/autopilot(\/|$)/;
+let AP_FIRST_PIC = "";
+
+function apEsc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+function apStore(key, value){
+  try {
+    if (value === undefined) return localStorage.getItem("pulseforge." + key);
+    localStorage.setItem("pulseforge." + key, value);
+  } catch (e) { /* storage off: the page still works, it just forgets */ }
+  return null;
+}
+// Tables and cards show a look's name, not its id.
+function apRecipeName(id){
+  const r = (AP_RECIPES || []).find(x => x.id === id);
+  return r ? r.label : id;
+}
+function apRecipe(){ return AP_RECIPES.find(r => r.id === AP_RECIPE) || null; }
+
+function apShowView(view){
+  document.querySelectorAll("#apNav button").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+  document.querySelectorAll(".ap-view").forEach(v => v.hidden = v.dataset.view !== view);
+  if (view === "library") loadApPackages();
+  if (view === "earnings") loadApLedger();
+  // only claim the address bar when it is ours: at boot a saved Autopilot
+  // mode must not overwrite a project link that is about to be opened
+  const want = view === "make" ? "#/autopilot" : `#/autopilot/${view}`;
+  const ours = !location.hash || AP_HASH.test(location.hash);
+  if (ours && location.hash !== want) history.replaceState(null, "", want);
+}
+document.querySelectorAll("#apNav button").forEach(b => b.onclick = () => apShowView(b.dataset.view));
+
+async function openAutopilot(view){
+  if (!AP_RECIPES.length) await loadApRecipes();
+  if (!val("apInbox")) setVal("apInbox", apStore("ap_inbox") || "");
+  if (!val("apArt")) setVal("apArt", apStore("ap_art") || "");
+  apShowView(view || "make");
+  loadApPackages();  // keeps the Library count current
+  apScan();
+}
+
+// ---- step 3: the looks, each showing a real frame of your first picture
+async function loadApRecipes(){
+  const box = document.getElementById("apRecipes");
+  try { AP_RECIPES = (await jget("/api/autopilot/recipes")).recipes || []; }
+  catch (e) { box.innerHTML = `<p class="muted">Could not load the looks: ${apEsc(e.message)}</p>`; return; }
+  AP_RECIPE = apStore("ap_recipe") || null;
+  if (!AP_RECIPES.some(r => r.id === AP_RECIPE)) AP_RECIPE = AP_RECIPES.length ? AP_RECIPES[0].id : null;
+  box.innerHTML = AP_RECIPES.map(r => `
+    <button class="ap-look${r.id === AP_RECIPE ? " sel" : ""}" data-id="${apEsc(r.id)}">
+      <span class="ap-look-img"><img alt="" hidden><i></i></span>
+      <span class="ap-look-text">
+        <b>${apEsc(r.label)}</b>
+        <small>${apEsc(r.format_label || r.format)}</small>
+        <span>${apEsc(r.description)}</span>
+      </span>
+    </button>`).join("");
+  box.querySelectorAll(".ap-look").forEach(el => el.onclick = () => {
+    AP_RECIPE = el.dataset.id;
+    apStore("ap_recipe", AP_RECIPE);
+    box.querySelectorAll(".ap-look").forEach(x => x.classList.toggle("sel", x === el));
+    apBigPreview();
+    apScan();
+  });
+}
+
+function apPreviewUrl(id, w){
+  const q = new URLSearchParams({ recipe: id, w: String(w) });
+  if (AP_FIRST_PIC) q.set("image", AP_FIRST_PIC);
+  return "/api/autopilot/preview?" + q.toString();
+}
+// Each card loads its own frame; a look that needs pictures says so instead.
+function apLoadPreviews(){
+  document.querySelectorAll(".ap-look").forEach(el => {
+    const img = el.querySelector("img"), note = el.querySelector("i");
+    img.hidden = true; note.textContent = "drawing…"; note.className = "loading";
+    img.onload = () => { img.hidden = false; note.textContent = ""; note.className = ""; };
+    img.onerror = () => { note.className = ""; note.textContent = AP_FIRST_PIC ? "no preview" : "add pictures to see it"; };
+    img.src = apPreviewUrl(el.dataset.id, 360);
+  });
+  apBigPreview();
+}
+function apBigPreview(){
+  const fig = document.getElementById("apBig"), r = apRecipe();
+  if (!r) { fig.hidden = true; return; }
+  const img = document.getElementById("apBigImg");
+  img.onload = () => { fig.hidden = false; };
+  img.onerror = () => { fig.hidden = true; };
+  img.src = apPreviewUrl(r.id, 720);
+  img.classList.toggle("tall", /9:16/.test(r.format_label || ""));
+  document.getElementById("apBigCap").textContent = AP_FIRST_PIC
+    ? `${r.label}, drawn on ${AP_FIRST_PIC.split("/").pop()}`
+    : `${r.label}, drawn without a picture`;
+}
+
+// ---- steps 1 and 2: what is in the folders, and what Make would do
+let apScanTimer = null;
+function apScanSoon(){ clearTimeout(apScanTimer); apScanTimer = setTimeout(apScan, 350); }
+document.getElementById("apInbox").addEventListener("input", apScanSoon);
+document.getElementById("apArt").addEventListener("input", apScanSoon);
+
+async function apScan(){
+  const inbox = val("apInbox").trim(), art = val("apArt").trim();
+  let s;
+  try {
+    s = await jget(`/api/autopilot/scan?inbox=${pu(inbox)}&art=${pu(art)}&recipe=${pu(AP_RECIPE || "")}`);
+  } catch (e) { return; }
+  AP_SCAN = s;
+  const sum1 = document.getElementById("apInboxSum"), sum2 = document.getElementById("apArtSum");
+  sum1.textContent = !inbox ? "Pick the folder your songs are in."
+    : s.songs ? `${s.songs} song${s.songs === 1 ? "" : "s"} · ${s.minutes} min` : "No songs in that folder.";
+  sum1.classList.toggle("ok", !!s.songs);
+  sum2.textContent = !art ? "One picture per song, taken in turn. Lofi Radio needs at least one."
+    : s.pictures ? `${s.pictures} picture${s.pictures === 1 ? "" : "s"}` : "No pictures in that folder.";
+  sum2.classList.toggle("ok", !!s.pictures);
+
+  // the first picture is what every look card draws on
+  const first = s.first_picture || "";
+  if (first !== AP_FIRST_PIC || !document.querySelector(".ap-look img[src]")) {
+    AP_FIRST_PIC = first;
+    apLoadPreviews();
+  }
+
+  const btn = document.getElementById("apRun"), why = document.getElementById("apRunNote");
+  const r = apRecipe();
+  const mix = r && r.per === "folder";
+  if (AP_JOB) { btn.disabled = true; return; }
+  if (s.problem || !s.to_make) {
+    btn.disabled = true;
+    btn.textContent = "Make";
+    why.textContent = s.problem ? s.problem.charAt(0).toUpperCase() + s.problem.slice(1) + "."
+      : s.skipped ? "Everything in that folder is already made. Add songs to make more." : "";
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = mix ? "Make 1 mix" : `Make ${s.to_make} video${s.to_make === 1 ? "" : "s"}`;
+  why.textContent = s.skipped ? `${s.skipped} already made, skipped.` : "";
+}
+
+document.getElementById("apRun").onclick = async () => {
+  const inbox = val("apInbox").trim(), art = val("apArt").trim();
+  apStore("ap_inbox", inbox); apStore("ap_art", art);
+  apRemember(inbox); if (art) apRemember(art);
+  const btn = document.getElementById("apRun");
+  btn.disabled = true;
+  try {
+    const body = { inbox, recipe: AP_RECIPE };
+    if (art) body.art = art;
+    const d = await jpost("/api/autopilot/run", body);
+    if (d.job_id) apRunJob(d.job_id, (d.queued || []).length);
+    else { toast("Nothing new to make", "ok"); apScan(); }
+  } catch (e) {
+    document.getElementById("apRunNote").textContent = String(e.message || e).replace(/^Error:\s*/, "");
+    btn.disabled = false;
+  }
+};
+
+// Progress with a time-left guess from how fast it has gone so far. The
+// first few percent are mostly setup, so no guess until the bar has moved.
+function apRunJob(jobId, count){
+  AP_JOB = jobId;
+  const now = document.getElementById("apNow"); now.hidden = false;
+  const title = document.getElementById("apNowTitle"), eta = document.getElementById("apNowEta");
+  const prog = document.getElementById("apProg"), log = document.getElementById("apLog");
+  prog.style.width = "0%"; log.textContent = ""; eta.textContent = "";
+  title.textContent = count > 1 ? `Starting ${count} videos…` : "Starting…";
+  const t0 = Date.now();
+  forgeStream(jobId, {
+    onLog: (t) => {
+      log.textContent += t + "\n"; log.scrollTop = log.scrollHeight;
+      const m = /^\[(\d+)\/(\d+)\]\s+(.*)$/.exec(t);
+      if (m) title.textContent = m[2] === "1" ? m[3] : `${m[3]} (${m[1]} of ${m[2]})`;
+    },
+    onProgress: (e) => {
+      const f = Math.max(0, Math.min(1, e.frac || 0));
+      prog.style.width = (f * 100).toFixed(1) + "%";
+      if (f > 0.05) {
+        const left = (Date.now() - t0) / 1000 * (1 - f) / f;
+        eta.textContent = left < 60 ? "under a minute left" : `about ${Math.round(left / 60)} min left`;
+      }
+    },
+    onDone: () => {
+      AP_JOB = null; prog.style.width = "100%"; eta.textContent = "";
+      title.textContent = "Done. Your videos are in the Library.";
+      toast("Autopilot finished", "ok");
+      loadApPackages(); apScan();
+    },
+    onError: (m) => {
+      AP_JOB = null; title.textContent = "Stopped: " + m;
+      toast("Autopilot stopped: " + m, "err"); apScan();
+    },
+  });
+}
+document.getElementById("apStop").onclick = () => {
+  if (AP_JOB) jpost(`/api/jobs/${AP_JOB}/stop`).catch(e => toast(e.message, "err"));
+};
+
+// ---- the folder browser
+let AP_BROWSE_FOR = null, AP_BROWSE_PATH = null;
+function apRecent(){ try { return JSON.parse(apStore("ap_recent") || "[]"); } catch (e) { return []; } }
+function apRemember(path){
+  if (!path) return;
+  apStore("ap_recent", JSON.stringify([path, ...apRecent().filter(p => p !== path)].slice(0, 6)));
+}
+document.querySelectorAll("[data-browse]").forEach(b => b.onclick = () => apOpenBrowse(b.dataset.browse));
+
+function apOpenBrowse(field){
+  AP_BROWSE_FOR = field;
+  document.getElementById("apBrowse").hidden = false;
+  const recent = apRecent();
+  document.getElementById("apBrowseRecent").innerHTML = recent.length
+    ? "<span class='muted'>Recent</span>" + recent.map(p =>
+        `<button class="chip" data-path="${apEsc(p)}">${apEsc(p.split("/").pop() || p)}</button>`).join("")
+    : "";
+  document.querySelectorAll("#apBrowseRecent [data-path]").forEach(c => c.onclick = () => apBrowse(c.dataset.path));
+  apBrowse(val(field).trim() || "");
+}
+function apCloseBrowse(){ document.getElementById("apBrowse").hidden = true; }
+
+async function apBrowse(path){
+  let d;
+  try { d = await jget(`/api/autopilot/browse?path=${pu(path)}`); }
+  catch (e) {
+    if (path) return apBrowse("");  // a stale or outside path: start from home
+    toast(e.message, "err"); return;
+  }
+  AP_BROWSE_PATH = d.path;
+  document.getElementById("apBrowsePath").textContent = d.path.replace(d.home, "~");
+  document.getElementById("apBrowseUp").disabled = !d.parent;
+  document.getElementById("apBrowseUp").onclick = () => d.parent && apBrowse(d.parent);
+  document.getElementById("apBrowseHome").onclick = () => apBrowse("");
+  const wantSongs = AP_BROWSE_FOR === "apInbox";
+  const here = wantSongs ? d.songs : d.pictures;
+  document.getElementById("apBrowseHere").textContent =
+    `${here} ${wantSongs ? "song" : "picture"}${here === 1 ? "" : "s"} in this folder`;
+  const list = document.getElementById("apBrowseList");
+  list.innerHTML = d.dirs.length ? d.dirs.map(x => {
+    const n = wantSongs ? x.songs : x.pictures;
+    return `<button class="ap-dir${n ? " has" : ""}" data-path="${apEsc(x.path)}">
+      <span>📁 ${apEsc(x.name)}</span>
+      <small>${n ? `${n} ${wantSongs ? "song" : "picture"}${n === 1 ? "" : "s"}` : ""}</small></button>`;
+  }).join("") : '<p class="muted">No folders in here.</p>';
+  list.querySelectorAll(".ap-dir").forEach(b => b.onclick = () => apBrowse(b.dataset.path));
+}
+document.getElementById("apBrowseCancel").onclick = apCloseBrowse;
+document.getElementById("apBrowse").addEventListener("click", (e) => { if (e.target.id === "apBrowse") apCloseBrowse(); });
+document.getElementById("apBrowseUse").onclick = () => {
+  setVal(AP_BROWSE_FOR, AP_BROWSE_PATH);
+  apStore(AP_BROWSE_FOR === "apInbox" ? "ap_inbox" : "ap_art", AP_BROWSE_PATH);
+  apRemember(AP_BROWSE_PATH);
+  apCloseBrowse();
+  apScan();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !document.getElementById("apBrowse").hidden) apCloseBrowse();
+});
+
+// ---- Library: the finished videos
+async function loadApPackages(){
+  const box = document.getElementById("apPackages");
+  let list = [];
+  try { list = (await jget("/api/autopilot/packages")).packages || []; }
+  catch (e) { box.innerHTML = `<p class="muted">Could not load the Library: ${apEsc(e.message)}</p>`; return; }
+  const ready = list.filter(p => p.status === "ready").length;
+  document.getElementById("apLibCount").textContent = ready ? String(ready) : "";
+  if (!list.length) {
+    box.innerHTML = '<div class="card ap-empty"><b>Nothing made yet</b>' +
+      '<p class="muted">Finished videos appear here with their thumbnail, title and description, ready to upload.</p></div>';
+    return;
+  }
+  box.innerHTML = `<div class="ap-pkgs">${list.map(p => `
+    <div class="ap-pkg" data-slug="${apEsc(p.slug)}">
+      ${p.thumb ? `<img class="ap-thumb" src="${apEsc(p.thumb)}?v=${pu(p.created || "")}" alt="">`
+                : `<div class="ap-noThumb">${p.status === "failed" ? "failed" : "rendering…"}</div>`}
+      <div class="ap-pkg-body">
+        <h4>${apEsc(p.title || p.song)}</h4>
+        <div class="ap-pkg-meta">
+          <span class="ap-status ap-status-${apEsc(p.status)}">${apEsc(p.status)}</span>
+          <span>${apEsc(apRecipeName(p.recipe))}</span>
+        </div>
+        ${p.status === "failed" && p.error ? `<div class="ap-err">${apEsc(p.error)}</div>` : ""}
+        <div class="ap-pkg-actions">
+          ${p.video ? `<button class="btn btn-sm btn-primary" data-pack="${apEsc(p.slug)}">Upload pack</button>` : ""}
+          ${p.video ? `<button class="btn btn-sm" data-reveal="${apEsc(p.slug)}">Open folder</button>` : ""}
+          ${p.video && p.status !== "uploaded" ? `<button class="btn btn-sm" data-uploaded="${apEsc(p.slug)}">Mark uploaded</button>` : ""}
+          ${p.url ? `<a class="btn btn-sm" href="${apEsc(p.url)}" target="_blank" rel="noopener">Watch</a>` : ""}
+        </div>
+        <div class="ap-packbox" hidden></div>
+      </div>
+    </div>`).join("")}</div>`;
+  box.querySelectorAll("[data-reveal]").forEach(b => b.onclick = () =>
+    jpost(`/api/autopilot/reveal/${pu(b.dataset.reveal)}`).catch(e => toast(e.message, "err")));
+  box.querySelectorAll("[data-pack]").forEach(b => b.onclick = () => apUploadPack(b));
+  box.querySelectorAll("[data-uploaded]").forEach(b => b.onclick = async () => {
+    const url = await ForgeDialog.prompt("Paste the video's YouTube link (you can leave it empty):", "");
+    if (url === null) return;
+    try {
+      await jpost("/api/autopilot/ledger", { slug: b.dataset.uploaded, action: "uploaded", url });
+      toast("Marked uploaded", "ok");
+      loadApPackages();
+    } catch (e) { toast(e.message, "err"); }
+  });
+}
+
+async function apCopy(text, what){
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {  // older WebKit, or no clipboard permission: the textarea way
+    const t = document.createElement("textarea");
+    t.value = text; document.body.appendChild(t); t.select();
+    document.execCommand("copy"); t.remove();
+  }
+  toast(`${what} copied`, "ok");
+}
+// Upload pack: open the folder, copy the title, and keep the other two
+// fields one click away -- the order YouTube's upload form asks for them.
+async function apUploadPack(btn){
+  const slug = btn.dataset.pack;
+  const packbox = btn.closest(".ap-pkg").querySelector(".ap-packbox");
+  let t;
+  try { t = await jget(`/api/autopilot/package/${pu(slug)}/text`); }
+  catch (e) { return toast(e.message, "err"); }
+  jpost(`/api/autopilot/reveal/${pu(slug)}`).catch(() => {});
+  await apCopy(t.title, "Title");
+  packbox.hidden = false;
+  packbox.innerHTML = `
+    <ol class="ap-packsteps">
+      <li>In YouTube Studio, upload <code>video.mp4</code> from the folder that just opened. The title is on your clipboard.</li>
+      <li><button class="btn btn-sm" data-c="description">Copy description</button></li>
+      <li><button class="btn btn-sm" data-c="tags">Copy tags</button></li>
+      <li>Set <code>thumb.jpg</code> as the thumbnail, then come back and press Mark uploaded.</li>
+    </ol>`;
+  packbox.querySelector('[data-c="description"]').onclick = () => apCopy(t.description, "Description");
+  packbox.querySelector('[data-c="tags"]').onclick = () => apCopy((t.tags || []).join(", "), "Tags");
+}
+
+async function loadApLedger(){
+  let d;
+  try { d = await jget("/api/autopilot/ledger"); }
+  catch (e) {
+    document.getElementById("apLedgerTotals").innerHTML = `<p class="muted">Could not load the ledger: ${e.message}</p>`;
+    return;
+  }
+  const perVideo = d.per_video || [], perRecipe = d.per_recipe || [], total = d.total || {};
+
+  const sel = document.getElementById("apLedgerVideo");
+  const keep = sel.value;
+  sel.innerHTML = perVideo.length
+    ? perVideo.map(v => `<option value="${v.slug}">${v.title}</option>`).join("")
+    : '<option value="">nothing uploaded yet</option>';
+  if (keep) sel.value = keep;
+
+  const tot = document.getElementById("apLedgerTotals");
+  tot.className = "ap-stats";
+  tot.innerHTML = `
+    <div class="ap-stat"><b>${(total.views || 0).toLocaleString()}</b><span>total views</span></div>
+    <div class="ap-stat"><b>$${(total.revenue || 0).toFixed(2)}</b><span>total revenue</span></div>
+    <div class="ap-stat"><b>${perVideo.length}</b><span>video${perVideo.length === 1 ? "" : "s"} tracked</span></div>`;
+
+  const pv = document.getElementById("apLedgerPerVideo");
+  pv.innerHTML = perVideo.length ? "" :
+    '<p class="muted">Press Mark uploaded on a video in the Library, then add its ' +
+    'monthly figures here.</p>';
+  if (perVideo.length) pv.innerHTML =
+    `<div class="ap-ledger-row ap-ledger-head"><span>Video</span><span>Look</span><span class="num">Views</span><span class="num">Revenue</span></div>` +
+    perVideo.map(v => `<div class="ap-ledger-row">
+      <span>${v.url ? `<a href="${v.url}" target="_blank" rel="noopener">${v.title}</a>` : v.title}</span>
+      <span class="muted">${apRecipeName(v.recipe)}</span>
+      <span class="num">${(v.views || 0).toLocaleString()}</span>
+      <span class="num">$${(v.revenue || 0).toFixed(2)}</span></div>`).join("");
+
+  const pr = document.getElementById("apLedgerPerRecipe");
+  pr.innerHTML = perRecipe.length ? "" : '<p class="muted">Nothing to compare yet.</p>';
+  if (perRecipe.length) pr.innerHTML =
+    `<div class="ap-ledger-row ap-ledger-head"><span>Look</span><span class="num">Videos</span><span class="num">Views</span><span class="num">Revenue</span></div>` +
+    perRecipe.map(r => `<div class="ap-ledger-row">
+      <span>${apRecipeName(r.recipe)}</span>
+      <span class="num">${r.videos}</span>
+      <span class="num">${(r.views || 0).toLocaleString()}</span>
+      <span class="num">$${(r.revenue || 0).toFixed(2)}</span></div>`).join("");
+}
+
+document.getElementById("apLedgerAdd").onclick = async () => {
+  const slug = val("apLedgerVideo");
+  const month = val("apLedgerMonth");
+  const note = document.getElementById("apLedgerNote");
+  if (!slug) return toast("Mark a package uploaded first", "err");
+  if (!month) return toast("Pick a month", "err");
+  try {
+    await jpost("/api/autopilot/ledger", {
+      slug, action: "figures", month,
+      views: parseInt(val("apLedgerViews")) || 0,
+      revenue: parseFloat(val("apLedgerRevenue")) || 0,
+    });
+    note.textContent = "Saved.";
+    setVal("apLedgerViews", ""); setVal("apLedgerRevenue", "");
+    loadApLedger();
+  } catch (e) { note.textContent = String(e.message || e).replace(/^Error:\s*/, ""); }
+};
+
+// ---------- one press, one request ----------
+// While a button's handler is still working, more presses are ignored: a
+// double click used to queue the same render (or create the same upload)
+// twice. An error the handler did not catch becomes a toast, not a silent
+// unhandled rejection.
+function oneAtATime(fn){
+  return async function (ev) {
+    const btn = this instanceof HTMLElement ? this : null;
+    if (btn && btn.dataset.busy) return;
+    const was = btn ? btn.disabled : false;
+    if (btn) { btn.dataset.busy = "1"; btn.disabled = true; }
+    try { return await fn.call(this, ev); }
+    catch (e) { toast(String((e && e.message) || e).replace(/^Error:\s*/, ""), "err"); }
+    finally { if (btn) { delete btn.dataset.busy; if (btn.disabled) btn.disabled = was; } }
+  };
+}
+function guardButtons(ids){
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el && el.onclick && !el.dataset.guarded) { el.onclick = oneAtATime(el.onclick); el.dataset.guarded = "1"; }
+  }
+}
+guardButtons(["createBtn", "audioUp", "assetUp", "clipsBtn", "aiBtn", "analyzeBtn",
+  "previewBtn", "renderBtn", "batchBtn", "fnCheck", "pfRun", "expBtn", "dupBtn",
+  "tplBtn", "impBtn", "exportAllBtn", "saveSettings", "apLedgerAdd"]);
+
+// ---------- rest when hidden ----------
+// A looping preview kept decoding video while PulseForge was out of sight.
+// Silent or looping videos pause on hide and the same ones play again on
+// show; a render you are listening to keeps playing.
+(function restWhenHidden(){
+  let resting = [];
+  function changed(){
+    if (!ForgeIdle.shown()) {
+      const playing = [...document.querySelectorAll("video")].filter(v => !v.paused && (v.muted || v.loop));
+      playing.forEach(v => v.pause());
+      resting = resting.concat(playing);
+    } else {
+      resting.forEach(v => v.play().catch(() => {}));
+      resting = [];
+    }
+  }
+  document.addEventListener("visibilitychange", changed);
+  document.addEventListener("forge-visible", changed);
+})();
+
+// ---------- boot ----------
+// If the server is not up yet (Forge still starting it, or it was restarted)
+// the page says so calmly and tries again by itself, 2 s, 4 s ... up to 30 s
+// apart, only while it is on screen.
+async function boot(){
+  [SCENES, FORMATS] = await Promise.all([jget("/api/scenes"), jget("/api/formats")]);
+  document.getElementById("batchScene").innerHTML =
+    SCENES.map(s => `<option value="${s.id}">${s.label}</option>`).join("");
+  document.getElementById("batchFormat").innerHTML =
+    FORMATS.map(f => `<option value="${f.id}">${f.label}</option>`).join("");
+  await loadProjects();
+  await loadSettings();
+  pollQueue();
+  applyMode(SETTINGS.ui_mode || "simple", { save: false });
+  await applyHash();
+  window.addEventListener("hashchange", applyHash);
+  document.body.dataset.ready = "1";
+}
+(async function init(){
+  try { await boot(); return; }
+  catch (e) { bootFailed(e); }
+  const retry = ForgeIdle.poll(async () => {
+    try { await boot(); } catch (e) { bootFailed(e); return false; }
+    retry.stop();
+  }, 2000, { backoff: 2, maxMs: 30000 });
+})();
+function bootFailed(e){
+  const box = document.getElementById("projList");
+  // fetch itself failed: nothing answered (a slip in this page is a TypeError too)
+  const offline = e instanceof TypeError && /fetch|network|load failed/i.test(e.message || "");
+  box.innerHTML = `<div class="card muted pf-offline">${offline
+    ? "Can't reach the PulseForge server yet. This page tries again by itself."
+    : "PulseForge could not start: " + apEsc(String(e.message || e).replace(/^Error:\s*/, "")) +
+      ". Trying again by itself."}</div>`;
+}
+</script>
+</body>
+</html>

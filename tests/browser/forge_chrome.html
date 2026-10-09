@@ -1,0 +1,55 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ForgeChrome harness</title></head>
+<body>
+<div class="topbar"><button id="go-fullscreen">Full screen</button></div>
+<script src="/shared/forge_chrome.js"></script>
+<script>
+const out = [];
+function t(name, ok, extra) { out.push((ok ? "PASS" : "FAIL") + " :: " + name + (extra ? " :: " + extra : "")); }
+
+// Capture what the page posts to its parent. Standalone, window.parent === window,
+// so the message comes back to us and we can assert on it.
+const seen = [];
+addEventListener("message", (e) => { if (e.data && e.data.forge === "chrome") seen.push(e.data); });
+
+// Real fullscreen will be refused here (no user activation / headless), which is
+// exactly the condition the helper has to survive.
+addEventListener("load", () => setTimeout(() => {
+  t("window.ForgeChrome is defined", typeof window.ForgeChrome === "object", typeof window.ForgeChrome);
+  const btn = document.getElementById("go-fullscreen");
+  t("uses the page's own button, injects none",
+    document.querySelectorAll("#go-fullscreen, .forge-chrome-btn:not(.forge-close-btn)").length === 1,
+    "count=" + document.querySelectorAll("#go-fullscreen, .forge-chrome-btn:not(.forge-close-btn)").length);
+  t("button starts labelled 'Full screen'", btn.textContent === "Full screen", btn.textContent);
+
+  btn.click();
+  t("click sets body.forge-fullscreen", document.body.classList.contains("forge-fullscreen"));
+  t("click relabels the button", btn.textContent === "Exit full screen", btn.textContent);
+
+  btn.click();
+  t("second click clears body.forge-fullscreen", !document.body.classList.contains("forge-fullscreen"));
+  t("second click relabels back", btn.textContent === "Full screen", btn.textContent);
+
+  // The `f` key, and Escape getting the chrome back.
+  dispatchEvent(new KeyboardEvent("keydown", { key: "f" }));
+  t("a bare 'f' does nothing (Emerson, 2026-09-25)", ForgeChrome.hidden === false);
+  dispatchEvent(new KeyboardEvent("keydown", { key: "f", code: "KeyF", altKey: true }));
+  t("Alt+F hides the chrome", ForgeChrome.hidden === true);
+  dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+  t("Escape brings it back", ForgeChrome.hidden === false);
+
+  // Typing an f in a field must not fullscreen the app.
+  const input = document.createElement("input");
+  document.body.appendChild(input);
+  input.dispatchEvent(new KeyboardEvent("keydown", { key: "f", bubbles: true }));
+  t("'f' typed into an input is ignored", ForgeChrome.hidden === false);
+
+  setTimeout(() => {
+    const kinds = seen.map(m => m.hidden).join(",");
+    t("posts {forge:'chrome'} to the hub each way", kinds === "true,false,true,false", kinds);
+    document.title = out.every(l => l.startsWith("PASS")) ? "ALL PASS" : "FAILURES";
+    const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  document.body.innerHTML = "<pre id='results'>RESULTS\n" + esc(out.join("\n")) + "\n</pre>";
+  }, 60);
+}, 40));
+</script>
+</body></html>

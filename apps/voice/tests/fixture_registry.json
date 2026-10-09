@@ -1,0 +1,12 @@
+{
+  "_about": "Stand-in for shared/voice_registry.json, used only when that file is missing.",
+  "models": [
+    {"id": "whisper-tiny-en", "kind": "stt", "label": "Whisper tiny.en (whisper.cpp)", "engine": "whisper_cpp", "tier": "fast",
+     "files": {"model": "voice/stt/whisper-tiny-en/ggml-tiny.en.bin"}, "reuse": {"model": "~/.var/app/moe.nyarchlinux.assistant/config/models/whisper/whisper.cpp/models/ggml-tiny.en.bin"}, "size_mb": 75, "voices": []},
+    {"id": "kokoro-v1", "kind": "tts", "label": "Kokoro v1.0", "engine": "kokoro_onnx", "tier": "fast",
+     "files": {"model": "voice/tts/kokoro-v1/kokoro-v1.0.onnx", "voices": "voice/tts/kokoro-v1/voices-v1.0.bin"},
+     "size_mb": 353, "voices": ["af_heart", "af_bella", "am_michael", "bf_emma"], "default_voice": "af_heart"}
+  ],
+  "defaults": {"stt": "whisper-tiny-en", "tts": "kokoro-v1", "tts_best": "kokoro-v1"},
+  "wake": {"claude": ["claude", "cloud", "clod", "clawed", "tetsu"], "jan": ["jan", "jen", "acchan", "a chan"]}
+}

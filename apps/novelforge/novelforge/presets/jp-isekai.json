@@ -1,0 +1,105 @@
+{
+  "id": "jp-isekai",
+  "label": "Japanese isekai light novel",
+  "group": "Japanese",
+  "description": "An ordinary person reborn or summoned into a game-like fantasy world, told in a chatty first-person voice with comic asides, status screens and found family.",
+  "keywords": [
+    "isekai",
+    "reborn",
+    "reincarnated",
+    "summoned",
+    "another",
+    "world",
+    "light",
+    "novel",
+    "adventurer",
+    "guild",
+    "slime",
+    "demon",
+    "lord",
+    "cheat"
+  ],
+  "words_per_chapter": 3000,
+  "voice": [
+    "First person, past tense, casual and conversational; the narrator talks to the reader and reacts to absurdity like a straight man in a comedy duo.",
+    "Status screens and skill names appear in brackets or on their own lines, consistently formatted.",
+    "Light-novel pacing: short scene breaks, quick banter, one strong image per scene.",
+    "Japanese flavour where it fits: the narrator's modern-Japan references (convenience stores, trains, overtime), honorifics between characters from Japan.",
+    "Warmth under the comedy: companions become a found family and the stakes are about them.",
+    "End chapters on a gag that turns into a threat, or a threat undercut by a gag."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "An ordinary life ends or is interrupted in one vivid moment (a truck, a summoning circle, a game that will not log out).",
+      "then": "Learn the world's rules and the cheat skill by using them on small problems.",
+      "key": true
+    },
+    {
+      "at": 0.06,
+      "role": "arrival",
+      "guide": "Arrival and the cheat skill, with the first sign that it is stranger than it looks."
+    },
+    {
+      "at": 0.15,
+      "role": "first companion",
+      "guide": "The first companion joins after a shared danger; registration at the guild or town goes wrong in a funny way.",
+      "then": "Quests and daily life; each chapter adds a skill, a friend or a problem."
+    },
+    {
+      "at": 0.32,
+      "role": "real danger",
+      "guide": "The first danger that the cheat cannot trivialise; someone gets hurt."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint truth",
+      "guide": "The truth about the summoning, the demon lord or the gods is not what the narrator assumed.",
+      "then": "Choices get harder; the found family is the stake.",
+      "key": true
+    },
+    {
+      "at": 0.68,
+      "role": "separation",
+      "guide": "A companion is taken, captured or turns away."
+    },
+    {
+      "at": 0.83,
+      "role": "boss",
+      "guide": "The boss fight that uses everything learned, with the companions' help.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "epilogue hook",
+      "guide": "A slice-of-life ending with a new invitation, rumour or summons that promises the next volume.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Balance comedy and stakes: each chapter has one clear goal (a quest, a meal, a rescue) and one gag or character moment. The cheat is powerful but has a catch that creates plot.",
+  "outline_example": "The Receptionist Is Not Impressed | At the Rhodell adventurers' guild, Sato Kaito's aptitude orb shows a single useless skill and Mira the receptionist files him as a porter | He takes the porter job to eat and discovers his skill copies anything he carries | The guild master wants to see what is in his pack",
+  "scene_guidance": [
+    "Use the narrator's asides sparingly, one sharp line at a time.",
+    "Every companion speaks in a recognisably different way.",
+    "Combat is clear and quick; the fun is in the clever use of skills."
+  ],
+  "worldbuilding": [
+    "The world's system: skills, levels, classes, and what the cheat breaks.",
+    "The town, the guild and the kingdom, with one political problem.",
+    "Why the narrator was brought here, and who knows."
+  ],
+  "naming": "Japanese names (family name first when formal: Sato Kaito, Aoi, Rin) for people from Japan; European-fantasy names for locals (Mira, Rhodell, Elise).",
+  "cliches": [
+    "did i do something strange",
+    "the crystal shattered",
+    "slave",
+    "harem"
+  ],
+  "sample": "The orb glowed a faint, apologetic grey.\n\n\"Porter,\" Mira said, and stamped my card before I could argue.\n\nIn my old life I had worked overtime for a company that sold printer ink. I knew what it felt like to be filed under 'useful, barely'.\n\n[Skill acquired: Carry]\n\nGreat. Fantastic. A world of dragons, and I got the one skill a backpack already has.",
+  "example_names": [
+    "Kaito",
+    "Mira",
+    "Rhodell"
+  ]
+}

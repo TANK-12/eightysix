@@ -1,0 +1,96 @@
+/* Backup: big text everywhere (Emerson reads this when something went wrong). */
+body { font-size: 18px; }
+header .brand { font-size: 22px; }
+nav .tab { font-size: 18px; padding: 10px 20px; }
+main .panel { max-width: 1250px; }
+table { font-size: 17px; }
+th, td { padding: 8px 10px; }
+.btn, select, input { font-size: 17px; }
+select { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 7px; padding: 7px 10px; }
+h2 { font-size: 24px; margin: 0 0 12px; }
+h3 { font-size: 20px; margin: 16px 0 8px; }
+
+.pill { border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; font-size: 17px; color: var(--muted); }
+.pill.good { color: var(--good); border-color: var(--good); }
+.pill.warn { color: var(--warn); border-color: var(--warn); }
+.pill.bad { color: var(--bad); border-color: var(--bad); }
+
+/* A friendly problem box: drive missing, needs admin. */
+.notice { text-align: center; padding: 44px 24px; }
+.notice .big { font-size: 56px; }
+.notice h2 { margin-top: 10px; }
+.notice p { font-size: 19px; color: var(--muted); max-width: 720px; margin: 10px auto 18px; }
+
+.picker { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.picker label { display: flex; gap: 8px; align-items: center; font-size: 18px; }
+.seg { display: flex; gap: 6px; }
+.seg .btn.on { background: var(--accent-2); border-color: var(--accent-2); color: var(--on-accent); font-weight: 600; }
+
+.crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 19px; margin-bottom: 12px; }
+.crumbs a { color: var(--accent); cursor: pointer; }
+.crumbs .sep { color: var(--muted); }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.toolbar .spacer { flex: 1; }
+
+.files td.name { cursor: pointer; }
+.files tr:hover td { background: var(--panel-2); }
+.files td.name .ico { display: inline-block; width: 30px; }
+.files td.num { text-align: right; color: var(--muted); white-space: nowrap; }
+.files td.when { color: var(--muted); white-space: nowrap; }
+.files tr.locked td.name { color: var(--muted); cursor: default; }
+.badge { font-size: 17px; border: 1px solid var(--warn); color: var(--warn); border-radius: 6px; padding: 1px 7px; margin-left: 8px; }
+.toast { font-size: 18px; }
+.badge.info { border-color: var(--border); color: var(--muted); }
+
+.repos { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+.repo { cursor: pointer; margin: 0; }
+.repo:hover { border-color: var(--accent); }
+.repo .title { font-size: 22px; font-weight: 700; color: var(--accent); }
+.repo .sub { color: var(--muted); margin-top: 6px; }
+.repo .msg { margin-top: 8px; }
+
+.commits .c { display: flex; gap: 14px; align-items: baseline; padding: 10px 6px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.commits .c:hover { background: var(--panel-2); }
+.commits .c .s { flex: 1; }
+.commits .c .meta { color: var(--muted); white-space: nowrap; }
+.sha { font-family: ui-monospace, monospace; color: var(--accent); }
+
+pre.code, pre.diff, .logbox.big {
+  font-family: ui-monospace, "JetBrains Mono", monospace; font-size: 17px; line-height: 1.45;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; overflow: auto; max-height: 72vh; margin: 0; white-space: pre;
+}
+pre.code.wrap { white-space: pre-wrap; word-break: break-word; }
+.code-wrap { display: flex; }
+.code-wrap .gutter { text-align: right; color: var(--muted); user-select: none; padding-right: 10px; border-right: 1px solid var(--border); margin-right: 0; border-radius: 8px 0 0 8px; }
+.code-wrap pre.code:not(.gutter) { flex: 1; border-radius: 0 8px 8px 0; border-left: none; }
+pre.diff .add { color: var(--good); background: color-mix(in srgb, var(--good) 10%, transparent); display: block; }
+pre.diff .del { color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, transparent); display: block; }
+pre.diff .hunk { color: var(--accent); display: block; }
+pre.diff .file { color: var(--text); font-weight: 700; display: block; margin-top: 10px; }
+.message { white-space: pre-wrap; font-size: 19px; margin: 6px 0 12px; }
+.stat-add { color: var(--good); }
+.stat-del { color: var(--bad); }
+.view-img { max-width: 100%; max-height: 70vh; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); }
+
+.areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 16px; }
+.bar { height: 16px; background: var(--panel-2); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin: 8px 0; }
+.bar > div { height: 100%; background: var(--accent-2); }
+.big-line { font-size: 22px; font-weight: 600; }
+.logbox.big { max-height: 360px; white-space: pre-wrap; }
+.buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+.result-same { color: var(--good); font-size: 20px; font-weight: 600; }
+.result-different, .result-missing { color: var(--warn); font-size: 20px; font-weight: 600; }
+.result-needs_admin { color: var(--muted); font-size: 20px; }
+
+/* Rendered Markdown (README, Help) */
+.md { font-size: 18px; line-height: 1.6; }
+.md h2 { font-size: 28px; margin: 18px 0 10px; }
+.md h3 { font-size: 23px; margin: 18px 0 8px; }
+.md h4 { font-size: 20px; margin: 14px 0 6px; }
+.md code { font-family: ui-monospace, monospace; font-size: 17px; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+.md pre { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow: auto; }
+.md pre code { background: none; padding: 0; }
+.md table { font-size: 17px; margin: 8px 0; }
+.md a { color: var(--accent); }

@@ -1,0 +1,25 @@
+{
+  "id": "deimos",
+  "name": "Deimos",
+  "kind": "moon",
+  "parent": "mars",
+  "order": 42,
+  "radius_km": 6.2,
+  "gm_km3_s2": 9.6e-05,
+  "color": "#9c8e7e",
+  "summary": "The smaller, outer moon of Mars, a lumpy captured-looking body only about 12 km across.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 23457,
+    "e": 0.0,
+    "i_deg": 1.8,
+    "node_deg": 54.3,
+    "peri_deg": 0.0,
+    "M_deg": 205.0,
+    "period_days": 1.2625,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000",
+    "node_period_yr": 56.2
+  }
+}

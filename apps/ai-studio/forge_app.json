@@ -1,0 +1,12 @@
+{
+  "name": "ai-studio",
+  "label": "AI Studio",
+  "tagline": "Image & video generation",
+  "port": 8430,
+  "module": "app:app",
+  "src_dir": "src",
+  "accent": "#7c5cff",
+  "icon": "🎨",
+  "order": 3,
+  "section": "create"
+}

@@ -1,0 +1,87 @@
+{
+  "id": "horror",
+  "label": "Horror",
+  "group": "Western",
+  "description": "Dread that builds: ordinary life turned wrong, restraint about the monster, escalation and a cost that stays.",
+  "keywords": [
+    "horror",
+    "haunted",
+    "ghost",
+    "creepy",
+    "terror",
+    "monster",
+    "curse",
+    "possessed",
+    "occult",
+    "dread",
+    "eldritch"
+  ],
+  "words_per_chapter": 3000,
+  "voice": [
+    "Close first or third person, past tense; dread grows from ordinary, precise details that are slightly wrong.",
+    "Restraint: show less of the threat than the reader wants to see.",
+    "Short sentences at peaks; longer, calm ones before them.",
+    "Characters act reasonably and are still caught.",
+    "Sound, smell and touch do more than sight.",
+    "Chapters end on an image that lingers."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "Something small and wrong in an ordinary place.",
+      "key": true
+    },
+    {
+      "at": 0.12,
+      "role": "move in",
+      "guide": "The protagonist commits to the place or the thing.",
+      "then": "Escalating incidents; each chapter one rule of the horror learned the hard way."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "The nature of the horror becomes clear, and it is worse.",
+      "key": true
+    },
+    {
+      "at": 0.7,
+      "role": "isolation",
+      "guide": "Help fails; the protagonist is alone with it."
+    },
+    {
+      "at": 0.87,
+      "role": "confrontation",
+      "guide": "The confrontation, on the horror's terms.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "aftermath",
+      "guide": "Survival at a cost, and a last wrong detail.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Each chapter escalates one notch and teaches one rule of the threat through an incident.",
+  "outline_example": "The Extra Plate | In the farmhouse on Kell Road, Sam Ortega sets the table for three and finds a fourth plate already laid, still warm | The house has been setting a place for someone every night | Upstairs, a chair scrapes back from a table that isn't there",
+  "scene_guidance": [
+    "Calm before the peak",
+    "One wrong detail at a time",
+    "Do not explain the rules fully"
+  ],
+  "worldbuilding": [
+    "The threat's rules",
+    "The place's history",
+    "Why the protagonist cannot leave"
+  ],
+  "naming": "Ordinary names in ordinary places.",
+  "cliches": [
+    "blood ran cold",
+    "a scream pierced the night",
+    "it was just the wind"
+  ],
+  "sample": "Sam laid three plates, because there were three of them.\n\nThe fourth was already there, at the end of the table where nobody sat. White, with the blue rim, the good set. A fork on the left. A knife on the right, blade turned in, the way their mother had always insisted.\n\nHe touched it. It was warm, as if someone had just finished.",
+  "example_names": [
+    "Ortega"
+  ]
+}

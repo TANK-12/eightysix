@@ -1,0 +1,20 @@
+{
+  "id": "brown_mud_dry",
+  "name": "Brown Mud Dry",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/brown_mud_dry",
+  "license": "CC0",
+  "authors": [
+    "Rob Tuytel"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/brown_mud_dry/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/brown_mud_dry/1k/brown_mud_dry_1k.gltf",
+  "files": [
+    "brown_mud_dry_1k.gltf",
+    "textures/brown_mud_dry_rough_1k.jpg",
+    "textures/brown_mud_dry_diff_1k.jpg",
+    "textures/brown_mud_dry_nor_gl_1k.jpg",
+    "brown_mud_dry.bin"
+  ]
+}

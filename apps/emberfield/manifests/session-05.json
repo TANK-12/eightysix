@@ -1,0 +1,129 @@
+{
+  "_readme": "Session 5's record, written as the work went. Self-contained: it assumes you have read neither the conversation nor the earlier session files. 'verified' means it was run and observed; 'reasoned' means it looks right but was not executed. The handoff entry point is ../MANIFEST.json, and the plan for what comes next is ../manifests/roadmap.json.",
+  "project": "Emberfield",
+  "session": 5,
+  "date": "2026-09-07",
+  "session_theme": "Pay the debt, then people the valley. The frontend was one 2047-line file holding seven systems; it is five files now. On that footing the valley grew a town, a village and two farmsteads, houses you and the residents walk into, and seven people who keep a daily schedule and talk.",
+
+  "user_intent": {
+    "the_ask": "Started as roadmap session 5: 'look at the manifest for emberforge and start the next section of work' -- the split. Expanded mid-session, twice.",
+    "expansion_1": "'also make the world bigger and add npc and there houses and make the towna dn village and my house and the mechanics for them'",
+    "expansion_2": "'continue to amek the manifest json larger and continue to mput new idea in there for more idea for more sessions'",
+    "clarifying_answers": [
+      "Interiors: 'Enter every house' -- real interiors you walk into, the player's bed moves inside the player's house.",
+      "World size: no option picked. Verbatim: 'procedraly generated or somthing with genarlly smart rulers idk for know make it normal but later on make it possible to port it to be open world'. Taken to mean: keep it near normal now, but make generation data-driven so an open-world port is a swap, not a rewrite.",
+      "Settlements: 'Town + village + farmsteads' -- expanded town, a separate village, and 1-2 lone farmsteads each with a house, a small plot and one NPC.",
+      "Sequencing: 'Split first, then build' in the same session, stop-able after the split."
+    ]
+  },
+
+  "done_this_session": [
+    {
+      "what": "Split static/index.html (2047 lines) into world.js, render.js, play.js, ui.js.",
+      "status": "verified",
+      "note": "Classic scripts sharing one global scope, the arrangement audio.js and selftest.js already use -- no import wiring, the move was almost entirely cut-and-paste. index.html keeps the CSS, the DOM, the state object S, the small utilities and the boot sequence (~470 lines). No logic changed in the split itself; the 40-check browser self-test passed unchanged before anything else was touched, which is what separates a refactor from a rewrite."
+    },
+    {
+      "what": "worldgen.py is layout-driven. emberfield/layout.py holds DEFAULT_LAYOUT.",
+      "status": "verified",
+      "note": "A layout is a list of places, each with a kind, a zone (fractions of the world, so it is resolution-independent) and a size. worldgen.place_in_zone scores candidate pads on flatness and dryness and picks the best; _mst_edges wires a minimum spanning tree of roads between the farm, the settlements, the farmsteads and the cave; _drain fills any water or cliff that intrudes on a pad. The renderer and the save format still depend only on the seed, the width, the height and the regions dict -- which is the whole point: a future open-world or chunked generator is a different layout plus a different place_in_zone, nothing downstream."
+    },
+    {
+      "what": "The valley is 128x96 (was 96x72), and holds a farm, a town, a village and two farmsteads.",
+      "status": "verified",
+      "note": "1.78x the area -- 'normal', modest bake (2048x1536 per palette, three cached). The town has a paved square, the stall, a well and five houses; the village a green with a well and four houses; each farmstead a house, a small worked patch and one resident."
+    },
+    {
+      "what": "Houses you walk into. emberfield/interiors.py, the indoor counterpart to wilds.py.",
+      "status": "verified",
+      "note": "A building carries a door tile and a building id. Pressing space on the door swaps in a small walled room -- generated deterministically from the building id plus the valley seed, never stored, exactly like the wilds. Leaving drops you back on the tile south of the door. A save made indoors describes the valley. The player's house has the bed (session 2's bed, moved inside) with use:'sleep' and a marked corner for session 6's storage and workbench; every other house has a decorative bed, a table and a hearth."
+    },
+    {
+      "what": "NPCs as a content type. 'npcs' added to forge_content.TYPES; seven people seeded.",
+      "status": "verified",
+      "note": "An npc file is a sprite, a home building, a schedule of [hour, place] stops, and a set of canned lines. The frontend builds them when the valley loads, walks them between stops on a real BFS path (a greedy walk wedges a villager behind the first tree), and hides them when they are home. Talking uses the same space-to-interact path as everything else; the shopkeeper opens the stall. They exist only in the valley -- the simulation and the renderer stand down in the wilds and indoors, and S.npcs is left intact so they are where you left them on return."
+    },
+    {
+      "what": "New art: two packs, emberfield-buildings and emberfield-villagers.",
+      "status": "verified",
+      "note": "House sprites for the player, town, village and farmstead; a well, a door mat, a hearth, a table; the wood_floor, interior_wall and rug tiles; three recoloured villager sprite sets built from the player's pose. New packs rather than edits to the existing ones, because the seeder skips packs that already exist -- new sprites in emberfield-nature.json would never have been written."
+    },
+    {
+      "what": "25 new Python tests (120 total) and 9 new browser self-tests (49 total). All passing.",
+      "status": "verified",
+      "note": "Python: settlement and farmstead reachability across a seed sweep; every building door walkable and reachable; every interior deterministic and fully walkable with its exit reachable from spawn; only the player interior has a sleepable bed; every NPC names a real home, sprite and schedule stop; every villager sprite set exists. Browser: entering a house keeps your pack and crops; a save made indoors names the valley; stepping out puts you by the door; every NPC can path home-to-stop; talking returns a line; the shopkeeper opens the stall; nobody lives on ground the night would spawn a foe on."
+    }
+  ],
+
+  "not_done_yet": [
+    "Crafting, skills, tool upgrades, and the storage chest in the player's house -- session 6. The player interior leaves a marked corner (regions['storage_spot']) for it. This is where the next session starts.",
+    "NPC relationships, gifts, affection; model-driven NPC dialogue -- session 8.",
+    "The voice layer -- session 7.",
+    "The path tile still reads almost the same brown as tilled soil, so a paved town square looks muddy. Carried from every previous session; now more visible because there is a lot more paving.",
+    "Shoreline and cliff autotiling; music; a dodge roll.",
+    "The open-world / chunked port itself -- session 5 only made generation portable to it."
+  ],
+
+  "assessment": {
+    "what_went_well": "The split paid for itself immediately: NPCs and interiors touch rendering, simulation, interaction and content at once, and landing them in four focused files instead of one 2600-line one was the difference between the session finishing and not. The layout refactor also paid off -- adding the village and the farmsteads was a line each in DEFAULT_LAYOUT plus a kind branch, exactly the shape the project is built for. And interiors reused the wilds' park-and-swap wholesale; enterBuilding is enterWilds with a different fetch.",
+    "what_i_got_wrong": [
+      "Fenced the farm inside _lay_farm, before the path network existed, so the fence left no gate and the farm was sealed. Moved fencing back to after the roads are carved.",
+      "Put the farm's zone in the wettest corner of the map (the shore is designed to land there), so the placement search could not find a dry pad and fell back to one full of water that walled the plot off from its own gate. Fixed by scoring pads softly with a heavy water/cliff penalty rather than hard-rejecting, and by draining any water left under a settlement.",
+      "The frontend's object index buckets a house onto its own doorstep tile (floor-based, inclusive) even though the collision ellipse does not reach it, so the NPC path finder read every route to a door as blocked. Changed tileBlocked to sample the real pixel collision at the tile centre instead of trusting the bucket.",
+      "resolvePlace returned the stall's and the well's own tiles, which are solid, so NPCs could never path 'to the stall'. Added walkableNear to resolve a landmark to the nearest tile you can actually stand on.",
+      "The first pass of the wood_floor and interior_wall tiles were both brown noise -- indistinguishable, so a rendered room had no visible edge. Redrew the floor as warm plank courses and the wall as pale plaster with dark studs; also the ?demo=house helper was handing enterBuilding a regions.buildings registry entry (no .building field) instead of the door object, so it silently no-op'd. Both fixed while closing the 'interior unseen' gap -- the room now renders legibly and has been screenshotted (s6-interior, s6-npc)."
+    ],
+    "risks": [
+      "Seven NPCs each recompute a BFS path when their schedule stop changes -- a few times an in-game day, on a 128x96 grid, so cheap. But nobody has watched them for a full day at normal speed; a schedule that sends someone across the whole valley every few hours would have them permanently in transit.",
+      "The valley got bigger and gained ~10 houses, a well per settlement and seven walking actors, none of it profiled on the actual machine. The bake is one more 12 MB canvas; the per-frame cost is seven extra depth-sorted sprites. Reasoned to be fine, not measured.",
+      "The town square and every settlement's paving still reads as mud -- the path tile is nearly the same brown as tilled soil, and there is a lot more paving now. It is the first item in the roadmap backlog."
+    ]
+  },
+
+  "decision_record": {
+    "_why": "One scoped instruction, two mid-session expansions, and four clarifying answers. The rest were judgement calls, recorded so a later session can disagree.",
+    "taken_without_asking": [
+      {
+        "decision": "Kept classic scripts for the split rather than moving to ES modules.",
+        "why": "audio.js and selftest.js are already classic scripts on a shared global scope. Modules would mean an export/import edit at every one of a few hundred cross-references -- risk with no payoff, when the self-test is the safety net and it only works if the move is mechanical."
+      },
+      {
+        "decision": "Modest size bump to 128x96, not bigger.",
+        "why": "The user said 'make it normal for now'. The value of the session was the layout refactor that makes size a parameter, not the size itself."
+      },
+      {
+        "decision": "NPC houses are not walked by their residents -- an NPC at home is simply hidden, shown at the door otherwise.",
+        "why": "Pathing an NPC through a door into a second map and back is a lot of machinery for something you would rarely see. 'They went inside' is enough, and the interior is still there for the player to enter."
+      },
+      {
+        "decision": "A villager's bed is a decorative sprite with no 'use'; only the player's bed sleeps.",
+        "why": "Sleeping in a stranger's bed to end your day is a bug you would file. The bed sprite still dresses the room."
+      },
+      {
+        "decision": "Landmarks in a schedule ('stall', 'well') resolve to the nearest walkable tile, not the object's own tile.",
+        "why": "You stand next to a stall, not on it. The alternative -- a separate 'approach' field on every landmark -- is data the geometry already implies."
+      }
+    ]
+  },
+
+  "verification_status": {
+    "python_tests": "120 passed (95 from session 4, 25 new). New coverage listed under done_this_session.",
+    "browser_selftest": "49 passed (40 from session 4, 9 new). Run: http://127.0.0.1:8434/?seed=777&selftest=1 then GET /api/selftest.",
+    "black": "clean on every touched file",
+    "pyright": "0 errors (--pythonpath ./.venv/bin/python on emberfield/, web_app.py, tools/)",
+    "screenshots": "s5-day, s5-evening, s5-wilds (the split, matching session 4); s5b-valley, s5b-town (five houses, five villagers at their doors, the stall, a well), s5b-village, s5b-overview (whole town at zoom 2); s6-interior and s6-npc (the player's and a villager's rooms, rendered -- pale plaster walls, plank floor, bed, hearth, rug, the door gap). Headless captures done with a CDP screenshot script (scratchpad/shot.js) driving flatpak Chrome, because --virtual-time-budget will not wait on the async /api/interior fetch. All in ~/.var/app/com.google.Chrome/data/shots.",
+    "not_verified": [
+      "How any of it plays: the walk to town, a day of NPC movement at normal speed, whether the bigger valley feels bigger or just emptier.",
+      "Performance on the actual laptop with the larger bake and seven actors.",
+      "A full Forge GTK launch."
+    ]
+  },
+
+  "conventions_this_session_adds": [
+    "A settlement is one entry in emberfield/layout.py DEFAULT_LAYOUT plus a kind branch in worldgen._lay_place. Zones are fractions of the world, never tile coordinates.",
+    "worldgen.place_in_zone is the seam an open-world port replaces. Nothing else should learn the map's size -- the renderer, the save and the frontend all read only seed, width, height and regions.",
+    "A house interior is generated from its building id plus the valley seed and never stored, exactly like a wilds cavern. interiors.py is its own file; do not fold it into worldgen.",
+    "An NPC is one JSON file in ~/ForgeGameData/npcs. home is a building id; schedule stops are region names, landmark names, building ids or [x, y]; the game paths them there.",
+    "New sprites go in a new art pack, never appended to an existing pack file -- the seeder skips packs that already exist, so an append is silently lost until --force."
+  ]
+}

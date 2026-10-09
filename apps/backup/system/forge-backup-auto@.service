@@ -1,0 +1,9 @@
+[Unit]
+Description=Forge backup (auto %i)
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /home/ejb/Forge/apps/backup/backup.py auto %i
+Nice=19
+IOSchedulingClass=idle

@@ -1,0 +1,86 @@
+{
+  "name": "relay",
+  "label": "Relay",
+  "tagline": "Claude keeps working while you are out",
+  "port": 8463,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7fd1c7",
+  "icon": "📨",
+  "order": 22,
+  "section": "system",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "A zero-token boss process that runs Claude sessions unattended. Mail it or WhatsApp it from your phone (a one-word command or a long request) or add tasks and goals here; it launches headless sessions on whichever account has room, hands over at 95 percent, and mails you the result.",
+    "features": [
+      {
+        "name": "Mail in, mail out",
+        "description": "Write to the Relay Gmail from your own address (Outlook on the phone). Short commands (status, pause, stop 12...) or any request, which becomes a task. Only mail from an allowed sender with dmarc or dkim pass is read. Results come back in the same thread."
+      },
+      {
+        "name": "WhatsApp chat",
+        "description": "The chat \"Indeed\" through Relay's own hidden Whatsie: plain messages go to one standing chat task (Haiku 5.5 low by default, resumed while under 40k context) that answers in a few short lines through an outbox; work goes to one Opus work task (new: ...). At most two WhatsApp tasks open. Sends pictures and files, and deletes its own messages."
+      },
+      {
+        "name": "Local chat and quick commands",
+        "description": "Type local and a small Jan model (2B by default) answers the WhatsApp chat with no usage, knowing Relay, usage, Forge and the laptop's temperatures, CPU and GPU; it stands in by itself when Claude is out of usage, and claude switches back. Quick commands answer instantly without a model: command list, stats, top cpu or top gpu then kill 3, kill task 12, kill all, find report then send 2. Starts Jan's model server if it is down."
+      },
+      {
+        "name": "Boss line",
+        "description": "On WhatsApp, boss <question> (or the word boss to switch every message there) goes straight to Relay's boss: what runs, ETAs, both usage meters, and steering (stop, retry, pause, resume, tell a running task, post on the crew board, queue a task). One lean Claude turn per question (no tools or settings, about 2k tokens) answers within about half a minute, starting with Boss:."
+      },
+      {
+        "name": "Boss",
+        "description": "boss.py, the relay-boss user service: one tick a minute, reads files and meters, launches claude -p sessions (bypassPermissions) and watches them. Spends no tokens while waiting."
+      },
+      {
+        "name": "Account and effort picker",
+        "description": "Emerson's pacing: none at 95 percent (99 weekly), none new from 92, one per 15 minutes from 70, warm-cache account preferred, else most headroom. Important = max effort, rest medium."
+      },
+      {
+        "name": "Hand-over",
+        "description": "When a running session's account passes 95 percent it is stopped and resumed for one short turn to write its State, then the task continues on another account."
+      },
+      {
+        "name": "Long tasks",
+        "description": "No session cap. After 25 sessions without finishing, a short review session reads what the task's sessions did (State moving, commits) and says continue or park; a park reason goes to WhatsApp. The same check every 10 sessions after that; both numbers are on the Settings panel. A session close to finishing may pass the context hand-over (relay finishing)."
+      },
+      {
+        "name": "Goals",
+        "description": "A goal gets short planning sessions that write 1 to 3 task files; it is only done when its check command passes (or, with no check, when the planner finds it met)."
+      },
+      {
+        "name": "Terminal",
+        "description": "relay status, relay \"any request\", relay < file: the same commands as mail."
+      },
+      {
+        "name": "Session commands",
+        "description": "relay reply, send-file, unsend, inbox, chat-model: sessions write to an outbox the boss sends; only the boss touches the WhatsApp page."
+      }
+    ],
+    "data_dir": "~/.local/share/forge/relay (settings, state, events, goals/, tasks/, runs/, secrets/ mode 700)",
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn"
+      ],
+      "optional": []
+    },
+    "standalone_launch": "cd ~/Forge/apps/relay && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8463",
+    "api_base": "/api",
+    "known_gaps": [
+      "The live Gmail test waits on Emerson's spare Gmail and app password; the parser and the sender check are unit-tested only.",
+      "A session that runs one silent command for over 20 minutes is treated as stuck (stall_minutes).",
+      "WhatsApp: 'Delete for everyone' was not offered for Relay's test files (it falls back to 'Delete for me'); the chat's step-up and work-slot paths are unit-tested, not yet seen live."
+    ],
+    "improvements": [
+      "An ntfy or Telegram channel as one new file in channels/.",
+      "Per-goal session budget (tokens per day)."
+    ],
+    "docs": [
+      "MANIFEST.md",
+      "WIP.md",
+      "README.md"
+    ]
+  }
+}

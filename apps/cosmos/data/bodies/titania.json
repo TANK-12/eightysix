@@ -1,0 +1,26 @@
+{
+  "id": "titania",
+  "name": "Titania",
+  "kind": "moon",
+  "parent": "uranus",
+  "order": 74,
+  "radius_km": 788.9,
+  "gm_km3_s2": 226.94,
+  "color": "#b8afa7",
+  "summary": "Uranus's largest moon, cut by enormous fault canyons.",
+  "elements": {
+    "model": "kepler",
+    "epoch_jd": 2451545.0,
+    "a_km": 436298,
+    "e": 0.002,
+    "i_deg": 0.1,
+    "node_deg": 29.5,
+    "peri_deg": 184.0,
+    "M_deg": 68.1,
+    "period_days": 8.705869,
+    "frame": "parent_equator",
+    "source": "JPL planetary satellite mean elements, epoch J2000",
+    "peri_period_yr": 579.928,
+    "node_period_yr": 1644.649
+  }
+}

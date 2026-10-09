@@ -1,0 +1,26 @@
+{
+  "id": "tree_small_02",
+  "name": "Tree Small 02",
+  "kind": "model",
+  "res": "1k",
+  "source": "https://polyhaven.com/a/tree_small_02",
+  "license": "CC0",
+  "authors": [
+    "Rico Cilliers"
+  ],
+  "dir": "/home/ejb/Forge/shared/assets/polyhaven/tree_small_02/1k",
+  "main": "/home/ejb/Forge/shared/assets/polyhaven/tree_small_02/1k/tree_small_02_1k.gltf",
+  "files": [
+    "tree_small_02_1k.gltf",
+    "textures/tree_small_02_branch_nor_gl_1k.jpg",
+    "textures/tree_small_02_branch_diff_1k.jpg",
+    "textures/tree_small_02_branch_arm_1k.jpg",
+    "textures/tree_small_02_leaves_nor_gl_1k.jpg",
+    "textures/tree_small_02_leaves_diff_1k.jpg",
+    "textures/tree_small_02_leaves_arm_1k.jpg",
+    "textures/tree_small_02_nor_gl_1k.jpg",
+    "textures/tree_small_02_diff_1k.jpg",
+    "textures/tree_small_02_arm_1k.jpg",
+    "tree_small_02.bin"
+  ]
+}

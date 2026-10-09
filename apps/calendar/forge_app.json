@@ -1,0 +1,13 @@
+{
+  "name": "calendar",
+  "label": "Calendar",
+  "tagline": "Your life log: what you said, opened and did",
+  "port": 8453,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7cc4a8",
+  "icon": "📅",
+  "order": 13,
+  "section": "research",
+  "ready_timeout": 30
+}

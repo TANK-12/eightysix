@@ -1,0 +1,39 @@
+{
+  "_readme": "Entry point for any new session on Cosmos. Read this, then manifests/roadmap.json, then the newest manifests/session-NN.json, then WIP.md. README.md explains the layout and how to add things.",
+  "project": "Cosmos",
+  "location": "~/Forge/apps/cosmos",
+  "port": 8446,
+  "forge_tile": "🪐 Cosmos (forge_app.json, order 15, fullscreen auto)",
+  "current_session": 2,
+  "status_in_one_line": "Map, gravity sandbox and 3D orbit puzzles (10 levels, endless, and a huge galaxy playground whose discovered stars are saved) are built and tested. Needs one restart inside Forge for galaxy saves. The shooter, visualizer, PulseForge scenes, the 3D flight sim and the Gaia layer are planned in the roadmap.",
+  "modes": {
+    "map": "done in session 1",
+    "sandbox": "done in session 1",
+    "puzzles": "done in session 2",
+    "shooter": "roadmap session 3",
+    "visualizer": "roadmap session 4 (plus PulseForge scenes, session 5)",
+    "flight": "roadmap sessions 6 to 9 (3D Kerbal-style; core/nbody3d.js can be reused)",
+    "gaia": "roadmap session 10 (data on AN3)"
+  },
+  "data_locations": {
+    "bodies": "data/bodies/*.json (in the app)",
+    "scenarios": "~/ForgeGameData/cosmos/scenarios/*.json",
+    "puzzle_levels": "~/ForgeGameData/cosmos/levels/*.json",
+    "puzzle_progress": "~/ForgeGameData/cosmos/puzzle-progress.json (created on first play)",
+    "puzzle_sounds": "~/ForgeGameData/sounds/cosmos-*.json",
+    "star_catalog": "/run/media/ejb/AN3/Cosmos/stars/ (source CSV, stars-v1.bin, star-names.json)",
+    "star_catalog_fallback": "~/.cache/forge/cosmos/"
+  },
+  "how_to_check": {
+    "python": ".venv/bin/python -m pytest -q tests",
+    "javascript": "node --test tests/js/   (COSMOS_LEVELGEN_SEEDS=N changes the generator sweep; COSMOS_LEVEL_DIR points the level tests elsewhere)",
+    "types": "pyright --pythonpath ./.venv/bin/python web_app.py tools/build_star_catalog.py tests/*.py",
+    "a_level": "node tools/solve_level.mjs ~/ForgeGameData/cosmos/levels/FILE.json [--write]",
+    "browser": "Scratch server on a free port, then flatpak run --command=/app/extra/google-chrome com.google.Chrome --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader --no-sandbox --virtual-time-budget=7000 --window-size=1400,900 --screenshot=OUT 'http://127.0.0.1:PORT/?pz=LEVEL#puzzles'. --disable-gpu gives a black 3D canvas. Adding &pzfire=1 saves a real result to puzzle-progress.json.",
+    "power": "RAPL needs root: sudo -S sh -c 'cat /sys/class/powercap/intel-rapl:0/energy_uj' before and after a run. Check /sys/class/powercap/intel-rapl:0:1 (graphics) first: over about 1.5 W means Jan is busy and the numbers are not comparable."
+  },
+  "sessions": [
+    "manifests/session-01.json",
+    "manifests/session-02.json"
+  ]
+}

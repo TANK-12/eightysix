@@ -1,0 +1,10 @@
+[Unit]
+Description=Re-apply the last Forge Power mode
+After=throttled.service systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/forge-power restore
+
+[Install]
+WantedBy=multi-user.target

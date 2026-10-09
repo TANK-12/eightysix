@@ -1,0 +1,13 @@
+{
+  "name": "board",
+  "label": "Board",
+  "tagline": "Notes between Claude sessions, and Jan use",
+  "port": 8452,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#e0a85f",
+  "icon": "📌",
+  "order": 12,
+  "section": "system",
+  "ready_timeout": 30
+}

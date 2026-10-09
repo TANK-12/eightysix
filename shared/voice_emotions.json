@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "about": "Emotion and sound tags Forge text can carry when it is spoken, and how each expressive voice renders them. Write a tag in square brackets anywhere in the text: '[angry] I told you to fall back. [sigh]'. Several in one bracket are fine: '[sad, whisper]'. Tags marked \"round\" (sounds and pauses) also work in round brackets: '(laughs)'; moods do not, so '(normal)' in a sentence is still read. Full-width brackets count: '［怒り］', '（笑）'. Bracket text that is not a known tag or alias is left alone. A voice model row opts in with \"expressive\": \"<style>\" (shared/voice_registry.json); every other model gets the tags taken out by the 'plain' style, so a plain voice never reads 'angry' aloud. The first emotion or delivery tag of a request is its mood: a cloned voice picks that clip from its profile (models/voice/profiles/<id>/), if it has one. Adding a tag or a style is an edit here only. Code: apps/voice/expressive.py.",
+  "tags": {
+    "calm": {"kind": "emotion", "aliases": ["neutral", "normal", "plain", "serious", "flat", "普通", "淡々と"]},
+    "happy": {"kind": "emotion", "aliases": ["happily", "joyful", "joyfully", "cheerful", "cheerfully", "glad", "excited", "excitedly", "delighted", "嬉しそうに", "楽しそうに"]},
+    "angry": {"kind": "emotion", "aliases": ["angrily", "mad", "furious", "furiously", "annoyed", "frustrated", "irritated", "怒り", "怒って"]},
+    "sad": {"kind": "emotion", "aliases": ["sadly", "crying", "tearful", "tearfully", "sorrowful", "upset", "sobbing", "悲しげに", "泣き", "泣きながら"]},
+    "fearful": {"kind": "emotion", "aliases": ["scared", "afraid", "frightened", "nervous", "nervously", "panicked", "panicking", "terrified", "怯えて", "怖がって"]},
+    "surprised": {"kind": "emotion", "aliases": ["surprise", "shocked", "amazed", "astonished", "驚き", "驚いて"]},
+    "disgusted": {"kind": "emotion", "aliases": ["disgust", "revolted", "contempt"]},
+    "worried": {"kind": "emotion", "aliases": ["anxious", "anxiously", "concerned", "worriedly", "心配そうに", "不安げに"]},
+    "whisper": {"kind": "delivery", "aliases": ["whispers", "whispering", "whispered", "quietly", "ささやき", "囁き", "小声で"]},
+    "gentle": {"kind": "delivery", "aliases": ["gently", "tender", "tenderly", "warmly", "softly", "優しく"]},
+    "shout": {"kind": "delivery", "aliases": ["shouts", "shouting", "yell", "yells", "yelling", "scream", "screams", "screaming", "叫び", "叫んで"]},
+    "teasing": {"kind": "delivery", "aliases": ["teases", "playful", "playfully", "smug", "smugly", "からかって"]},
+    "tired": {"kind": "delivery", "aliases": ["sleepy", "sleepily", "exhausted", "weary", "wearily", "疲れて"]},
+    "laugh": {"kind": "sound", "round": true, "aliases": ["laughs", "laughing", "laughter", "chuckle", "chuckles", "giggle", "giggles", "笑", "笑い", "笑う"]},
+    "sigh": {"kind": "sound", "round": true, "aliases": ["sighs", "sighing", "ため息"]},
+    "gasp": {"kind": "sound", "round": true, "aliases": ["gasps", "gasping", "息をのむ"]},
+    "cough": {"kind": "sound", "round": true, "aliases": ["coughs", "coughing", "clears throat", "咳", "咳払い"]},
+    "pause": {"kind": "pause", "round": true, "aliases": ["beat", "long pause", "間"]}
+  },
+  "styles": {
+    "plain": {
+      "about": "Every voice without an expressive style: tags come out, a pause becomes an ellipsis.",
+      "map": {"pause": "..."}
+    },
+    "irodori": {
+      "about": "Irodori-TTS (Japanese): emoji in the text, placed where the tag was (the model card's table). A tag eats the space after it.",
+      "tight": true,
+      "map": {
+        "happy": "😆", "angry": "😠", "sad": "😭", "fearful": "😰", "surprised": "😲",
+        "disgusted": "🙄", "worried": "😟", "whisper": "👂", "gentle": "🫶", "shout": "😱",
+        "teasing": "😏", "tired": "😪", "laugh": "🤭", "sigh": "😮‍💨", "gasp": "😮",
+        "cough": "🤧", "pause": "⏸️"
+      }
+    },
+    "omnivoice": {
+      "about": "OmniVoice: its own bracket tags for sounds, in place; the mood picks the profile clip.",
+      "map": {"laugh": "[laughter]", "sigh": "[sigh]", "gasp": "[surprise-oh]", "surprised": "[surprise-ah]", "pause": "..."}
+    },
+    "auk": {
+      "about": "AuK clones the words only; the mood picks the profile clip. edits are AuK's own instructions, used by apps/voice/profiles.py to make a profile's emotion clips from its calm clip (once, not per line).",
+      "map": {"pause": "..."},
+      "edits": {
+        "happy": "Change the emotion to happy.",
+        "angry": "Change the emotion to angry.",
+        "sad": "Change the emotion to sad.",
+        "fearful": "Change the emotion to fearful.",
+        "surprised": "Change the emotion to surprised.",
+        "disgusted": "Change the emotion to disgusted.",
+        "calm": "Change the emotion to calm.",
+        "whisper": "Convert this speech into a soft whisper while preserving the speaker and content."
+      }
+    },
+    "breeze": {
+      "about": "Breeze TTS 2: the mood becomes the spoken-direction instruction; laughs and sighs are its own vocal tags, which need a stronger cfg_scale.",
+      "map": {"laugh": "(laugh)", "sigh": "(sigh)", "pause": "..."},
+      "sound_cfg_scale": 2.5,
+      "instructions": {
+        "calm": "Speak calmly and evenly.",
+        "happy": "Speak happily, with a smile in the voice.",
+        "angry": "Speak angrily, frustrated and raising the voice.",
+        "sad": "Speak sadly and quietly, close to tears.",
+        "fearful": "Speak fearfully, voice shaking.",
+        "surprised": "Speak with surprise.",
+        "disgusted": "Speak with disgust.",
+        "worried": "Speak worriedly.",
+        "whisper": "Whisper softly, as if someone might overhear.",
+        "gentle": "Speak gently and warmly.",
+        "shout": "Shout loudly.",
+        "teasing": "Speak teasingly, playful and smug.",
+        "tired": "Speak tiredly, low energy."
+      }
+    }
+  }
+}

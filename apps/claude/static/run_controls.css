@@ -1,0 +1,42 @@
+/* The Normal / Ultracode switch and the limits fold (run_controls.js). */
+.run-ctl { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); position: relative; }
+.run-ctl[hidden], .run-seg[hidden], .run-fold[hidden] { display: none; }
+.run-seg { display: inline-flex; padding: 2px; border-radius: 99px; border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--panel) 60%, transparent); }
+.run-seg button { border: 0; background: none; color: var(--muted); font: inherit; font-size: 12px; padding: 3px 10px;
+  border-radius: 99px; cursor: pointer; transition: background .15s ease, color .15s ease; }
+.run-seg button:hover:not(:disabled) { color: var(--text); }
+.run-seg button[aria-pressed="true"] { background: var(--panel-2, var(--panel)); color: var(--text); }
+.run-ctl.ultra .run-seg button[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 22%, var(--panel)); color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+.run-seg button:disabled { opacity: .45; cursor: not-allowed; }
+.run-seg.saving { opacity: .7; }
+.run-note { font-size: 11.5px; white-space: nowrap; }
+.run-note.warn { color: var(--warn, #e0a040); }
+.run-fold { position: relative; }
+.run-fold > summary { list-style: none; cursor: pointer; padding: 3px 10px; border-radius: 99px; border: 1px solid var(--border);
+  user-select: none; white-space: nowrap; }
+.run-fold > summary::-webkit-details-marker { display: none; }
+.run-fold > summary::after { content: " ▾"; opacity: .7; }
+.run-fold[open] > summary::after { content: " ▴"; }
+.run-fold > summary:hover, .run-fold[open] > summary { color: var(--text); border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); }
+.run-fold.set > summary { color: var(--text); }
+.run-panel { position: absolute; z-index: 2147483647; top: calc(100% + 6px); left: 0; width: min(340px, 86vw); padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--panel); box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  display: grid; gap: 10px; }
+.run-head { margin: 0; font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+.run-row { display: grid; grid-template-columns: 1fr 64px 22px; align-items: center; gap: 4px 8px; }
+.run-label { grid-column: 1 / -1; color: var(--text); font-size: 12.5px; margin: 0; }
+.run-row input[type="range"] { width: 100%; accent-color: var(--accent); }
+.run-row:not(.set) input[type="range"] { opacity: .45; }
+.run-num { width: 64px; padding: 3px 6px; font: inherit; font-size: 12px; }
+.run-row select { grid-column: 1 / -1; font: inherit; font-size: 12px; padding: 4px 6px; }
+.run-clear { border: 0; background: none; color: var(--muted); cursor: pointer; border-radius: 5px; padding: 0; height: 22px; }
+.run-clear:hover { color: var(--text); background: var(--panel-2, transparent); }
+.run-row:not(.set) .run-clear { visibility: hidden; }
+.run-help { grid-column: 1 / -1; margin: 0; font-size: 11px; color: var(--muted); }
+/* an unset limit shows no thumb at a made-up value; it appears on hover */
+.run-row:not(.set) input[type="range"]::-webkit-slider-thumb { opacity: 0; transition: opacity .15s ease; }
+.run-row:not(.set) input[type="range"]::-moz-range-thumb { opacity: 0; transition: opacity .15s ease; }
+.run-row:not(.set):hover input[type="range"]::-webkit-slider-thumb { opacity: .7; }
+.run-row:not(.set):hover input[type="range"]::-moz-range-thumb { opacity: .7; }

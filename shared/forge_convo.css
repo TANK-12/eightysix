@@ -1,0 +1,74 @@
+/* A conversation drawn by /shared/forge_convo.js: user bubbles, Claude's
+   replies, tool cards, thinking cards, compaction dividers and system lines.
+   Scoped to .fc so a page's own classes (.chip, .sys, .bubble...) are not
+   touched. The Claude app still styles its own pages from its app.css;
+   Mission Control and any later page put class="fc" on the log instead.
+   Colours come from the shared forge.css tokens. */
+.fc .view { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.fc .msg { min-width: 0; }
+.fc .msg { display: flex; flex-direction: column; gap: 6px; }
+.fc .msg.user { align-items: flex-end; }
+.fc .bubble { padding: 10px 14px; border-radius: 12px; line-height: 1.55; font-size: 14px; overflow-wrap: anywhere; }
+.fc .msg.user .bubble { background: var(--panel-2); border: 1px solid var(--border); max-width: 82%; white-space: pre-wrap; }
+.fc .msg.claude .bubble { padding: 2px 2px; }
+.fc .bubble p { margin: 0 0 10px; }
+.fc .bubble p:last-child { margin-bottom: 0; }
+.fc .bubble pre { background: #0b0d11; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; overflow-x: auto;
+  font: 12.5px/1.5 ui-monospace, monospace; white-space: pre; }
+.fc .bubble code { font: 12.5px ui-monospace, monospace; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+.fc .bubble pre code { background: none; padding: 0; }
+.fc .bubble a { color: var(--accent); cursor: pointer; }
+.fc .bubble ul, .fc .bubble ol { margin: 0 0 10px; padding-left: 22px; }
+.fc .bubble h1, .fc .bubble h2, .fc .bubble h3 { font-size: 15px; margin: 12px 0 6px; }
+.fc .bubble .table-wrap { overflow-x: auto; margin: 0 0 10px; border: 1px solid var(--border); border-radius: 8px; }
+.fc .bubble table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 13px; }
+.fc .bubble th, .fc .bubble td { padding: 5px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.fc .bubble th { background: var(--panel-2); font-weight: 600; color: var(--text); }
+.fc .bubble tbody tr:last-child td { border-bottom: 0; }
+.fc .files { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.fc .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px;
+  background: var(--panel-2); border: 1px solid var(--border); }
+.fc .chip.image { padding-left: 3px; }
+.fc .chip.image img { width: 28px; height: 28px; object-fit: cover; border-radius: 999px; display: block; }
+.fc .shot { position: relative; margin: 8px 0 0; max-width: min(100%, 520px); align-self: flex-end; }
+.fc .shot img { display: block; max-width: 100%; max-height: 360px; border-radius: 10px; border: 1px solid var(--border); }
+.fc .msg.user .joined { font-size: 11px; color: var(--muted); }
+.fc .msg.user .joined.via { color: var(--accent); }
+.fc .at { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fc .msg.user .at { align-self: flex-end; }
+
+.fc .toolcard, .fc .thinking { border: 1px solid var(--border); border-radius: 10px; background: var(--panel); font-size: 13px; }
+.fc .toolcard summary, .fc .thinking summary { cursor: pointer; padding: 8px 12px; display: flex; gap: 8px; align-items: center; list-style: none; }
+.fc .toolcard summary::-webkit-details-marker, .fc .thinking summary::-webkit-details-marker { display: none; }
+.fc .toolcard .name, .fc .thinking .name { font-weight: 600; flex: none; }
+.fc .toolcard .brief, .fc .thinking .brief { color: var(--muted); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fc .toolcard .state { font-size: 11px; color: var(--muted); flex: none; display: inline; padding: 0; background: none; border-radius: 0; font-weight: 400; }
+.fc .toolcard .state::before { display: inline; width: auto; height: auto; border-radius: 0; background: none; }
+.fc .toolcard.pending .state::before { content: "running…"; color: var(--accent); }
+.fc .toolcard.done .state::before { content: "done"; color: var(--good); }
+.fc .toolcard.error .state::before { content: "failed"; color: var(--bad); }
+.fc .toolcard pre { margin: 0; padding: 8px 12px; border-top: 1px solid var(--border); max-height: 280px; overflow: auto;
+  font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); }
+.fc .toolcard .pic-tag { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; flex: none; color: #1b1030; background: #f0a8e0; }
+.fc .toolcard .shot { align-self: flex-start; margin: 8px 12px; }
+.fc .toolcard.browser { border-color: color-mix(in srgb, #7cc4f0 45%, var(--border)); }
+
+/* Reasoning: a quieter card in the reply's own column. */
+.fc .thinking { background: transparent; border-style: dashed; }
+.fc .thinking .name { color: #c9a2ff; font-weight: 600; }
+.fc .thinking.hidden-text summary { cursor: default; }
+.fc .think-body { padding: 4px 12px 10px; border-top: 1px dashed var(--border); color: var(--muted); font-size: 13px; line-height: 1.55; }
+.fc .think-body p { margin: 6px 0; }
+.fc.hide-thinking .thinking { display: none; }
+
+.fc .turn-end { font-size: 11px; color: var(--muted); text-align: right; }
+.fc .sys { font-size: 12px; color: var(--muted); text-align: center; }
+.fc .sys.bad { color: var(--bad); white-space: pre-wrap; }
+.fc .sys.board { color: var(--accent); }
+.fc .divider { display: flex; align-items: center; gap: 12px; font-size: 11.5px; color: var(--muted); }
+.fc .divider::before, .fc .divider::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+.fc .crash-card { border: 1px solid color-mix(in srgb, var(--bad) 55%, var(--border)); border-radius: 10px; font-size: 13px;
+  background: color-mix(in srgb, var(--bad) 8%, var(--panel)); overflow: hidden; }
+.fc .crash-head { padding: 9px 12px; }
+.fc .crash-card pre { margin: 0; padding: 8px 12px; border-top: 1px solid var(--border); max-height: 220px; overflow: auto;
+  font: 12px/1.45 ui-monospace, monospace; white-space: pre-wrap; color: var(--muted); }

@@ -1,0 +1,14 @@
+{
+  "name": "files",
+  "label": "Files",
+  "tagline": "Browse, copy, move and preview your files",
+  "port": 8458,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7fb8d8",
+  "icon": "\ud83d\uddc2\ufe0f",
+  "order": 96,
+  "section": "system",
+  "ready_timeout": 30,
+  "role": "files"
+}

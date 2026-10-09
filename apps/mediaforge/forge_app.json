@@ -1,0 +1,102 @@
+{
+  "name": "mediaforge",
+  "label": "MediaForge",
+  "tagline": "Subtitles, video, library",
+  "port": 8422,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#22b8cf",
+  "icon": "🎞️",
+  "order": 2,
+  "section": "watch",
+  "manifest": {
+    "summary": "Rolls up every ad-hoc media script (subtitle hardbaking, video enhancement, library sorting, dedupe, manga scraping, image work, a Japanese tutor) into one local app with a shared console, progress bar and Kill button. Nothing phones home except metadata / translation lookups you switch on yourself.",
+    "features": [
+      {
+        "name": "Subtitle Studio",
+        "description": "Batch video to MP4 with a burned-in sub track: embedded track, external .srt/.ass, translate-then-burn (Jan / Google / DeepL), or Whisper transcribe-then-burn for raws. Track Inspector via ffprobe. CPU or Intel-GPU (VAAPI/QSV) encoder, CPU by default."
+      },
+      {
+        "name": "Video Enhancer",
+        "description": "Upscale resolution, motion-interpolate to 60/120 fps to de-stutter, tune I-frame / scene-change compression."
+      },
+      {
+        "name": "Library Organiser",
+        "description": "Point at a messy folder: anitopy parses names, AniList/Jikan/TMDB give canonical title + year, preview a shallow one-folder-per-series tree, Apply (move/copy/hardlink). Every run writes a manifest for later Revert. Hash-check skips already-sorted files and exact dupes. Name clash can route the source into <library>/_DUPLICATES/. Never deletes."
+      },
+      {
+        "name": "Anime Library",
+        "description": "Read-only health view of the centralised library: every series with year, season/episode counts and size; missing-episode gaps; episodes still holding both an .mkv and an .mp4; a name check."
+      },
+      {
+        "name": "Duplicate Slayer",
+        "description": "PDF or image folder: perceptual-hash pages, auto-keep-first or manual thumbnail review, rebuild an optimised PDF/CBZ. For scraped manga."
+      },
+      {
+        "name": "Storage Tools",
+        "description": "SQLite file index that survives restarts; instant name/size/ext search, largest-first, duplicate-file finder with one-click extra-copy delete, dead-entry cleanup."
+      },
+      {
+        "name": "Manga Downloader",
+        "description": "Selenium scrape (comix.to / manhuaus / generic), pattern-mode pagination, parallel chapters, PDF/CBZ. Incremental-scroll fetch with height-growth checks and retries to avoid the missing-pages bug."
+      },
+      {
+        "name": "AI Image Studio",
+        "description": "fal.ai text-to-image / img2img with your key, plus a fully-local Lanczos/bicubic upscaler + unsharp needing only Pillow."
+      },
+      {
+        "name": "Japanese Tutor",
+        "description": "Chat backed by your running Jan model, click-to-type kana keyboard, formal/casual register and persona."
+      },
+      {
+        "name": "Settings",
+        "description": "Encoder choice, API keys, paths, optional-dependency status."
+      }
+    ],
+    "data_dir": "~/MediaForgeData/ (settings.json, file_index.db, anime_title_cache.json, manifests/ - organise/sort manifests are never auto-deleted, they back Revert)",
+    "services": [
+      "Jan / llama.cpp @ http://localhost:1337 (translate + Japanese tutor)",
+      "AniList / Jikan / TMDB (Library Organiser canonical titles)",
+      "fal.ai (AI Image Studio, user API key)",
+      "Google / DeepL via deep-translator (optional translate backends)"
+    ],
+    "dependencies": {
+      "required": [
+        "customtkinter",
+        "darkdetect",
+        "pillow",
+        "pypdf",
+        "requests",
+        "imagehash",
+        "anitopy",
+        "pymupdf",
+        "fastapi",
+        "uvicorn",
+        "ffmpeg + ffprobe (system; ffmpeg 9 with h264_qsv/h264_vaapi here so the Intel-GPU toggle works)"
+      ],
+      "optional": [
+        "deep-translator - Google/DeepL subtitle translation",
+        "faster-whisper - transcribe raws to subtitles",
+        "selenium + a Chromium browser - Manga Downloader"
+      ]
+    },
+    "standalone_launch": ".venv/bin/python -m uvicorn web_app:app --port 8422   (run.py launches the legacy customtkinter desktop app)",
+    "api_base": "/api/  (38 routes in web_app.py: jobs+SSE, thumbnail, settings, encoders, storage, anime-library, subtitles, enhance, dedupe, organizer, jptutor, imagestudio, manga)",
+    "cli_tools": [
+      "tools/anime_sorter.py - consolidate a scattered collection into one shallow canonical library, manifest-backed revert, duplicates parked in _DUPLICATES/",
+      "tools/anime_library.py - print the health report"
+    ],
+    "known_gaps": [
+      "Duplicate Slayer review thumbnails aren't retained, so they can be GC'd blank; _compile can IndexError if every image in a group fails to load. Manga-only path.",
+      "Anime Library docstring mentions a 'Fix names' button that isn't wired (only 'Name check' exists).",
+      "Library Organiser _edit_row maps a text click to a row via (line-1)//2, correct only while every row is exactly 2 lines.",
+      "The user's external-drive anime sort is paused: the NTFS drive 14DE4324DE42FD8C could not be mounted unattended. A prior run already sorted 2211 files; finish via finish_anime_sort.sh once mounted."
+    ],
+    "docs": [
+      "README.md",
+      "WIP.md",
+      "MANIFEST.md",
+      "tools/README.md"
+    ]
+  }
+}

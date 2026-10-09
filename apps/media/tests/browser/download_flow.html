@@ -1,0 +1,30 @@
+<!doctype html>
+<!-- Media's Download tab clicked through in a real browser: Find a link, then
+     Download it. Served from /shared/ by run_download_flow.sh so it is
+     same-origin with the page in the frame. ?u=<link> (default: the fake
+     yt-dlp's video) and ?dir=<folder to save into>. Prints PASS/FAIL lines. -->
+<html><body><pre id="out"></pre><iframe id="f" src="/#download" width="1000" height="700"></iframe><script>
+const out = document.getElementById("out");
+const say = (ok, m) => { out.textContent += (ok ? "PASS" : "FAIL") + " :: " + m + "\n"; };
+const wait = (fn, ms) => new Promise((r) => { const t0 = Date.now(); const i = setInterval(() => { const v = fn(); if (v || Date.now() - t0 > ms) { clearInterval(i); r(v); } }, 100); });
+const q = new URLSearchParams(location.search);
+document.getElementById("f").onload = async () => {
+  const w = document.getElementById("f").contentWindow, d = w.document;
+  const errs = [];
+  w.addEventListener("error", (e) => errs.push(e.message));
+  w.addEventListener("unhandledrejection", (e) => errs.push(String(e.reason)));
+  say(!!(await wait(() => d.getElementById("dl-find"), 3000)), "Download tab loaded");
+  d.getElementById("dl-text").value = q.get("u") || "https://www.youtube.com/watch?v=abc123";
+  d.getElementById("dl-find").click();
+  const rows = await wait(() => d.querySelectorAll("#dl-list .item").length, 40000);
+  say(rows === 1, "Find listed " + rows + " row(s): " + d.getElementById("dl-found").textContent);
+  say(!d.getElementById("dl-find").disabled, "Find button re-enabled");
+  d.getElementById("dl-folder").value = q.get("dir");
+  d.getElementById("dl-go").click();
+  const fin = await wait(() => /finished: 1 saved/.test(d.getElementById("dl-log").textContent), 40000);
+  say(fin, "Download log: " + d.getElementById("dl-log").textContent.trim().split("\n").pop());
+  say(d.getElementById("dl-progress").value === 1, "progress bar at " + d.getElementById("dl-progress").value);
+  say(/Download finished/.test(d.getElementById("toast").textContent), "toast: " + d.getElementById("toast").textContent);
+  say(errs.length === 0, "page errors: " + JSON.stringify(errs));
+};
+</script></body></html>

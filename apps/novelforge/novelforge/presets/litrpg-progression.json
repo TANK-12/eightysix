@@ -1,0 +1,93 @@
+{
+  "id": "litrpg-progression",
+  "label": "LitRPG / progression",
+  "group": "Western",
+  "description": "Game-system or progression fantasy: numbers, builds, dungeons and clever problem-solving, with steady visible growth.",
+  "keywords": [
+    "litrpg",
+    "progression",
+    "gamelit",
+    "level",
+    "stats",
+    "skills",
+    "dungeon",
+    "system",
+    "class",
+    "build",
+    "grind"
+  ],
+  "words_per_chapter": 3500,
+  "voice": [
+    "First or close third person, past tense; the protagonist thinks like a gamer or an engineer: tests, theories, optimisation.",
+    "System messages and stat blocks are consistent in format and appear only when something changes.",
+    "Growth is steady and earned; every gain is used soon after.",
+    "Problems are solved with clever build choices and teamwork, not just bigger numbers.",
+    "Humour from the system's quirks and the hero's theorycrafting.",
+    "End chapters on a new unlock, a threat that outlevels them, or a question about the system."
+  ],
+  "structure": [
+    {
+      "at": 0.0,
+      "role": "hook",
+      "guide": "Entry into the system or the dungeon, with an immediate lethal problem.",
+      "then": "Learn the rules through experiments; each chapter one new mechanic.",
+      "key": true
+    },
+    {
+      "at": 0.1,
+      "role": "class choice",
+      "guide": "The class or build choice that defines the book, with a trade-off."
+    },
+    {
+      "at": 0.3,
+      "role": "first dungeon",
+      "guide": "The first dungeon boss that requires a clever plan.",
+      "then": "Level, loot, allies; a rival party."
+    },
+    {
+      "at": 0.5,
+      "role": "midpoint",
+      "guide": "The system reveals a hidden layer, a quest chain or a flaw that changes the goal.",
+      "key": true
+    },
+    {
+      "at": 0.68,
+      "role": "setback",
+      "guide": "Death penalty, lost gear or a betrayed party."
+    },
+    {
+      "at": 0.85,
+      "role": "raid",
+      "guide": "The big fight where the unusual build pays off.",
+      "key": true
+    },
+    {
+      "at": 1.0,
+      "role": "next tier",
+      "guide": "A new tier, zone or rank that resets the scale.",
+      "key": true
+    }
+  ],
+  "outline_guidance": "Every chapter has a problem the protagonist solves with a specific mechanic or build choice; name the mechanic in the line.",
+  "outline_example": "Aggro Math | In the flooded third floor of the Glass Warren, Theo Park kites the eel queen by stacking his useless Splash skill on the party's tank | He discovers that status effects stack without a cap | The queen's second phase eats the tank's shield",
+  "scene_guidance": [
+    "Show the plan, then show it going wrong.",
+    "Keep stat blocks short.",
+    "Party banter while grinding."
+  ],
+  "worldbuilding": [
+    "The system's rules and its exploits",
+    "The zones and their level ranges",
+    "Who else is in the system and why"
+  ],
+  "naming": "Whatever fits the setting; skills and items get short, punchy names.",
+  "cliches": [
+    "stat dump",
+    "your level is too low"
+  ],
+  "sample": "[Splash (Lv 1): 2 water damage. Applies Wet.]\n\nIt was the worst skill in the game. Theo had checked the forums.\n\nHe cast it anyway, once, twice, four times, onto the tank's back while Rhee shouted things about his mother.\n\n[Wet x4]\n\nThe eel queen's lightning hit Rhee, rolled off the water on his armour, and went looking for the nearest wet thing that was not Rhee.\n\nIt found the eel queen.",
+  "example_names": [
+    "Theo",
+    "Rhee"
+  ]
+}

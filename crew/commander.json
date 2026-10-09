@@ -1,0 +1,23 @@
+{
+ "agent": "commander",
+ "model": "opus",
+ "task": "Player foundation + Forge-wide close button",
+ "status": "done",
+ "doing": "finished; handoff written",
+ "done": [
+  "player: walking, collision, lift, sitting, sleeping, talking",
+  "close button on every Forge app; backends really stop",
+  "voices off by default so opening an app never starts Jan",
+  "props solid; crew stopped walking through furniture",
+  "day length up to 4 real days a station day",
+  "atmosphere.js wired into the renderer",
+  "89 janhollow tests, all suites green"
+ ],
+ "files": [
+  "apps/janhollow/*",
+  "shared/forge_chrome.js",
+  "hub/index.html",
+  "forge.py"
+ ],
+ "updated": 1789557366.7522087
+}

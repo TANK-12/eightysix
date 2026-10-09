@@ -1,0 +1,79 @@
+{
+  "name": "power",
+  "label": "Power",
+  "tagline": "Power modes and what starts at login",
+  "port": 8440,
+  "module": "web_app:app",
+  "src_dir": ".",
+  "accent": "#7fd08a",
+  "icon": "⚡",
+  "order": 12,
+  "section": "system",
+  "ready_timeout": 30,
+  "manifest": {
+    "summary": "One slider that switches the laptop between Cool, Auto and Performance by changing CPU, firmware, kernel and screen settings, with automatic switching on the charger, a hotkey, a 10-minute graph and on/off switches for login autostart entries.",
+    "features": [
+      {
+        "name": "Mode slider",
+        "description": "Applies a mode file from modes/ through the root helper with no password prompt, then sets the laptop panel refresh rate."
+      },
+      {
+        "name": "Switch automatically",
+        "description": "Picks a mode for battery and one for the charger; forge-power-watch.service applies it within 5 seconds of plugging in or unplugging, with Forge closed."
+      },
+      {
+        "name": "Hotkey",
+        "description": "Super + Alt + P runs cycle.py to step through the modes with a notification."
+      },
+      {
+        "name": "Live readings and graph",
+        "description": "Governor, turbo, frequency cap, energy preference, firmware profile, power limits, temperature, fan, battery draw, measured CPU watts, and a 10-minute chart of temperature, battery draw and CPU speed."
+      },
+      {
+        "name": "Autostart switches",
+        "description": "Turns ~/.config/autostart entries on or off with Hidden=true; takes effect at next login."
+      },
+      {
+        "name": "Top processes",
+        "description": "Read-only list of what is using CPU and memory right now, with buttons to mark a process background or protected."
+      },
+      {
+        "name": "Background tasks",
+        "description": "An editable list of process-name patterns to renice lower (background) or never touch (protected), applied continuously by forge-power-priority.service. Needs no root: lowering your own process's niceness doesn't require privilege."
+      }
+    ],
+    "data_dir": "/var/lib/forge-power (last applied mode, written by the helper); ~/.config/forge-power/auto.json (auto-switch choice); ~/.config/forge-power/priority.json (background-task list and nice level)",
+    "services": [
+      "forge-power-restore.service (system; re-applies the last mode at boot)",
+      "forge-power-watch.service (user; auto-switch watcher)",
+      "forge-power-priority.service (user; background-task priority watcher)",
+      "throttled.service (kept; its power limits are never changed by shipped modes)",
+      "earlyoom.service and zram swap (installed by helper/install.sh)"
+    ],
+    "dependencies": {
+      "required": [
+        "fastapi",
+        "uvicorn",
+        "sudo",
+        "throttled",
+        "hyprctl"
+      ],
+      "optional": [
+        "iw",
+        "notify-send",
+        "paccache"
+      ]
+    },
+    "standalone_launch": "cd ~/Forge/apps/power && FORGE_SHARED_DIR=~/Forge/shared .venv/bin/python -m uvicorn web_app:app --host 127.0.0.1 --port 8440",
+    "api_base": "/api",
+    "known_gaps": [
+      "helper/install.sh must be run by the user with sudo; until then modes cannot be applied.",
+      "Autostart switch effect and boot restore are only observable after a logout or reboot.",
+      "CPU package watts need the root helper; the graph shows laptop draw on battery instead."
+    ],
+    "docs": [
+      "README.md",
+      "WIP.md"
+    ]
+  }
+}
