@@ -1,0 +1,54 @@
+Clean copy of /home/ejb/Forge, /home/ejb/Pictures/Wallpapers, 2026-10-09 10:22
+
+Made by Forge's Backup app (apps/backup/clean.py, rules in clean.json).
+Left out on purpose: secrets (keys, tokens, passwords, .env files,
+cookies, logins), personal data (addresses, phone numbers, notes about
+Emerson, chat notes, session transcripts), every model file (the apps
+download them again from their model lists), files over the size limit,
+logs, databases and archives. Nothing was deleted from the laptop, and
+the full private copies stay on the backup drive.
+
+10169 files kept, 52 left out.
+
+Left out, by reason:
+- a known secret or personal value:
+    apps/relay/channels/whatsapp.py
+    apps/relay/tests/test_chatlog.py
+- in apps/study-companion/data/: 9 files
+- in docs/library/Notes/: 1 files
+- in docs/library/emerson/: 8 files
+- in docs/library/learning/: 1 files
+- in docs/library/money/: 6 files
+- over 95 MB:
+    shared/assets/polyhaven/pine_tree_01/1k/pine_tree_01.bin
+    shared/assets/polyhaven/tree_small_02/1k/tree_small_02.bin
+- personal email address:
+    apps/relay/static/index.html
+    apps/relay/tests/test_boss.py
+    apps/relay/tests/test_commands.py
+    apps/relay/tests/test_gmail.py
+    apps/relay/tests/test_web.py
+- personal email address, a known secret or personal value:
+    apps/dossier/research/fetcher.py
+    apps/dossier/research/images.py
+    apps/dossier/research/seeds.py
+    sessions/2026-09-27-S17-board-fps-aistudio-acchan.md
+- phone number:
+    tests/test_forge_accounts.py
+- secret-like name (*.log):
+    apps/acchan/tests/results/2026-09-23-s3-eval-tiny.log
+- secret-like name (*.zip):
+    shared/godot_addons/cyclops_level_builder/art/fonts/Roboto.zip
+- secret-like name (transcripts):
+    sessions/juggernaut-alpha/archive/transcripts/2026-09-29-B1-part1.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-09-30-A1-part1.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-09-30-A1-part2.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-09-30-B1-part2.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-09-30-B1-part3.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-10-01-A4-part1-a1e6a18c.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-10-02-A4-part4-b83a74b8.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-10-02-B4p4-B5p1-ejb-6f.jsonl.gz
+    sessions/juggernaut-alpha/archive/transcripts/2026-10-02-B5-part3-bd139db5.jsonl.gz
+- text from a private Claude note:
+    docs/library/tokens/2026-10-07-claude-md-proposed.md
+    sessions/2026-09-27-S12-hub-apps-wave.md
